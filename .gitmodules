@@ -1,0 +1,6 @@
+[submodule "deps/libebml"]
+	path = deps/libebml
+	url = git@github.com:telegie/libebml.git
+[submodule "deps/libmatroska"]
+	path = deps/libmatroska
+	url = git@github.com:Matroska-Org/libmatroska.git
