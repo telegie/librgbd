@@ -4,3 +4,6 @@
 [submodule "deps/libmatroska"]
 	path = deps/libmatroska
 	url = git@github.com:Matroska-Org/libmatroska.git
+[submodule "deps/ffmpeg-binaries"]
+	path = deps/ffmpeg-binaries
+	url = git@github.com:telegie/ffmpeg-binaries.git
