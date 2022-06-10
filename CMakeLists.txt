@@ -40,10 +40,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
   set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  list(APPEND BaseLibraryIncludeDirectories
+  list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
   )
-  list(APPEND BaseLibraryDependencies
+  list(APPEND RgbdLibraryDependencies
     ${FFMPEG_MAC_DIR}/lib/libavcodec.a
     ${FFMPEG_MAC_DIR}/lib/libavformat.a
     ${FFMPEG_MAC_DIR}/lib/libavutil.a
@@ -51,14 +51,14 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
   )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-  list(APPEND BaseLibraryIncludeDirectories
+  list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
   )
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  list(APPEND BaseLibraryIncludeDirectories
+  list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WASM_DIR}/include
   )
-  list(APPEND BaseLibraryDependencies
+  list(APPEND RgbdLibraryDependencies
     ${FFMPEG_WASM_DIR}/lib/libavcodec.a
     ${FFMPEG_WASM_DIR}/lib/libavformat.a
     ${FFMPEG_WASM_DIR}/lib/libavutil.a
