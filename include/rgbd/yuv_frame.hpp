@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <gsl/gsl>
-#include <spdlog/spdlog.h>
 #include "ffmpeg_utils.hpp"
 
 namespace tg

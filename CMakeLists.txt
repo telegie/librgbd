@@ -33,9 +33,17 @@ add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 
 add_library(rgbd
   include/rgbd/constants.hpp
+  include/rgbd/ffmpeg_audio_decoder.hpp
+  include/rgbd/ffmpeg_audio_encoder.hpp
+  include/rgbd/ffmpeg_video_decoder.hpp
+  include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/yuv_frame.hpp
   src/constants.cpp
+  src/ffmpeg_audio_encoder.cpp
+  src/ffmpeg_audio_decoder.cpp
+  src/ffmpeg_video_decoder.cpp
+  src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
   src/yuv_frame.cpp
 )
