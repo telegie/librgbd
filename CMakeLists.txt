@@ -32,20 +32,34 @@ add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 ### SPDLOG END ###
 
 add_library(rgbd
+  include/rgbd/byte_utils.hpp
   include/rgbd/constants.hpp
+  include/rgbd/depth_decoder.hpp
+  include/rgbd/depth_encoder.hpp
   include/rgbd/ffmpeg_audio_decoder.hpp
   include/rgbd/ffmpeg_audio_encoder.hpp
   include/rgbd/ffmpeg_video_decoder.hpp
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
+  include/rgbd/int16_frame.hpp
+  include/rgbd/rvl.hpp
+  include/rgbd/tdc1_decoder.hpp
+  include/rgbd/tdc1_encoder.hpp
   include/rgbd/yuv_frame.hpp
+  src/byte_utils.cpp
   src/constants.cpp
+  src/depth_decoder.cpp
+  src/depth_encoder.cpp
   src/ffmpeg_audio_encoder.cpp
   src/ffmpeg_audio_decoder.cpp
   src/ffmpeg_video_decoder.cpp
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
+  src/int16_frame.cpp
   src/yuv_frame.cpp
+  src/rvl.cpp
+  src/tdc1_decoder.cpp
+  src/tdc1_encoder.cpp
 )
 set(RgbdIncludeDirectories ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/deps/libebml ${GSL_INCLUDE_DIR})
 set(RgbdLibraryDependencies matroska spdlog::spdlog)
