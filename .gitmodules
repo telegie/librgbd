@@ -19,3 +19,9 @@
 [submodule "deps/json"]
 	path = deps/json
 	url = git@github.com:nlohmann/json.git
+[submodule "deps/zlib-binaries"]
+	path = deps/zlib-binaries
+	url = git@github.com:telegie/zlib-binaries.git
+[submodule "deps/libpng"]
+	path = deps/libpng
+	url = git@github.com:ssrobins/libpng.git
