@@ -112,6 +112,9 @@ add_library(rgbd
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
+  include/rgbd/video.hpp
+  include/rgbd/video_info.hpp
+  include/rgbd/video_parser.hpp
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
   src/byte_utils.cpp
@@ -136,6 +139,9 @@ add_library(rgbd
   src/rvl.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
+  src/video.cpp
+  src/video_info.cpp
+  src/video_parser.cpp
   src/yuv_frame.cpp
 )
 set(RgbdIncludeDirectories
