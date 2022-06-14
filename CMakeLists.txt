@@ -22,6 +22,11 @@ set_target_properties(ebml PROPERTIES
 set_target_properties(matroska PROPERTIES FOLDER "Dependencies")
 ### LIBMATROSKA END ###
 
+### GLM BEGIN ###
+# GLM does not have an /include directory and is header-only.
+set(GLM_DIR ${PROJECT_SOURCE_DIR}/deps/glm)
+### GLM END ###
+
 ### GSL BEGIN ###
 # GSL is header only.
 set(GSL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/deps/GSL/include)
@@ -32,6 +37,7 @@ add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 ### SPDLOG END ###
 
 add_library(rgbd
+  include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
@@ -42,10 +48,13 @@ add_library(rgbd
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/int16_frame.hpp
+  include/rgbd/plane.hpp
+  include/rgbd/rgbd_frame.hpp
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
   include/rgbd/yuv_frame.hpp
+  src/audio_frame.cpp
   src/byte_utils.cpp
   src/constants.cpp
   src/depth_decoder.cpp
@@ -56,13 +65,23 @@ add_library(rgbd
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
   src/int16_frame.cpp
-  src/yuv_frame.cpp
+  src/plane.cpp
+  src/rgbd_frame.cpp
   src/rvl.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
+  src/yuv_frame.cpp
 )
-set(RgbdIncludeDirectories ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/deps/libebml ${GSL_INCLUDE_DIR})
-set(RgbdLibraryDependencies matroska spdlog::spdlog)
+set(RgbdIncludeDirectories
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_BINARY_DIR}/deps/libebml
+  ${GLM_DIR}
+  ${GSL_INCLUDE_DIR}
+)
+set(RgbdLibraryDependencies
+  matroska
+  spdlog::spdlog
+)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND RgbdIncludeDirectories
