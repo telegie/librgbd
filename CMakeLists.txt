@@ -106,6 +106,8 @@ add_library(rgbd
   include/rgbd/kinect_calibration_utils.hpp
   include/rgbd/kinect_camera_calibration.hpp
   include/rgbd/plane.hpp
+  include/rgbd/png_utils.hpp
+  include/rgbd/recorder.hpp
   include/rgbd/rgbd_frame.hpp
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
@@ -128,6 +130,8 @@ add_library(rgbd
   src/kinect_calibration_utils.cpp
   src/kinect_camera_calibration.cpp
   src/plane.cpp
+  src/png_utils.cpp
+  src/recorder.cpp
   src/rgbd_frame.cpp
   src/rvl.cpp
   src/tdc1_decoder.cpp
@@ -137,6 +141,7 @@ add_library(rgbd
 set(RgbdIncludeDirectories
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_BINARY_DIR}/deps/libebml
+  ${PROJECT_BINARY_DIR}/deps/libmatroska
   ${GLM_DIR}
   ${GSL_INCLUDE_DIR}
 )
