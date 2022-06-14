@@ -16,9 +16,9 @@ namespace tg
 class YuvFrame
 {
 public:
-    YuvFrame(std::vector<uint8_t>&& y_channel,
-             std::vector<uint8_t>&& u_channel,
-             std::vector<uint8_t>&& v_channel,
+    YuvFrame(vector<uint8_t>&& y_channel,
+             vector<uint8_t>&& u_channel,
+             vector<uint8_t>&& v_channel,
              const int width,
              const int height) noexcept;
     YuvFrame(AVFrameHandle& av_frame);
@@ -29,27 +29,27 @@ public:
     static YuvFrame createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
     YuvFrame getDownsampled(int downsampling_factor) const;
-    const std::vector<uint8_t>& y_channel() const noexcept
+    const vector<uint8_t>& y_channel() const noexcept
     {
         return y_channel_;
     }
-    std::vector<uint8_t>& y_channel() noexcept
+    vector<uint8_t>& y_channel() noexcept
     {
         return y_channel_;
     }
-    const std::vector<uint8_t>& u_channel() const noexcept
+    const vector<uint8_t>& u_channel() const noexcept
     {
         return u_channel_;
     }
-    std::vector<uint8_t>& u_channel() noexcept
+    vector<uint8_t>& u_channel() noexcept
     {
         return u_channel_;
     }
-    const std::vector<uint8_t>& v_channel() const noexcept
+    const vector<uint8_t>& v_channel() const noexcept
     {
         return v_channel_;
     }
-    std::vector<uint8_t>& v_channel() noexcept
+    vector<uint8_t>& v_channel() noexcept
     {
         return v_channel_;
     }
@@ -73,9 +73,9 @@ private:
                                                             int stride) noexcept;
 
 private:
-    std::vector<uint8_t> y_channel_;
-    std::vector<uint8_t> u_channel_;
-    std::vector<uint8_t> v_channel_;
+    vector<uint8_t> y_channel_;
+    vector<uint8_t> u_channel_;
+    vector<uint8_t> v_channel_;
     int width_;
     int height_;
 };

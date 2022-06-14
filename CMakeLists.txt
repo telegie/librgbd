@@ -32,8 +32,10 @@ add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 ### SPDLOG END ###
 
 add_library(rgbd
+  include/rgbd/constants.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/yuv_frame.hpp
+  src/constants.cpp
   src/ffmpeg_utils.cpp
   src/yuv_frame.cpp
 )

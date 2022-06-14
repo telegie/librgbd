@@ -8,12 +8,12 @@ namespace tg
 {
 // A helper function for YuvFrame::create(VpxImage) that converts a VpxImage
 // into a vector.
-std::vector<uint8_t> convert_channel_plane_to_bytes(const uint8_t* buffer,
+vector<uint8_t> convert_channel_plane_to_bytes(const uint8_t* buffer,
                                                const int stride,
                                                const int width,
                                                const int height) noexcept
 {
-    std::vector<uint8_t> bytes(gsl::narrow<size_t>(width * height));
+    vector<uint8_t> bytes(gsl::narrow<size_t>(width * height));
     for (int i{0}; i < height; ++i)
         memcpy(bytes.data() + gsl::narrow<int>(i * width),
                buffer + gsl::narrow<int>(i * stride),
@@ -22,9 +22,9 @@ std::vector<uint8_t> convert_channel_plane_to_bytes(const uint8_t* buffer,
     return bytes;
 }
 
-YuvFrame::YuvFrame(std::vector<uint8_t>&& y_channel,
-                   std::vector<uint8_t>&& u_channel,
-                   std::vector<uint8_t>&& v_channel,
+YuvFrame::YuvFrame(vector<uint8_t>&& y_channel,
+                   vector<uint8_t>&& u_channel,
+                   vector<uint8_t>&& v_channel,
                    const int width,
                    const int height) noexcept
     : y_channel_(std::move(y_channel))
@@ -88,15 +88,15 @@ YuvFrame YuvFrame::getDownsampled(int downsampling_factor) const
 {
     int downsampled_width{width_ / downsampling_factor};
     int downsampled_height{height_ / downsampling_factor};
-    std::vector<uint8_t> downsampled_y_channel(static_cast<int64_t>(downsampled_width) *
+    vector<uint8_t> downsampled_y_channel(static_cast<int64_t>(downsampled_width) *
                                           downsampled_height);
 
     int uv_width{width_ / 2};
     int downsampled_uv_width{downsampled_width / 2};
     int downsampled_uv_height{downsampled_height / 2};
-    std::vector<uint8_t> downsampled_u_channel(static_cast<int64_t>(downsampled_uv_width) *
+    vector<uint8_t> downsampled_u_channel(static_cast<int64_t>(downsampled_uv_width) *
                                           downsampled_uv_height);
-    std::vector<uint8_t> downsampled_v_channel(static_cast<int64_t>(downsampled_uv_width) *
+    vector<uint8_t> downsampled_v_channel(static_cast<int64_t>(downsampled_uv_width) *
                                           downsampled_uv_height);
 
     for (int row{0}; row < downsampled_height; ++row) {
@@ -133,13 +133,13 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* bu
                                                                const int stride_bytes) noexcept
 {
     // Sizes assume Kinect runs in ColorImageFormat_Yuy2.
-    std::vector<uint8_t> y_channel(gsl::narrow<size_t>(width * height));
+    vector<uint8_t> y_channel(gsl::narrow<size_t>(width * height));
 
     // Calculation of the U and V channels of the pixels.
     const int uv_width{width / 2};
     const int uv_height{height / 2};
-    std::vector<uint8_t> u_channel(static_cast<int64_t>(uv_width) * uv_height);
-    std::vector<uint8_t> v_channel(static_cast<int64_t>(uv_width) * uv_height);
+    vector<uint8_t> u_channel(static_cast<int64_t>(uv_width) * uv_height);
+    vector<uint8_t> v_channel(static_cast<int64_t>(uv_width) * uv_height);
 
     // Conversion of the Y channels of the pixels.
     int y_channel_index{0};
@@ -174,13 +174,13 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer
     const int half_width{width / 2};
     const int half_height{height / 2};
     // Sizes assume Kinect runs in ColorImageFormat_Yuy2.
-    std::vector<uint8_t> y_channel(gsl::narrow<size_t>(half_width * half_height));
+    vector<uint8_t> y_channel(gsl::narrow<size_t>(half_width * half_height));
 
     // Calculation of the U and V channels of the pixels.
     const int half_uv_width{half_width / 2};
     const int half_uv_height{half_height / 2};
-    std::vector<uint8_t> u_channel(static_cast<int64_t>(half_uv_width) * half_uv_height);
-    std::vector<uint8_t> v_channel(static_cast<int64_t>(half_uv_width) * half_uv_height);
+    vector<uint8_t> u_channel(static_cast<int64_t>(half_uv_width) * half_uv_height);
+    vector<uint8_t> v_channel(static_cast<int64_t>(half_uv_width) * half_uv_height);
 
     // Conversion of the Y channels of the pixels.
     int y_channel_index{0};

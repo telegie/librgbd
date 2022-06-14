@@ -10,12 +10,7 @@ extern "C"
 }
 #pragma warning(push)
 
-#include <gsl/gsl>
-#include <cstddef>
-#include <functional>
-#include <memory>
-#include <stdexcept>
-#include <vector>
+#include "constants.hpp"
 
 namespace tg
 {
@@ -53,7 +48,7 @@ public:
     }
 
 private:
-    std::unique_ptr<AVCodecContext, std::function<void(AVCodecContext*)>> unique_ptr_;
+    unique_ptr<AVCodecContext, std::function<void(AVCodecContext*)>> unique_ptr_;
 };
 
 class AVFrameHandle
@@ -75,7 +70,7 @@ public:
     }
 
 private:
-    std::shared_ptr<AVFrame> shared_ptr_;
+    shared_ptr<AVFrame> shared_ptr_;
 };
 
 class AVPacketHandle
@@ -87,11 +82,11 @@ public:
         if (!shared_ptr_.get())
             throw std::runtime_error("Error from AVPacketHandle::AVPacketHandle");
     }
-    std::vector<std::byte> getDataBytes()
+    Bytes getDataBytes()
     {
-        std::vector<std::byte> data_bytes;
+        Bytes data_bytes;
         for (size_t i{0}; i < shared_ptr_->size; ++i)
-            data_bytes.push_back(static_cast<std::byte>(shared_ptr_->data[i]));
+            data_bytes.push_back(static_cast<byte>(shared_ptr_->data[i]));
         return data_bytes;
     }
     AVPacket* get() const noexcept
@@ -104,7 +99,7 @@ public:
     }
 
 private:
-    std::shared_ptr<AVPacket> shared_ptr_;
+    shared_ptr<AVPacket> shared_ptr_;
 };
 
 class AVCodecParserContextHandle
