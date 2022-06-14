@@ -23,9 +23,10 @@ set_target_properties(matroska PROPERTIES FOLDER "Dependencies")
 ### LIBMATROSKA END ###
 
 add_library(rgbd
-  librgbd.cpp
+  include/rgbd/ffmpeg_utils.hpp
+  src/ffmpeg_utils.cpp
 )
-set(RgbdIncludeDirectories ${PROJECT_BINARY_DIR}/deps/libebml)
+set(RgbdIncludeDirectories ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/deps/libebml)
 set(RgbdLibraryDependencies matroska)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -67,5 +68,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   )
 endif()
 
+target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
 target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
 target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
+set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
