@@ -28,7 +28,7 @@ set(GSL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/deps/GSL/include)
 ### GSL END ###
 
 ### SPDLOG BEGIN ###
-#add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
+add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 ### SPDLOG END ###
 
 add_library(rgbd
@@ -37,8 +37,8 @@ add_library(rgbd
   src/ffmpeg_utils.cpp
   src/yuv_frame.cpp
 )
-set(RgbdIncludeDirectories ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/deps/libebml)
-set(RgbdLibraryDependencies matroska)
+set(RgbdIncludeDirectories ${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/deps/libebml ${GSL_INCLUDE_DIR})
+set(RgbdLibraryDependencies matroska spdlog::spdlog)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   list(APPEND RgbdIncludeDirectories
@@ -79,8 +79,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   )
 endif()
 
-target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd ${GSL_INCLUDE_DIR})
+target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
 target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
-target_link_libraries(rgbd PRIVATE spdlog::spdlog)
 target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
