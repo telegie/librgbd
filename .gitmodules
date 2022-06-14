@@ -7,3 +7,9 @@
 [submodule "deps/ffmpeg-binaries"]
 	path = deps/ffmpeg-binaries
 	url = git@github.com:telegie/ffmpeg-binaries.git
+[submodule "deps/GSL"]
+	path = deps/GSL
+	url = git@github.com:microsoft/GSL.git
+[submodule "deps/spdlog"]
+	path = deps/spdlog
+	url = git@github.com:gabime/spdlog.git

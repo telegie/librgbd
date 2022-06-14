@@ -10,6 +10,7 @@ extern "C"
 }
 #pragma warning(push)
 
+#include <gsl/gsl>
 #include <cstddef>
 #include <functional>
 #include <memory>
