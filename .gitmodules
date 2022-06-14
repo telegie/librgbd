@@ -16,3 +16,6 @@
 [submodule "deps/glm"]
 	path = deps/glm
 	url = git@github.com:g-truc/glm.git
+[submodule "deps/json"]
+	path = deps/json
+	url = git@github.com:nlohmann/json.git

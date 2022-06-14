@@ -14,17 +14,6 @@ extern "C"
 
 namespace tg
 {
-enum class ColorCodecType : int32_t
-{
-    VP8 = 0
-};
-
-enum class DepthCodecType : int32_t
-{
-    RVL = 0,
-    TDC1 = 1
-};
-
 AVCodec* find_decoder_avcodec(ColorCodecType color_codec_type);
 AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type);
 

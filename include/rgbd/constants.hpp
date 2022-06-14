@@ -8,6 +8,10 @@
 #include <vector>
 #include <gsl/gsl>
 #pragma warning(push)
+#pragma warning(disable : 26819 26495 28020)
+#include <nlohmann/json.hpp>
+#pragma warning(pop)
+#pragma warning(push)
 #pragma warning(disable : 26812)
 #include <spdlog/spdlog.h>
 #pragma warning(pop)
@@ -26,7 +30,26 @@ using std::unique_ptr;
 using std::vector;
 using std::weak_ptr;
 
+using nlohmann::json;
+
 using Bytes = vector<std::byte>;
+
+enum class CameraDeviceType : int32_t
+{
+    AzureKinect = 0,
+    IOS = 1
+};
+
+enum class ColorCodecType : int32_t
+{
+    VP8 = 0
+};
+
+enum class DepthCodecType : int32_t
+{
+    RVL = 0,
+    TDC1 = 1
+};
 
 /////////////////////////////////////////////////////////////
 ////////////////////// AUDIO CONSTANTS //////////////////////

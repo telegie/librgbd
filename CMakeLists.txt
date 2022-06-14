@@ -16,9 +16,7 @@ add_subdirectory(deps/libebml EXCLUDE_FROM_ALL)
 # libmatroska consumes libebml as EBML::ebml
 add_library(EBML::ebml ALIAS ebml)
 add_subdirectory(deps/libmatroska EXCLUDE_FROM_ALL)
-set_target_properties(ebml PROPERTIES
-  FOLDER "Dependencies"
-)
+set_target_properties(ebml PROPERTIES FOLDER "Dependencies")
 set_target_properties(matroska PROPERTIES FOLDER "Dependencies")
 ### LIBMATROSKA END ###
 
@@ -32,6 +30,10 @@ set(GLM_DIR ${PROJECT_SOURCE_DIR}/deps/glm)
 set(GSL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/deps/GSL/include)
 ### GSL END ###
 
+### JSON BEGIN ###
+add_subdirectory(deps/json)
+### JSON BEGIN ###
+
 ### SPDLOG BEGIN ###
 add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 ### SPDLOG END ###
@@ -39,6 +41,7 @@ add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
 add_library(rgbd
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
+  include/rgbd/camera_calibration.hpp
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
   include/rgbd/depth_encoder.hpp
@@ -48,6 +51,10 @@ add_library(rgbd
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/int16_frame.hpp
+  include/rgbd/ios_calibration_utils.hpp
+  include/rgbd/ios_camera_calibration.hpp
+  include/rgbd/kinect_calibration_utils.hpp
+  include/rgbd/kinect_camera_calibration.hpp
   include/rgbd/plane.hpp
   include/rgbd/rgbd_frame.hpp
   include/rgbd/rvl.hpp
@@ -56,6 +63,7 @@ add_library(rgbd
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
   src/byte_utils.cpp
+  src/camera_calibration.cpp
   src/constants.cpp
   src/depth_decoder.cpp
   src/depth_encoder.cpp
@@ -65,6 +73,10 @@ add_library(rgbd
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
   src/int16_frame.cpp
+  src/ios_calibration_utils.cpp
+  src/ios_camera_calibration.cpp
+  src/kinect_calibration_utils.cpp
+  src/kinect_camera_calibration.cpp
   src/plane.cpp
   src/rgbd_frame.cpp
   src/rvl.cpp
@@ -80,6 +92,7 @@ set(RgbdIncludeDirectories
 )
 set(RgbdLibraryDependencies
   matroska
+  nlohmann_json::nlohmann_json
   spdlog::spdlog
 )
 
