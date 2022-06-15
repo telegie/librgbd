@@ -100,7 +100,7 @@ add_library(rgbd
   include/rgbd/ffmpeg_video_decoder.hpp
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
-  include/rgbd/int16_frame.hpp
+  include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
   include/rgbd/ios_camera_calibration.hpp
   include/rgbd/kinect_calibration_utils.hpp
@@ -127,7 +127,7 @@ add_library(rgbd
   src/ffmpeg_video_decoder.cpp
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
-  src/int16_frame.cpp
+  src/integer_frame.cpp
   src/ios_calibration_utils.cpp
   src/ios_camera_calibration.cpp
   src/kinect_calibration_utils.cpp

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <rgbd/yuv_frame.hpp>
-#include <rgbd/int16_frame.hpp>
+#include <rgbd/integer_frame.hpp>
 #include "plane.hpp"
 
 namespace tg
@@ -12,10 +12,12 @@ public:
     RGBDFrame(int64_t time_point_us,
               YuvFrame&& yuv_frame,
               Int16Frame&& depth_frame,
+              optional<UInt8Frame>&& depth_confidence_frame,
               const Plane& floor) noexcept
         : time_point_us_{time_point_us}
         , yuv_frame_{std::move(yuv_frame)}
         , depth_frame_{std::move(depth_frame)}
+        , depth_confidence_frame_{std::move(depth_confidence_frame)}
         , floor_{floor}
     {
     }
@@ -48,6 +50,7 @@ private:
     int64_t time_point_us_;
     YuvFrame yuv_frame_;
     Int16Frame depth_frame_;
+    optional<UInt8Frame> depth_confidence_frame_;
     vector<vector<float>> pcm_frames_;
     Plane floor_;
 };

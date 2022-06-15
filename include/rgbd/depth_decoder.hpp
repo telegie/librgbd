@@ -1,7 +1,7 @@
 #pragma once
 
 #include "constants.hpp"
-#include "int16_frame.hpp"
+#include "integer_frame.hpp"
 
 namespace tg
 {
