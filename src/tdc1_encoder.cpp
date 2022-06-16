@@ -1,7 +1,6 @@
 #include "tdc1_encoder.hpp"
 
 #include "byte_utils.hpp"
-#include "rvl.hpp"
 
 namespace tg
 {

@@ -3,6 +3,10 @@ project(librgbd)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+### CXXOPTS BEGIN ###
+add_subdirectory(deps/cxxopts)
+### CXXOPTS END ###
+
 ### FFMPEG BEGIN ###
 set(FFMPEG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/ffmpeg-binaries)
 set(FFMPEG_WIN64_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-windows)
@@ -203,12 +207,18 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/wasm32-emscripten/lib/libopus.a
   )
 
-  set(CommonLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
-  target_link_options(CommonLibrary PUBLIC ${CommonLibraryWasmOptions})
-  target_compile_options(CommonLibrary PUBLIC ${CommonLibraryWasmOptions})
+  set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
+  target_link_options(CommonLibrary PUBLIC ${RgbdLibraryWasmOptions})
+  target_compile_options(CommonLibrary PUBLIC ${RgbdLibraryWasmOptions})
 endif()
 
 target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
 target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
 target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
+
+message("librgbd CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  message("librgbd include src/cli")
+  add_subdirectory(src/cli)
+endif()

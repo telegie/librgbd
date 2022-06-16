@@ -1,6 +1,7 @@
 #pragma once
 
 #include "depth_encoder.hpp"
+#include "rvl.hpp"
 
 namespace tg
 {
