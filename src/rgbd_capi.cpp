@@ -6,6 +6,106 @@
 #include "ios_camera_calibration.hpp"
 #include "capi_utils.hpp"
 
+int RGBD_AUDIO_SAMPLE_RATE()
+{
+    return rgbd::AUDIO_SAMPLE_RATE;
+}
+
+int RGBD_AUDIO_INPUT_CHANNEL_COUNT()
+{
+    return rgbd::AUDIO_INPUT_CHANNEL_COUNT;
+}
+
+int RGBD_AUDIO_INPUT_SAMPLES_PER_FRAME()
+{
+    return rgbd::AUDIO_INPUT_SAMPLES_PER_FRAME;
+}
+
+int RGBD_AUDIO_OUTPUT_CHANNEL_COUNT()
+{
+    return rgbd::AUDIO_OUTPUT_CHANNEL_COUNT;
+}
+
+int RGBD_AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL()
+{
+    return rgbd::AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL;
+}
+
+int RGBD_AUDIO_OUTPUT_SAMPLES_PER_FRAME()
+{
+    return rgbd::AUDIO_OUTPUT_SAMPLES_PER_FRAME;
+}
+
+void rgbd_cbyte_array_dtor(void* ptr)
+{
+    delete static_cast<rgbd::CByteArray*>(ptr);
+}
+
+uint8_t* rgbd_cbyte_array_data(void* ptr)
+{
+    return static_cast<rgbd::CByteArray*>(ptr)->data();
+}
+
+size_t rgbd_cbyte_array_size(void* ptr)
+{
+    return static_cast<rgbd::CByteArray*>(ptr)->size();
+}
+
+void rgbd_cfloat_array_dtor(void* ptr)
+{
+    delete static_cast<rgbd::CFloatArray*>(ptr);
+}
+
+float* rgbd_cfloat_array_data(void* ptr)
+{
+    return static_cast<rgbd::CFloatArray*>(ptr)->data();
+}
+
+size_t rgbd_cfloat_array_size(void* ptr)
+{
+    return static_cast<rgbd::CFloatArray*>(ptr)->size();
+}
+
+
+void rgbd_cint16_array_dtor(void* ptr)
+{
+    delete static_cast<rgbd::CInt16Array*>(ptr);
+}
+
+int16_t* rgbd_cint16_array_data(void* ptr)
+{
+    return static_cast<rgbd::CInt16Array*>(ptr)->data();
+}
+
+size_t rgbd_cint16_array_size(void* ptr)
+{
+    return static_cast<rgbd::CInt16Array*>(ptr)->size();
+}
+
+void rgbd_cuint8_array_dtor(void* ptr)
+{
+    delete static_cast<rgbd::CUInt8Array*>(ptr);
+}
+
+uint8_t* rgbd_cuint8_array_data(void* ptr)
+{
+    return static_cast<rgbd::CUInt8Array*>(ptr)->data();
+}
+
+size_t rgbd_cuint8_array_size(void* ptr)
+{
+    return static_cast<rgbd::CUInt8Array*>(ptr)->size();
+}
+
+void rgbd_cstring_dtor(void* ptr)
+{
+    delete static_cast<rgbd::CString*>(ptr);
+}
+const char* rgbd_cstring_c_str(void* ptr)
+{
+    return static_cast<rgbd::CString*>(ptr)->c_str();
+}
+
 void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)
 {
     return new rgbd::FFmpegVideoDecoder{static_cast<rgbd::ColorCodecType>(type)};

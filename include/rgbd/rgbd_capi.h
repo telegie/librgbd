@@ -17,6 +17,32 @@ extern "C"
         RGBD_COLOR_CODEC_TYPE_VP8 = 0
     } rgbdColorCodecType;
 
+    int RGBD_AUDIO_SAMPLE_RATE();
+    int RGBD_AUDIO_INPUT_CHANNEL_COUNT();
+    int RGBD_AUDIO_INPUT_SAMPLES_PER_FRAME();
+    int RGBD_AUDIO_OUTPUT_CHANNEL_COUNT();
+    int RGBD_AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL();
+    int RGBD_AUDIO_OUTPUT_SAMPLES_PER_FRAME();
+
+    void rgbd_cbyte_array_dtor(void* ptr);
+    uint8_t* rgbd_cbyte_array_data(void* ptr);
+    size_t rgbd_cbyte_array_size(void* ptr);
+
+    void rgbd_cfloat_array_dtor(void* ptr);
+    float* rgbd_cfloat_array_data(void* ptr);
+    size_t rgbd_cfloat_array_size(void* ptr);
+
+    void rgbd_cint16_array_dtor(void* ptr);
+    int16_t* rgbd_cint16_array_data(void* ptr);
+    size_t rgbd_cint16_array_size(void* ptr);
+
+    void rgbd_cuint8_array_dtor(void* ptr);
+    uint8_t* rgbd_cuint8_array_data(void* ptr);
+    size_t rgbd_cuint8_array_size(void* ptr);
+
+    void rgbd_cstring_dtor(void* ptr);
+    const char* rgbd_cstring_c_str(void* ptr);
+
     void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);
     void rgbd_ffmpeg_video_decoder_dtor(void* ptr);
     void*
