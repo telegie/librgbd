@@ -5,18 +5,22 @@
 
 namespace rgbd
 {
+struct TrackInfo
+{
+    string codec;
+    int width;
+    int height;
+};
+
 class VideoInfo
 {
 public:
     VideoInfo()
         : writing_app_{""}
         , duration_us_{0.0}
-        , color_track_codec_{""}
-        , color_track_width_{0}
-        , color_track_height_{0}
-        , depth_track_codec_{""}
-        , depth_track_width_{0}
-        , depth_track_height_{0}
+        , color_track_info_{"", 0, 0}
+        , depth_track_info_{"", 0, 0}
+        , depth_confidence_track_info_{nullopt}
         , camera_calibration_{nullptr}
     {
     }
@@ -36,53 +40,29 @@ public:
     {
         duration_us_ = duration_us;
     }
-    const string& color_track_codec() const noexcept
+    const TrackInfo& color_track_info() const noexcept
     {
-        return color_track_codec_;
+        return color_track_info_;
     }
-    void set_color_track_codec(const string& color_track_codec) noexcept
+    void set_color_track_info(const TrackInfo& color_track_info) noexcept
     {
-        color_track_codec_ = color_track_codec;
+        color_track_info_ = color_track_info;
     }
-    int color_track_width() const noexcept
+    const TrackInfo& depth_track_info() const noexcept
     {
-        return color_track_width_;
+        return depth_track_info_;
     }
-    void set_color_track_width(int color_track_width) noexcept
+    void set_depth_track_info(const TrackInfo& depth_track_info) noexcept
     {
-        color_track_width_ = color_track_width;
+        depth_track_info_ = depth_track_info;
     }
-    int color_track_height() const noexcept
+    const optional<TrackInfo>& depth_confidence_track_info() const noexcept
     {
-        return color_track_height_;
+        return depth_confidence_track_info_;
     }
-    void set_color_track_height(int color_track_height) noexcept
+    void set_depth_confidence_track_info(const TrackInfo& depth_track_info) noexcept
     {
-        color_track_height_ = color_track_height;
-    }
-    const string& depth_track_codec() const noexcept
-    {
-        return depth_track_codec_;
-    }
-    void set_depth_track_codec(const string& depth_track_codec) noexcept
-    {
-        depth_track_codec_ = depth_track_codec;
-    }
-    int depth_track_width() const noexcept
-    {
-        return depth_track_width_;
-    }
-    void set_depth_track_width(int depth_track_width) noexcept
-    {
-        depth_track_width_ = depth_track_width;
-    }
-    int depth_track_height() const noexcept
-    {
-        return depth_track_height_;
-    }
-    void set_depth_track_height(int depth_track_height) noexcept
-    {
-        depth_track_height_ = depth_track_height;
+        depth_track_info_ = depth_track_info;
     }
     void set_camera_calibration(CameraCalibration* camera_calibration) noexcept
     {
@@ -104,12 +84,9 @@ public:
 private:
     string writing_app_;
     double duration_us_;
-    string color_track_codec_;
-    int color_track_width_;
-    int color_track_height_;
-    string depth_track_codec_;
-    int depth_track_width_;
-    int depth_track_height_;
+    TrackInfo color_track_info_;
+    TrackInfo depth_track_info_;
+    optional<TrackInfo> depth_confidence_track_info_;
     shared_ptr<CameraCalibration> camera_calibration_;
     Bytes cover_png_bytes_;
 };

@@ -434,33 +434,33 @@ double rgbd_video_info_get_duration_us(void* ptr)
 void* rgbd_video_info_get_color_track_codec(void* ptr)
 {
     auto video_info{static_cast<rgbd::VideoInfo*>(ptr)};
-    return new rgbd::CString{video_info->color_track_codec()};
+    return new rgbd::CString{video_info->color_track_info().codec};
 }
 
 int rgbd_video_info_get_color_track_width(void* ptr)
 {
-    return static_cast<rgbd::VideoInfo*>(ptr)->color_track_width();
+    return static_cast<rgbd::VideoInfo*>(ptr)->color_track_info().width;
 }
 
 int rgbd_video_info_get_color_track_height(void* ptr)
 {
-    return static_cast<rgbd::VideoInfo*>(ptr)->color_track_height();
+    return static_cast<rgbd::VideoInfo*>(ptr)->color_track_info().height;
 }
 
 void* rgbd_video_info_get_depth_track_codec(void* ptr)
 {
     auto video_info{static_cast<rgbd::VideoInfo*>(ptr)};
-    return new rgbd::CString{video_info->depth_track_codec()};
+    return new rgbd::CString{video_info->depth_track_info().codec};
 }
 
 int rgbd_video_info_get_depth_track_width(void* ptr)
 {
-    return static_cast<rgbd::VideoInfo*>(ptr)->depth_track_width();
+    return static_cast<rgbd::VideoInfo*>(ptr)->depth_track_info().width;
 }
 
 int rgbd_video_info_get_depth_track_height(void* ptr)
 {
-    return static_cast<rgbd::VideoInfo*>(ptr)->depth_track_height();
+    return static_cast<rgbd::VideoInfo*>(ptr)->depth_track_info().height;
 }
 
 rgbdCameraDeviceType rgbd_video_info_get_camera_device_type(void* ptr)

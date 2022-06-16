@@ -310,18 +310,24 @@ void VideoParser::init()
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
                 color_track_number_ = gsl::narrow<int>(track_number);
-                info_.set_color_track_codec(codec_id);
-                info_.set_color_track_width(gsl::narrow<int>(width));
-                info_.set_color_track_height(gsl::narrow<int>(height));
+                info_.set_color_track_info(
+                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
             } else if (track_name == "DEPTH") {
                 auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
                 depth_track_number_ = gsl::narrow<int>(track_number);
-                info_.set_depth_track_codec(codec_id);
-                info_.set_depth_track_width(gsl::narrow<int>(width));
-                info_.set_depth_track_height(gsl::narrow<int>(height));
+                info_.set_depth_track_info(
+                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
+            } else if (track_name == "DEPTH_CONFIDENCE") {
+                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
+                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
+                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
+
+                depth_confidence_track_number_ = gsl::narrow<int>(track_number);
+                info_.set_depth_confidence_track_info(
+                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
             } else if (track_name == "AUDIO") {
                 audio_track_number_ = gsl::narrow<int>(track_number);
             } else if (track_name == "FLOOR") {

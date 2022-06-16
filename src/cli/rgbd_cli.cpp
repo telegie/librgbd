@@ -6,6 +6,7 @@ int main(int argc, char** argv)
     cxxopts::Options options{"rgbd-cli", "CLI for librgbd."};
     options.add_option("", cxxopts::Option{"h,help", "Print Usage"});
     options.add_option("", cxxopts::Option{"v,version", "Print Version"});
+    options.add_option("", cxxopts::Option{"f,file", "Print File Details", cxxopts::value<std::string>()});
 
     auto result{options.parse(argc, argv)};
     if (result.count("help")) {
@@ -13,6 +14,19 @@ int main(int argc, char** argv)
         return 0;
     } else if (result.count("version")) {
         std::cout << fmt::format("{}.{}.{}", 1, 5, 12) << std::endl;
+        return 0;
+    } else if (result.count("file")) {
+        auto file_path{result["file"].as<std::string>()};
+        rgbd::VideoParser parser{file_path};
+        auto& video_info{parser.info()};
+        std::cout << "depth track codec: " << video_info.depth_track_info().codec << std::endl;
+
+        if (video_info.depth_confidence_track_info()) {
+            std::cout << "has depth confidence track: "
+                      << video_info.depth_confidence_track_info()->codec << std::endl;
+        } else {
+            std::cout << "doesn't have depth confidence track" << std::endl;
+        }
         return 0;
     }
 

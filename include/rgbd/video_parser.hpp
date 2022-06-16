@@ -33,6 +33,7 @@ private:
     uint64_t timecode_scale_ns_;
     int color_track_number_;
     int depth_track_number_;
+    optional<int> depth_confidence_track_number_;
     int audio_track_number_;
     int floor_track_number_;
     unique_ptr<libmatroska::KaxCluster> cluster_;
