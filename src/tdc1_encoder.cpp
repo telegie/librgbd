@@ -43,7 +43,7 @@ Bytes TDC1Encoder::encode(const gsl::span<const int16_t> depth_values, const boo
         }
     }
 
-    append_bytes(bytes, rvl::compress(depth_value_diffs));
+    append_bytes(bytes, rvl::compress<int16_t>(depth_value_diffs));
     return bytes;
 }
 } // namespace tg

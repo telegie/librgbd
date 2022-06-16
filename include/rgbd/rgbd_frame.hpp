@@ -41,6 +41,10 @@ public:
     {
         return depth_frame_;
     }
+    const optional<UInt8Frame>& depth_confidence_frame() const noexcept
+    {
+        return depth_confidence_frame_;
+    }
     const Plane& floor() const noexcept
     {
         return floor_;

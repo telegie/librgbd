@@ -35,6 +35,7 @@ class Recorder
 {
 public:
     Recorder(const string& file_path,
+             bool has_depth_confidence,
              const CameraCalibration& calibration,
              int color_bitrate,
              int framerate,
@@ -51,6 +52,7 @@ public:
                          gsl::span<const uint8_t> u_channel,
                          gsl::span<const uint8_t> v_channel,
                          gsl::span<const int16_t> depth_values,
+                         optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
     void recordAudioFrame(const AudioFrame& audio_frame);
     void recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
@@ -63,6 +65,7 @@ private:
     unique_ptr<libmatroska::KaxSegment> segment_;
     libmatroska::KaxTrackEntry* color_track_;
     libmatroska::KaxTrackEntry* depth_track_;
+    libmatroska::KaxTrackEntry* depth_confidence_track_;
     libmatroska::KaxTrackEntry* audio_track_;
     libmatroska::KaxTrackEntry* floor_track_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;

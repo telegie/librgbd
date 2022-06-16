@@ -1,6 +1,7 @@
 #include "recorder.hpp"
 
 #include <rgbd/png_utils.hpp>
+#include <rgbd/rvl.hpp>
 
 using namespace LIBMATROSKA_NAMESPACE;
 
@@ -98,6 +99,7 @@ Bytes get_cover_png_bytes(int width,
 }
 
 Recorder::Recorder(const string& file_path,
+                   bool has_depth_confidence,
                    const CameraCalibration& calibration,
                    int color_bitrate,
                    int framerate,
@@ -112,6 +114,7 @@ Recorder::Recorder(const string& file_path,
     , segment_{std::make_unique<KaxSegment>()}
     , color_track_{nullptr}
     , depth_track_{nullptr}
+    , depth_confidence_track_{nullptr}
     , audio_track_{nullptr}
     , floor_track_{nullptr}
     , seek_head_placeholder_{nullptr}
@@ -185,6 +188,27 @@ Recorder::Recorder(const string& file_path,
         auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
         GetChild<KaxVideoPixelHeight>(depth_video_track).SetValue(calibration.getDepthHeight());
+    }
+    //
+    // depth_confidence_track_ init
+    //
+    if (has_depth_confidence)
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        depth_confidence_track_ = new KaxTrackEntry;
+        tracks.PushElement(*depth_confidence_track_); // Track will be freed when the file is closed.
+        depth_confidence_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*depth_confidence_track_).SetValue(3);
+        GetChild<KaxTrackUID>(*depth_confidence_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*depth_confidence_track_).SetValue(track_video);
+        GetChild<KaxTrackName>(*depth_confidence_track_).SetValueUTF8("DEPTH_CONFIDENCE");
+        GetChild<KaxCodecID>(*depth_confidence_track_).SetValue("V_RVL");
+
+        GetChild<KaxTrackDefaultDuration>(*depth_confidence_track_).SetValue(ONE_SECOND_NS / framerate);
+        auto& depth_confidence_video_track{GetChild<KaxTrackVideo>(*depth_confidence_track_)};
+        GetChild<KaxVideoPixelWidth>(depth_confidence_video_track).SetValue(calibration.getDepthWidth());
+        GetChild<KaxVideoPixelHeight>(depth_confidence_video_track).SetValue(calibration.getDepthHeight());
     }
     //
     // init audio_track_
@@ -326,14 +350,27 @@ Recorder::Recorder(const string& file_path,
 
 void Recorder::recordRGBDFrame(const RGBDFrame& rgbd_frame)
 {
-    recordRGBDFrame(rgbd_frame.time_point_us(),
-                    rgbd_frame.yuv_frame().width(),
-                    rgbd_frame.yuv_frame().height(),
-                    rgbd_frame.yuv_frame().y_channel(),
-                    rgbd_frame.yuv_frame().u_channel(),
-                    rgbd_frame.yuv_frame().v_channel(),
-                    rgbd_frame.depth_frame().values(),
-                    rgbd_frame.floor());
+    if (rgbd_frame.depth_confidence_frame()) {
+        recordRGBDFrame(rgbd_frame.time_point_us(),
+                        rgbd_frame.yuv_frame().width(),
+                        rgbd_frame.yuv_frame().height(),
+                        rgbd_frame.yuv_frame().y_channel(),
+                        rgbd_frame.yuv_frame().u_channel(),
+                        rgbd_frame.yuv_frame().v_channel(),
+                        rgbd_frame.depth_frame().values(),
+                        rgbd_frame.depth_confidence_frame()->values(),
+                        rgbd_frame.floor());
+    } else {
+        recordRGBDFrame(rgbd_frame.time_point_us(),
+                        rgbd_frame.yuv_frame().width(),
+                        rgbd_frame.yuv_frame().height(),
+                        rgbd_frame.yuv_frame().y_channel(),
+                        rgbd_frame.yuv_frame().u_channel(),
+                        rgbd_frame.yuv_frame().v_channel(),
+                        rgbd_frame.depth_frame().values(),
+                        nullopt,
+                        rgbd_frame.floor());
+    }
 }
 
 void Recorder::recordRGBDFrame(int64_t time_point_us,
@@ -343,8 +380,15 @@ void Recorder::recordRGBDFrame(int64_t time_point_us,
                                gsl::span<const uint8_t> u_channel,
                                gsl::span<const uint8_t> v_channel,
                                gsl::span<const int16_t> depth_values,
+                               optional<gsl::span<const uint8_t>> depth_confidence_values,
                                const Plane& floor)
 {
+    if (depth_confidence_track_ && !depth_confidence_values)
+        throw std::runtime_error("Video has depth confidence track but not found in frame.");
+
+    if (!depth_confidence_track_ && depth_confidence_values)
+        throw std::runtime_error("Video has no depth confidence track but found in frame.");
+
     if (rgbd_index_ == 0) {
         //
         // add cover art
@@ -374,10 +418,6 @@ void Recorder::recordRGBDFrame(int64_t time_point_us,
 
     // A keyframe every two seconds.
     bool keyframe{rgbd_index_ % (framerate_ * 2) == 0};
-    auto color_bytes{
-        color_encoder_.encode(y_channel, u_channel, v_channel, keyframe).getDataBytes()};
-    auto depth_bytes{depth_encoder_.encode(depth_values, keyframe)};
-    auto floor_bytes{floor.toBytes()};
 
     auto video_cluster{new KaxCluster};
     segment_->PushElement(*video_cluster);
@@ -385,6 +425,8 @@ void Recorder::recordRGBDFrame(int64_t time_point_us,
     video_cluster->SetParent(*segment_);
     video_cluster->EnableChecksum();
 
+    auto color_bytes{
+        color_encoder_.encode(y_channel, u_channel, v_channel, keyframe).getDataBytes()};
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
     auto color_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(color_bytes.data()),
                                           gsl::narrow<uint32_t>(color_bytes.size())}};
@@ -392,6 +434,7 @@ void Recorder::recordRGBDFrame(int64_t time_point_us,
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*color_track_, video_timecode, *color_data_buffer);
 
+    auto depth_bytes{depth_encoder_.encode(depth_values, keyframe)};
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
     auto depth_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(depth_bytes.data()),
                                           gsl::narrow<uint32_t>(depth_bytes.size())}};
@@ -399,6 +442,20 @@ void Recorder::recordRGBDFrame(int64_t time_point_us,
     depth_block_blob->SetParent(*video_cluster);
     depth_block_blob->AddFrameAuto(*depth_track_, video_timecode, *depth_data_buffer);
 
+    // depth_confidence_bytes needs to stay outside to keep the bytes inside it alive
+    // until the video_cluster is Render()ed.
+    Bytes depth_confidence_bytes;
+    if (depth_confidence_values) {
+        depth_confidence_bytes = rvl::compress<uint8_t>(*depth_confidence_values);
+        auto depth_confidence_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+        auto depth_confidence_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(depth_confidence_bytes.data()),
+                                              gsl::narrow<uint32_t>(depth_confidence_bytes.size())}};
+        video_cluster->AddBlockBlob(depth_confidence_block_blob);
+        depth_confidence_block_blob->SetParent(*video_cluster);
+        depth_confidence_block_blob->AddFrameAuto(*depth_confidence_track_, video_timecode, *depth_confidence_data_buffer);
+    }
+
+    auto floor_bytes{floor.toBytes()};
     auto floor_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
     auto floor_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(floor_bytes.data()),
                                           gsl::narrow<uint32_t>(floor_bytes.size())}};
