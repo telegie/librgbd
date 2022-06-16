@@ -117,7 +117,7 @@ public:
     {
         return camera_calibration_.get();
     }
-    const vector<unique_ptr<FileVideoFrame>>& rgbd_frames() const noexcept
+    const vector<unique_ptr<FileVideoFrame>>& video_frames() const noexcept
     {
         return video_frames_;
     }
