@@ -96,6 +96,7 @@ add_library(rgbd
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
   include/rgbd/camera_calibration.hpp
+  include/rgbd/capi_utils.hpp
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
   include/rgbd/depth_encoder.hpp
@@ -112,6 +113,7 @@ add_library(rgbd
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
   include/rgbd/recorder.hpp
+  include/rgbd/rgbd_capi.h
   include/rgbd/rgbd_frame.hpp
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
@@ -123,6 +125,7 @@ add_library(rgbd
   src/audio_frame.cpp
   src/byte_utils.cpp
   src/camera_calibration.cpp
+  src/capi_utils.cpp
   src/constants.cpp
   src/depth_decoder.cpp
   src/depth_encoder.cpp
@@ -139,6 +142,7 @@ add_library(rgbd
   src/plane.cpp
   src/png_utils.cpp
   src/recorder.cpp
+  src/rgbd_capi.cpp
   src/rgbd_frame.cpp
   src/rvl.cpp
   src/tdc1_decoder.cpp
