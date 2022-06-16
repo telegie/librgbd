@@ -208,8 +208,8 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   )
 
   set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
-  target_link_options(CommonLibrary PUBLIC ${RgbdLibraryWasmOptions})
-  target_compile_options(CommonLibrary PUBLIC ${RgbdLibraryWasmOptions})
+  target_link_options(rgbd PUBLIC ${RgbdLibraryWasmOptions})
+  target_compile_options(rgbd PUBLIC ${RgbdLibraryWasmOptions})
 endif()
 
 target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
