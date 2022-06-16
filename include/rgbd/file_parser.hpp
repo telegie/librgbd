@@ -1,27 +1,26 @@
 #pragma once
 
-#include "video.hpp"
-#include <rgbd/kinect_camera_calibration.hpp>
-#include <rgbd/ios_camera_calibration.hpp>
-#include "video_info.hpp"
+#include "file.hpp"
+#include "kinect_camera_calibration.hpp"
+#include "ios_camera_calibration.hpp"
+#include "file_info.hpp"
 
 namespace rgbd
 {
-
-class VideoParser
+class FileParser
 {
 public:
-    VideoParser(const void* ptr, std::size_t size);
-    VideoParser(const string& file_path);
+    FileParser(const void* ptr, std::size_t size);
+    FileParser(const string& file_path);
 
 private:
     void init();
 
 public:
     bool hasNextFrame();
-    VideoFrame* readFrame();
-    unique_ptr<Video> readAll();
-    const VideoInfo& info() const noexcept
+    FileFrame* readFrame();
+    unique_ptr<File> readAll();
+    const FileInfo& info() const noexcept
     {
         return info_;
     }
@@ -29,7 +28,7 @@ public:
 private:
     unique_ptr<libebml::IOCallback> input_;
     EbmlStream stream_;
-    VideoInfo info_;
+    FileInfo info_;
     uint64_t timecode_scale_ns_;
     int color_track_number_;
     int depth_track_number_;

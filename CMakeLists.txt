@@ -105,6 +105,9 @@ add_library(rgbd
   include/rgbd/ffmpeg_video_decoder.hpp
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
+  include/rgbd/file.hpp
+  include/rgbd/file_info.hpp
+  include/rgbd/file_parser.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
   include/rgbd/ios_camera_calibration.hpp
@@ -118,9 +121,6 @@ add_library(rgbd
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
-  include/rgbd/video.hpp
-  include/rgbd/video_info.hpp
-  include/rgbd/video_parser.hpp
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
   src/byte_utils.cpp
@@ -134,6 +134,9 @@ add_library(rgbd
   src/ffmpeg_video_decoder.cpp
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
+  src/file.cpp
+  src/file_info.cpp
+  src/file_parser.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
   src/ios_camera_calibration.cpp
@@ -147,9 +150,6 @@ add_library(rgbd
   src/rvl.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
-  src/video.cpp
-  src/video_info.cpp
-  src/video_parser.cpp
   src/yuv_frame.cpp
 )
 set(RgbdIncludeDirectories

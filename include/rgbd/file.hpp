@@ -26,23 +26,23 @@
 
 namespace rgbd
 {
-enum class VideoFrameType
+enum class FileFrameType
 {
     RGBD = 0,
     Audio = 1
 };
 
-class VideoFrame
+class FileFrame
 {
 public:
-    virtual ~VideoFrame() {}
-    virtual VideoFrameType getType() = 0;
+    virtual ~FileFrame() {}
+    virtual FileFrameType getType() = 0;
 };
 
-class VideoRGBDFrame : public VideoFrame
+class FileVideoFrame : public FileFrame
 {
 public:
-    VideoRGBDFrame(int64_t global_timecode,
+    FileVideoFrame(int64_t global_timecode,
                    const Bytes& color_bytes,
                    const Bytes& depth_bytes,
                    const Plane& floor)
@@ -52,9 +52,9 @@ public:
         , floor_{floor}
     {
     }
-    VideoFrameType getType()
+    FileFrameType getType()
     {
-        return VideoFrameType::RGBD;
+        return FileFrameType::RGBD;
     }
     int64_t global_timecode() const noexcept
     {
@@ -80,18 +80,18 @@ private:
     Plane floor_;
 };
 
-class VideoAudioFrame : public VideoFrame
+class FileAudioFrame : public FileFrame
 {
 public:
-    VideoAudioFrame(int64_t global_timecode,
+    FileAudioFrame(int64_t global_timecode,
                      const Bytes& bytes)
         : global_timecode_{global_timecode}
         , bytes_{bytes}
     {
     }
-    VideoFrameType getType()
+    FileFrameType getType()
     {
-        return VideoFrameType::Audio;
+        return FileFrameType::Audio;
     }
     int64_t global_timecode() const noexcept
     {
@@ -107,29 +107,29 @@ private:
     Bytes bytes_;
 };
 
-class Video
+class File
 {
 public:
-    Video(const shared_ptr<CameraCalibration>& camera_calibration,
-          vector<unique_ptr<VideoRGBDFrame>>&& rgbd_frames,
-          vector<unique_ptr<VideoAudioFrame>>&& audio_frames);
+    File(const shared_ptr<CameraCalibration>& camera_calibration,
+         vector<unique_ptr<FileVideoFrame>>&& video_frames,
+         vector<unique_ptr<FileAudioFrame>>&& audio_frames);
     const CameraCalibration* camera_calibration() const noexcept
     {
         return camera_calibration_.get();
     }
-    const vector<unique_ptr<VideoRGBDFrame>>& rgbd_frames() const noexcept
+    const vector<unique_ptr<FileVideoFrame>>& rgbd_frames() const noexcept
     {
-        return rgbd_frames_;
+        return video_frames_;
     }
-    const vector<unique_ptr<VideoAudioFrame>>& audio_frames() const noexcept
+    const vector<unique_ptr<FileAudioFrame>>& audio_frames() const noexcept
     {
         return audio_frames_;
     }
 
 private:
     shared_ptr<CameraCalibration> camera_calibration_;
-    vector<unique_ptr<VideoRGBDFrame>> rgbd_frames_;
-    vector<unique_ptr<VideoAudioFrame>> audio_frames_;
+    vector<unique_ptr<FileVideoFrame>> video_frames_;
+    vector<unique_ptr<FileAudioFrame>> audio_frames_;
 };
 
 } // namespace tg

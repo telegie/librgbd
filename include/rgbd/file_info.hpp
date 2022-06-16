@@ -12,10 +12,10 @@ struct TrackInfo
     int height;
 };
 
-class VideoInfo
+class FileInfo
 {
 public:
-    VideoInfo()
+    FileInfo()
         : writing_app_{""}
         , duration_us_{0.0}
         , color_track_info_{"", 0, 0}

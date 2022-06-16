@@ -1,4 +1,4 @@
-#include <rgbd/video_parser.hpp>
+#include <rgbd/file_parser.hpp>
 #include <cxxopts.hpp>
 
 int main(int argc, char** argv)
@@ -17,13 +17,13 @@ int main(int argc, char** argv)
         return 0;
     } else if (result.count("file")) {
         auto file_path{result["file"].as<std::string>()};
-        rgbd::VideoParser parser{file_path};
-        auto& video_info{parser.info()};
-        std::cout << "depth track codec: " << video_info.depth_track_info().codec << std::endl;
+        rgbd::FileParser parser{file_path};
+        auto& file_info{parser.info()};
+        std::cout << "depth track codec: " << file_info.depth_track_info().codec << std::endl;
 
-        if (video_info.depth_confidence_track_info()) {
+        if (file_info.depth_confidence_track_info()) {
             std::cout << "has depth confidence track: "
-                      << video_info.depth_confidence_track_info()->codec << std::endl;
+                      << file_info.depth_confidence_track_info()->codec << std::endl;
         } else {
             std::cout << "doesn't have depth confidence track" << std::endl;
         }

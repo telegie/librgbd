@@ -1,4 +1,4 @@
-#include "video_parser.hpp"
+#include "file_parser.hpp"
 
 #include <rgbd/ios_camera_calibration.hpp>
 #include <rgbd/kinect_camera_calibration.hpp>
@@ -189,7 +189,7 @@ Bytes copy_data_buffer_to_bytes(DataBuffer& data_buffer)
     return bytes;
 }
 
-VideoParser::VideoParser(const void* ptr, std::size_t size)
+FileParser::FileParser(const void* ptr, std::size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
     , info_{}
@@ -203,7 +203,7 @@ VideoParser::VideoParser(const void* ptr, std::size_t size)
     init();
 }
 
-VideoParser::VideoParser(const string& file_path)
+FileParser::FileParser(const string& file_path)
     : input_{new StdIOCallback{file_path.c_str(), open_mode::MODE_READ}}
     , stream_{*input_}
     , info_{}
@@ -217,7 +217,7 @@ VideoParser::VideoParser(const string& file_path)
     init();
 }
 
-void VideoParser::init()
+void FileParser::init()
 {
     auto head{find_next<EbmlHead>(stream_)};
     if (!head)
@@ -386,12 +386,12 @@ void VideoParser::init()
     cluster_ = std::move(cluster);
 }
 
-bool VideoParser::hasNextFrame()
+bool FileParser::hasNextFrame()
 {
     return cluster_ != nullptr;
 }
 
-VideoFrame* VideoParser::readFrame()
+FileFrame* FileParser::readFrame()
 {
     if (read_element<KaxCluster>(stream_, cluster_.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
@@ -402,7 +402,7 @@ VideoFrame* VideoParser::readFrame()
     Bytes color_bytes;
     Bytes depth_bytes;
     optional<Plane> floor{nullopt};
-    VideoAudioFrame* audio_frame{nullptr};
+    FileAudioFrame* audio_frame{nullptr};
 
     for (EbmlElement* e : cluster_->GetElementList()) {
         EbmlId id{*e};
@@ -426,8 +426,8 @@ VideoFrame* VideoParser::readFrame()
                         depth_bytes = copy_data_buffer_to_bytes(data_buffer);
                     } else if (track_number == audio_track_number_) {
                         global_timecode = block_global_timecode;
-                        audio_frame = new VideoAudioFrame{block_global_timecode,
-                                                          copy_data_buffer_to_bytes(data_buffer)};
+                        audio_frame = new FileAudioFrame{block_global_timecode,
+                                                         copy_data_buffer_to_bytes(data_buffer)};
                     } else if (track_number == floor_track_number_) {
                         floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
                     } else {
@@ -447,8 +447,8 @@ VideoFrame* VideoParser::readFrame()
             } else if (track_number == depth_track_number_) {
                 depth_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == audio_track_number_) {
-                audio_frame = new VideoAudioFrame{block_global_timecode,
-                                                  copy_data_buffer_to_bytes(data_buffer)};
+                audio_frame = new FileAudioFrame{block_global_timecode,
+                                                 copy_data_buffer_to_bytes(data_buffer)};
             } else if (track_number == floor_track_number_) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
             } else {
@@ -466,7 +466,7 @@ VideoFrame* VideoParser::readFrame()
         if (!floor)
             throw std::runtime_error{"Failed to find a floor"};
 
-        return new VideoRGBDFrame{global_timecode, color_bytes, depth_bytes, *floor};
+        return new FileVideoFrame{global_timecode, color_bytes, depth_bytes, *floor};
     }
 
     if (audio_frame) {
@@ -476,21 +476,21 @@ VideoFrame* VideoParser::readFrame()
     throw std::runtime_error{"No frame from RecordParser::readFrame"};
 }
 
-unique_ptr<Video> VideoParser::readAll()
+unique_ptr<File> FileParser::readAll()
 {
-    vector<unique_ptr<VideoRGBDFrame>> rgbd_frames;
-    vector<unique_ptr<VideoAudioFrame>> audio_frames;
+    vector<unique_ptr<FileVideoFrame>> rgbd_frames;
+    vector<unique_ptr<FileAudioFrame>> audio_frames;
 
     while (hasNextFrame()) {
         auto frame{readFrame()};
         switch (frame->getType()) {
-        case VideoFrameType::RGBD: {
-            auto rgbd_frame{dynamic_cast<VideoRGBDFrame*>(frame)};
+        case FileFrameType::RGBD: {
+            auto rgbd_frame{dynamic_cast<FileVideoFrame*>(frame)};
             rgbd_frames.emplace_back(rgbd_frame);
             break;
         }
-        case VideoFrameType::Audio: {
-            auto audio_frame{dynamic_cast<VideoAudioFrame*>(frame)};
+        case FileFrameType::Audio: {
+            auto audio_frame{dynamic_cast<FileAudioFrame*>(frame)};
             audio_frames.emplace_back(audio_frame);
             break;
         }
@@ -499,7 +499,7 @@ unique_ptr<Video> VideoParser::readAll()
         }
     }
 
-    return std::make_unique<Video>(
+    return std::make_unique<File>(
         info_.camera_calibration(), std::move(rgbd_frames), std::move(audio_frames));
 }
 } // namespace tg
