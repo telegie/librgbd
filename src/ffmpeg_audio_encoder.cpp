@@ -1,6 +1,6 @@
 #include "ffmpeg_audio_encoder.hpp"
 
-namespace tg
+namespace rgbd
 {
 FFmpegAudioEncoder::FFmpegAudioEncoder()
     : codec_context_{avcodec_find_encoder(AV_CODEC_ID_OPUS)}

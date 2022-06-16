@@ -2,7 +2,7 @@
 
 #include "byte_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 TDC1Encoder::TDC1Encoder(int width, int height, int diff_multiplier) noexcept
     : width_{width}

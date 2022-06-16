@@ -4,7 +4,7 @@
 
 #include "kinect_calibration_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 glm::vec2 transformation_project_internal(const KinectCameraCalibration& calibration,
                                           const glm::vec2& xy,

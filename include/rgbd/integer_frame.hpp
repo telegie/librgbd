@@ -2,7 +2,7 @@
 
 #include "constants.hpp"
 
-namespace tg
+namespace rgbd
 {
 template<class T>
 class IntegerFrame

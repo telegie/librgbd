@@ -1,6 +1,6 @@
 #include "rgbd/ffmpeg_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 AVCodec* find_decoder_avcodec(ColorCodecType color_codec_type)
 {

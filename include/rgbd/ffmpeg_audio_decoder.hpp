@@ -2,7 +2,7 @@
 
 #include "ffmpeg_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 class FFmpegAudioDecoder
 {

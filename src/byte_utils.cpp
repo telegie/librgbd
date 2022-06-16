@@ -1,6 +1,6 @@
 #include "byte_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 void append_bytes(Bytes& bytes1, const Bytes& bytes2)
 {

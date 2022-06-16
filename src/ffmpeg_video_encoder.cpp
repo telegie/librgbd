@@ -1,6 +1,6 @@
 #include "ffmpeg_video_encoder.hpp"
 
-namespace tg
+namespace rgbd
 {
 FFmpegVideoEncoder::FFmpegVideoEncoder(
     ColorCodecType type, int width, int height, int target_bitrate, int framerate)

@@ -16,7 +16,7 @@
 #include <spdlog/spdlog.h>
 #pragma warning(pop)
 
-namespace tg
+namespace rgbd
 {
 using std::byte;
 using std::list;

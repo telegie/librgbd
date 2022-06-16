@@ -5,7 +5,7 @@
 
 using namespace libmatroska;
 
-namespace tg
+namespace rgbd
 {
 class VideoOffsets
 {

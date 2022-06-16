@@ -7,7 +7,7 @@
 #include "depth_decoder.hpp"
 #include "rvl.hpp"
 
-namespace tg
+namespace rgbd
 {
 class TDC1Decoder : public DepthDecoder
 {

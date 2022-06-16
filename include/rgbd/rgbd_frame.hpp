@@ -4,7 +4,7 @@
 #include <rgbd/integer_frame.hpp>
 #include "plane.hpp"
 
-namespace tg
+namespace rgbd
 {
 class RGBDFrame
 {

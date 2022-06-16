@@ -5,7 +5,7 @@
 #include <rgbd/ios_camera_calibration.hpp>
 #include "video_info.hpp"
 
-namespace tg
+namespace rgbd
 {
 
 class VideoParser

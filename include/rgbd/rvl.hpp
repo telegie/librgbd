@@ -10,7 +10,7 @@
 // Wilson, A. D. (2017, October). Fast lossless depth image compression.
 // In Proceedings of the 2017 ACM International Conference on Interactive
 // Surfaces and Spaces (pp. 100-105). ACM.
-namespace tg
+namespace rgbd
 {
 // Code inside this namespace is from the RVL paper (Wilson, 2017).
 // The code has been modified to be thread-safe (i.e. removed global variables).

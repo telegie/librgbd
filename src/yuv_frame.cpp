@@ -4,7 +4,7 @@
 
 #include "yuv_frame.hpp"
 
-namespace tg
+namespace rgbd
 {
 // A helper function for YuvFrame::create(VpxImage) that converts a VpxImage
 // into a vector.

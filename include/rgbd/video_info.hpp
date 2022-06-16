@@ -3,7 +3,7 @@
 #include "constants.hpp"
 #include "camera_calibration.hpp"
 
-namespace tg
+namespace rgbd
 {
 class VideoInfo
 {

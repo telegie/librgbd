@@ -2,7 +2,7 @@
 
 #include "kinect_calibration_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 KinectCameraCalibration::KinectCameraCalibration(int color_width,
                                                  int color_height,

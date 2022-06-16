@@ -6,7 +6,7 @@
 
 #include "byte_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 TDC1Decoder::TDC1Decoder() noexcept
     : previous_depth_values_{}

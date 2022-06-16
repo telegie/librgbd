@@ -4,7 +4,7 @@
 
 #include "plane.hpp"
 
-namespace tg
+namespace rgbd
 {
 Plane::Plane(const glm::vec3& normal, const float constant) noexcept
     : normal_{normal}

@@ -1,6 +1,6 @@
 #include "video.hpp"
 
-namespace tg
+namespace rgbd
 {
 Video::Video(const shared_ptr<CameraCalibration>& camera_calibration,
              vector<unique_ptr<VideoRGBDFrame>>&& rgbd_frames,

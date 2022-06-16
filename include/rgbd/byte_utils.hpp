@@ -6,7 +6,7 @@
 
 #include "constants.hpp"
 
-namespace tg
+namespace rgbd
 {
 template <class T> Bytes convert_to_bytes(const T& t)
 {

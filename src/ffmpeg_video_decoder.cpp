@@ -1,6 +1,6 @@
 #include "ffmpeg_video_decoder.hpp"
 
-namespace tg
+namespace rgbd
 {
 // A helper function for Vp8Decoder::decode() that feeds frames of packet into decoder_frames.
 void decode_video_packet(AVCodecContext* codec_context,

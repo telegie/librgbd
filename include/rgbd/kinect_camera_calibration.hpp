@@ -3,7 +3,7 @@
 #include <rgbd/byte_utils.hpp>
 #include "camera_calibration.hpp"
 
-namespace tg
+namespace rgbd
 {
 class KinectCameraCalibration : public CameraCalibration
 {

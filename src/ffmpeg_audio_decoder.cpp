@@ -3,7 +3,7 @@
 #include <iostream>
 #include <libavformat/avformat.h>
 
-namespace tg
+namespace rgbd
 {
 vector<float> get_pcm_samples(AVFrameHandle& av_frame)
 {

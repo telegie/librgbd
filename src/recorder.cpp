@@ -5,7 +5,7 @@
 
 using namespace LIBMATROSKA_NAMESPACE;
 
-namespace tg
+namespace rgbd
 {
 constexpr int64_t ONE_SECOND_NS{1000 * 1000 * 1000}; // in ns
 constexpr int64_t ONE_MICROSECOND_NS{1000};          // in ns
@@ -95,7 +95,7 @@ Bytes get_cover_png_bytes(int width,
         }
     }
     
-    return tg::PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
+    return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
 }
 
 Recorder::Recorder(const string& file_path,

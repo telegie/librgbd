@@ -6,7 +6,7 @@
 
 #include "constants.hpp"
 
-namespace tg
+namespace rgbd
 {
 class PNGUtils
 {

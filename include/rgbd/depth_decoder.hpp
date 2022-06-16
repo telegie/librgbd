@@ -3,7 +3,7 @@
 #include "constants.hpp"
 #include "integer_frame.hpp"
 
-namespace tg
+namespace rgbd
 {
 class DepthDecoder
 {

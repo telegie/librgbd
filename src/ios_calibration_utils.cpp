@@ -1,6 +1,6 @@
 #include "ios_calibration_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 float get_magnification(float r, const vector<float>& lens_distortion_lookup_table, float r_max)
 {

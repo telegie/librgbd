@@ -8,7 +8,7 @@
 #include "byte_utils.hpp"
 #include "constants.hpp"
 
-namespace tg
+namespace rgbd
 {
 // Plane corresponding to ax + by + cz = d where normal = (a, b, c) and constant = d.
 class Plane

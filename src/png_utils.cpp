@@ -2,7 +2,7 @@
 
 #include "png.h"
 
-namespace tg
+namespace rgbd
 {
 class BytesWriter
 {

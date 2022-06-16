@@ -3,7 +3,7 @@
 #include "ffmpeg_utils.hpp"
 #include "yuv_frame.hpp"
 
-namespace tg
+namespace rgbd
 {
 class FFmpegVideoDecoder
 {

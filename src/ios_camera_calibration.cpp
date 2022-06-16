@@ -2,7 +2,7 @@
 
 #include "ios_calibration_utils.hpp"
 
-namespace tg
+namespace rgbd
 {
 IosCameraCalibration::IosCameraCalibration(int color_width,
                                            int color_height,

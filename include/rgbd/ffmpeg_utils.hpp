@@ -12,7 +12,7 @@ extern "C"
 
 #include "constants.hpp"
 
-namespace tg
+namespace rgbd
 {
 AVCodec* find_decoder_avcodec(ColorCodecType color_codec_type);
 AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type);

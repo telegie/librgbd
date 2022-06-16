@@ -24,7 +24,7 @@
 #include <matroska/KaxTracks.h>
 #pragma warning(pop)
 
-namespace tg
+namespace rgbd
 {
 enum class VideoFrameType
 {

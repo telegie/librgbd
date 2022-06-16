@@ -3,7 +3,7 @@
 #include "depth_encoder.hpp"
 #include "rvl.hpp"
 
-namespace tg
+namespace rgbd
 {
 class TDC1Encoder : public DepthEncoder
 {
