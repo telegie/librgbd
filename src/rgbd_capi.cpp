@@ -12,6 +12,7 @@
 #include "file_parser.hpp"
 #include "tdc1_decoder.hpp"
 
+//////// START CONSTANTS ////////
 int RGBD_AUDIO_SAMPLE_RATE()
 {
     return rgbd::AUDIO_SAMPLE_RATE;
@@ -41,7 +42,9 @@ int RGBD_AUDIO_OUTPUT_SAMPLES_PER_FRAME()
 {
     return rgbd::AUDIO_OUTPUT_SAMPLES_PER_FRAME;
 }
+//////// END CONSTANTS ////////
 
+//////// START CAPI UTILITY CLASSES ////////
 void rgbd_cbyte_array_dtor(void* ptr)
 {
     delete static_cast<rgbd::CByteArray*>(ptr);
@@ -111,7 +114,9 @@ const char* rgbd_cstring_c_str(void* ptr)
 {
     return static_cast<rgbd::CString*>(ptr)->c_str();
 }
+//////// END CAPI UTILITY CLASSES ////////
 
+//////// START FFMPEG AUDIO DECODER ////////
 void* rgbd_ffmpeg_audio_decoder_ctor()
 {
     return new rgbd::FFmpegAudioDecoder;
@@ -130,7 +135,9 @@ void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
         {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
     return new rgbd::CFloatArray{std::move(depth_frame)};
 }
+//////// END FFMPEG AUDIO DECODER ////////
 
+//////// START FFMPEG VIDEO DECODER ////////
 void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)
 {
     return new rgbd::FFmpegVideoDecoder{static_cast<rgbd::ColorCodecType>(type)};
@@ -149,7 +156,9 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
         {reinterpret_cast<const std::byte*>(vp8_frame_data), vp8_frame_size})};
     return new rgbd::YuvFrame{std::move(yuv_frame)};
 }
+//////// END FFMPEG VIDEO DECODER ////////
 
+//////// START FILE AUDIO FRAME ////////
 int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr)
 {
     return static_cast<rgbd::FileAudioFrame*>(ptr)->global_timecode();
@@ -159,7 +168,9 @@ void* rgbd_file_audio_frame_get_bytes(void* ptr)
 {
     return new rgbd::CByteArray{static_cast<rgbd::FileAudioFrame*>(ptr)->bytes()};
 }
+//////// END FILE AUDIO FRAME ////////
 
+//////// START FILE FRAME ////////
 void rgbd_file_frame_dtor(void* ptr)
 {
     delete static_cast<rgbd::FileFrame*>(ptr);
@@ -170,7 +181,9 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
     auto type{static_cast<rgbd::FileFrame*>(ptr)->getType()};
     return static_cast<rgbdFileFrameType>(type);
 }
+//////// END FILE FRAME ////////
 
+//////// START FILE INFO ////////
 void rgbd_file_info_dtor(void* ptr)
 {
     delete static_cast<rgbd::FileInfo*>(ptr);
@@ -245,7 +258,9 @@ void* rgbd_file_info_get_cover_png_bytes(void* ptr)
     auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
     return new rgbd::CByteArray{file_info->cover_png_bytes()};
 }
+//////// END FILE INFO ////////
 
+//////// START FILE PARSER ////////
 void* rgbd_file_parser_ctor(const char* file_path)
 {
     try {
@@ -276,7 +291,9 @@ void* rgbd_file_parser_read_frame(void* ptr)
 {
     return static_cast<rgbd::FileParser*>(ptr)->readFrame();
 }
+//////// END FILE PARSER ////////
 
+//////// START FILE VIDEO FRAME ////////
 int64_t rgbd_file_video_frame_get_global_timecode(void* ptr)
 {
     return static_cast<rgbd::FileVideoFrame*>(ptr)->global_timecode();
@@ -311,7 +328,9 @@ float rgbd_file_video_frame_get_floor_constant(void* ptr)
 {
     return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().constant();
 }
+//////// END FILE VIDEO FRAME ////////
 
+//////// START INT16 FRAME ////////
 void rgbd_int16_frame_dtor(void* ptr)
 {
     delete static_cast<rgbd::Int16Frame*>(ptr);
@@ -331,7 +350,9 @@ void* rgbd_int16_frame_get_values(void* ptr)
 {
     return new rgbd::CInt16Array{static_cast<rgbd::Int16Frame*>(ptr)->values()};
 }
+//////// END INT16 FRAME ////////
 
+//////// START IOS CAMERA CALIBRATION ////////
 void* rgbd_ios_camera_calibration_ctor(int color_width,
                                      int color_height,
                                      int depth_width,
@@ -433,7 +454,9 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
     auto floats{static_cast<rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
     return new rgbd::CFloatArray{std::move(floats)};
 }
+//////// END IOS CAMERA CALIBRATION ////////
 
+//////// START RECORDER ////////
 void* rgbd_recorder_ctor(const char* file_path,
                          bool has_depth_confidence,
                          void* calibration,
@@ -520,7 +543,9 @@ void rgbd_recorder_record_flush(void* ptr)
 {
     return static_cast<rgbd::Recorder*>(ptr)->flush();
 }
+//////// END RECORDER ////////
 
+//////// START TDC1 DECODER ////////
 void* rgbd_tdc1_decoder_ctor()
 {
     return new rgbd::TDC1Decoder;
@@ -539,7 +564,9 @@ void* rgbd_tdc1_decoder_decode(void* ptr,
         {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
     return new rgbd::Int16Frame{std::move(depth_frame)};
 }
+//////// END TDC1 DECODER ////////
 
+//////// START YUV FRAME ////////
 void rgbd_yuv_frame_dtor(void* ptr)
 {
     delete static_cast<rgbd::YuvFrame*>(ptr);
@@ -569,3 +596,4 @@ int rgbd_yuv_frame_get_height(void* ptr)
 {
     return static_cast<rgbd::YuvFrame*>(ptr)->height();
 }
+//////// END YUV FRAME ////////
