@@ -19,9 +19,9 @@ extern "C"
 
     typedef enum
     {
-        RGBD_VIDEO_FRAME_TYPE_VIDEO = 0,
-        RGBD_VIDEO_FRAME_TYPE_AUDIO = 1
-    } rgbdVideoFrameType;
+        RGBD_FILE_FRAME_TYPE_VIDEO = 0,
+        RGBD_FILE_FRAME_TYPE_AUDIO = 1
+    } rgbdFileFrameType;
 
     int RGBD_AUDIO_SAMPLE_RATE();
     int RGBD_AUDIO_INPUT_CHANNEL_COUNT();
@@ -65,7 +65,7 @@ extern "C"
     void* rgbd_file_audio_frame_get_bytes(void* ptr);
 
     void rgbd_file_frame_dtor(void* ptr);
-    rgbdVideoFrameType rgbd_file_frame_get_type(void* ptr);
+    rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
 
     void rgbd_file_info_dtor(void* ptr);
     void* rgbd_file_info_get_writing_app(void* ptr);

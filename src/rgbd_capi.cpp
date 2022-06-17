@@ -165,10 +165,10 @@ void rgbd_file_frame_dtor(void* ptr)
     delete static_cast<rgbd::FileFrame*>(ptr);
 }
 
-rgbdVideoFrameType rgbd_file_frame_get_type(void* ptr)
+rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 {
     auto type{static_cast<rgbd::FileFrame*>(ptr)->getType()};
-    return static_cast<rgbdVideoFrameType>(type);
+    return static_cast<rgbdFileFrameType>(type);
 }
 
 void rgbd_file_info_dtor(void* ptr)
