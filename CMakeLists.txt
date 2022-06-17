@@ -108,6 +108,7 @@ add_library(rgbd
   include/rgbd/file.hpp
   include/rgbd/file_info.hpp
   include/rgbd/file_parser.hpp
+  include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
   include/rgbd/ios_camera_calibration.hpp
@@ -117,7 +118,6 @@ add_library(rgbd
   include/rgbd/png_utils.hpp
   include/rgbd/recorder.hpp
   include/rgbd/rgbd_capi.h
-  include/rgbd/rgbd_frame.hpp
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
@@ -137,6 +137,7 @@ add_library(rgbd
   src/file.cpp
   src/file_info.cpp
   src/file_parser.cpp
+  src/frame.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
   src/ios_camera_calibration.cpp
@@ -146,7 +147,6 @@ add_library(rgbd
   src/png_utils.cpp
   src/recorder.cpp
   src/rgbd_capi.cpp
-  src/rgbd_frame.cpp
   src/rvl.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp

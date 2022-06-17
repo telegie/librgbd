@@ -8,7 +8,7 @@
 #include "ffmpeg_audio_encoder.hpp"
 #include "tdc1_encoder.hpp"
 #include "byte_utils.hpp"
-#include "rgbd_frame.hpp"
+#include "frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
 #include "audio_frame.hpp"
@@ -44,16 +44,16 @@ public:
              int major_version,
              int minor_version,
              int patch_version);
-    void recordRGBDFrame(const RGBDFrame& rgbd_frame);
-    void recordRGBDFrame(int64_t time_point_us,
-                         int width,
-                         int height,
-                         gsl::span<const uint8_t> y_channel,
-                         gsl::span<const uint8_t> u_channel,
-                         gsl::span<const uint8_t> v_channel,
-                         gsl::span<const int16_t> depth_values,
-                         optional<gsl::span<const uint8_t>> depth_confidence_values,
-                         const Plane& floor);
+    void recordFrame(const Frame& rgbd_frame);
+    void recordFrame(int64_t time_point_us,
+                     int width,
+                     int height,
+                     gsl::span<const uint8_t> y_channel,
+                     gsl::span<const uint8_t> u_channel,
+                     gsl::span<const uint8_t> v_channel,
+                     gsl::span<const int16_t> depth_values,
+                     optional<gsl::span<const uint8_t>> depth_confidence_values,
+                     const Plane& floor);
     void recordAudioFrame(const AudioFrame& audio_frame);
     void recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
     void flush();

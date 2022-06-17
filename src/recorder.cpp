@@ -348,40 +348,40 @@ Recorder::Recorder(const string& file_path,
     }
 }
 
-void Recorder::recordRGBDFrame(const RGBDFrame& rgbd_frame)
+void Recorder::recordFrame(const Frame& rgbd_frame)
 {
     if (rgbd_frame.depth_confidence_frame()) {
-        recordRGBDFrame(rgbd_frame.time_point_us(),
-                        rgbd_frame.yuv_frame().width(),
-                        rgbd_frame.yuv_frame().height(),
-                        rgbd_frame.yuv_frame().y_channel(),
-                        rgbd_frame.yuv_frame().u_channel(),
-                        rgbd_frame.yuv_frame().v_channel(),
-                        rgbd_frame.depth_frame().values(),
-                        rgbd_frame.depth_confidence_frame()->values(),
-                        rgbd_frame.floor());
+        recordFrame(rgbd_frame.time_point_us(),
+                    rgbd_frame.yuv_frame().width(),
+                    rgbd_frame.yuv_frame().height(),
+                    rgbd_frame.yuv_frame().y_channel(),
+                    rgbd_frame.yuv_frame().u_channel(),
+                    rgbd_frame.yuv_frame().v_channel(),
+                    rgbd_frame.depth_frame().values(),
+                    rgbd_frame.depth_confidence_frame()->values(),
+                    rgbd_frame.floor());
     } else {
-        recordRGBDFrame(rgbd_frame.time_point_us(),
-                        rgbd_frame.yuv_frame().width(),
-                        rgbd_frame.yuv_frame().height(),
-                        rgbd_frame.yuv_frame().y_channel(),
-                        rgbd_frame.yuv_frame().u_channel(),
-                        rgbd_frame.yuv_frame().v_channel(),
-                        rgbd_frame.depth_frame().values(),
-                        nullopt,
-                        rgbd_frame.floor());
+        recordFrame(rgbd_frame.time_point_us(),
+                    rgbd_frame.yuv_frame().width(),
+                    rgbd_frame.yuv_frame().height(),
+                    rgbd_frame.yuv_frame().y_channel(),
+                    rgbd_frame.yuv_frame().u_channel(),
+                    rgbd_frame.yuv_frame().v_channel(),
+                    rgbd_frame.depth_frame().values(),
+                    nullopt,
+                    rgbd_frame.floor());
     }
 }
 
-void Recorder::recordRGBDFrame(int64_t time_point_us,
-                               int width,
-                               int height,
-                               gsl::span<const uint8_t> y_channel,
-                               gsl::span<const uint8_t> u_channel,
-                               gsl::span<const uint8_t> v_channel,
-                               gsl::span<const int16_t> depth_values,
-                               optional<gsl::span<const uint8_t>> depth_confidence_values,
-                               const Plane& floor)
+void Recorder::recordFrame(int64_t time_point_us,
+                           int width,
+                           int height,
+                           gsl::span<const uint8_t> y_channel,
+                           gsl::span<const uint8_t> u_channel,
+                           gsl::span<const uint8_t> v_channel,
+                           gsl::span<const int16_t> depth_values,
+                           optional<gsl::span<const uint8_t>> depth_confidence_values,
+                           const Plane& floor)
 {
     if (depth_confidence_track_ && !depth_confidence_values)
         throw std::runtime_error("Video has depth confidence track but not found in frame.");

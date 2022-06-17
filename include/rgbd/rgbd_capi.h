@@ -57,8 +57,43 @@ extern "C"
 
     void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);
     void rgbd_ffmpeg_video_decoder_dtor(void* ptr);
-    void*
-    rgbd_ffmpeg_video_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t vp8_frame_size);
+    void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
+                                           const uint8_t* vp8_frame_data,
+                                           size_t vp8_frame_size);
+
+    int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr);
+    void* rgbd_file_audio_frame_get_bytes(void* ptr);
+
+    void rgbd_file_frame_dtor(void* ptr);
+    rgbdVideoFrameType rgbd_file_frame_get_type(void* ptr);
+
+    void rgbd_file_info_dtor(void* ptr);
+    void* rgbd_file_info_get_writing_app(void* ptr);
+    double rgbd_file_info_get_duration_us(void* ptr);
+    void* rgbd_file_info_get_color_track_codec(void* ptr);
+    int rgbd_file_info_get_color_track_width(void* ptr);
+    int rgbd_file_info_get_color_track_height(void* ptr);
+    void* rgbd_file_info_get_depth_track_codec(void* ptr);
+    int rgbd_file_info_get_depth_track_width(void* ptr);
+    int rgbd_file_info_get_depth_track_height(void* ptr);
+    rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr);
+    void* rgbd_file_info_get_kinect_camera_calibration(void* ptr);
+    void* rgbd_file_info_get_ios_camera_calibration(void* ptr);
+    void* rgbd_file_info_get_cover_png_bytes(void* ptr);
+
+    void* rgbd_file_parser_ctor(const char* file_path);
+    void rgbd_file_parser_dtor(void* ptr);
+    void* rgbd_file_parser_get_info(void* ptr);
+    bool rgbd_file_parser_has_next_frame(void* ptr);
+    void* rgbd_file_parser_read_frame(void* ptr);
+
+    int64_t rgbd_file_video_frame_get_global_timecode(void* ptr);
+    void* rgbd_file_video_frame_get_color_bytes(void* ptr);
+    void* rgbd_file_video_frame_get_depth_bytes(void* ptr);
+    float rgbd_file_video_frame_get_floor_normal_x(void* ptr);
+    float rgbd_file_video_frame_get_floor_normal_y(void* ptr);
+    float rgbd_file_video_frame_get_floor_normal_z(void* ptr);
+    float rgbd_file_video_frame_get_floor_constant(void* ptr);
 
     void rgbd_int16_frame_dtor(void* ptr);
     int rgbd_int16_frame_get_width(void* ptr);
@@ -128,40 +163,6 @@ extern "C"
                                         const float* pcm_samples,
                                         size_t pcm_samples_size);
     void rgbd_recorder_record_flush(void* ptr);
-
-    void rgbd_video_frame_dtor(void* ptr);
-    rgbdVideoFrameType rgbd_video_frame_get_type(void* ptr);
-
-    int64_t rgbd_video_rgbd_frame_get_global_timecode(void* ptr);
-    void* rgbd_video_rgbd_frame_get_color_bytes(void* ptr);
-    void* rgbd_video_rgbd_frame_get_depth_bytes(void* ptr);
-    float rgbd_video_rgbd_frame_get_floor_normal_x(void* ptr);
-    float rgbd_video_rgbd_frame_get_floor_normal_y(void* ptr);
-    float rgbd_video_rgbd_frame_get_floor_normal_z(void* ptr);
-    float rgbd_video_rgbd_frame_get_floor_constant(void* ptr);
-
-    int64_t rgbd_video_audio_frame_get_global_timecode(void* ptr);
-    void* rgbd_video_audio_frame_get_bytes(void* ptr);
-
-    void rgbd_video_info_dtor(void* ptr);
-    void* rgbd_video_info_get_writing_app(void* ptr);
-    double rgbd_video_info_get_duration_us(void* ptr);
-    void* rgbd_video_info_get_color_track_codec(void* ptr);
-    int rgbd_video_info_get_color_track_width(void* ptr);
-    int rgbd_video_info_get_color_track_height(void* ptr);
-    void* rgbd_video_info_get_depth_track_codec(void* ptr);
-    int rgbd_video_info_get_depth_track_width(void* ptr);
-    int rgbd_video_info_get_depth_track_height(void* ptr);
-    rgbdCameraDeviceType rgbd_video_info_get_camera_device_type(void* ptr);
-    void* rgbd_video_info_get_kinect_camera_calibration(void* ptr);
-    void* rgbd_video_info_get_ios_camera_calibration(void* ptr);
-    void* rgbd_video_info_get_cover_png_bytes(void* ptr);
-
-    void* rgbd_video_parser_ctor(const char* file_path);
-    void rgbd_video_parser_dtor(void* ptr);
-    void* rgbd_video_parser_get_info(void* ptr);
-    bool rgbd_video_parser_has_next_frame(void* ptr);
-    void* rgbd_video_parser_read_frame(void* ptr);
 
     void* rgbd_tdc1_decoder_ctor();
     void rgbd_tdc1_decoder_dtor(void* ptr);

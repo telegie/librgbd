@@ -6,14 +6,14 @@
 
 namespace rgbd
 {
-class RGBDFrame
+class Frame
 {
 public:
-    RGBDFrame(int64_t time_point_us,
-              YuvFrame&& yuv_frame,
-              Int16Frame&& depth_frame,
-              optional<UInt8Frame>&& depth_confidence_frame,
-              const Plane& floor) noexcept
+    Frame(int64_t time_point_us,
+          YuvFrame&& yuv_frame,
+          Int16Frame&& depth_frame,
+          optional<UInt8Frame>&& depth_confidence_frame,
+          const Plane& floor) noexcept
         : time_point_us_{time_point_us}
         , yuv_frame_{std::move(yuv_frame)}
         , depth_frame_{std::move(depth_frame)}
