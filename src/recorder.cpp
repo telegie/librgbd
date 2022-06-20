@@ -148,6 +148,11 @@ Recorder::Recorder(const string& file_path,
         GetChild<KaxTitle>(segment_info).SetValue(L"Telegie");
     }
 
+    constexpr uint64_t COLOR_TRACK_NUMBER{1};
+    constexpr uint64_t DEPTH_TRACK_NUMBER{2};
+    constexpr uint64_t DEPTH_CONFIDENCE_TRACK_NUMBER{3};
+    constexpr uint64_t AUDIO_TRACK_NUMBER{4};
+    constexpr uint64_t FLOOR_TRACK_NUMBER{5};
     //
     // init color_track_
     //
@@ -158,7 +163,7 @@ Recorder::Recorder(const string& file_path,
         color_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         // Track numbers start at 1
-        GetChild<KaxTrackNumber>(*color_track_).SetValue(1);
+        GetChild<KaxTrackNumber>(*color_track_).SetValue(COLOR_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*color_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*color_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*color_track_).SetValueUTF8("COLOR");
@@ -178,7 +183,7 @@ Recorder::Recorder(const string& file_path,
         tracks.PushElement(*depth_track_); // Track will be freed when the file is closed.
         depth_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*depth_track_).SetValue(2);
+        GetChild<KaxTrackNumber>(*depth_track_).SetValue(DEPTH_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*depth_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*depth_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*depth_track_).SetValueUTF8("DEPTH");
@@ -199,7 +204,7 @@ Recorder::Recorder(const string& file_path,
         tracks.PushElement(*depth_confidence_track_); // Track will be freed when the file is closed.
         depth_confidence_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*depth_confidence_track_).SetValue(3);
+        GetChild<KaxTrackNumber>(*depth_confidence_track_).SetValue(DEPTH_CONFIDENCE_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*depth_confidence_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*depth_confidence_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*depth_confidence_track_).SetValueUTF8("DEPTH_CONFIDENCE");
@@ -219,7 +224,7 @@ Recorder::Recorder(const string& file_path,
         tracks.PushElement(*audio_track_); // Track will be freed when the file is closed.
         audio_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*audio_track_).SetValue(3);
+        GetChild<KaxTrackNumber>(*audio_track_).SetValue(AUDIO_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*audio_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*audio_track_).SetValue(track_audio);
         GetChild<KaxTrackName>(*audio_track_).SetValueUTF8("AUDIO");
@@ -279,7 +284,7 @@ Recorder::Recorder(const string& file_path,
         tracks.PushElement(*floor_track_); // Track will be freed when the file is closed.
         floor_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*floor_track_).SetValue(4);
+        GetChild<KaxTrackNumber>(*floor_track_).SetValue(FLOOR_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*floor_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*floor_track_).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*floor_track_).SetValueUTF8("FLOOR");

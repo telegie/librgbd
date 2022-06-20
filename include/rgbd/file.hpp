@@ -45,10 +45,12 @@ public:
     FileVideoFrame(int64_t global_timecode,
                    const Bytes& color_bytes,
                    const Bytes& depth_bytes,
+                   const optional<Bytes>& depth_confidence_bytes,
                    const Plane& floor)
         : global_timecode_{global_timecode}
         , color_bytes_{color_bytes}
         , depth_bytes_{depth_bytes}
+        , depth_confidence_bytes_{depth_confidence_bytes}
         , floor_{floor}
     {
     }
@@ -68,6 +70,10 @@ public:
     {
         return depth_bytes_;
     }
+    const optional<Bytes>& depth_confidence_bytes() const noexcept
+    {
+        return depth_confidence_bytes_;
+    }
     const Plane& floor() const noexcept
     {
         return floor_;
@@ -77,6 +83,7 @@ private:
     int64_t global_timecode_;
     Bytes color_bytes_;
     Bytes depth_bytes_;
+    optional<Bytes> depth_confidence_bytes_;
     Plane floor_;
 };
 

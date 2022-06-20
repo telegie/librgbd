@@ -401,6 +401,7 @@ FileFrame* FileParser::readFrame()
     int64 global_timecode{0};
     Bytes color_bytes;
     Bytes depth_bytes;
+    optional<Bytes> depth_confidence_bytes{nullopt};
     optional<Plane> floor{nullopt};
     FileAudioFrame* audio_frame{nullptr};
 
@@ -424,6 +425,8 @@ FileFrame* FileParser::readFrame()
                         color_bytes = copy_data_buffer_to_bytes(data_buffer);
                     } else if (track_number == depth_track_number_) {
                         depth_bytes = copy_data_buffer_to_bytes(data_buffer);
+                    } else if (depth_confidence_track_number_ && track_number == *depth_confidence_track_number_) {
+                        depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
                     } else if (track_number == audio_track_number_) {
                         global_timecode = block_global_timecode;
                         audio_frame = new FileAudioFrame{block_global_timecode,
@@ -446,6 +449,8 @@ FileFrame* FileParser::readFrame()
                 color_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == depth_track_number_) {
                 depth_bytes = copy_data_buffer_to_bytes(data_buffer);
+            } else if (depth_confidence_track_number_ && track_number == *depth_confidence_track_number_) {
+                depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == audio_track_number_) {
                 audio_frame = new FileAudioFrame{block_global_timecode,
                                                  copy_data_buffer_to_bytes(data_buffer)};
@@ -466,7 +471,11 @@ FileFrame* FileParser::readFrame()
         if (!floor)
             throw std::runtime_error{"Failed to find a floor"};
 
-        return new FileVideoFrame{global_timecode, color_bytes, depth_bytes, *floor};
+        return new FileVideoFrame{global_timecode,
+                                  color_bytes,
+                                  depth_bytes,
+                                  depth_confidence_bytes,
+                                  *floor};
     }
 
     if (audio_frame) {
