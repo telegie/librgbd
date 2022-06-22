@@ -15,13 +15,28 @@ int main(int argc, char** argv)
         auto file_path{result["file"].as<std::string>()};
         rgbd::FileParser parser{file_path};
         auto& file_info{parser.info()};
-        std::cout << "depth track codec: " << file_info.depth_track_info().codec << std::endl;
+        auto file{parser.readAll()};
+        size_t color_byte_size{0};
+        size_t depth_byte_size{0};
+        size_t depth_confidence_byte_size{0};
+        for (auto& video_frame : file->video_frames()) {
+            color_byte_size += video_frame->color_bytes().size();
+            depth_byte_size += video_frame->depth_bytes().size();
+            auto& depth_confidence_bytes{video_frame->depth_confidence_bytes()};
+            if (depth_confidence_bytes)
+                depth_confidence_byte_size += depth_confidence_bytes->size();
+        }
+        std::cout << fmt::format("Total video frame count: {}\n", file->video_frames().size());
+        std::cout << fmt::format("Color track codec: {}\n", file_info.color_track_info().codec);
+        std::cout << fmt::format("Color track size: {} KB\n", color_byte_size / 1024);
+        std::cout << fmt::format("Depth track codec: {}\n", file_info.depth_track_info().codec);
+        std::cout << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
 
         if (file_info.depth_confidence_track_info()) {
-            std::cout << "has depth confidence track: "
-                      << file_info.depth_confidence_track_info()->codec << std::endl;
+            std::cout << fmt::format("Depth confidence track codec: {}\n", file_info.depth_confidence_track_info()->codec);
+            std::cout << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
         } else {
-            std::cout << "doesn't have depth confidence track" << std::endl;
+            std::cout << "No depth confidence track." << std::endl;
         }
         return 0;
     }
