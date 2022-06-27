@@ -104,7 +104,10 @@ endif()
 ### LIBPNG END ###
 
 ### SPDLOG BEGIN ###
-add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
+# Use existing spdlog if there already is an spdlog added.
+if(NOT TARGET spdlog::spdlog)
+  add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
+endif()
 ### SPDLOG END ###
 
 add_library(rgbd
