@@ -3,6 +3,21 @@ project(librgbd)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
+# Variables for later use in conditions.
+set(RGBD_PLATFORM_WINDOWS FALSE)
+set(RGBD_PLATFORM_MAC FALSE)
+set(RGBD_PLATFORM_IOS FALSE)
+set(RGBD_PLATFORM_WASM FALSE)
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(RGBD_PLATFORM_WINDOWS TRUE)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(RGBD_PLATFORM_MAC TRUE)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  set(RGBD_PLATFORM_IOS TRUE)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+  set(RGBD_PLATFORM_WASM TRUE)
+endif()
+
 ### CXXOPTS BEGIN ###
 add_subdirectory(deps/cxxopts)
 ### CXXOPTS END ###
@@ -47,9 +62,9 @@ set(LIBPNG_INCLUDE_DIRS
 # libpng depends on zlib.
 set(ZLIB_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/zlib-binaries)
 
-if(TG_PLATFORM_WINDOWS)
+if(RGBD_PLATFORM_WINDOWS)
   set(ZLIB_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
-elseif(TG_PLATFORM_MAC)
+elseif(RGBD_PLATFORM_MAC)
   set(ZLIB_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/arm64-mac)
 endif()
 
@@ -59,15 +74,15 @@ endif()
 # as all possible architectures of iOS are arm-based.
 # Setting CMAKE_SYSTEM_PROCESSOR is required for libpng build,
 # which changes its behavior based on CMAKE_SYSTEM_PROCESSOR.
-if(TG_PLATFORM_IOS AND CMAKE_SYSTEM_PROCESSOR STREQUAL "")
+if(RGBD_PLATFORM_IOS AND CMAKE_SYSTEM_PROCESSOR STREQUAL "")
   message("Setting empty CMAKE_SYSTEM_PROCESSOR to arm")
   set(CMAKE_SYSTEM_PROCESSOR arm)
 endif()
 
 # Install libpng and its dependency, zlib.
-if(TG_PLATFORM_WINDOWS OR TG_PLATFORM_MAC OR TG_PLATFORM_IOS)
+if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_IOS)
   set(SKIP_INSTALL_ALL ON)
-  if(TG_PLATFORM_MAC OR TG_PLATFORM_IOS)
+  if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_IOS)
     set(PNG_ARM_NEON off) # turned on due to checking causing compile errors
   endif()
   add_subdirectory(deps/libpng EXCLUDE_FROM_ALL)
@@ -82,7 +97,7 @@ if(TG_PLATFORM_WINDOWS OR TG_PLATFORM_MAC OR TG_PLATFORM_IOS)
   set_target_properties(pngtest PROPERTIES FOLDER "Excluded")
   set_target_properties(pngunknown PROPERTIES FOLDER "Excluded")
   set_target_properties(png_static PROPERTIES FOLDER "Dependencies")
-  if(TG_PLATFORM_MAC)
+  if(RGBD_PLATFORM_MAC)
     set_target_properties(genprebuilt PROPERTIES FOLDER "Excluded") # causes an error in Windows
   endif()
 endif()
@@ -165,7 +180,7 @@ set(RgbdLibraryDependencies
   spdlog::spdlog
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(RGBD_PLATFORM_WINDOWS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WIN64_DIR}/include
     ${LIBPNG_INCLUDE_DIRS}
@@ -178,7 +193,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   )
   # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
   set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(RGBD_PLATFORM_MAC)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
     ${LIBPNG_INCLUDE_DIRS}
@@ -191,7 +206,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     png_static
   )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+elseif(RGBD_PLATFORM_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
     ${LIBPNG_INCLUDE_DIRS}
@@ -199,7 +214,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   list(APPEND RgbdLibraryDependencies
     png_static
   )
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+elseif(RGBD_PLATFORM_WASM)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WASM_DIR}/include
   )
@@ -221,6 +236,6 @@ target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
 target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Windows" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
   add_subdirectory(src/cli)
 endif()
