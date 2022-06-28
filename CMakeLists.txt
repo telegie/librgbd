@@ -56,10 +56,7 @@ add_subdirectory(deps/json)
 ### LIBPNG BEGIN ###
 set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
 set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
-
-# libpng depends on zlib.
-set(ZLIB_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries/zlib-binaries)
-set(ZLIB_WIN64_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
+set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-mac)
 ### LIBPNG END ###
 
 ### SPDLOG BEGIN ###
@@ -158,7 +155,7 @@ if(RGBD_PLATFORM_WINDOWS)
 elseif(RGBD_PLATFORM_MAC)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
-    ${LIBPNG_INCLUDE_DIRS}
+    ${LIBPNG_MAC_DIR}/include
   )
   list(APPEND RgbdLibraryDependencies
     ${FFMPEG_MAC_DIR}/lib/libavcodec.a
@@ -166,7 +163,7 @@ elseif(RGBD_PLATFORM_MAC)
     ${FFMPEG_MAC_DIR}/lib/libavutil.a
     ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/arm64-mac/lib/libvpx.a
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
-    png_static
+    ${LIBPNG_MAC_DIR}/lib/libpng.a
   )
 elseif(RGBD_PLATFORM_IOS)
   list(APPEND RgbdIncludeDirectories
