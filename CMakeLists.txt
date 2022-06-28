@@ -57,6 +57,7 @@ add_subdirectory(deps/json)
 set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
 set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
 set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-mac)
+set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
 ### LIBPNG END ###
 
 ### SPDLOG BEGIN ###
@@ -168,10 +169,7 @@ elseif(RGBD_PLATFORM_MAC)
 elseif(RGBD_PLATFORM_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
-    ${LIBPNG_INCLUDE_DIRS}
-  )
-  list(APPEND RgbdLibraryDependencies
-    png_static
+    ${LIBPNG_IOS_DIR}/include
   )
 elseif(RGBD_PLATFORM_WASM)
   list(APPEND RgbdIncludeDirectories
