@@ -19,12 +19,9 @@
 [submodule "deps/libmatroska"]
 	path = deps/libmatroska
 	url = git@github.com:Matroska-Org/libmatroska.git
-[submodule "deps/libpng"]
-	path = deps/libpng
-	url = git@github.com:ssrobins/libpng.git
 [submodule "deps/spdlog"]
 	path = deps/spdlog
 	url = git@github.com:gabime/spdlog.git
-[submodule "deps/zlib-binaries"]
-	path = deps/zlib-binaries
-	url = git@github.com:telegie/zlib-binaries.git
+[submodule "deps/libpng-binaries"]
+	path = deps/libpng-binaries
+	url = git@github.com:telegie/libpng-binaries.git

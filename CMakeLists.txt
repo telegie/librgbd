@@ -54,52 +54,12 @@ add_subdirectory(deps/json)
 ### JSON BEGIN ###
 
 ### LIBPNG BEGIN ###
-set(LIBPNG_INCLUDE_DIRS
-  ${PROJECT_SOURCE_DIR}/deps/libpng
-  ${CMAKE_CURRENT_BINARY_DIR}/deps/libpng # libpng generates header files here that should be included in applications using it.
-)
+set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
+set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
 
 # libpng depends on zlib.
-set(ZLIB_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/zlib-binaries)
-
-if(RGBD_PLATFORM_WINDOWS)
-  set(ZLIB_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
-elseif(RGBD_PLATFORM_MAC)
-  set(ZLIB_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/arm64-mac)
-endif()
-
-# iOS build can have multiple targets set to CMAKE_OSX_ARCHITECTURES.
-# This leads to CMAKE_SYSTEM_PROCESSOR not being set.
-# However, in practice, it is okay to set CMAKE_SYSTEM_PROCESSOR to arm
-# as all possible architectures of iOS are arm-based.
-# Setting CMAKE_SYSTEM_PROCESSOR is required for libpng build,
-# which changes its behavior based on CMAKE_SYSTEM_PROCESSOR.
-if(RGBD_PLATFORM_IOS AND CMAKE_SYSTEM_PROCESSOR STREQUAL "")
-  message("Setting empty CMAKE_SYSTEM_PROCESSOR to arm")
-  set(CMAKE_SYSTEM_PROCESSOR arm)
-endif()
-
-# Install libpng and its dependency, zlib.
-if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_IOS)
-  set(SKIP_INSTALL_ALL ON)
-  set(PNG_ARM_NEON off) # turned on due to checking causing compile errors
-
-  add_subdirectory(deps/libpng EXCLUDE_FROM_ALL)
-  set_target_properties(genfiles PROPERTIES FOLDER "Dependencies")
-  set_target_properties(png PROPERTIES FOLDER "Dependencies")
-
-  set_target_properties(pngfix PROPERTIES FOLDER "Excluded")
-  set_target_properties(png-fix-itxt PROPERTIES FOLDER "Excluded")
-  set_target_properties(pngimage PROPERTIES FOLDER "Excluded")
-  set_target_properties(pngstest PROPERTIES FOLDER "Excluded")
-  set_target_properties(pngvalid PROPERTIES FOLDER "Excluded")
-  set_target_properties(pngtest PROPERTIES FOLDER "Excluded")
-  set_target_properties(pngunknown PROPERTIES FOLDER "Excluded")
-  set_target_properties(png_static PROPERTIES FOLDER "Dependencies")
-  if(RGBD_PLATFORM_MAC)
-    set_target_properties(genprebuilt PROPERTIES FOLDER "Excluded") # causes an error in Windows
-  endif()
-endif()
+set(ZLIB_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries/zlib-binaries)
+set(ZLIB_WIN64_ROOT ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
 ### LIBPNG END ###
 
 ### SPDLOG BEGIN ###
@@ -185,13 +145,13 @@ set(RgbdLibraryDependencies
 if(RGBD_PLATFORM_WINDOWS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WIN64_DIR}/include
-    ${LIBPNG_INCLUDE_DIRS}
+    ${LIBPNG_WIN64_DIR}/include
   )
   list(APPEND RgbdLibraryDependencies
     ${FFMPEG_WIN64_DIR}/bin/avcodec.lib
     ${FFMPEG_WIN64_DIR}/bin/avformat.lib
     ${FFMPEG_WIN64_DIR}/bin/avutil.lib
-    png
+    ${LIBPNG_WIN64_DIR}/lib/libpng16_static.lib
   )
   # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
   set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
