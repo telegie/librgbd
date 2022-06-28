@@ -82,9 +82,8 @@ endif()
 # Install libpng and its dependency, zlib.
 if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_IOS)
   set(SKIP_INSTALL_ALL ON)
-  if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_IOS)
-    set(PNG_ARM_NEON off) # turned on due to checking causing compile errors
-  endif()
+  set(PNG_ARM_NEON off) # turned on due to checking causing compile errors
+
   add_subdirectory(deps/libpng EXCLUDE_FROM_ALL)
   set_target_properties(genfiles PROPERTIES FOLDER "Dependencies")
   set_target_properties(png PROPERTIES FOLDER "Dependencies")
