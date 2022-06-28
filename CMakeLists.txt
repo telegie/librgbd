@@ -92,6 +92,7 @@ add_library(rgbd
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
   include/rgbd/recorder.hpp
+  include/rgbd/rgbd.hpp
   include/rgbd/rgbd_capi.h
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
