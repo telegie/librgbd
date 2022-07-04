@@ -1,11 +1,17 @@
 #include <rgbd/file_parser.hpp>
 #include <cxxopts.hpp>
+#include <fstream>
 
 int main(int argc, char** argv)
 {
     cxxopts::Options options{"rgbd-cli", "CLI for librgbd."};
     options.add_option("", cxxopts::Option{"h,help", "Print Usage"});
-    options.add_option("", cxxopts::Option{"f,file", "Print File Details", cxxopts::value<std::string>()});
+    options.add_option("", cxxopts::Option{"f,file",
+                                           "Print File Details",
+                                           cxxopts::value<std::string>()});
+    options.add_option("", cxxopts::Option{"c,cover",
+                                           "Cover Art File",
+                                           cxxopts::value<std::string>()});
 
     auto result{options.parse(argc, argv)};
     if (result.count("help")) {
@@ -39,6 +45,16 @@ int main(int argc, char** argv)
             std::cout << "No depth confidence track." << std::endl;
         }
         return 0;
+    } else if (result.count("cover")) {
+        auto file_path{result["cover"].as<std::string>()};
+        rgbd::FileParser parser{file_path};
+        auto& file_info{parser.info()};
+        auto file{parser.readAll()};
+        auto& cover_png_bytes{file_info.cover_png_bytes()};
+        std::ofstream fout;
+        fout.open("librgb_cover.png", std::ios::binary | std::ios::out);
+        fout.write((const char*)cover_png_bytes.data(), cover_png_bytes.size());
+        fout.close();
     }
 
     std::cout << "no option found from rgbd-cli" << std::endl;
