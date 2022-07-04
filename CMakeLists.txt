@@ -50,7 +50,9 @@ set(GSL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/deps/GSL/include)
 ### GSL END ###
 
 ### JSON BEGIN ###
-add_subdirectory(deps/json)
+if(NOT TARGET nlohmann_json::nlohmann_json)
+  add_subdirectory(deps/json)
+endif()
 ### JSON BEGIN ###
 
 ### LIBPNG BEGIN ###
