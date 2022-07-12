@@ -72,6 +72,10 @@ endif()
 ### ZSTD BEGIN ###
 if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
   add_subdirectory(deps/zstd/build/cmake EXCLUDE_FROM_ALL)
+  # adding include directories due to the following issue:
+  # https://github.com/facebook/zstd/issues/2377
+  target_include_directories(libzstd_shared PUBLIC deps/zstd/lib/)
+  target_include_directories(libzstd_static PUBLIC deps/zstd/lib/)
   set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
 endif()
 ### ZSTD END ###
@@ -92,6 +96,7 @@ add_library(rgbd
   include/rgbd/file.hpp
   include/rgbd/file_info.hpp
   include/rgbd/file_parser.hpp
+  include/rgbd/filesystem_utils.hpp
   include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -122,6 +127,7 @@ add_library(rgbd
   src/file.cpp
   src/file_info.cpp
   src/file_parser.cpp
+  src/filesystem_utils.cpp
   src/frame.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp

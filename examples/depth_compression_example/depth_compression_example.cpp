@@ -1,5 +1,6 @@
 #include <rgbd/rgbd.hpp>
 #include <iostream>
+#include <zstd.h>
 
 namespace rgbd
 {
