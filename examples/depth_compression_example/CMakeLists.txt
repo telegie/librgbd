@@ -1,8 +1,11 @@
-set(DepthCompressionExampleSources
+add_executable(DepthCompressionExample
   depth_compression_example.cpp
 )
 
-add_executable(DepthCompressionExample ${DepthCompressionExampleSources})
+# adding include directories due to the following issue:
+# https://github.com/facebook/zstd/issues/2377
+target_include_directories(DepthCompressionExample PUBLIC ${ZSTD_DIR}/lib)
+
 # need to use zstd shared library for msvc
 # reference: https://github.com/facebook/zstd/issues/1564
 if(RGBD_PLATFORM_WINDOWS)
@@ -16,6 +19,7 @@ elseif(RGBD_PLATFORM_MAC)
     libzstd_static
   )
 endif()
+
 set_target_properties(DepthCompressionExample PROPERTIES
   CXX_STANDARD 17
   FOLDER "Examples"
