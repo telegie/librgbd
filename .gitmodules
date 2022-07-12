@@ -25,3 +25,6 @@
 [submodule "deps/libpng-binaries"]
 	path = deps/libpng-binaries
 	url = git@github.com:telegie/libpng-binaries.git
+[submodule "deps/zstd"]
+	path = deps/zstd
+	url = git@github.com:facebook/zstd.git

@@ -69,6 +69,13 @@ if(NOT TARGET spdlog::spdlog)
 endif()
 ### SPDLOG END ###
 
+### ZSTD BEGIN ###
+if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
+  add_subdirectory(deps/zstd/build/cmake EXCLUDE_FROM_ALL)
+  set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
+endif()
+### ZSTD END ###
+
 add_library(rgbd
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
@@ -197,5 +204,6 @@ target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
 
 if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
+  add_subdirectory(examples/depth_compression_example)
   add_subdirectory(src/cli)
 endif()
