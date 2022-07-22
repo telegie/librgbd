@@ -15,6 +15,22 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_com_telegie_mainserver_LibrgbdJNI_sayHello
   (JNIEnv *, jclass);
 
+/*
+ * Class:     com_telegie_mainserver_LibrgbdJNI
+ * Method:    createFileParser
+ * Signature: ([B)J
+ */
+JNIEXPORT jlong JNICALL Java_com_telegie_mainserver_LibrgbdJNI_createFileParser
+  (JNIEnv *, jclass, jbyteArray);
+
+/*
+ * Class:     com_telegie_mainserver_LibrgbdJNI
+ * Method:    getCoverPngBytes
+ * Signature: (J)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_telegie_mainserver_LibrgbdJNI_getCoverPngBytes
+  (JNIEnv *, jclass, jlong);
+
 #ifdef __cplusplus
 }
 #endif
