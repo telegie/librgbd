@@ -210,3 +210,12 @@ if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
   add_subdirectory(examples/depth_compression_example)
   add_subdirectory(src/cli)
 endif()
+
+if(RGBD_PLATFORM_MAC)
+  set(JAVA_AWT_LIBRARY NotNeeded)
+  set(JAVA_JVM_LIBRARY NotNeeded)
+  set(JAVA_AWT_INCLUDE_PATH NotNeeded)
+  # reference: https://stackoverflow.com/questions/51047978/cmake-could-not-find-jni
+  find_package(JNI REQUIRED)
+  add_subdirectory(src/jni)
+endif()

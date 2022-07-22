@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/GSL" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/cxxopts" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/FFmpeg" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/build/src" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/libvpx-binaries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/libvpx-binaries/libvpx" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/opus-binaries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/ffmpeg-binaries/opus-binaries/opus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libebml" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libmatroska" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libpng-binaries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libpng-binaries/libpng" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libpng-binaries/zlib-binaries" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/libpng-binaries/zlib-binaries/zlib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/spdlog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/zstd" vcs="Git" />
+  </component>
+</project>

@@ -1,5 +1,5 @@
 add_executable(rgbd-cli
-   rgbd_cli.cpp
+  rgbd_cli.cpp
 )
 
 target_link_libraries(rgbd-cli PRIVATE rgbd cxxopts)
