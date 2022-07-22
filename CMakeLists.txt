@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(librgbd)
 
+set(RGBD_VERSION_MAJOR 1)
+set(RGBD_VERSION_MINOR 0)
+set(RGBD_VERSION_PATCH 0)
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 # Variables for later use in conditions.
@@ -205,6 +209,11 @@ target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
 target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
 target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
+target_compile_definitions(rgbd PUBLIC
+  CMAKE_RGBD_VERSION_MAJOR=${RGBD_VERSION_MAJOR}
+  CMAKE_RGBD_VERSION_MINOR=${RGBD_VERSION_MINOR}
+  CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
+)
 
 if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
   add_subdirectory(examples/depth_compression_example)
