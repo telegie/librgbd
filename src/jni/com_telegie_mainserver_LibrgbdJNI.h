@@ -9,26 +9,34 @@ extern "C" {
 #endif
 /*
  * Class:     com_telegie_mainserver_LibrgbdJNI
- * Method:    sayHello
- * Signature: ()I
+ * Method:    nativeGetVersion
+ * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jint JNICALL Java_com_telegie_mainserver_LibrgbdJNI_sayHello
+JNIEXPORT jstring JNICALL Java_com_telegie_mainserver_LibrgbdJNI_nativeGetVersion
   (JNIEnv *, jclass);
 
 /*
  * Class:     com_telegie_mainserver_LibrgbdJNI
- * Method:    createFileParser
+ * Method:    nativeCreateFileParser
  * Signature: ([B)J
  */
-JNIEXPORT jlong JNICALL Java_com_telegie_mainserver_LibrgbdJNI_createFileParser
+JNIEXPORT jlong JNICALL Java_com_telegie_mainserver_LibrgbdJNI_nativeCreateFileParser
   (JNIEnv *, jclass, jbyteArray);
 
 /*
  * Class:     com_telegie_mainserver_LibrgbdJNI
- * Method:    getCoverPngBytes
+ * Method:    nativeDeleteFileParser
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_telegie_mainserver_LibrgbdJNI_nativeDeleteFileParser
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_telegie_mainserver_LibrgbdJNI
+ * Method:    nativeGetCoverPngBytes
  * Signature: (J)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_com_telegie_mainserver_LibrgbdJNI_getCoverPngBytes
+JNIEXPORT jbyteArray JNICALL Java_com_telegie_mainserver_LibrgbdJNI_nativeGetCoverPngBytes
   (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus

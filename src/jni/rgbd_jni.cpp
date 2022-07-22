@@ -2,11 +2,14 @@
 
 #include <rgbd/file_parser.hpp>
 
-jint Java_com_telegie_mainserver_LibrgbdJNI_sayHello(JNIEnv *, jclass) {
-    return 14141441;
+jstring Java_com_telegie_mainserver_LibrgbdJNI_nativeGetVersion(JNIEnv *env, jclass) {
+    std::string version{fmt::format("{}.{}.{}", rgbd::MAJOR_VERSION, rgbd::MINOR_VERSION, rgbd::PATCH_VERSION)};
+    jstring result{env->NewStringUTF(version.c_str())};
+    return result;
 }
 
-jlong Java_com_telegie_mainserver_LibrgbdJNI_createFileParser(JNIEnv *env, jclass, jbyteArray byte_array) {
+jlong Java_com_telegie_mainserver_LibrgbdJNI_nativeCreateFileParser(JNIEnv *env, jclass, jbyteArray byte_array)
+{
     size_t len = env->GetArrayLength(byte_array);
     unsigned char *buf = new unsigned char[len];
     env->GetByteArrayRegion(byte_array, 0, len, reinterpret_cast<jbyte *>(buf));
@@ -15,8 +18,16 @@ jlong Java_com_telegie_mainserver_LibrgbdJNI_createFileParser(JNIEnv *env, jclas
     return reinterpret_cast<jlong>(file_parser);
 }
 
+JNIEXPORT void JNICALL
+Java_com_telegie_mainserver_LibrgbdJNI_nativeDeleteFileParser(JNIEnv *, jclass, jlong file_parser_ptr)
+{
+    auto file_parser{reinterpret_cast<rgbd::FileParser *>(file_parser_ptr)};
+    delete file_parser;
+}
+
 JNIEXPORT jbyteArray JNICALL
-Java_com_telegie_mainserver_LibrgbdJNI_getCoverPngBytes(JNIEnv *env, jclass, jlong file_parser_ptr) {
+Java_com_telegie_mainserver_LibrgbdJNI_nativeGetCoverPngBytes(JNIEnv *env, jclass, jlong file_parser_ptr)
+{
     auto file_parser{reinterpret_cast<rgbd::FileParser *>(file_parser_ptr)};
     auto &cover_png_bytes{file_parser->info().cover_png_bytes()};
 
