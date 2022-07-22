@@ -1,4 +1,4 @@
-add_library(rgbd-jni
+add_library(rgbd-jni SHARED
   com_telegie_mainserver_LibrgbdJNI.h
   rgbd_jni.cpp
 )

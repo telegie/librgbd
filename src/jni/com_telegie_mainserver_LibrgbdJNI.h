@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_telegie_mainserver_LibrgbdJNI
  * Method:    sayHello
- * Signature: ()V
+ * Signature: ()I
  */
-JNIEXPORT int JNICALL Java_com_telegie_mainserver_LibrgbdJNI_sayHello
-  (JNIEnv *, jobject);
+JNIEXPORT jint JNICALL Java_com_telegie_mainserver_LibrgbdJNI_sayHello
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }
