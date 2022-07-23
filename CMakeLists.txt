@@ -78,7 +78,7 @@ endif()
 ### SPDLOG END ###
 
 ### ZSTD BEGIN ###
-if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
+if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   set(ZSTD_DIR ${PROJECT_SOURCE_DIR}/deps/zstd)
   add_subdirectory(deps/zstd/build/cmake EXCLUDE_FROM_ALL)
   set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
@@ -233,7 +233,7 @@ target_compile_definitions(rgbd PUBLIC
   CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
 )
 
-if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC)
+if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   add_subdirectory(examples/depth_compression_example)
   add_subdirectory(src/cli)
 endif()

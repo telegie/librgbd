@@ -13,7 +13,7 @@ if(RGBD_PLATFORM_WINDOWS)
     rgbd
     libzstd_shared
   )
-elseif(RGBD_PLATFORM_MAC)
+elseif(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   target_link_libraries(DepthCompressionExample PUBLIC
     rgbd
     libzstd_static
