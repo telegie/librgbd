@@ -16,6 +16,8 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(RGBD_PLATFORM_WINDOWS TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(RGBD_PLATFORM_MAC TRUE)
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(RGBD_PLATFORM_LINUX TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
   set(RGBD_PLATFORM_IOS TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
@@ -30,6 +32,7 @@ add_subdirectory(deps/cxxopts)
 set(FFMPEG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/ffmpeg-binaries)
 set(FFMPEG_WIN64_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-windows)
 set(FFMPEG_MAC_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/arm64-mac)
+set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
 set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/arm64-ios)
 ### FFMPEG END ###
@@ -63,6 +66,7 @@ endif()
 set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
 set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
 set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-mac)
+set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-linux)
 set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
 ### LIBPNG END ###
 
@@ -182,6 +186,20 @@ elseif(RGBD_PLATFORM_MAC)
     ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/arm64-mac/lib/libvpx.a
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
+  )
+elseif(RGBD_PLATFORM_LINUX)
+  list(APPEND RgbdIncludeDirectories
+    ${FFMPEG_LINUX_DIR}/include
+    ${LIBPNG_LINUX_DIR}/include
+  )
+message("RgbdIncludeDirectorie: ${RgbdIncludeDirectories}")
+  list(APPEND RgbdLibraryDependencies
+    ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
+    ${FFMPEG_LINUX_DIR}/lib/libavformat.a
+    ${FFMPEG_LINUX_DIR}/lib/libavutil.a
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
+    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
+    ${LIBPNG_LINUX_DIR}/lib/libpng.a
   )
 elseif(RGBD_PLATFORM_IOS)
   list(APPEND RgbdIncludeDirectories
