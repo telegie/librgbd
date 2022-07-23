@@ -161,10 +161,7 @@ extern "C"
                              int color_bitrate,
                              int framerate,
                              int depth_diff_multiplier,
-                             int samplerate,
-                             int major_version,
-                             int minor_version,
-                             int patch_version);
+                             int samplerate);
     void rgbd_recorder_dtor(void* ptr);
     void rgbd_recorder_record_rgbd_frame(void* ptr,
                                        int64_t time_point_us,

@@ -94,7 +94,7 @@ Bytes get_cover_png_bytes(int width,
             b_channel[cover_row * COVER_SIZE + cover_col] = b;
         }
     }
-    
+
     return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
 }
 
@@ -104,10 +104,7 @@ Recorder::Recorder(const string& file_path,
                    int color_bitrate,
                    int framerate,
                    int depth_diff_multiplier,
-                   int samplerate,
-                   int major_version,
-                   int minor_version,
-                   int patch_version)
+                   int samplerate)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
@@ -143,9 +140,9 @@ Recorder::Recorder(const string& file_path,
         GetChild<KaxMuxingApp>(segment_info).SetValue(L"libmatroska-1.6.3");
         GetChild<KaxWritingApp>(segment_info)
             .SetValueUTF8(
-                fmt::format("telegie-{}.{}.{}", major_version, minor_version, patch_version));
+                fmt::format("librgbd-{}.{}.{}", rgbd::MAJOR_VERSION, rgbd::MINOR_VERSION, rgbd::PATCH_VERSION));
         GetChild<KaxDateUTC>(segment_info).SetEpochDate(time(0));
-        GetChild<KaxTitle>(segment_info).SetValue(L"Telegie");
+        GetChild<KaxTitle>(segment_info).SetValue(L"Telegie Video");
     }
 
     constexpr uint64_t COLOR_TRACK_NUMBER{1};

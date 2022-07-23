@@ -40,10 +40,7 @@ public:
              int color_bitrate,
              int framerate,
              int depth_diff_multiplier,
-             int samplerate,
-             int major_version,
-             int minor_version,
-             int patch_version);
+             int samplerate);
     void recordFrame(const Frame& rgbd_frame);
     void recordFrame(int64_t time_point_us,
                      int width,

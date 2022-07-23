@@ -463,10 +463,7 @@ void* rgbd_recorder_ctor(const char* file_path,
                          int color_bitrate,
                          int framerate,
                          int depth_diff_multiplier,
-                         int samplerate,
-                         int major_version,
-                         int minor_version,
-                         int patch_version)
+                         int samplerate)
 {
     return new rgbd::Recorder(file_path,
                               has_depth_confidence,
@@ -474,10 +471,7 @@ void* rgbd_recorder_ctor(const char* file_path,
                               color_bitrate,
                               framerate,
                               depth_diff_multiplier,
-                              samplerate,
-                              major_version,
-                              minor_version,
-                              patch_version);
+                              samplerate);
 }
 
 void rgbd_recorder_dtor(void* ptr)
