@@ -42,6 +42,9 @@ add_subdirectory(deps/libebml EXCLUDE_FROM_ALL)
 # libmatroska consumes libebml as EBML::ebml
 add_library(EBML::ebml ALIAS ebml)
 add_subdirectory(deps/libmatroska EXCLUDE_FROM_ALL)
+if(RGBD_PLATFORM_LINUX)
+  target_compile_options(ebml PUBLIC -fPIC)
+endif()
 set_target_properties(ebml PROPERTIES FOLDER "Dependencies")
 set_target_properties(matroska PROPERTIES FOLDER "Dependencies")
 ### LIBMATROSKA END ###
@@ -74,6 +77,9 @@ set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
 # Use existing spdlog if there already is an spdlog added.
 if(NOT TARGET spdlog::spdlog)
   add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
+  if(RGBD_PLATFORM_LINUX)
+    target_compile_options(spdlog PUBLIC -fPIC)
+  endif()
 endif()
 ### SPDLOG END ###
 
@@ -192,7 +198,6 @@ elseif(RGBD_PLATFORM_LINUX)
     ${FFMPEG_LINUX_DIR}/include
     ${LIBPNG_LINUX_DIR}/include
   )
-message("RgbdIncludeDirectorie: ${RgbdIncludeDirectories}")
   list(APPEND RgbdLibraryDependencies
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
@@ -201,6 +206,8 @@ message("RgbdIncludeDirectorie: ${RgbdIncludeDirectories}")
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
   )
+  # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
+  target_compile_options(rgbd PUBLIC -fPIC)
 elseif(RGBD_PLATFORM_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
@@ -238,10 +245,16 @@ if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   add_subdirectory(src/cli)
 endif()
 
-if(RGBD_PLATFORM_MAC)
+if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   set(JAVA_AWT_LIBRARY NotNeeded)
   set(JAVA_JVM_LIBRARY NotNeeded)
   set(JAVA_AWT_INCLUDE_PATH NotNeeded)
+  if(RGBD_PLATFORM_LINUX)
+    # Quick fix for FindJNI.
+    # reference: https://stackoverflow.com/questions/17636166/cmake-find-packagejni-not-work-in-ubuntu-12-04-amd64
+    set(JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64)
+  endif()
+
   # reference: https://stackoverflow.com/questions/51047978/cmake-could-not-find-jni
   find_package(JNI REQUIRED)
   add_subdirectory(src/jni)
