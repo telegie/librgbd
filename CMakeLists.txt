@@ -258,4 +258,6 @@ if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   # reference: https://stackoverflow.com/questions/51047978/cmake-could-not-find-jni
   find_package(JNI REQUIRED)
   add_subdirectory(src/jni)
+
+  install(TARGETS rgbd-jni DESTINATION bin)
 endif()
