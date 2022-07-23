@@ -259,5 +259,6 @@ if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
   find_package(JNI REQUIRED)
   add_subdirectory(src/jni)
 
+  install(TARGETS rgbd-cli DESTINATION bin)
   install(TARGETS rgbd-jni DESTINATION bin)
 endif()
