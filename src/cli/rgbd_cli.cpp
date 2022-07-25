@@ -52,7 +52,7 @@ int main(int argc, char** argv)
         auto file{parser.readAll()};
         auto& cover_png_bytes{file_info.cover_png_bytes()};
         std::ofstream fout;
-        fout.open("librgb_cover.png", std::ios::binary | std::ios::out);
+        fout.open("librgbd_cover.png", std::ios::binary | std::ios::out);
         fout.write((const char*)cover_png_bytes.data(), cover_png_bytes.size());
         fout.close();
     }
