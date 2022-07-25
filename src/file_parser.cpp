@@ -353,7 +353,10 @@ void FileParser::init()
                 vector<char> calibration_vector(file_data.GetSize());
                 memcpy(calibration_vector.data(), file_data.GetBuffer(), file_data.GetSize());
                 string calibration_str{calibration_vector.begin(), calibration_vector.end()};
-                json calibration_json{json::parse(calibration_str)};
+                // Brace initialization of json behaves differently in gcc than in clang.
+		// Do not use brace initialization.
+		// reference: https://github.com/nlohmann/json/issues/2339
+                json calibration_json(json::parse(calibration_str));
 
                 string calibration_type{calibration_json["calibrationType"].get<string>()};
                 if (calibration_type == "azureKinect") {
