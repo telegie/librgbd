@@ -205,6 +205,8 @@ elseif(RGBD_PLATFORM_LINUX)
     ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
+    -static-libgcc
+    -static-libstdc++
   )
   # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
   target_compile_options(rgbd PUBLIC -fPIC)
