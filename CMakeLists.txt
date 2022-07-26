@@ -10,20 +10,21 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 set(CMAKE_POLICY_DEFAULT_CMP0063 NEW)
 
 # Variables for later use in conditions.
-set(RGBD_PLATFORM_WINDOWS FALSE)
-set(RGBD_PLATFORM_MAC FALSE)
-set(RGBD_PLATFORM_IOS FALSE)
-set(RGBD_PLATFORM_WASM FALSE)
+set(RGBD_OS_WINDOWS FALSE)
+set(RGBD_OS_MAC FALSE)
+set(RGBD_OS_LINUX FALSE)
+set(RGBD_OS_IOS FALSE)
+set(RGBD_OS_WASM FALSE)
 if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(RGBD_PLATFORM_WINDOWS TRUE)
+  set(RGBD_OS_WINDOWS TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(RGBD_PLATFORM_MAC TRUE)
+  set(RGBD_OS_MAC TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(RGBD_PLATFORM_LINUX TRUE)
+  set(RGBD_OS_LINUX TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-  set(RGBD_PLATFORM_IOS TRUE)
+  set(RGBD_OS_IOS TRUE)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
-  set(RGBD_PLATFORM_WASM TRUE)
+  set(RGBD_OS_WASM TRUE)
 endif()
 
 ### CXXOPTS BEGIN ###
@@ -44,7 +45,7 @@ add_subdirectory(deps/libebml EXCLUDE_FROM_ALL)
 # libmatroska consumes libebml as EBML::ebml
 add_library(EBML::ebml ALIAS ebml)
 add_subdirectory(deps/libmatroska EXCLUDE_FROM_ALL)
-if(RGBD_PLATFORM_LINUX)
+if(RGBD_OS_LINUX)
   target_compile_options(ebml PUBLIC -fPIC)
 endif()
 set_target_properties(ebml PROPERTIES FOLDER "Dependencies")
@@ -79,14 +80,14 @@ set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
 # Use existing spdlog if there already is an spdlog added.
 if(NOT TARGET spdlog::spdlog)
   add_subdirectory(deps/spdlog EXCLUDE_FROM_ALL)
-  if(RGBD_PLATFORM_LINUX)
+  if(RGBD_OS_LINUX)
     target_compile_options(spdlog PUBLIC -fPIC)
   endif()
 endif()
 ### SPDLOG END ###
 
 ### ZSTD BEGIN ###
-if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   set(ZSTD_DIR ${PROJECT_SOURCE_DIR}/deps/zstd)
   add_subdirectory(deps/zstd/build/cmake EXCLUDE_FROM_ALL)
   set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
@@ -169,7 +170,7 @@ set(RgbdLibraryDependencies
   spdlog::spdlog
 )
 
-if(RGBD_PLATFORM_WINDOWS)
+if(RGBD_OS_WINDOWS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WIN64_DIR}/include
     ${LIBPNG_WIN64_DIR}/include
@@ -182,7 +183,7 @@ if(RGBD_PLATFORM_WINDOWS)
   )
   # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
   set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
-elseif(RGBD_PLATFORM_MAC)
+elseif(RGBD_OS_MAC)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
     ${LIBPNG_MAC_DIR}/include
@@ -195,7 +196,7 @@ elseif(RGBD_PLATFORM_MAC)
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
   )
-elseif(RGBD_PLATFORM_LINUX)
+elseif(RGBD_OS_LINUX)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_LINUX_DIR}/include
     ${LIBPNG_LINUX_DIR}/include
@@ -210,12 +211,12 @@ elseif(RGBD_PLATFORM_LINUX)
   )
   # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
   target_compile_options(rgbd PUBLIC -fPIC)
-elseif(RGBD_PLATFORM_IOS)
+elseif(RGBD_OS_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
     ${LIBPNG_IOS_DIR}/include
   )
-elseif(RGBD_PLATFORM_WASM)
+elseif(RGBD_OS_WASM)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WASM_DIR}/include
   )
@@ -242,16 +243,16 @@ target_compile_definitions(rgbd PUBLIC
   CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
 )
 
-if(RGBD_PLATFORM_WINDOWS OR RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
   add_subdirectory(src/cli)
 endif()
 
-if(RGBD_PLATFORM_MAC OR RGBD_PLATFORM_LINUX)
+if(RGBD_OS_MAC OR RGBD_OS_LINUX)
   set(JAVA_AWT_LIBRARY NotNeeded)
   set(JAVA_JVM_LIBRARY NotNeeded)
   set(JAVA_AWT_INCLUDE_PATH NotNeeded)
-  if(RGBD_PLATFORM_LINUX)
+  if(RGBD_OS_LINUX)
     # Quick fix for FindJNI.
     # reference: https://stackoverflow.com/questions/17636166/cmake-find-packagejni-not-work-in-ubuntu-12-04-amd64
     set(JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64)
