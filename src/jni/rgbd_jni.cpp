@@ -1,4 +1,4 @@
-#include "com_telegie_mainserver_LibrgbdJNI.h"
+#include "rgbd_jni.h"
 
 #include <rgbd/file_parser.hpp>
 
@@ -18,14 +18,21 @@ jlong Java_com_telegie_mainserver_LibrgbdJNI_nativeCreateFileParser(JNIEnv *env,
     return reinterpret_cast<jlong>(file_parser);
 }
 
-JNIEXPORT void JNICALL
-Java_com_telegie_mainserver_LibrgbdJNI_nativeDeleteFileParser(JNIEnv *, jclass, jlong file_parser_ptr)
+void Java_com_telegie_mainserver_LibrgbdJNI_nativeDeleteFileParser(JNIEnv *, jclass, jlong file_parser_ptr)
 {
     auto file_parser{reinterpret_cast<rgbd::FileParser *>(file_parser_ptr)};
     delete file_parser;
 }
 
-JNIEXPORT jbyteArray JNICALL
+
+jdouble Java_com_telegie_mainserver_LibrgbdJNI_nativeGetDurationUs(JNIEnv *, jclass, jlong file_parser_ptr)
+{
+    auto file_parser{reinterpret_cast<rgbd::FileParser *>(file_parser_ptr)};
+    auto duration_us{file_parser->info().duration_us()};
+    return duration_us;
+}
+
+jbyteArray
 Java_com_telegie_mainserver_LibrgbdJNI_nativeGetCoverPngBytes(JNIEnv *env, jclass, jlong file_parser_ptr)
 {
     auto file_parser{reinterpret_cast<rgbd::FileParser *>(file_parser_ptr)};

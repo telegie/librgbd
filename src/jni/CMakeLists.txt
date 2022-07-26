@@ -1,6 +1,6 @@
 add_library(rgbd-jni SHARED
-  com_telegie_mainserver_LibrgbdJNI.h
   rgbd_jni.cpp
+  rgbd_jni.h
 )
 
 target_include_directories(rgbd-jni PRIVATE ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
