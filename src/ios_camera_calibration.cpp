@@ -103,6 +103,30 @@ IosCameraCalibration IosCameraCalibration::fromJson(const json& json)
                                 lens_distortion_lookup_table};
 }
 
+Bytes IosCameraCalibration::toBytes() const noexcept
+{
+    Bytes bytes;
+    append_bytes(bytes, convert_to_bytes(color_width_));
+    append_bytes(bytes, convert_to_bytes(color_height_));
+    append_bytes(bytes, convert_to_bytes(depth_width_));
+    append_bytes(bytes, convert_to_bytes(depth_height_));
+
+    append_bytes(bytes, convert_to_bytes(fx_));
+    append_bytes(bytes, convert_to_bytes(fy_));
+    append_bytes(bytes, convert_to_bytes(ox_));
+    append_bytes(bytes, convert_to_bytes(oy_));
+    append_bytes(bytes, convert_to_bytes(reference_dimension_width_));
+    append_bytes(bytes, convert_to_bytes(reference_dimension_height_));
+    append_bytes(bytes, convert_to_bytes(lens_distortion_center_x_));
+    append_bytes(bytes, convert_to_bytes(lens_distortion_center_y_));
+
+    append_bytes(bytes, convert_to_bytes(gsl::narrow<int>(lens_distortion_lookup_table_.size())));
+    for (float value : lens_distortion_lookup_table_)
+        append_bytes(bytes, convert_to_bytes(value));
+
+    return bytes;
+}
+
 json IosCameraCalibration::toJson() const noexcept
 {
     return json{{"calibrationType", "ios"},
