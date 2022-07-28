@@ -15,7 +15,6 @@
 #include <rgbd/file.hpp>
 #include <rgbd/file_info.hpp>
 #include <rgbd/file_parser.hpp>
-#include <rgbd/filesystem_utils.hpp>
 #include <rgbd/frame.hpp>
 #include <rgbd/integer_frame.hpp>
 #include <rgbd/ios_calibration_utils.hpp>
@@ -28,5 +27,5 @@
 #include <rgbd/rvl.hpp>
 #include <rgbd/tdc1_decoder.hpp>
 #include <rgbd/tdc1_encoder.hpp>
+#include <rgbd/video_folder.hpp>
 #include <rgbd/yuv_frame.hpp>
-#include <rgbd/tdc1_decoder.hpp>

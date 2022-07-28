@@ -110,7 +110,6 @@ add_library(rgbd
   include/rgbd/file.hpp
   include/rgbd/file_info.hpp
   include/rgbd/file_parser.hpp
-  include/rgbd/filesystem_utils.hpp
   include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -125,6 +124,7 @@ add_library(rgbd
   include/rgbd/rvl.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
+  include/rgbd/video_folder.hpp
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
   src/byte_utils.cpp
@@ -141,7 +141,6 @@ add_library(rgbd
   src/file.cpp
   src/file_info.cpp
   src/file_parser.cpp
-  src/filesystem_utils.cpp
   src/frame.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
@@ -155,6 +154,7 @@ add_library(rgbd
   src/rvl.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
+  src/video_folder.cpp
   src/yuv_frame.cpp
 )
 set(RgbdIncludeDirectories
@@ -241,6 +241,7 @@ target_compile_definitions(rgbd PUBLIC
   CMAKE_RGBD_VERSION_MAJOR=${RGBD_VERSION_MAJOR}
   CMAKE_RGBD_VERSION_MINOR=${RGBD_VERSION_MINOR}
   CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
+  CMAKE_RGBD_VIDEOS_DIR="${PROJECT_SOURCE_DIR}/videos"
 )
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
