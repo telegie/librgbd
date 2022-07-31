@@ -6,35 +6,15 @@ namespace rgbd
 {
 void run()
 {
-    const std::vector<std::string> VIDEO_FOLDER_PATHS{"../../../../../../videos/",
-                                                      "../../../../../../../videos/"};
-    auto videos_folder{FileSystemUtils::findDataFolder(VIDEO_FOLDER_PATHS)};
-    if (!videos_folder)
-        throw std::runtime_error("No videos folder...");
+    auto video_folder{VideoFolder::createFromDefaultPath()};
+    if (!video_folder)
+        throw std::runtime_error("No video_folder...");
 
-    std::cout << "Options:" << std::endl;
-    for (int i{0}; i < videos_folder->filenames.size(); ++i)
-        std::cout << "- (" << i << ") " << videos_folder->filenames[i] << std::endl;
+    auto video_file_path{video_folder->runSelectFileCLI()};
+    if (!video_file_path)
+        throw std::runtime_error("No video_file_path...");
 
-    int index{0};
-    while (true) {
-        std::cout << "Select: ";
-        string line;
-        std::getline(std::cin, line);
-        try {
-            index = stoi(line);
-            if (index >= 0 && index < videos_folder->filenames.size())
-                break;
-        } catch (std::invalid_argument) {
-            // Ignore non-numeric inputs.
-        }
-        std::cout << "Invalid Input...\n";
-    }
-
-    const auto filename{videos_folder->filenames[index]};
-    const auto file_path{videos_folder->folder_path + filename};
-
-    rgbd::FileParser parser{file_path.c_str()};
+    rgbd::FileParser parser{video_file_path->c_str()};
     auto file{parser.readAll()};
 
     size_t color_size{0};
@@ -53,31 +33,42 @@ void run()
         decoded_frames.push_back(decoder.decode(video_frame->depth_bytes()));
 
     rgbd::TDC1Encoder encoder{decoded_frames[0].width(), decoded_frames[0].height(), 500};
-    vector<Bytes> encoded_frames1;
-    vector<Bytes> encoded_frames2;
+    // TODO: Test if encoded ones are containing the same information by decompressing and comparing them.
+    vector<Bytes> tdc1_frames;
+    vector<Bytes> tdc1_zstd_frames;
+
+    size_t rvl_byte_size_sum{0};
+    size_t tdc1_byte_size_sum{0};
+    size_t tdc1_zstd_byte_size_sum{0};
+    size_t uncompressed_byte_size_sum{0};
     bool first{true};
     for (auto& decoded_frame : decoded_frames) {
-        Bytes encoded_frame{encoder.encode(decoded_frame.values(), first)};
-        encoded_frames1.push_back(encoded_frame);
-        Bytes zstd_frame{ZSTD_compressBound(encoded_frame.size())};
+        Bytes rvl_frame{rvl::compress<int16_t>(decoded_frame.values())};
+
+        Bytes tdc1_frame{encoder.encode(decoded_frame.values(), first)};
+        tdc1_frames.push_back(tdc1_frame);
+
+        Bytes zstd_frame{ZSTD_compressBound(tdc1_frame.size())};
         size_t zstd_frame_size{ZSTD_compress(
-            zstd_frame.data(), zstd_frame.size(), encoded_frame.data(), encoded_frame.size(), 1)};
+            zstd_frame.data(), zstd_frame.size(), tdc1_frame.data(), tdc1_frame.size(), 1)};
         zstd_frame.resize(zstd_frame_size);
-        encoded_frames2.push_back(zstd_frame);
+        tdc1_zstd_frames.push_back(zstd_frame);
+
+        rvl_byte_size_sum += rvl_frame.size();
+        tdc1_byte_size_sum += tdc1_frame.size();
+        tdc1_zstd_byte_size_sum += zstd_frame.size();
+        uncompressed_byte_size_sum += decoded_frame.width() * decoded_frame.height() * sizeof(int16_t);
         first = false;
     }
-    spdlog::info("encoded_frames1.size(): {}", encoded_frames1.size());
-    spdlog::info("encoded_frames2.size(): {}", encoded_frames2.size());
 
-    size_t encoder1_size{0};
-    size_t encoder2_size{0};
-    for (auto& encoded_frame1 : encoded_frames1)
-        encoder1_size += encoded_frame1.size();
-    for (auto& encoded_frame2 : encoded_frames2)
-        encoder2_size += encoded_frame2.size();
+    spdlog::info("rvl_byte_size_sum: {}", rvl_byte_size_sum);
+    spdlog::info("tdc1_byte_size_sum: {}", tdc1_byte_size_sum);
+    spdlog::info("tdc1_zstd_byte_size_sum: {}", tdc1_zstd_byte_size_sum);
+    spdlog::info("uncompressed_byte_size_sum: {}", uncompressed_byte_size_sum);
 
-    spdlog::info("encoder1_size: {}", encoder1_size);
-    spdlog::info("encoder2_size: {}", encoder2_size);
+    spdlog::info("RVL compression ratio: {}", static_cast<float>(uncompressed_byte_size_sum) / rvl_byte_size_sum);
+    spdlog::info("TDC1 compression ratio: {}", static_cast<float>(uncompressed_byte_size_sum) / tdc1_byte_size_sum);
+    spdlog::info("TDC1 + ZSTD compression ratio: {}", static_cast<float>(uncompressed_byte_size_sum) / tdc1_zstd_byte_size_sum);
 }
 }
 
