@@ -27,6 +27,9 @@ extern "C"
     //////// END ENUMS ////////
 
     //////// START CONSTANTS ////////
+    int RGBD_MAJOR_VERSION();
+    int RGBD_MINOR_VERSION();
+    int RGBD_PATCH_VERSION();
     int RGBD_AUDIO_SAMPLE_RATE();
     int RGBD_AUDIO_INPUT_CHANNEL_COUNT();
     int RGBD_AUDIO_INPUT_SAMPLES_PER_FRAME();

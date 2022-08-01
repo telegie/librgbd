@@ -13,6 +13,21 @@
 #include "tdc1_decoder.hpp"
 
 //////// START CONSTANTS ////////
+int RGBD_MAJOR_VERSION()
+{
+    return rgbd::MAJOR_VERSION;
+}
+
+int RGBD_MINOR_VERSION()
+{
+    return rgbd::MINOR_VERSION;
+}
+
+int RGBD_PATCH_VERSION()
+{
+    return rgbd::PATCH_VERSION;
+}
+
 int RGBD_AUDIO_SAMPLE_RATE()
 {
     return rgbd::AUDIO_SAMPLE_RATE;
