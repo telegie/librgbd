@@ -93,8 +93,7 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
 endif()
 ### ZSTD END ###
-
-add_library(rgbd
+set(RgbdSources
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
   include/rgbd/camera_calibration.hpp
@@ -169,6 +168,14 @@ set(RgbdLibraryDependencies
   nlohmann_json::nlohmann_json
   spdlog::spdlog
 )
+set(RgbdLinkOptions "")
+set(RgbdCompileOptions "")
+set(RgbdCompileDefinitions
+  CMAKE_RGBD_VERSION_MAJOR=${RGBD_VERSION_MAJOR}
+  CMAKE_RGBD_VERSION_MINOR=${RGBD_VERSION_MINOR}
+  CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
+  CMAKE_RGBD_VIDEOS_DIR="${PROJECT_SOURCE_DIR}/videos"
+)
 
 if(RGBD_OS_WINDOWS)
   list(APPEND RgbdIncludeDirectories
@@ -209,8 +216,6 @@ elseif(RGBD_OS_LINUX)
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
   )
-  # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
-  target_compile_options(rgbd PUBLIC -fPIC)
 elseif(RGBD_OS_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
@@ -229,20 +234,40 @@ elseif(RGBD_OS_WASM)
   )
 
   set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
-  target_link_options(rgbd PUBLIC ${RgbdLibraryWasmOptions})
-  target_compile_options(rgbd PUBLIC ${RgbdLibraryWasmOptions})
+  list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions})
+  list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
 endif()
 
-target_include_directories(rgbd PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
-target_include_directories(rgbd PUBLIC ${RgbdIncludeDirectories})
-target_link_libraries(rgbd PUBLIC ${RgbdLibraryDependencies})
-set_target_properties(rgbd PROPERTIES CXX_STANDARD 17)
-target_compile_definitions(rgbd PUBLIC
-  CMAKE_RGBD_VERSION_MAJOR=${RGBD_VERSION_MAJOR}
-  CMAKE_RGBD_VERSION_MINOR=${RGBD_VERSION_MINOR}
-  CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
-  CMAKE_RGBD_VIDEOS_DIR="${PROJECT_SOURCE_DIR}/videos"
-)
+add_library(rgbd-static STATIC ${RgbdSources})
+target_include_directories(rgbd-static PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
+target_include_directories(rgbd-static PUBLIC ${RgbdIncludeDirectories})
+target_link_libraries(rgbd-static PUBLIC ${RgbdLibraryDependencies})
+set_target_properties(rgbd-static PROPERTIES CXX_STANDARD 17)
+target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
+target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
+target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
+
+if(RGBD_OS_MAC OR RGBD_OS_LINUX)
+  # Building shared library requires more things linked.
+  if(RGBD_OS_MAC)
+    list(APPEND RgbdLibraryDependencies
+      "-framework AudioToolbox"
+      -lz
+      -liconv
+    )
+  endif()
+  add_library(rgbd-shared SHARED ${RgbdSources})
+  target_include_directories(rgbd-shared PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
+  target_include_directories(rgbd-shared PUBLIC ${RgbdIncludeDirectories})
+  target_link_libraries(rgbd-shared PUBLIC ${RgbdLibraryDependencies})
+  set_target_properties(rgbd-shared PROPERTIES CXX_STANDARD 17)
+  target_link_options(rgbd-shared PUBLIC ${RgbdLinkOptions})
+  target_compile_options(rgbd-shared PUBLIC ${RgbdCompileOptions})
+  target_compile_definitions(rgbd-shared PUBLIC ${RgbdCompileDefinitions})
+
+  # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
+  target_compile_options(rgbd-shared PUBLIC -fPIC)
+endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)

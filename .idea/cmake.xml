@@ -2,8 +2,8 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="arm64-mac-debug" ENABLED="true" GENERATION_DIR="build/arm64-mac/debug" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64" />
-      <configuration PROFILE_NAME="arm64-mac-relwithdebinfo" ENABLED="true" GENERATION_DIR="build/arm64-mac/relwithdebinfo" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64" />
+      <configuration PROFILE_NAME="arm64-mac-debug" ENABLED="true" GENERATION_DIR="build/arm64-mac/debug" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=12.2" />
+      <configuration PROFILE_NAME="arm64-mac-relwithdebinfo" ENABLED="true" GENERATION_DIR="build/arm64-mac/relwithdebinfo" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-G Ninja -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=12.2" />
     </configurations>
   </component>
 </project>
