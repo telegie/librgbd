@@ -1,5 +1,13 @@
 #include "ffmpeg_video_decoder.hpp"
 
+#pragma warning(push)
+#pragma warning(disable : 4244 26812)
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+}
+#pragma warning(pop)
+
 namespace rgbd
 {
 // A helper function for Vp8Decoder::decode() that feeds frames of packet into decoder_frames.

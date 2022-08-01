@@ -1,5 +1,13 @@
 #include "ffmpeg_audio_encoder.hpp"
 
+#pragma warning(push)
+#pragma warning(disable : 4244 26812)
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+}
+#pragma warning(pop)
+
 namespace rgbd
 {
 FFmpegAudioEncoder::FFmpegAudioEncoder()

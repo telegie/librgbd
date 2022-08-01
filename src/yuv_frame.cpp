@@ -4,6 +4,14 @@
 
 #include "yuv_frame.hpp"
 
+#pragma warning(push)
+#pragma warning(disable : 4244 26812)
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+}
+#pragma warning(pop)
+
 namespace rgbd
 {
 // A helper function for YuvFrame::create(VpxImage) that converts a VpxImage

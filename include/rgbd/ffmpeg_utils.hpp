@@ -1,16 +1,13 @@
 #pragma once
 
-#pragma warning(push)
-#pragma warning(disable : 4244 26812)
-extern "C"
-{
-#include <libavcodec/avcodec.h>
-#include <libavutil/frame.h>
-#include <libavutil/opt.h>
-}
-#pragma warning(push)
 
 #include "constants.hpp"
+
+class AVCodec;
+class AVCodecContext;
+class AVCodecParserContext;
+class AVFrame;
+class AVPacket;
 
 namespace rgbd
 {
@@ -20,13 +17,7 @@ AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type);
 class AVCodecContextHandle
 {
 public:
-    AVCodecContextHandle(const AVCodec* codec)
-        : unique_ptr_{avcodec_alloc_context3(codec),
-                      [](AVCodecContext* ptr) { avcodec_free_context(&ptr); }}
-    {
-        if (!unique_ptr_.get())
-            throw std::runtime_error("Error from AVCodecContextHandle::AVCodecContextHandle");
-    }
+    AVCodecContextHandle(const AVCodec* codec);
     AVCodecContext* get() const noexcept
     {
         return unique_ptr_.get();
@@ -43,12 +34,7 @@ private:
 class AVFrameHandle
 {
 public:
-    AVFrameHandle()
-        : shared_ptr_{av_frame_alloc(), [](AVFrame* ptr) { av_frame_free(&ptr); }}
-    {
-        if (!shared_ptr_.get())
-            throw std::runtime_error("Error from AVFrameHandle::AVFrameHandle");
-    }
+    AVFrameHandle();
     AVFrame* get() const noexcept
     {
         return shared_ptr_.get();
@@ -65,19 +51,8 @@ private:
 class AVPacketHandle
 {
 public:
-    AVPacketHandle()
-        : shared_ptr_{av_packet_alloc(), [](AVPacket* ptr) { av_packet_free(&ptr); }}
-    {
-        if (!shared_ptr_.get())
-            throw std::runtime_error("Error from AVPacketHandle::AVPacketHandle");
-    }
-    Bytes getDataBytes()
-    {
-        Bytes data_bytes;
-        for (size_t i{0}; i < shared_ptr_->size; ++i)
-            data_bytes.push_back(static_cast<byte>(shared_ptr_->data[i]));
-        return data_bytes;
-    }
+    AVPacketHandle();
+    Bytes getDataBytes();
     AVPacket* get() const noexcept
     {
         return shared_ptr_.get();
@@ -94,14 +69,7 @@ private:
 class AVCodecParserContextHandle
 {
 public:
-    AVCodecParserContextHandle(int codec_id)
-        : unique_ptr_{av_parser_init(codec_id),
-                      [](AVCodecParserContext* ptr) { av_parser_close(ptr); }}
-    {
-        if (!unique_ptr_.get())
-            throw std::runtime_error(
-                "Error from AVCodecParserContextHandle::AVCodecParserContextHandle");
-    }
+    AVCodecParserContextHandle(int codec_id);
     AVCodecParserContext* get() const noexcept
     {
         return unique_ptr_.get();
