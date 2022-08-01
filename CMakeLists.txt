@@ -209,11 +209,11 @@ elseif(RGBD_OS_LINUX)
     ${LIBPNG_LINUX_DIR}/include
   )
   list(APPEND RgbdLibraryDependencies
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
+    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
   )
 elseif(RGBD_OS_IOS)
@@ -259,6 +259,7 @@ if(RGBD_OS_MAC OR RGBD_OS_LINUX)
   elseif(RGBD_OS_LINUX)
     # Position-independent code is needed to create a shared library.
     list(APPEND RgbdCompileOptions -fPIC)
+    list(APPEND RgbdLinkOptions "-Wl,-Bsymbolic")
   endif()
   add_library(rgbd-shared SHARED ${RgbdSources})
   target_include_directories(rgbd-shared PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
