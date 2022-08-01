@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 project(librgbd)
 
 set(RGBD_VERSION_MAJOR 1)
-set(RGBD_VERSION_MINOR 1)
+set(RGBD_VERSION_MINOR 2)
 set(RGBD_VERSION_PATCH 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
@@ -277,19 +277,6 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
 endif()
 
 if(RGBD_OS_MAC OR RGBD_OS_LINUX)
-  set(JAVA_AWT_LIBRARY NotNeeded)
-  set(JAVA_JVM_LIBRARY NotNeeded)
-  set(JAVA_AWT_INCLUDE_PATH NotNeeded)
-  if(RGBD_OS_LINUX)
-    # Quick fix for FindJNI.
-    # reference: https://stackoverflow.com/questions/17636166/cmake-find-packagejni-not-work-in-ubuntu-12-04-amd64
-    set(JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64)
-  endif()
-
-  # reference: https://stackoverflow.com/questions/51047978/cmake-could-not-find-jni
-  find_package(JNI REQUIRED)
-  add_subdirectory(src/jni)
-
   install(TARGETS rgbd-cli DESTINATION bin)
-  install(TARGETS rgbd-jni DESTINATION bin)
+  install(TARGETS rgbd-shared DESTINATION bin)
 endif()

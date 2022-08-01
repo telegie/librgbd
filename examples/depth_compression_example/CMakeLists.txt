@@ -10,12 +10,12 @@ target_include_directories(DepthCompressionExample PUBLIC ${ZSTD_DIR}/lib)
 # reference: https://github.com/facebook/zstd/issues/1564
 if(RGBD_OS_WINDOWS)
   target_link_libraries(DepthCompressionExample PUBLIC
-    rgbd
+    rgbd-static
     libzstd_shared
   )
 elseif(RGBD_OS_MAC OR RGBD_OS_LINUX)
   target_link_libraries(DepthCompressionExample PUBLIC
-    rgbd
+    rgbd-static
     libzstd_static
   )
 endif()
