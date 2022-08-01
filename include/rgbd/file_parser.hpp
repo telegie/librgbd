@@ -10,7 +10,7 @@ namespace rgbd
 class FileParser
 {
 public:
-    FileParser(const void* ptr, std::size_t size);
+    FileParser(const void* ptr, size_t size);
     FileParser(const string& file_path);
 
 private:

@@ -189,7 +189,7 @@ Bytes copy_data_buffer_to_bytes(DataBuffer& data_buffer)
     return bytes;
 }
 
-FileParser::FileParser(const void* ptr, std::size_t size)
+FileParser::FileParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
     , info_{}

@@ -102,7 +102,8 @@ extern "C"
     //////// END FILE INFO ////////
 
     //////// START FILE PARSER ////////
-    void* rgbd_file_parser_ctor(const char* file_path);
+    void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size);
+    void* rgbd_file_parser_ctor_from_path(const char* file_path);
     void rgbd_file_parser_dtor(void* ptr);
     void* rgbd_file_parser_get_info(void* ptr);
     bool rgbd_file_parser_has_next_frame(void* ptr);

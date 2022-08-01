@@ -276,7 +276,17 @@ void* rgbd_file_info_get_cover_png_bytes(void* ptr)
 //////// END FILE INFO ////////
 
 //////// START FILE PARSER ////////
-void* rgbd_file_parser_ctor(const char* file_path)
+void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size)
+{
+    try {
+        return new rgbd::FileParser{ptr, size};
+    } catch (std::runtime_error e) {
+        spdlog::error("error from rgbd_file_parser_ctor: {}", e.what());
+        return nullptr;
+    }
+}
+
+void* rgbd_file_parser_ctor_from_path(const char* file_path)
 {
     try {
         return new rgbd::FileParser{file_path};
