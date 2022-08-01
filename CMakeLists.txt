@@ -243,6 +243,7 @@ target_include_directories(rgbd-static PRIVATE ${PROJECT_SOURCE_DIR}/include/rgb
 target_include_directories(rgbd-static PUBLIC ${RgbdIncludeDirectories})
 target_link_libraries(rgbd-static PUBLIC ${RgbdLibraryDependencies})
 set_target_properties(rgbd-static PROPERTIES CXX_STANDARD 17)
+set_target_properties(rgbd-static PROPERTIES OUTPUT_NAME rgbd)
 target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
 target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
@@ -255,18 +256,19 @@ if(RGBD_OS_MAC OR RGBD_OS_LINUX)
       -lz
       -liconv
     )
+  elseif(RGBD_OS_LINUX)
+    # Position-independent code is needed to create a shared library.
+    list(APPEND RgbdCompileOptions -fPIC)
   endif()
   add_library(rgbd-shared SHARED ${RgbdSources})
   target_include_directories(rgbd-shared PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
   target_include_directories(rgbd-shared PUBLIC ${RgbdIncludeDirectories})
   target_link_libraries(rgbd-shared PUBLIC ${RgbdLibraryDependencies})
   set_target_properties(rgbd-shared PROPERTIES CXX_STANDARD 17)
+  set_target_properties(rgbd-shared PROPERTIES OUTPUT_NAME rgbd-${RGBD_VERSION_MAJOR})
   target_link_options(rgbd-shared PUBLIC ${RgbdLinkOptions})
   target_compile_options(rgbd-shared PUBLIC ${RgbdCompileOptions})
   target_compile_definitions(rgbd-shared PUBLIC ${RgbdCompileDefinitions})
-
-  # Position-independent code is needed to create a shared library (i.e., librgbd-jni).
-  target_compile_options(rgbd-shared PUBLIC -fPIC)
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
