@@ -1,7 +1,10 @@
 #include "ffmpeg_audio_decoder.hpp"
 
 #include <iostream>
+extern "C"
+{
 #include <libavformat/avformat.h>
+}
 
 namespace rgbd
 {
