@@ -208,6 +208,20 @@ glm::vec2 transformation_unproject_internal(const KinectCameraCalibration& calib
     return xy;
 }
 
+glm::vec2 kinect_transformation_project(const KinectCameraCalibration& calibration,
+                                        const glm::vec3& point3d,
+                                        bool& valid)
+{
+    if (point3d.z <= 0.f)
+        throw std::runtime_error("point3d.z <= 0.f found in transformation_project.");
+
+    glm::vec2 xy;
+    xy.x = point3d.x / point3d.z;
+    xy.y = point3d.y / point3d.z;
+
+    return transformation_project_internal(calibration, xy, valid, 0);
+}
+
 glm::vec3 kinect_transformation_unproject(const KinectCameraCalibration& calibration,
                                           const glm::vec2& point2d,
                                           bool& valid)
