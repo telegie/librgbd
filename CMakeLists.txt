@@ -76,6 +76,18 @@ set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-linux)
 set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
 ### LIBPNG END ###
 
+### OPENCV BEGIN ###
+set(OPENCV_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/opencv-binaries)
+if(TG_OS_WINDOWS)
+  set(OPENCV_INCLUDE ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/include)
+  set(OPENCV_LIB ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/x64/vc16/lib)
+  set(OPENCV_BIN ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/x64/vc16/bin)
+elseif(TG_OS_MAC)
+  set(OPENCV_INCLUDE ${OPENCV_BINARIES_DIR}/4.5.2/arm64-mac/include/opencv4)
+  set(OPENCV_LIB ${OPENCV_BINARIES_DIR}/4.5.2/arm64-mac/lib)
+endif()
+### OPENCV END ###
+
 ### SPDLOG BEGIN ###
 # Use existing spdlog if there already is an spdlog added.
 if(NOT TARGET spdlog::spdlog)
@@ -190,6 +202,9 @@ if(RGBD_OS_WINDOWS)
   )
   # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
   set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
+  set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+  set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
+  set(RGBD_OPENCV_BIN ${OPENCV_BIN} PARENT_SCOPE)
 elseif(RGBD_OS_MAC)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
@@ -203,6 +218,8 @@ elseif(RGBD_OS_MAC)
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
   )
+  set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+  set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
 elseif(RGBD_OS_LINUX)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_LINUX_DIR}/include
