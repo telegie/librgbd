@@ -348,16 +348,6 @@ void* rgbd_file_parser_get_info(void* ptr)
     return new rgbd::FileInfo{file_parser->info()};
 }
 
-bool rgbd_file_parser_has_next_frame(void* ptr)
-{
-    return static_cast<rgbd::FileParser*>(ptr)->hasNextFrame();
-}
-
-void* rgbd_file_parser_read_frame(void* ptr)
-{
-    return static_cast<rgbd::FileParser*>(ptr)->readFrame();
-}
-
 void* rgbd_file_parser_read_all(void* ptr)
 {
     return static_cast<rgbd::FileParser*>(ptr)->readAll().release();

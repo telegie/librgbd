@@ -120,8 +120,6 @@ extern "C"
     void* rgbd_file_parser_ctor_from_path(const char* file_path);
     void rgbd_file_parser_dtor(void* ptr);
     void* rgbd_file_parser_get_info(void* ptr);
-    bool rgbd_file_parser_has_next_frame(void* ptr);
-    void* rgbd_file_parser_read_frame(void* ptr);
     void* rgbd_file_parser_read_all(void* ptr);
     //////// END FILE PARSER ////////
 
