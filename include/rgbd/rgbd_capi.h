@@ -60,8 +60,8 @@ extern "C"
     //////// END CAPI UTILITY CLASSES ////////
 
     //////// START CAMERA CALIBRATION ////////
-    void rgbd_camera_calibration_dtor(const void* ptr);
-    rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(const void* ptr);
+    void rgbd_camera_calibration_dtor(void* ptr);
+    rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr);
     //////// START CAMERA CALIBRATION ////////
 
     //////// START FFMPEG AUDIO DECODER ////////
@@ -82,7 +82,7 @@ extern "C"
 
     //////// START FILE ////////
     void rgbd_file_dtor(void* ptr);
-    const void* rgbd_file_get_camera_calibration(void* ptr);
+    void* rgbd_file_get_camera_calibration(void* ptr);
     //////// END FILE ////////
 
     //////// START FILE AUDIO FRAME ////////
@@ -106,7 +106,7 @@ extern "C"
     int rgbd_file_info_get_depth_track_width(void* ptr);
     int rgbd_file_info_get_depth_track_height(void* ptr);
     rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr);
-    const void* rgbd_file_info_get_camera_calibration(void* ptr);
+    void* rgbd_file_info_get_camera_calibration(void* ptr);
     void* rgbd_file_info_get_cover_png_bytes(void* ptr);
     //////// END FILE INFO ////////
 
@@ -138,39 +138,39 @@ extern "C"
     //////// END INT16 FRAME ////////
 
     //////// START IOS CAMERA CALIBRATION ////////
-    const void* rgbd_ios_camera_calibration_ctor(int color_width,
-                                                 int color_height,
-                                                 int depth_width,
-                                                 int depth_height,
-                                                 float fx,
-                                                 float fy,
-                                                 float ox,
-                                                 float oy,
-                                                 float reference_dimension_width,
-                                                 float reference_dimension_height,
-                                                 float lens_distortion_center_x,
-                                                 float lens_distortion_center_y,
-                                                 const float* lens_distortion_lookup_table,
-                                                 size_t lens_distortion_lookup_table_size);
-    int rgbd_ios_camera_calibration_get_color_width(const void* ptr);
-    int rgbd_ios_camera_calibration_get_color_height(const void* ptr);
-    int rgbd_ios_camera_calibration_get_depth_width(const void* ptr);
-    int rgbd_ios_camera_calibration_get_depth_height(const void* ptr);
-    float rgbd_ios_camera_calibration_get_fx(const void* ptr);
-    float rgbd_ios_camera_calibration_get_fy(const void* ptr);
-    float rgbd_ios_camera_calibration_get_ox(const void* ptr);
-    float rgbd_ios_camera_calibration_get_oy(const void* ptr);
-    float rgbd_ios_camera_calibration_get_reference_dimension_width(const void* ptr);
-    float rgbd_ios_camera_calibration_get_reference_dimension_height(const void* ptr);
-    float rgbd_ios_camera_calibration_get_lens_distortion_center_x(const void* ptr);
-    float rgbd_ios_camera_calibration_get_lens_distortion_center_y(const void* ptr);
-    void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(const void* ptr);
+    void* rgbd_ios_camera_calibration_ctor(int color_width,
+                                           int color_height,
+                                           int depth_width,
+                                           int depth_height,
+                                           float fx,
+                                           float fy,
+                                           float ox,
+                                           float oy,
+                                           float reference_dimension_width,
+                                           float reference_dimension_height,
+                                           float lens_distortion_center_x,
+                                           float lens_distortion_center_y,
+                                           const float* lens_distortion_lookup_table,
+                                           size_t lens_distortion_lookup_table_size);
+    int rgbd_ios_camera_calibration_get_color_width(void* ptr);
+    int rgbd_ios_camera_calibration_get_color_height(void* ptr);
+    int rgbd_ios_camera_calibration_get_depth_width(void* ptr);
+    int rgbd_ios_camera_calibration_get_depth_height(void* ptr);
+    float rgbd_ios_camera_calibration_get_fx(void* ptr);
+    float rgbd_ios_camera_calibration_get_fy(void* ptr);
+    float rgbd_ios_camera_calibration_get_ox(void* ptr);
+    float rgbd_ios_camera_calibration_get_oy(void* ptr);
+    float rgbd_ios_camera_calibration_get_reference_dimension_width(void* ptr);
+    float rgbd_ios_camera_calibration_get_reference_dimension_height(void* ptr);
+    float rgbd_ios_camera_calibration_get_lens_distortion_center_x(void* ptr);
+    float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr);
+    void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr);
     //////// END IOS CAMERA CALIBRATION ////////
 
     //////// START RECORDER ////////
     void* rgbd_recorder_ctor(const char* file_path,
                              bool has_depth_confidence,
-                             const void* calibration,
+                             void* calibration,
                              int color_bitrate,
                              int framerate,
                              int depth_diff_multiplier,

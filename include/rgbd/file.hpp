@@ -120,6 +120,10 @@ public:
     File(const shared_ptr<CameraCalibration>& camera_calibration,
          vector<unique_ptr<FileVideoFrame>>&& video_frames,
          vector<unique_ptr<FileAudioFrame>>&& audio_frames);
+    CameraCalibration* camera_calibration() noexcept
+    {
+        return camera_calibration_.get();
+    }
     const CameraCalibration* camera_calibration() const noexcept
     {
         return camera_calibration_.get();

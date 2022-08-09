@@ -131,12 +131,12 @@ const char* rgbd_cstring_c_str(void* ptr)
 //////// END CAPI UTILITY CLASSES ////////
 
 //////// START CAMERA CALIBRATION ////////
-void rgbd_camera_calibration_dtor(const void* ptr)
+void rgbd_camera_calibration_dtor(void* ptr)
 {
     delete static_cast<const rgbd::CameraCalibration*>(ptr);
 }
 
-rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(const void* ptr)
+rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
 {
     auto camera_device_type{
         static_cast<const rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
@@ -192,7 +192,7 @@ void rgbd_file_dtor(void* ptr)
     delete static_cast<rgbd::File*>(ptr);
 }
 
-const void* rgbd_file_get_camera_calibration(void* ptr)
+void* rgbd_file_get_camera_calibration(void* ptr)
 {
     return static_cast<rgbd::File*>(ptr)->camera_calibration();
 }
@@ -279,7 +279,7 @@ rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr)
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
 
-const void* rgbd_file_info_get_camera_calibration(void* ptr)
+void* rgbd_file_info_get_camera_calibration(void* ptr)
 {
     return static_cast<rgbd::FileInfo*>(ptr)->camera_calibration().get();
 }
@@ -399,7 +399,7 @@ void* rgbd_int16_frame_get_values(void* ptr)
 //////// END INT16 FRAME ////////
 
 //////// START IOS CAMERA CALIBRATION ////////
-const void* rgbd_ios_camera_calibration_ctor(int color_width,
+void* rgbd_ios_camera_calibration_ctor(int color_width,
                                              int color_height,
                                              int depth_width,
                                              int depth_height,
@@ -430,67 +430,67 @@ const void* rgbd_ios_camera_calibration_ctor(int color_width,
         {lens_distortion_lookup_table, lens_distortion_lookup_table_size}};
 }
 
-int rgbd_ios_camera_calibration_get_color_width(const void* ptr)
+int rgbd_ios_camera_calibration_get_color_width(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorWidth();
 }
 
-int rgbd_ios_camera_calibration_get_color_height(const void* ptr)
+int rgbd_ios_camera_calibration_get_color_height(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorHeight();
 }
 
-int rgbd_ios_camera_calibration_get_depth_width(const void* ptr)
+int rgbd_ios_camera_calibration_get_depth_width(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthWidth();
 }
 
-int rgbd_ios_camera_calibration_get_depth_height(const void* ptr)
+int rgbd_ios_camera_calibration_get_depth_height(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthHeight();
 }
 
-float rgbd_ios_camera_calibration_get_fx(const void* ptr)
+float rgbd_ios_camera_calibration_get_fx(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fx();
 }
 
-float rgbd_ios_camera_calibration_get_fy(const void* ptr)
+float rgbd_ios_camera_calibration_get_fy(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fy();
 }
 
-float rgbd_ios_camera_calibration_get_ox(const void* ptr)
+float rgbd_ios_camera_calibration_get_ox(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->ox();
 }
 
-float rgbd_ios_camera_calibration_get_oy(const void* ptr)
+float rgbd_ios_camera_calibration_get_oy(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->oy();
 }
 
-float rgbd_ios_camera_calibration_get_reference_dimension_width(const void* ptr)
+float rgbd_ios_camera_calibration_get_reference_dimension_width(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_width();
 }
 
-float rgbd_ios_camera_calibration_get_reference_dimension_height(const void* ptr)
+float rgbd_ios_camera_calibration_get_reference_dimension_height(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_height();
 }
 
-float rgbd_ios_camera_calibration_get_lens_distortion_center_x(const void* ptr)
+float rgbd_ios_camera_calibration_get_lens_distortion_center_x(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_x();
 }
 
-float rgbd_ios_camera_calibration_get_lens_distortion_center_y(const void* ptr)
+float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_y();
 }
 
-void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(const void* ptr)
+void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 {
     auto floats{
         static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
@@ -501,7 +501,7 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(const void* p
 //////// START RECORDER ////////
 void* rgbd_recorder_ctor(const char* file_path,
                          bool has_depth_confidence,
-                         const void* calibration,
+                         void* calibration,
                          int color_bitrate,
                          int framerate,
                          int depth_diff_multiplier,
