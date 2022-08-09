@@ -3,13 +3,13 @@
 #include "capi_utils.hpp"
 #include "ffmpeg_audio_decoder.hpp"
 #include "ffmpeg_video_decoder.hpp"
+#include "file.hpp"
+#include "file_info.hpp"
+#include "file_parser.hpp"
 #include "integer_frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
 #include "recorder.hpp"
-#include "file.hpp"
-#include "file_info.hpp"
-#include "file_parser.hpp"
 #include "tdc1_decoder.hpp"
 
 //////// START CONSTANTS ////////
@@ -90,7 +90,6 @@ size_t rgbd_cfloat_array_size(void* ptr)
     return static_cast<rgbd::CFloatArray*>(ptr)->size();
 }
 
-
 void rgbd_cint16_array_dtor(void* ptr)
 {
     delete static_cast<rgbd::CInt16Array*>(ptr);
@@ -131,6 +130,20 @@ const char* rgbd_cstring_c_str(void* ptr)
 }
 //////// END CAPI UTILITY CLASSES ////////
 
+//////// START CAMERA CALIBRATION ////////
+void rgbd_camera_calibration_dtor(const void* ptr)
+{
+    delete static_cast<const rgbd::CameraCalibration*>(ptr);
+}
+
+rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(const void* ptr)
+{
+    auto camera_device_type{
+        static_cast<const rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
+    return static_cast<rgbdCameraDeviceType>(camera_device_type);
+}
+//////// END CAMERA CALIBRATION ////////
+
 //////// START FFMPEG AUDIO DECODER ////////
 void* rgbd_ffmpeg_audio_decoder_ctor()
 {
@@ -143,8 +156,8 @@ void rgbd_ffmpeg_audio_decoder_dtor(void* ptr)
 }
 
 void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
-                                     const uint8_t* opus_frame_data,
-                                     size_t opus_frame_size)
+                                       const uint8_t* opus_frame_data,
+                                       size_t opus_frame_size)
 {
     auto depth_frame{static_cast<rgbd::FFmpegAudioDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
@@ -172,6 +185,18 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
     return new rgbd::YuvFrame{std::move(yuv_frame)};
 }
 //////// END FFMPEG VIDEO DECODER ////////
+
+//////// START FILE ////////
+void rgbd_file_dtor(void* ptr)
+{
+    delete static_cast<rgbd::File*>(ptr);
+}
+
+const void* rgbd_file_get_camera_calibration(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->camera_calibration();
+}
+//////// END FILE ////////
 
 //////// START FILE AUDIO FRAME ////////
 int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr)
@@ -254,18 +279,9 @@ rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr)
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
 
-void* rgbd_file_info_get_kinect_camera_calibration(void* ptr)
+const void* rgbd_file_info_get_camera_calibration(void* ptr)
 {
-    auto& calibration{static_cast<rgbd::FileInfo*>(ptr)->camera_calibration()};
-    auto kinect_calibration{dynamic_cast<rgbd::KinectCameraCalibration*>(calibration.get())};
-    return new rgbd::KinectCameraCalibration(*kinect_calibration);
-}
-
-void* rgbd_file_info_get_ios_camera_calibration(void* ptr)
-{
-    auto& calibration{static_cast<rgbd::FileInfo*>(ptr)->camera_calibration()};
-    auto ios_calibration{dynamic_cast<rgbd::IosCameraCalibration*>(calibration.get())};
-    return new rgbd::IosCameraCalibration(*ios_calibration);
+    return static_cast<rgbd::FileInfo*>(ptr)->camera_calibration().get();
 }
 
 void* rgbd_file_info_get_cover_png_bytes(void* ptr)
@@ -315,6 +331,11 @@ bool rgbd_file_parser_has_next_frame(void* ptr)
 void* rgbd_file_parser_read_frame(void* ptr)
 {
     return static_cast<rgbd::FileParser*>(ptr)->readFrame();
+}
+
+void* rgbd_file_parser_read_all(void* ptr)
+{
+    return static_cast<rgbd::FileParser*>(ptr)->readAll().release();
 }
 //////// END FILE PARSER ////////
 
@@ -378,20 +399,20 @@ void* rgbd_int16_frame_get_values(void* ptr)
 //////// END INT16 FRAME ////////
 
 //////// START IOS CAMERA CALIBRATION ////////
-void* rgbd_ios_camera_calibration_ctor(int color_width,
-                                     int color_height,
-                                     int depth_width,
-                                     int depth_height,
-                                     float fx,
-                                     float fy,
-                                     float ox,
-                                     float oy,
-                                     float reference_dimension_width,
-                                     float reference_dimension_height,
-                                     float lens_distortion_center_x,
-                                     float lens_distortion_center_y,
-                                     const float* lens_distortion_lookup_table,
-                                     size_t lens_distortion_lookup_table_size)
+const void* rgbd_ios_camera_calibration_ctor(int color_width,
+                                             int color_height,
+                                             int depth_width,
+                                             int depth_height,
+                                             float fx,
+                                             float fy,
+                                             float ox,
+                                             float oy,
+                                             float reference_dimension_width,
+                                             float reference_dimension_height,
+                                             float lens_distortion_center_x,
+                                             float lens_distortion_center_y,
+                                             const float* lens_distortion_lookup_table,
+                                             size_t lens_distortion_lookup_table_size)
 {
     return new rgbd::IosCameraCalibration{
         color_width,
@@ -409,74 +430,70 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
         {lens_distortion_lookup_table, lens_distortion_lookup_table_size}};
 }
 
-void rgbd_ios_camera_calibration_dtor(void* ptr)
+int rgbd_ios_camera_calibration_get_color_width(const void* ptr)
 {
-    delete static_cast<rgbd::IosCameraCalibration*>(ptr);
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorWidth();
 }
 
-int rgbd_ios_camera_calibration_get_color_width(void* ptr)
+int rgbd_ios_camera_calibration_get_color_height(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->getColorWidth();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorHeight();
 }
 
-int rgbd_ios_camera_calibration_get_color_height(void* ptr)
+int rgbd_ios_camera_calibration_get_depth_width(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->getColorHeight();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthWidth();
 }
 
-int rgbd_ios_camera_calibration_get_depth_width(void* ptr)
+int rgbd_ios_camera_calibration_get_depth_height(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->getDepthWidth();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthHeight();
 }
 
-int rgbd_ios_camera_calibration_get_depth_height(void* ptr)
+float rgbd_ios_camera_calibration_get_fx(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->getDepthHeight();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fx();
 }
 
-float rgbd_ios_camera_calibration_get_fx(void* ptr)
+float rgbd_ios_camera_calibration_get_fy(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->fx();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fy();
 }
 
-float rgbd_ios_camera_calibration_get_fy(void* ptr)
+float rgbd_ios_camera_calibration_get_ox(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->fy();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->ox();
 }
 
-float rgbd_ios_camera_calibration_get_ox(void* ptr)
+float rgbd_ios_camera_calibration_get_oy(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->ox();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->oy();
 }
 
-float rgbd_ios_camera_calibration_get_oy(void* ptr)
+float rgbd_ios_camera_calibration_get_reference_dimension_width(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->oy();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_width();
 }
 
-float rgbd_ios_camera_calibration_get_reference_dimension_width(void* ptr)
+float rgbd_ios_camera_calibration_get_reference_dimension_height(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->reference_dimension_width();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_height();
 }
 
-float rgbd_ios_camera_calibration_get_reference_dimension_height(void* ptr)
+float rgbd_ios_camera_calibration_get_lens_distortion_center_x(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->reference_dimension_height();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_x();
 }
 
-float rgbd_ios_camera_calibration_get_lens_distortion_center_x(void* ptr)
+float rgbd_ios_camera_calibration_get_lens_distortion_center_y(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_x();
+    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_y();
 }
 
-float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr)
+void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(const void* ptr)
 {
-    return static_cast<rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_y();
-}
-
-void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
-{
-    auto floats{static_cast<rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
+    auto floats{
+        static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
     return new rgbd::CFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
@@ -484,7 +501,7 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 //////// START RECORDER ////////
 void* rgbd_recorder_ctor(const char* file_path,
                          bool has_depth_confidence,
-                         void* calibration,
+                         const void* calibration,
                          int color_bitrate,
                          int framerate,
                          int depth_diff_multiplier,
@@ -492,7 +509,7 @@ void* rgbd_recorder_ctor(const char* file_path,
 {
     return new rgbd::Recorder(file_path,
                               has_depth_confidence,
-                              *static_cast<rgbd::CameraCalibration*>(calibration),
+                              *static_cast<const rgbd::CameraCalibration*>(calibration),
                               color_bitrate,
                               framerate,
                               depth_diff_multiplier,
@@ -505,23 +522,23 @@ void rgbd_recorder_dtor(void* ptr)
 }
 
 void rgbd_recorder_record_rgbd_frame(void* ptr,
-                                   int64_t time_point_us,
-                                   int width,
-                                   int height,
-                                   const uint8_t* y_channel,
-                                   size_t y_channel_size,
-                                   const uint8_t* u_channel,
-                                   size_t u_channel_size,
-                                   const uint8_t* v_channel,
-                                   size_t v_channel_size,
-                                   const int16_t* depth_values,
-                                   size_t depth_values_size,
-                                   const uint8_t* depth_confidence_values,
-                                   size_t depth_confidence_values_size,
-                                   float floor_normal_x,
-                                   float floor_normal_y,
-                                   float floor_normal_z,
-                                   float floor_distance)
+                                     int64_t time_point_us,
+                                     int width,
+                                     int height,
+                                     const uint8_t* y_channel,
+                                     size_t y_channel_size,
+                                     const uint8_t* u_channel,
+                                     size_t u_channel_size,
+                                     const uint8_t* v_channel,
+                                     size_t v_channel_size,
+                                     const int16_t* depth_values,
+                                     size_t depth_values_size,
+                                     const uint8_t* depth_confidence_values,
+                                     size_t depth_confidence_values_size,
+                                     float floor_normal_x,
+                                     float floor_normal_y,
+                                     float floor_normal_z,
+                                     float floor_distance)
 {
     glm::vec3 floor_normal{floor_normal_x, floor_normal_y, floor_normal_z};
     if (depth_confidence_values) {
@@ -550,9 +567,9 @@ void rgbd_recorder_record_rgbd_frame(void* ptr,
 }
 
 void rgbd_recorder_record_audio_frame(void* ptr,
-                                    int64_t time_point_us,
-                                    const float* pcm_samples,
-                                    size_t pcm_samples_size)
+                                      int64_t time_point_us,
+                                      const float* pcm_samples,
+                                      size_t pcm_samples_size)
 {
     static_cast<rgbd::Recorder*>(ptr)->recordAudioFrame(
         time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
@@ -576,8 +593,8 @@ void rgbd_tdc1_decoder_dtor(void* ptr)
 }
 
 void* rgbd_tdc1_decoder_decode(void* ptr,
-                             const uint8_t* encoded_depth_frame_data,
-                             size_t encoded_depth_frame_size)
+                               const uint8_t* encoded_depth_frame_data,
+                               size_t encoded_depth_frame_size)
 {
     auto depth_frame{static_cast<rgbd::TDC1Decoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
