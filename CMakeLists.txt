@@ -27,6 +27,10 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(RGBD_OS_WASM TRUE)
 endif()
 
+### CLI BEGIN ###
+add_subdirectory(deps/cli)
+### CLI END ###
+
 ### CXXOPTS BEGIN ###
 add_subdirectory(deps/cxxopts)
 ### CXXOPTS END ###
@@ -200,11 +204,13 @@ if(RGBD_OS_WINDOWS)
     ${FFMPEG_WIN64_DIR}/bin/avutil.lib
     ${LIBPNG_WIN64_DIR}/lib/libpng16_static.lib
   )
-  # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
-  set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
-  set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
-  set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
-  set(RGBD_OPENCV_BIN ${OPENCV_BIN} PARENT_SCOPE)
+  if(NOT PROJECT_IS_TOP_LEVEL)
+    # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
+    set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
+    set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+    set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
+    set(RGBD_OPENCV_BIN ${OPENCV_BIN} PARENT_SCOPE)
+  endif()
 elseif(RGBD_OS_MAC)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_MAC_DIR}/include
@@ -218,7 +224,9 @@ elseif(RGBD_OS_MAC)
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
   )
-  set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+  if(NOT PROJECT_IS_TOP_LEVEL)
+    set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+  endif()
   set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
 elseif(RGBD_OS_LINUX)
   list(APPEND RgbdIncludeDirectories
