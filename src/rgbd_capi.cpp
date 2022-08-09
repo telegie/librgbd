@@ -196,9 +196,34 @@ void* rgbd_file_get_camera_calibration(void* ptr)
 {
     return static_cast<rgbd::File*>(ptr)->camera_calibration();
 }
+
+size_t rgbd_file_get_video_frame_count(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->video_frames().size();
+}
+
+void* rgbd_file_get_video_frame(void* ptr, size_t index)
+{
+    return static_cast<rgbd::File*>(ptr)->video_frames()[index].get();
+}
+
+size_t rgbd_file_get_audio_frame_count(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->audio_frames().size();
+}
+
+void* rgbd_file_get_audio_frame(void* ptr, size_t index)
+{
+    return static_cast<rgbd::File*>(ptr)->audio_frames()[index].get();
+}
 //////// END FILE ////////
 
 //////// START FILE AUDIO FRAME ////////
+void rgbd_file_audio_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileAudioFrame*>(ptr);
+}
+
 int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr)
 {
     return static_cast<rgbd::FileAudioFrame*>(ptr)->global_timecode();
@@ -340,6 +365,11 @@ void* rgbd_file_parser_read_all(void* ptr)
 //////// END FILE PARSER ////////
 
 //////// START FILE VIDEO FRAME ////////
+void rgbd_file_video_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileVideoFrame*>(ptr);
+}
+
 int64_t rgbd_file_video_frame_get_global_timecode(void* ptr)
 {
     return static_cast<rgbd::FileVideoFrame*>(ptr)->global_timecode();

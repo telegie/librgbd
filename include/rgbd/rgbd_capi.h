@@ -83,9 +83,14 @@ extern "C"
     //////// START FILE ////////
     void rgbd_file_dtor(void* ptr);
     void* rgbd_file_get_camera_calibration(void* ptr);
+    size_t rgbd_file_get_video_frame_count(void* ptr);
+    void* rgbd_file_get_video_frame(void* ptr, size_t index);
+    size_t rgbd_file_get_audio_frame_count(void* ptr);
+    void* rgbd_file_get_audio_frame(void* ptr, size_t index);
     //////// END FILE ////////
 
     //////// START FILE AUDIO FRAME ////////
+    void rgbd_file_audio_frame_dtor(void* ptr);
     int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr);
     void* rgbd_file_audio_frame_get_bytes(void* ptr);
     //////// END FILE AUDIO FRAME ////////
@@ -121,6 +126,7 @@ extern "C"
     //////// END FILE PARSER ////////
 
     //////// START FILE VIDEO FRAME ////////
+    void rgbd_file_video_frame_dtor(void* ptr);
     int64_t rgbd_file_video_frame_get_global_timecode(void* ptr);
     void* rgbd_file_video_frame_get_color_bytes(void* ptr);
     void* rgbd_file_video_frame_get_depth_bytes(void* ptr);
