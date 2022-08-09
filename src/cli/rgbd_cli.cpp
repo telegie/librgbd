@@ -26,17 +26,17 @@ void print_file_info(std::ostream& out, const std::string& file_path)
         if (depth_confidence_bytes)
             depth_confidence_byte_size += depth_confidence_bytes->size();
     }
-    std::cout << fmt::format("Total video frame count: {}\n", file->video_frames().size());
-    std::cout << fmt::format("Color track codec: {}\n", file_info.color_track_info().codec);
-    std::cout << fmt::format("Color track size: {} KB\n", color_byte_size / 1024);
-    std::cout << fmt::format("Depth track codec: {}\n", file_info.depth_track_info().codec);
-    std::cout << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
+    out << fmt::format("Total video frame count: {}\n", file->video_frames().size());
+    out << fmt::format("Color track codec: {}\n", file_info.color_track_info().codec);
+    out << fmt::format("Color track size: {} KB\n", color_byte_size / 1024);
+    out << fmt::format("Depth track codec: {}\n", file_info.depth_track_info().codec);
+    out << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
 
     if (file_info.depth_confidence_track_info()) {
-        std::cout << fmt::format("Depth confidence track codec: {}\n", file_info.depth_confidence_track_info()->codec);
-        std::cout << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
+        out << fmt::format("Depth confidence track codec: {}\n", file_info.depth_confidence_track_info()->codec);
+        out << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
     } else {
-        std::cout << "No depth confidence track." << std::endl;
+        out << "No depth confidence track." << std::endl;
     }
 }
 
@@ -50,6 +50,11 @@ void extract_cover(const std::string& file_path)
     fout.open("librgbd_cover.png", std::ios::binary | std::ios::out);
     fout.write((const char*)cover_png_bytes.data(), cover_png_bytes.size());
     fout.close();
+}
+
+void split_file()
+{
+
 }
 
 int main(int argc, char** argv)
@@ -85,6 +90,11 @@ int main(int argc, char** argv)
         auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
         auto file_path{video_folder->runSelectFileCLI()};
         print_file_info(out, file_path->generic_u8string());
+    });
+    root_menu->Insert("cover", [](std::ostream& out){
+        auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
+        auto file_path{video_folder->runSelectFileCLI()};
+        extract_cover(file_path->generic_u8string());
     });
 
     // create the cli with the root menu
