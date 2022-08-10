@@ -142,7 +142,6 @@ FileParser::FileParser(const void* ptr, size_t size)
     , timecode_scale_ns_{0}
     , file_offsets_{}
     , file_tracks_{}
-    , cluster_{nullptr}
 {
     init();
 }
@@ -154,7 +153,6 @@ FileParser::FileParser(const string& file_path)
     , timecode_scale_ns_{0}
     , file_offsets_{}
     , file_tracks_{}
-    , cluster_{nullptr}
 {
     init();
 }
@@ -410,17 +408,12 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
     return file_attachments;
 }
 
-bool FileParser::hasNextFrame()
+FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster)
 {
-    return cluster_ != nullptr;
-}
-
-FileFrame* FileParser::parseCluster()
-{
-    if (read_element<KaxCluster>(stream_, cluster_.get()) == nullptr)
+    if (read_element<KaxCluster>(stream_, cluster.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
-    auto cluster_timecode{FindChild<KaxClusterTimecode>(*cluster_)->GetValue()};
-    cluster_->InitTimecode(cluster_timecode / timecode_scale_ns_, timecode_scale_ns_);
+    auto cluster_timecode{FindChild<KaxClusterTimecode>(*cluster)->GetValue()};
+    cluster->InitTimecode(cluster_timecode / timecode_scale_ns_, timecode_scale_ns_);
 
     int64 global_timecode{0};
     Bytes color_bytes;
@@ -429,7 +422,7 @@ FileFrame* FileParser::parseCluster()
     optional<Plane> floor{nullopt};
     FileAudioFrame* audio_frame{nullptr};
 
-    for (EbmlElement* e : cluster_->GetElementList()) {
+    for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
         if (id == KaxClusterTimecode::ClassInfos.GlobalId) {
         } else if (id == KaxBlockGroup::ClassInfos.GlobalId) {
@@ -440,7 +433,7 @@ FileFrame* FileParser::parseCluster()
             for (EbmlElement* ee : block_group->GetElementList()) {
                 if (EbmlId(*ee) == KaxBlock::ClassInfos.GlobalId) {
                     auto block{static_cast<KaxBlock*>(ee)};
-                    block->SetParent(*cluster_);
+                    block->SetParent(*cluster);
                     auto track_number{block->TrackNum()};
                     auto block_global_timecode{gsl::narrow<int64_t>(block->GlobalTimecode())};
                     auto data_buffer{block->GetBuffer(0)};
@@ -465,7 +458,7 @@ FileFrame* FileParser::parseCluster()
             }
         } else if (id == KaxSimpleBlock::ClassInfos.GlobalId) {
             auto simple_block{static_cast<KaxSimpleBlock*>(e)};
-            simple_block->SetParent(*cluster_);
+            simple_block->SetParent(*cluster);
             auto track_number{simple_block->TrackNum()};
             auto block_global_timecode{gsl::narrow<int64_t>(simple_block->GlobalTimecode())};
             auto data_buffer{simple_block->GetBuffer(0)};
@@ -489,8 +482,6 @@ FileFrame* FileParser::parseCluster()
             throw std::runtime_error{"Invalid element from KaxCluster"};
         }
     }
-
-    cluster_ = find_next<KaxCluster>(stream_, true);
 
     // emplace only when the cluster is for video, not audio.
     if (color_bytes.size() > 0) {
@@ -516,13 +507,12 @@ unique_ptr<File> FileParser::parseAllClusters()
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");
 
-    cluster_ = std::move(cluster);
-
     vector<unique_ptr<FileVideoFrame>> rgbd_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
 
-    while (cluster_ != nullptr) {
-        auto frame{parseCluster()};
+    while (cluster != nullptr) {
+        auto frame{parseCluster(cluster)};
+        cluster = find_next<KaxCluster>(stream_, true);
         switch (frame->getType()) {
         case FileFrameType::RGBD: {
             auto rgbd_frame{dynamic_cast<FileVideoFrame*>(frame)};

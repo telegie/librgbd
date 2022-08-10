@@ -43,8 +43,7 @@ private:
     optional<const FileTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
     optional<const FileAttachments>
     parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments);
-    bool hasNextFrame();
-    FileFrame* parseCluster();
+    FileFrame* parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster);
 
 public:
     unique_ptr<File> parseAllClusters();
@@ -61,6 +60,5 @@ private:
     unique_ptr<libmatroska::KaxSegment> segment_;
     optional<FileOffsets> file_offsets_;
     optional<FileTracks> file_tracks_;
-    unique_ptr<libmatroska::KaxCluster> cluster_;
 };
 } // namespace rgbd
