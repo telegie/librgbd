@@ -15,6 +15,15 @@ struct FileOffsets
     int64_t first_cluster_offset;
 };
 
+struct FileTracks
+{
+    FileVideoTrack color_track;
+    FileVideoTrack depth_track;
+    optional<FileVideoTrack> depth_confidence_track;
+    int audio_track_number;
+    int floor_track_number;
+};
+
 class FileParser
 {
 public:
@@ -25,6 +34,7 @@ private:
     void init();
     optional<const FileOffsets> parseOffsets(unique_ptr<EbmlElement>& element,
                                              unique_ptr<libmatroska::KaxSegment>& segment);
+    optional<const FileTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
     bool hasNextFrame();
     FileFrame* readFrame();
 
@@ -40,11 +50,7 @@ private:
     EbmlStream stream_;
     FileInfo info_;
     uint64_t timecode_scale_ns_;
-    int color_track_number_;
-    int depth_track_number_;
-    optional<int> depth_confidence_track_number_;
-    int audio_track_number_;
-    int floor_track_number_;
+    optional<FileTracks> file_tracks_;
     unique_ptr<libmatroska::KaxCluster> cluster_;
 };
 } // namespace rgbd

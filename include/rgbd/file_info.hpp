@@ -5,8 +5,9 @@
 
 namespace rgbd
 {
-struct TrackInfo
+struct FileVideoTrack
 {
+    int track_number;
     string codec;
     int width;
     int height;
@@ -18,8 +19,8 @@ public:
     FileInfo()
         : writing_app_{""}
         , duration_us_{0.0}
-        , color_track_info_{"", 0, 0}
-        , depth_track_info_{"", 0, 0}
+        , color_track_info_{0, "", 0, 0}
+        , depth_track_info_{0, "", 0, 0}
         , depth_confidence_track_info_{nullopt}
         , camera_calibration_{nullptr}
     {
@@ -40,27 +41,27 @@ public:
     {
         duration_us_ = duration_us;
     }
-    const TrackInfo& color_track_info() const noexcept
+    const FileVideoTrack& color_track_info() const noexcept
     {
         return color_track_info_;
     }
-    void set_color_track_info(const TrackInfo& color_track_info) noexcept
+    void set_color_track_info(const FileVideoTrack& color_track_info) noexcept
     {
         color_track_info_ = color_track_info;
     }
-    const TrackInfo& depth_track_info() const noexcept
+    const FileVideoTrack& depth_track_info() const noexcept
     {
         return depth_track_info_;
     }
-    void set_depth_track_info(const TrackInfo& depth_track_info) noexcept
+    void set_depth_track_info(const FileVideoTrack& depth_track_info) noexcept
     {
         depth_track_info_ = depth_track_info;
     }
-    const optional<TrackInfo>& depth_confidence_track_info() const noexcept
+    const optional<FileVideoTrack>& depth_confidence_track_info() const noexcept
     {
         return depth_confidence_track_info_;
     }
-    void set_depth_confidence_track_info(const TrackInfo& depth_track_info) noexcept
+    void set_depth_confidence_track_info(const FileVideoTrack& depth_track_info) noexcept
     {
         depth_track_info_ = depth_track_info;
     }
@@ -84,9 +85,9 @@ public:
 private:
     string writing_app_;
     double duration_us_;
-    TrackInfo color_track_info_;
-    TrackInfo depth_track_info_;
-    optional<TrackInfo> depth_confidence_track_info_;
+    FileVideoTrack color_track_info_;
+    FileVideoTrack depth_track_info_;
+    optional<FileVideoTrack> depth_confidence_track_info_;
     shared_ptr<CameraCalibration> camera_calibration_;
     Bytes cover_png_bytes_;
 };

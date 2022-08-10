@@ -140,10 +140,7 @@ FileParser::FileParser(const void* ptr, size_t size)
     , stream_{*input_}
     , info_{}
     , timecode_scale_ns_{0}
-    , color_track_number_{0}
-    , depth_track_number_{0}
-    , audio_track_number_{0}
-    , floor_track_number_{0}
+    , file_tracks_{}
     , cluster_{nullptr}
 {
     init();
@@ -154,10 +151,7 @@ FileParser::FileParser(const string& file_path)
     , stream_{*input_}
     , info_{}
     , timecode_scale_ns_{0}
-    , color_track_number_{0}
-    , depth_track_number_{0}
-    , audio_track_number_{0}
-    , floor_track_number_{0}
+    , file_tracks_{}
     , cluster_{nullptr}
 {
     init();
@@ -187,65 +181,28 @@ void FileParser::init()
 
     auto element{next_child(*input_, stream_, segment.get())};
 
-    auto offsets{parseOffsets(element, segment)};
+    auto file_offsets{parseOffsets(element, segment)};
 
-    if (!offsets)
-        throw std::runtime_error("Not all offsets has been found");
+    if (!file_offsets) {
+        spdlog::error("Failed to parse offsets...");
+        throw std::runtime_error("Failed to parse offsets...");
+    }
 
     auto segment_info{
-        read_offset<KaxInfo>(*input_, stream_, *segment, offsets->segment_info_offset)};
-    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, offsets->tracks_offset)};
+        read_offset<KaxInfo>(*input_, stream_, *segment, file_offsets->segment_info_offset)};
+    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, file_offsets->tracks_offset)};
     auto attachements{
-        read_offset<KaxAttachments>(*input_, stream_, *segment, offsets->attachments_offset)};
+        read_offset<KaxAttachments>(*input_, stream_, *segment, file_offsets->attachments_offset)};
 
     info_.set_writing_app(GetChild<KaxWritingApp>(*segment_info).GetValue().GetUTF8());
     timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*segment_info).GetValue();
     info_.set_duration_us(GetChild<KaxDuration>(*segment_info).GetValue());
 
-    for (EbmlElement* e : tracks->GetElementList()) {
-        if (EbmlId(*e) == KaxTrackEntry::ClassInfos.GlobalId) {
-            KaxTrackEntry* track_entry{read_element<KaxTrackEntry>(stream_, e)};
-            if (!track_entry)
-                throw std::runtime_error("Failed reading track_entry");
+    file_tracks_ = parseTracks(tracks);
 
-            uint64_t track_number{GetChild<KaxTrackNumber>(*track_entry).GetValue()};
-            string track_name{GetChild<KaxTrackName>(*track_entry).GetValueUTF8()};
-            string codec_id{GetChild<KaxCodecID>(*track_entry).GetValue()};
-
-            if (track_name == "COLOR") {
-                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
-                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
-
-                color_track_number_ = gsl::narrow<int>(track_number);
-                info_.set_color_track_info(
-                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
-            } else if (track_name == "DEPTH") {
-                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
-                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
-
-                depth_track_number_ = gsl::narrow<int>(track_number);
-                info_.set_depth_track_info(
-                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
-            } else if (track_name == "DEPTH_CONFIDENCE") {
-                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
-                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
-
-                depth_confidence_track_number_ = gsl::narrow<int>(track_number);
-                info_.set_depth_confidence_track_info(
-                    TrackInfo{codec_id, gsl::narrow<int>(width), gsl::narrow<int>(height)});
-            } else if (track_name == "AUDIO") {
-                audio_track_number_ = gsl::narrow<int>(track_number);
-            } else if (track_name == "FLOOR") {
-                floor_track_number_ = gsl::narrow<int>(track_number);
-            } else {
-                spdlog::error("Invalid track_name: {}", track_name);
-            }
-        } else {
-            spdlog::info("is not KaxTrackEntry");
-        }
+    if (!file_tracks_) {
+        spdlog::error("Failed to parse tracks...");
+        throw std::runtime_error("Failed to parse tracks...");
     }
 
     for (EbmlElement* e : attachements->GetElementList()) {
@@ -262,8 +219,8 @@ void FileParser::init()
                 memcpy(calibration_vector.data(), file_data.GetBuffer(), file_data.GetSize());
                 string calibration_str{calibration_vector.begin(), calibration_vector.end()};
                 // Brace initialization of json behaves differently in gcc than in clang.
-		// Do not use brace initialization.
-		// reference: https://github.com/nlohmann/json/issues/2339
+                // Do not use brace initialization.
+                // reference: https://github.com/nlohmann/json/issues/2339
                 json calibration_json(json::parse(calibration_str));
 
                 string calibration_type{calibration_json["calibrationType"].get<string>()};
@@ -289,28 +246,31 @@ void FileParser::init()
         }
     }
 
-    auto cluster{read_offset<KaxCluster>(*input_, stream_, *segment, offsets->first_cluster_offset)};
+    auto cluster{
+        read_offset<KaxCluster>(*input_, stream_, *segment, file_offsets->first_cluster_offset)};
 
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");
-    
+
     cluster_ = std::move(cluster);
 }
 
 optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& element,
                                                      unique_ptr<KaxSegment>& segment)
 {
-    FileOffsets offsets;
-    offsets.segment_info_offset = 0;
-    offsets.tracks_offset = 0;
-    offsets.attachments_offset = 0;
-    offsets.first_cluster_offset = 0;
+    optional<int64_t> segment_info_offset{nullopt};
+    optional<int64_t> tracks_offset{nullopt};
+    optional<int64_t> attachments_offset{nullopt};
+    optional<int64_t> first_cluster_offset{nullopt};
 
     while (element != nullptr) {
-        if (offsets.segment_info_offset > 0
-            && offsets.tracks_offset > 0
-            && offsets.attachments_offset > 0
-            && offsets.first_cluster_offset > 0) {
+        if (segment_info_offset && tracks_offset && attachments_offset && first_cluster_offset) {
+            FileOffsets offsets;
+            offsets.segment_info_offset = *segment_info_offset;
+            offsets.tracks_offset = *tracks_offset;
+            offsets.attachments_offset = *attachments_offset;
+            offsets.first_cluster_offset = *first_cluster_offset;
+
             return offsets;
         }
 
@@ -327,19 +287,19 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& el
                     int64_t seek_location{seek->Location()};
 
                     if (ebml_id == KaxInfo::ClassInfos.GlobalId) {
-                        offsets.segment_info_offset = seek_location;
+                        segment_info_offset = seek_location;
                     } else if (ebml_id == KaxTracks::ClassInfos.GlobalId) {
-                        offsets.tracks_offset = seek_location;
+                        tracks_offset = seek_location;
                     } else if (ebml_id == KaxAttachments::ClassInfos.GlobalId) {
-                        offsets.attachments_offset = seek_location;
+                        attachments_offset = seek_location;
                     } else {
                         spdlog::info("Found seek not used.");
                     }
                 }
             }
         } else if (element_id == KaxCluster::ClassInfos.GlobalId) {
-            if (offsets.first_cluster_offset == 0) {
-                offsets.first_cluster_offset = segment->GetRelativePosition(*element.get());
+            if (!first_cluster_offset) {
+                first_cluster_offset = segment->GetRelativePosition(*element.get());
             }
         } else {
             element->SkipData(stream_, element->Generic().Context);
@@ -349,6 +309,89 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& el
     }
 
     return nullopt;
+}
+
+optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
+{
+    optional<FileVideoTrack> color_track{nullopt};
+    optional<FileVideoTrack> depth_track{nullopt};
+    optional<FileVideoTrack> depth_confidence_track{nullopt};
+    optional<int> audio_track_number{nullopt};
+    optional<int> floor_track_number{nullopt};
+
+    for (EbmlElement* e : tracks->GetElementList()) {
+        if (EbmlId(*e) == KaxTrackEntry::ClassInfos.GlobalId) {
+            KaxTrackEntry* track_entry{read_element<KaxTrackEntry>(stream_, e)};
+            if (!track_entry)
+                throw std::runtime_error("Failed reading track_entry");
+
+            uint64_t track_number{GetChild<KaxTrackNumber>(*track_entry).GetValue()};
+            string track_name{GetChild<KaxTrackName>(*track_entry).GetValueUTF8()};
+            string codec_id{GetChild<KaxCodecID>(*track_entry).GetValue()};
+
+            if (track_name == "COLOR") {
+                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
+                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
+                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
+
+                color_track = FileVideoTrack{};
+                color_track->track_number = gsl::narrow<int>(track_number);
+                color_track->codec = codec_id;
+                color_track->width = gsl::narrow<int>(width);
+                color_track->height = gsl::narrow<int>(height);
+            } else if (track_name == "DEPTH") {
+                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
+                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
+                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
+
+                depth_track = FileVideoTrack{};
+                depth_track->track_number = gsl::narrow<int>(track_number);
+                depth_track->codec = codec_id;
+                depth_track->width = gsl::narrow<int>(width);
+                depth_track->height = gsl::narrow<int>(height);
+            } else if (track_name == "DEPTH_CONFIDENCE") {
+                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
+                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
+                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
+
+                depth_confidence_track = FileVideoTrack{};
+                depth_confidence_track->track_number = gsl::narrow<int>(track_number);
+                depth_confidence_track->codec = codec_id;
+                depth_confidence_track->width = gsl::narrow<int>(width);
+                depth_confidence_track->height = gsl::narrow<int>(height);
+            } else if (track_name == "AUDIO") {
+                audio_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "FLOOR") {
+                floor_track_number = gsl::narrow<int>(track_number);
+            } else {
+                spdlog::error("Invalid track_name: {}", track_name);
+            }
+        } else {
+            spdlog::info("is not KaxTrackEntry");
+        }
+    }
+
+    if (color_track) {
+        info_.set_color_track_info(*color_track);
+    }
+    if (depth_track) {
+        info_.set_depth_track_info(*depth_track);
+    }
+    if (depth_confidence_track) {
+        info_.set_depth_confidence_track_info(*depth_confidence_track);
+    }
+
+    if (!color_track || !depth_track || !audio_track_number || !floor_track_number)
+        return nullopt;
+
+    FileTracks file_tracks;
+    file_tracks.color_track = *color_track;
+    file_tracks.depth_track = *depth_track;
+    file_tracks.depth_confidence_track = depth_confidence_track;
+    file_tracks.audio_track_number = *audio_track_number;
+    file_tracks.floor_track_number = *floor_track_number;
+
+    return file_tracks;
 }
 
 bool FileParser::hasNextFrame()
@@ -385,18 +428,19 @@ FileFrame* FileParser::readFrame()
                     auto track_number{block->TrackNum()};
                     auto block_global_timecode{gsl::narrow<int64_t>(block->GlobalTimecode())};
                     auto data_buffer{block->GetBuffer(0)};
-                    if (track_number == color_track_number_) {
+                    if (track_number == file_tracks_->color_track.track_number) {
                         global_timecode = block_global_timecode;
                         color_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (track_number == depth_track_number_) {
+                    } else if (track_number == file_tracks_->depth_track.track_number) {
                         depth_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (depth_confidence_track_number_ && track_number == *depth_confidence_track_number_) {
+                    } else if (file_tracks_->depth_confidence_track &&
+                               track_number == file_tracks_->depth_confidence_track->track_number) {
                         depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (track_number == audio_track_number_) {
+                    } else if (track_number == file_tracks_->audio_track_number) {
                         global_timecode = block_global_timecode;
                         audio_frame = new FileAudioFrame{block_global_timecode,
                                                          copy_data_buffer_to_bytes(data_buffer)};
-                    } else if (track_number == floor_track_number_) {
+                    } else if (track_number == file_tracks_->floor_track_number) {
                         floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
                     } else {
                         throw std::runtime_error{"Invalid track number from block"};
@@ -409,17 +453,18 @@ FileFrame* FileParser::readFrame()
             auto track_number{simple_block->TrackNum()};
             auto block_global_timecode{gsl::narrow<int64_t>(simple_block->GlobalTimecode())};
             auto data_buffer{simple_block->GetBuffer(0)};
-            if (track_number == color_track_number_) {
+            if (track_number == file_tracks_->color_track.track_number) {
                 global_timecode = block_global_timecode;
                 color_bytes = copy_data_buffer_to_bytes(data_buffer);
-            } else if (track_number == depth_track_number_) {
+            } else if (track_number == file_tracks_->depth_track.track_number) {
                 depth_bytes = copy_data_buffer_to_bytes(data_buffer);
-            } else if (depth_confidence_track_number_ && track_number == *depth_confidence_track_number_) {
+            } else if (file_tracks_->depth_confidence_track &&
+                       track_number == file_tracks_->depth_confidence_track->track_number) {
                 depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
-            } else if (track_number == audio_track_number_) {
+            } else if (track_number == file_tracks_->audio_track_number) {
                 audio_frame = new FileAudioFrame{block_global_timecode,
                                                  copy_data_buffer_to_bytes(data_buffer)};
-            } else if (track_number == floor_track_number_) {
+            } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
             } else {
                 throw std::runtime_error{"Invalid track number from simple_block"};
@@ -428,7 +473,7 @@ FileFrame* FileParser::readFrame()
             throw std::runtime_error{"Invalid element from KaxCluster"};
         }
     }
-    
+
     cluster_ = find_next<KaxCluster>(stream_, true);
 
     // emplace only when the cluster is for video, not audio.
@@ -436,11 +481,8 @@ FileFrame* FileParser::readFrame()
         if (!floor)
             throw std::runtime_error{"Failed to find a floor"};
 
-        return new FileVideoFrame{global_timecode,
-                                  color_bytes,
-                                  depth_bytes,
-                                  depth_confidence_bytes,
-                                  *floor};
+        return new FileVideoFrame{
+            global_timecode, color_bytes, depth_bytes, depth_confidence_bytes, *floor};
     }
 
     if (audio_frame) {
@@ -476,4 +518,4 @@ unique_ptr<File> FileParser::readAll()
     return std::make_unique<File>(
         info_.camera_calibration(), std::move(rgbd_frames), std::move(audio_frames));
 }
-} // namespace tg
+} // namespace rgbd
