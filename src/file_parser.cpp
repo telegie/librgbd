@@ -138,28 +138,28 @@ Bytes copy_data_buffer_to_bytes(DataBuffer& data_buffer)
 FileParser::FileParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
-    , info_{}
-    , timecode_scale_ns_{0}
+    , kax_segment_{}
     , file_offsets_{}
+    , file_info_{}
     , file_tracks_{}
     , file_attachments_{}
 {
-    init();
+    parseExceptClusters();
 }
 
 FileParser::FileParser(const string& file_path)
     : input_{new StdIOCallback{file_path.c_str(), open_mode::MODE_READ}}
     , stream_{*input_}
-    , info_{}
-    , timecode_scale_ns_{0}
+    , kax_segment_{}
     , file_offsets_{}
+    , file_info_{}
     , file_tracks_{}
     , file_attachments_{}
 {
-    init();
+    parseExceptClusters();
 }
 
-void FileParser::init()
+void FileParser::parseExceptClusters()
 {
     auto head{find_next<EbmlHead>(stream_)};
     if (!head)
@@ -177,12 +177,11 @@ void FileParser::init()
                  doc_type_version,
                  doc_type_read_version);
 
-    segment_ = find_next<KaxSegment>(stream_, true);
-    if (!segment_)
+    kax_segment_ = find_next<KaxSegment>(stream_, true);
+    if (!kax_segment_)
         throw std::runtime_error("No segment");
 
-    auto element{next_child(*input_, stream_, segment_.get())};
-    file_offsets_ = parseOffsets(element, segment_);
+    file_offsets_ = parseOffsets(kax_segment_);
 
     if (!file_offsets_) {
         spdlog::error("Failed to parse offsets...");
@@ -190,34 +189,38 @@ void FileParser::init()
     }
 
     auto kax_info{
-        read_offset<KaxInfo>(*input_, stream_, *segment_, file_offsets_->segment_info_offset)};
+        read_offset<KaxInfo>(*input_, stream_, *kax_segment_, file_offsets_->segment_info_offset)};
 
-    info_.set_writing_app(GetChild<KaxWritingApp>(*kax_info).GetValue().GetUTF8());
-    timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*kax_info).GetValue();
-    info_.set_duration_us(GetChild<KaxDuration>(*kax_info).GetValue());
+    FileInfo file_info;
+    file_info.timecode_scale_ns = GetChild<KaxTimecodeScale>(*kax_info).GetValue();
+    file_info.duration_us = GetChild<KaxDuration>(*kax_info).GetValue();
+    file_info.writing_app = GetChild<KaxWritingApp>(*kax_info).GetValue().GetUTF8();
 
-    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment_, file_offsets_->tracks_offset)};
-    file_tracks_ = parseTracks(tracks);
+    file_info_ = file_info;
+
+    auto kax_tracks{
+        read_offset<KaxTracks>(*input_, stream_, *kax_segment_, file_offsets_->tracks_offset)};
+    file_tracks_ = parseTracks(kax_tracks);
 
     if (!file_tracks_) {
         spdlog::error("Failed to parse tracks...");
         throw std::runtime_error("Failed to parse tracks...");
     }
 
-    auto attachments{
-        read_offset<KaxAttachments>(*input_, stream_, *segment_, file_offsets_->attachments_offset)};
+    auto attachments{read_offset<KaxAttachments>(
+        *input_, stream_, *kax_segment_, file_offsets_->attachments_offset)};
 
     file_attachments_ = parseAttachments(attachments);
 }
 
-optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& element,
-                                                     unique_ptr<KaxSegment>& segment)
+optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& segment)
 {
     optional<int64_t> segment_info_offset{nullopt};
     optional<int64_t> tracks_offset{nullopt};
     optional<int64_t> attachments_offset{nullopt};
     optional<int64_t> first_cluster_offset{nullopt};
 
+    auto element{next_child(*input_, stream_, kax_segment_.get())};
     while (element != nullptr) {
         if (segment_info_offset && tracks_offset && attachments_offset && first_cluster_offset) {
             FileOffsets offsets;
@@ -399,7 +402,8 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     if (read_element<KaxCluster>(stream_, cluster.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
     auto cluster_timecode{FindChild<KaxClusterTimecode>(*cluster)->GetValue()};
-    cluster->InitTimecode(cluster_timecode / timecode_scale_ns_, timecode_scale_ns_);
+    cluster->InitTimecode(cluster_timecode / file_info_->timecode_scale_ns,
+                          file_info_->timecode_scale_ns);
 
     int64 global_timecode{0};
     Bytes color_bytes;
@@ -487,8 +491,8 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
 
 unique_ptr<File> FileParser::parseAllClusters()
 {
-    auto cluster{
-        read_offset<KaxCluster>(*input_, stream_, *segment_, file_offsets_->first_cluster_offset)};
+    auto cluster{read_offset<KaxCluster>(
+        *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
 
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");

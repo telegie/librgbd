@@ -100,17 +100,12 @@ extern "C"
     rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
     //////// END FILE FRAME ////////
 
-    //////// START FILE INFO ////////
-    void rgbd_file_info_dtor(void* ptr);
-    void* rgbd_file_info_get_writing_app(void* ptr);
-    double rgbd_file_info_get_duration_us(void* ptr);
-    //////// END FILE INFO ////////
-
     //////// START FILE PARSER ////////
     void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size);
     void* rgbd_file_parser_ctor_from_path(const char* file_path);
     void rgbd_file_parser_dtor(void* ptr);
-    void* rgbd_file_parser_get_info(void* ptr);
+    double rgbd_file_parser_get_duration_us(void* ptr);
+    void* rgbd_file_parser_get_writing_app(void* ptr);
     rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr);
     void* rgbd_file_parser_get_camera_calibration(void* ptr);
     void* rgbd_file_parser_get_color_track_codec(void* ptr);

@@ -247,24 +247,6 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 }
 //////// END FILE FRAME ////////
 
-//////// START FILE INFO ////////
-void rgbd_file_info_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FileInfo*>(ptr);
-}
-
-void* rgbd_file_info_get_writing_app(void* ptr)
-{
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::CString{file_info->writing_app()};
-}
-
-double rgbd_file_info_get_duration_us(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->duration_us();
-}
-//////// END FILE INFO ////////
-
 //////// START FILE PARSER ////////
 void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size)
 {
@@ -291,10 +273,16 @@ void rgbd_file_parser_dtor(void* ptr)
     delete static_cast<rgbd::FileParser*>(ptr);
 }
 
-void* rgbd_file_parser_get_info(void* ptr)
+double rgbd_file_parser_get_duration_us(void* ptr)
 {
     auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return new rgbd::FileInfo{file_parser->info()};
+    return file_parser->file_info()->duration_us;
+}
+
+void* rgbd_file_parser_get_writing_app(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return new rgbd::CString{file_parser->file_info()->writing_app};
 }
 
 rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr)
