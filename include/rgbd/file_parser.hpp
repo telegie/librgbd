@@ -25,20 +25,6 @@ private:
 public:
     unique_ptr<File> parseNoFrames();
     unique_ptr<File> parseAllFrames();
-    const optional<FileInfo>& file_info() const noexcept
-    {
-        return file_info_;
-    }
-
-    const optional<FileTracks>& file_tracks() const noexcept
-    {
-        return file_tracks_;
-    }
-
-    const optional<FileAttachments>& file_attachments() const noexcept
-    {
-        return file_attachments_;
-    }
 
 private:
     unique_ptr<libebml::IOCallback> input_;

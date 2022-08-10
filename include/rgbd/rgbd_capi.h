@@ -82,6 +82,8 @@ extern "C"
 
     //////// START FILE ////////
     void rgbd_file_dtor(void* ptr);
+    void* rgbd_file_get_info(void* ptr);
+    void* rgbd_file_get_tracks(void* ptr);
     void* rgbd_file_get_attachments(void* ptr);
     size_t rgbd_file_get_video_frame_count(void* ptr);
     void* rgbd_file_get_video_frame(void* ptr, size_t index);
@@ -106,24 +108,29 @@ extern "C"
     rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
     //////// END FILE FRAME ////////
 
+    //////// START FILE INFO ////////
+    void rgbd_file_info_dtor(void* ptr);
+    uint64_t rgbd_file_info_get_timecode_scale_ns(void* ptr);
+    double rgbd_file_info_get_duration_us(void* ptr);
+    void* rgbd_file_info_get_writing_app(void* ptr);
+    //////// END FILE INFO ////////
+
     //////// START FILE PARSER ////////
     void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size);
     void* rgbd_file_parser_ctor_from_path(const char* file_path);
     void rgbd_file_parser_dtor(void* ptr);
-    double rgbd_file_parser_get_duration_us(void* ptr);
-    void* rgbd_file_parser_get_writing_app(void* ptr);
-    rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr);
-    void* rgbd_file_parser_get_camera_calibration(void* ptr);
-    void* rgbd_file_parser_get_color_track_codec(void* ptr);
-    int rgbd_file_parser_get_color_track_width(void* ptr);
-    int rgbd_file_parser_get_color_track_height(void* ptr);
-    void* rgbd_file_parser_get_depth_track_codec(void* ptr);
-    int rgbd_file_parser_get_depth_track_width(void* ptr);
-    int rgbd_file_parser_get_depth_track_height(void* ptr);
-    void* rgbd_file_parser_get_cover_png_bytes(void* ptr);
     void* rgbd_file_parser_parse_no_frames(void* ptr);
     void* rgbd_file_parser_parse_all_frames(void* ptr);
     //////// END FILE PARSER ////////
+
+    //////// START FILE TRACKS ////////
+    void rgbd_file_tracks_dtor(void* ptr);
+    void* rgbd_file_tracks_get_color_track(void* ptr);
+    void* rgbd_file_tracks_get_depth_track(void* ptr);
+    void* rgbd_file_tracks_get_depth_confidence_track(void* ptr);
+    int rgbd_file_tracks_get_audio_track_number(void* ptr);
+    int rgbd_file_tracks_get_floor_track_number(void* ptr);
+    //////// START FILE TRACKS ////////
 
     //////// START FILE VIDEO FRAME ////////
     void rgbd_file_video_frame_dtor(void* ptr);
@@ -135,6 +142,14 @@ extern "C"
     float rgbd_file_video_frame_get_floor_normal_z(void* ptr);
     float rgbd_file_video_frame_get_floor_constant(void* ptr);
     //////// END FILE VIDEO FRAME ////////
+
+    //////// START FILE VIDEO TRACK ////////
+    void rgbd_file_video_track_dtor(void* ptr);
+    int rgbd_file_video_track_get_track_number(void* ptr);
+    void* rgbd_file_video_track_get_codec(void* ptr);
+    int rgbd_file_video_track_get_width(void* ptr);
+    int rgbd_file_video_track_get_height(void* ptr);
+    //////// START FILE VIDEO TRACK ////////
 
     //////// START KINECT CAMERA CALIBRATION ////////
     void* rgbd_kinect_camera_calibration_ctor(int color_width,

@@ -191,6 +191,16 @@ void rgbd_file_dtor(void* ptr)
     delete static_cast<rgbd::File*>(ptr);
 }
 
+void* rgbd_file_get_info(void* ptr)
+{
+    return &(static_cast<rgbd::File*>(ptr)->info());
+}
+
+void* rgbd_file_get_tracks(void* ptr)
+{
+    return &(static_cast<rgbd::File*>(ptr)->tracks());
+}
+
 void* rgbd_file_get_attachments(void* ptr)
 {
     return &(static_cast<rgbd::File*>(ptr)->attachments());
@@ -271,6 +281,31 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 }
 //////// END FILE FRAME ////////
 
+//////// START FILE INFO ////////
+void rgbd_file_info_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileInfo*>(ptr);
+}
+
+uint64_t rgbd_file_info_get_timecode_scale_ns(void* ptr)
+{
+    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
+    return file_info->timecode_scale_ns;
+}
+
+double rgbd_file_info_get_duration_us(void* ptr)
+{
+    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
+    return file_info->duration_us;
+}
+
+void* rgbd_file_info_get_writing_app(void* ptr)
+{
+    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
+    return new rgbd::CString{file_info->writing_app};
+}
+//////// END FILE INFO ////////
+
 //////// START FILE PARSER ////////
 void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size)
 {
@@ -297,74 +332,6 @@ void rgbd_file_parser_dtor(void* ptr)
     delete static_cast<rgbd::FileParser*>(ptr);
 }
 
-double rgbd_file_parser_get_duration_us(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_info()->duration_us;
-}
-
-void* rgbd_file_parser_get_writing_app(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return new rgbd::CString{file_parser->file_info()->writing_app};
-}
-
-rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    auto camera_device_type{
-        file_parser->file_attachments()->camera_calibration->getCameraDeviceType()};
-    return static_cast<rgbdCameraDeviceType>(camera_device_type);
-}
-
-void* rgbd_file_parser_get_camera_calibration(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_attachments()->camera_calibration.get();
-}
-
-void* rgbd_file_parser_get_color_track_codec(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return new rgbd::CString{file_parser->file_tracks()->color_track.codec};
-}
-
-int rgbd_file_parser_get_color_track_width(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_tracks()->color_track.width;
-}
-
-int rgbd_file_parser_get_color_track_height(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_tracks()->color_track.height;
-}
-
-void* rgbd_file_parser_get_depth_track_codec(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return new rgbd::CString{file_parser->file_tracks()->depth_track.codec};
-}
-
-int rgbd_file_parser_get_depth_track_width(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_tracks()->depth_track.width;
-}
-
-int rgbd_file_parser_get_depth_track_height(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->file_tracks()->depth_track.height;
-}
-
-void* rgbd_file_parser_get_cover_png_bytes(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return new rgbd::CByteArray{file_parser->file_attachments()->cover_png_bytes};
-}
-
 void* rgbd_file_parser_parse_no_frames(void* ptr)
 {
     auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
@@ -377,6 +344,45 @@ void* rgbd_file_parser_parse_all_frames(void* ptr)
     return file_parser->parseAllFrames().release();
 }
 //////// END FILE PARSER ////////
+
+//////// START FILE TRACKS ////////
+void rgbd_file_tracks_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileTracks*>(ptr);
+}
+
+void* rgbd_file_tracks_get_color_track(void* ptr)
+{
+    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    return &file_tracks->color_track;
+}
+
+void* rgbd_file_tracks_get_depth_track(void* ptr)
+{
+    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    return &file_tracks->depth_track;
+}
+
+void* rgbd_file_tracks_get_depth_confidence_track(void* ptr)
+{
+    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    if (!file_tracks->depth_confidence_track)
+        return nullptr;
+    return &(*file_tracks->depth_confidence_track);
+}
+
+int rgbd_file_tracks_get_audio_track_number(void* ptr)
+{
+    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    return file_tracks->audio_track_number;
+}
+
+int rgbd_file_tracks_get_floor_track_number(void* ptr)
+{
+    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    return file_tracks->floor_track_number;
+}
+//////// START FILE TRACKS ////////
 
 //////// START FILE VIDEO FRAME ////////
 void rgbd_file_video_frame_dtor(void* ptr)
@@ -419,6 +425,37 @@ float rgbd_file_video_frame_get_floor_constant(void* ptr)
     return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().constant();
 }
 //////// END FILE VIDEO FRAME ////////
+
+//////// START FILE VIDEO TRACK ////////
+void rgbd_file_video_track_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileVideoTrack*>(ptr);
+}
+
+int rgbd_file_video_track_get_track_number(void* ptr)
+{
+    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    return file_video_track->track_number;
+}
+
+void* rgbd_file_video_track_get_codec(void* ptr)
+{
+    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    return new rgbd::CString{file_video_track->codec};
+}
+
+int rgbd_file_video_track_get_width(void* ptr)
+{
+    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    return file_video_track->width;
+}
+
+int rgbd_file_video_track_get_height(void* ptr)
+{
+    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    return file_video_track->height;
+}
+//////// START FILE VIDEO TRACK ////////
 
 //////// START KINECT CAMERA CALIBRATION ////////
 void* rgbd_kinect_camera_calibration_ctor(int color_width,
