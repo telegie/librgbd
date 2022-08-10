@@ -297,18 +297,6 @@ int rgbd_file_info_get_depth_track_height(void* ptr)
     return static_cast<rgbd::FileInfo*>(ptr)->depth_track_info().height;
 }
 
-rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr)
-{
-    auto camera_device_type{
-        static_cast<rgbd::FileInfo*>(ptr)->camera_calibration()->getCameraDeviceType()};
-    return static_cast<rgbdCameraDeviceType>(camera_device_type);
-}
-
-void* rgbd_file_info_get_camera_calibration(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->camera_calibration().get();
-}
-
 void* rgbd_file_info_get_cover_png_bytes(void* ptr)
 {
     auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
@@ -346,6 +334,20 @@ void* rgbd_file_parser_get_info(void* ptr)
 {
     auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
     return new rgbd::FileInfo{file_parser->info()};
+}
+
+rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    auto camera_device_type{
+        file_parser->file_attachments()->camera_calibration->getCameraDeviceType()};
+    return static_cast<rgbdCameraDeviceType>(camera_device_type);
+}
+
+void* rgbd_file_parser_get_camera_calibration(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->file_attachments()->camera_calibration.get();
 }
 
 void* rgbd_file_parser_read_all(void* ptr)
@@ -420,19 +422,19 @@ void* rgbd_int16_frame_get_values(void* ptr)
 
 //////// START IOS CAMERA CALIBRATION ////////
 void* rgbd_ios_camera_calibration_ctor(int color_width,
-                                             int color_height,
-                                             int depth_width,
-                                             int depth_height,
-                                             float fx,
-                                             float fy,
-                                             float ox,
-                                             float oy,
-                                             float reference_dimension_width,
-                                             float reference_dimension_height,
-                                             float lens_distortion_center_x,
-                                             float lens_distortion_center_y,
-                                             const float* lens_distortion_lookup_table,
-                                             size_t lens_distortion_lookup_table_size)
+                                       int color_height,
+                                       int depth_width,
+                                       int depth_height,
+                                       float fx,
+                                       float fy,
+                                       float ox,
+                                       float oy,
+                                       float reference_dimension_width,
+                                       float reference_dimension_height,
+                                       float lens_distortion_center_x,
+                                       float lens_distortion_center_y,
+                                       const float* lens_distortion_lookup_table,
+                                       size_t lens_distortion_lookup_table_size)
 {
     return new rgbd::IosCameraCalibration{
         color_width,

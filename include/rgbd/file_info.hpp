@@ -22,7 +22,6 @@ public:
         , color_track_info_{0, "", 0, 0}
         , depth_track_info_{0, "", 0, 0}
         , depth_confidence_track_info_{nullopt}
-        , camera_calibration_{nullptr}
     {
     }
     const string& writing_app() const noexcept
@@ -65,18 +64,6 @@ public:
     {
         depth_track_info_ = depth_track_info;
     }
-    void set_camera_calibration(CameraCalibration* camera_calibration) noexcept
-    {
-        camera_calibration_ = shared_ptr<CameraCalibration>(camera_calibration);
-    }
-    void set_camera_calibration(shared_ptr<CameraCalibration>& camera_calibration) noexcept
-    {
-        camera_calibration_ = camera_calibration;
-    }
-    const shared_ptr<CameraCalibration> camera_calibration() const noexcept
-    {
-        return camera_calibration_;
-    }
     const Bytes& cover_png_bytes() const noexcept
     {
         return cover_png_bytes_;
@@ -92,7 +79,6 @@ private:
     FileVideoTrack color_track_info_;
     FileVideoTrack depth_track_info_;
     optional<FileVideoTrack> depth_confidence_track_info_;
-    shared_ptr<CameraCalibration> camera_calibration_;
     Bytes cover_png_bytes_;
 };
 }

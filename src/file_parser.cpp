@@ -142,6 +142,7 @@ FileParser::FileParser(const void* ptr, size_t size)
     , timecode_scale_ns_{0}
     , file_offsets_{}
     , file_tracks_{}
+    , file_attachments_{}
 {
     init();
 }
@@ -153,6 +154,7 @@ FileParser::FileParser(const string& file_path)
     , timecode_scale_ns_{0}
     , file_offsets_{}
     , file_tracks_{}
+    , file_attachments_{}
 {
     init();
 }
@@ -205,7 +207,7 @@ void FileParser::init()
     auto attachments{
         read_offset<KaxAttachments>(*input_, stream_, *segment_, file_offsets_->attachments_offset)};
 
-    auto file_attachments{parseAttachments(attachments)};
+    file_attachments_ = parseAttachments(attachments);
 }
 
 optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& element,
@@ -392,8 +394,8 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
         }
     }
 
-    if (camera_calibration)
-        info_.set_camera_calibration(camera_calibration);
+//    if (camera_calibration)
+//        info_.set_camera_calibration(camera_calibration);
 
     if (cover_png_bytes.size() > 0)
         info_.set_cover_png_bytes(cover_png_bytes);
@@ -507,7 +509,7 @@ unique_ptr<File> FileParser::parseAllClusters()
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");
 
-    vector<unique_ptr<FileVideoFrame>> rgbd_frames;
+    vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
 
     while (cluster != nullptr) {
@@ -515,8 +517,8 @@ unique_ptr<File> FileParser::parseAllClusters()
         cluster = find_next<KaxCluster>(stream_, true);
         switch (frame->getType()) {
         case FileFrameType::RGBD: {
-            auto rgbd_frame{dynamic_cast<FileVideoFrame*>(frame)};
-            rgbd_frames.emplace_back(rgbd_frame);
+            auto video_frame{dynamic_cast<FileVideoFrame*>(frame)};
+            video_frames.emplace_back(video_frame);
             break;
         }
         case FileFrameType::Audio: {
@@ -530,6 +532,6 @@ unique_ptr<File> FileParser::parseAllClusters()
     }
 
     return std::make_unique<File>(
-        info_.camera_calibration(), std::move(rgbd_frames), std::move(audio_frames));
+        file_attachments_->camera_calibration, std::move(video_frames), std::move(audio_frames));
 }
 } // namespace rgbd

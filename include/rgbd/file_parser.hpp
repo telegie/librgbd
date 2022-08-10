@@ -52,6 +52,11 @@ public:
         return info_;
     }
 
+    const optional<FileAttachments>& file_attachments() const noexcept
+    {
+        return file_attachments_;
+    }
+
 private:
     unique_ptr<libebml::IOCallback> input_;
     EbmlStream stream_;
@@ -60,5 +65,6 @@ private:
     unique_ptr<libmatroska::KaxSegment> segment_;
     optional<FileOffsets> file_offsets_;
     optional<FileTracks> file_tracks_;
+    optional<FileAttachments> file_attachments_;
 };
 } // namespace rgbd

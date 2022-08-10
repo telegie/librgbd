@@ -110,8 +110,6 @@ extern "C"
     void* rgbd_file_info_get_depth_track_codec(void* ptr);
     int rgbd_file_info_get_depth_track_width(void* ptr);
     int rgbd_file_info_get_depth_track_height(void* ptr);
-    rgbdCameraDeviceType rgbd_file_info_get_camera_device_type(void* ptr);
-    void* rgbd_file_info_get_camera_calibration(void* ptr);
     void* rgbd_file_info_get_cover_png_bytes(void* ptr);
     //////// END FILE INFO ////////
 
@@ -120,6 +118,8 @@ extern "C"
     void* rgbd_file_parser_ctor_from_path(const char* file_path);
     void rgbd_file_parser_dtor(void* ptr);
     void* rgbd_file_parser_get_info(void* ptr);
+    rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr);
+    void* rgbd_file_parser_get_camera_calibration(void* ptr);
     void* rgbd_file_parser_read_all(void* ptr);
     //////// END FILE PARSER ////////
 
