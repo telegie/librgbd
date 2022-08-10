@@ -4,7 +4,6 @@
 #include "ffmpeg_audio_decoder.hpp"
 #include "ffmpeg_video_decoder.hpp"
 #include "file.hpp"
-#include "file_info.hpp"
 #include "file_parser.hpp"
 #include "integer_frame.hpp"
 #include "ios_camera_calibration.hpp"
@@ -264,44 +263,6 @@ double rgbd_file_info_get_duration_us(void* ptr)
 {
     return static_cast<rgbd::FileInfo*>(ptr)->duration_us();
 }
-
-void* rgbd_file_info_get_color_track_codec(void* ptr)
-{
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::CString{file_info->color_track_info().codec};
-}
-
-int rgbd_file_info_get_color_track_width(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->color_track_info().width;
-}
-
-int rgbd_file_info_get_color_track_height(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->color_track_info().height;
-}
-
-void* rgbd_file_info_get_depth_track_codec(void* ptr)
-{
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::CString{file_info->depth_track_info().codec};
-}
-
-int rgbd_file_info_get_depth_track_width(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->depth_track_info().width;
-}
-
-int rgbd_file_info_get_depth_track_height(void* ptr)
-{
-    return static_cast<rgbd::FileInfo*>(ptr)->depth_track_info().height;
-}
-
-void* rgbd_file_info_get_cover_png_bytes(void* ptr)
-{
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::CByteArray{file_info->cover_png_bytes()};
-}
 //////// END FILE INFO ////////
 
 //////// START FILE PARSER ////////
@@ -350,9 +311,52 @@ void* rgbd_file_parser_get_camera_calibration(void* ptr)
     return file_parser->file_attachments()->camera_calibration.get();
 }
 
+void* rgbd_file_parser_get_color_track_codec(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return new rgbd::CString{file_parser->file_tracks()->color_track.codec};
+}
+
+int rgbd_file_parser_get_color_track_width(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->file_tracks()->color_track.width;
+}
+
+int rgbd_file_parser_get_color_track_height(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->file_tracks()->color_track.height;
+}
+
+void* rgbd_file_parser_get_depth_track_codec(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return new rgbd::CString{file_parser->file_tracks()->depth_track.codec};
+}
+
+int rgbd_file_parser_get_depth_track_width(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->file_tracks()->depth_track.width;
+}
+
+int rgbd_file_parser_get_depth_track_height(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->file_tracks()->depth_track.height;
+}
+
+void* rgbd_file_parser_get_cover_png_bytes(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return new rgbd::CByteArray{file_parser->file_attachments()->cover_png_bytes};
+}
+
 void* rgbd_file_parser_read_all(void* ptr)
 {
-    return static_cast<rgbd::FileParser*>(ptr)->parseAllClusters().release();
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->parseAllClusters().release();
 }
 //////// END FILE PARSER ////////
 

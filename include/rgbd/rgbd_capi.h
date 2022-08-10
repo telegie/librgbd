@@ -104,13 +104,6 @@ extern "C"
     void rgbd_file_info_dtor(void* ptr);
     void* rgbd_file_info_get_writing_app(void* ptr);
     double rgbd_file_info_get_duration_us(void* ptr);
-    void* rgbd_file_info_get_color_track_codec(void* ptr);
-    int rgbd_file_info_get_color_track_width(void* ptr);
-    int rgbd_file_info_get_color_track_height(void* ptr);
-    void* rgbd_file_info_get_depth_track_codec(void* ptr);
-    int rgbd_file_info_get_depth_track_width(void* ptr);
-    int rgbd_file_info_get_depth_track_height(void* ptr);
-    void* rgbd_file_info_get_cover_png_bytes(void* ptr);
     //////// END FILE INFO ////////
 
     //////// START FILE PARSER ////////
@@ -120,6 +113,13 @@ extern "C"
     void* rgbd_file_parser_get_info(void* ptr);
     rgbdCameraDeviceType rgbd_file_parser_get_camera_device_type(void* ptr);
     void* rgbd_file_parser_get_camera_calibration(void* ptr);
+    void* rgbd_file_parser_get_color_track_codec(void* ptr);
+    int rgbd_file_parser_get_color_track_width(void* ptr);
+    int rgbd_file_parser_get_color_track_height(void* ptr);
+    void* rgbd_file_parser_get_depth_track_codec(void* ptr);
+    int rgbd_file_parser_get_depth_track_width(void* ptr);
+    int rgbd_file_parser_get_depth_track_height(void* ptr);
+    void* rgbd_file_parser_get_cover_png_bytes(void* ptr);
     void* rgbd_file_parser_read_all(void* ptr);
     //////// END FILE PARSER ////////
 

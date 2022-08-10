@@ -1,12 +1,49 @@
 #pragma once
 
 #include "file.hpp"
-#include "file_info.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
 
 namespace rgbd
 {
+struct FileVideoTrack
+{
+    int track_number;
+    string codec;
+    int width;
+    int height;
+};
+
+class FileInfo
+{
+public:
+    FileInfo()
+        : writing_app_{""}
+        , duration_us_{0.0}
+    {
+    }
+    const string& writing_app() const noexcept
+    {
+        return writing_app_;
+    }
+    void set_writing_app(const string& writing_app) noexcept
+    {
+        writing_app_ = writing_app;
+    }
+    double duration_us() const noexcept
+    {
+        return duration_us_;
+    }
+    void set_duration_us(double duration_us) noexcept
+    {
+        duration_us_ = duration_us;
+    }
+
+private:
+    string writing_app_;
+    double duration_us_;
+};
+
 struct FileOffsets
 {
     int64_t segment_info_offset;
@@ -50,6 +87,11 @@ public:
     const FileInfo& info() const noexcept
     {
         return info_;
+    }
+
+    optional<FileTracks> file_tracks() const noexcept
+    {
+        return file_tracks_;
     }
 
     const optional<FileAttachments>& file_attachments() const noexcept

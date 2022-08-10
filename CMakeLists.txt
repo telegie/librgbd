@@ -123,7 +123,6 @@ set(RgbdSources
   include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/file.hpp
-  include/rgbd/file_info.hpp
   include/rgbd/file_parser.hpp
   include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
@@ -154,7 +153,6 @@ set(RgbdSources
   src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
   src/file.cpp
-  src/file_info.cpp
   src/file_parser.cpp
   src/frame.cpp
   src/integer_frame.cpp

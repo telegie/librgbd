@@ -189,12 +189,12 @@ void FileParser::init()
         throw std::runtime_error("Failed to parse offsets...");
     }
 
-    auto segment_info{
+    auto kax_info{
         read_offset<KaxInfo>(*input_, stream_, *segment_, file_offsets_->segment_info_offset)};
 
-    info_.set_writing_app(GetChild<KaxWritingApp>(*segment_info).GetValue().GetUTF8());
-    timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*segment_info).GetValue();
-    info_.set_duration_us(GetChild<KaxDuration>(*segment_info).GetValue());
+    info_.set_writing_app(GetChild<KaxWritingApp>(*kax_info).GetValue().GetUTF8());
+    timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*kax_info).GetValue();
+    info_.set_duration_us(GetChild<KaxDuration>(*kax_info).GetValue());
 
     auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment_, file_offsets_->tracks_offset)};
     file_tracks_ = parseTracks(tracks);
@@ -326,16 +326,6 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
         }
     }
 
-    if (color_track) {
-        info_.set_color_track_info(*color_track);
-    }
-    if (depth_track) {
-        info_.set_depth_track_info(*depth_track);
-    }
-    if (depth_confidence_track) {
-        info_.set_depth_confidence_track_info(*depth_confidence_track);
-    }
-
     if (!color_track || !depth_track || !audio_track_number || !floor_track_number)
         return nullopt;
 
@@ -393,12 +383,6 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
             };
         }
     }
-
-//    if (camera_calibration)
-//        info_.set_camera_calibration(camera_calibration);
-
-    if (cover_png_bytes.size() > 0)
-        info_.set_cover_png_bytes(cover_png_bytes);
 
     if (!camera_calibration || cover_png_bytes.size() == 0)
         return nullopt;

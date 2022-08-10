@@ -13,7 +13,6 @@
 #include <rgbd/ffmpeg_video_encoder.hpp>
 #include <rgbd/ffmpeg_utils.hpp>
 #include <rgbd/file.hpp>
-#include <rgbd/file_info.hpp>
 #include <rgbd/file_parser.hpp>
 #include <rgbd/frame.hpp>
 #include <rgbd/integer_frame.hpp>
