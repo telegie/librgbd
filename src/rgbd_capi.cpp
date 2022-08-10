@@ -398,6 +398,158 @@ float rgbd_file_video_frame_get_floor_constant(void* ptr)
 }
 //////// END FILE VIDEO FRAME ////////
 
+//////// START KINECT CAMERA CALIBRATION ////////
+void* rgbd_kinect_camera_calibration_ctor(int color_width,
+                                          int color_height,
+                                          int depth_width,
+                                          int depth_height,
+                                          int resolution_width,
+                                          int resolution_height,
+                                          float cx,
+                                          float cy,
+                                          float fx,
+                                          float fy,
+                                          float k1,
+                                          float k2,
+                                          float k3,
+                                          float k4,
+                                          float k5,
+                                          float k6,
+                                          float codx,
+                                          float cody,
+                                          float p1,
+                                          float p2,
+                                          float max_radius_for_projection)
+{
+    return new rgbd::KinectCameraCalibration{color_width,
+                                             color_height,
+                                             depth_width,
+                                             depth_height,
+                                             resolution_width,
+                                             resolution_height,
+                                             cx,
+                                             cy,
+                                             fx,
+                                             fy,
+                                             k1,
+                                             k2,
+                                             k3,
+                                             k4,
+                                             k5,
+                                             k6,
+                                             codx,
+                                             cody,
+                                             p1,
+                                             p2,
+                                             max_radius_for_projection};
+}
+
+int rgbd_kinect_camera_calibration_get_color_width(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getColorWidth();
+}
+
+int rgbd_kinect_camera_calibration_get_color_height(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getColorHeight();
+}
+
+int rgbd_kinect_camera_calibration_get_depth_width(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getDepthWidth();
+}
+
+int rgbd_kinect_camera_calibration_get_depth_height(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getDepthHeight();
+}
+
+int rgbd_kinect_camera_calibration_get_resolution_width(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->resolution_width();
+}
+
+int rgbd_kinect_camera_calibration_get_resolution_height(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->resolution_height();
+}
+
+float rgbd_kinect_camera_calibration_get_cx(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cx();
+}
+
+float rgbd_kinect_camera_calibration_get_cy(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cy();
+}
+
+float rgbd_kinect_camera_calibration_get_fx(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->fx();
+}
+
+float rgbd_kinect_camera_calibration_get_fy(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->fy();
+}
+
+float rgbd_kinect_camera_calibration_get_k1(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k1();
+}
+
+float rgbd_kinect_camera_calibration_get_k2(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k2();
+}
+
+float rgbd_kinect_camera_calibration_get_k3(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k3();
+}
+
+float rgbd_kinect_camera_calibration_get_k4(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k4();
+}
+
+float rgbd_kinect_camera_calibration_get_k5(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k5();
+}
+
+float rgbd_kinect_camera_calibration_get_k6(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k6();
+}
+
+float rgbd_kinect_camera_calibration_get_codx(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->codx();
+}
+
+float rgbd_kinect_camera_calibration_get_cody(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cody();
+}
+
+float rgbd_kinect_camera_calibration_get_p1(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->p1();
+}
+
+float rgbd_kinect_camera_calibration_get_p2(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->p2();
+}
+
+float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr)
+{
+    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->max_radius_for_projection();
+}
+//////// END KINECT CAMERA CALIBRATION ////////
+
 //////// START INT16 FRAME ////////
 void rgbd_int16_frame_dtor(void* ptr)
 {

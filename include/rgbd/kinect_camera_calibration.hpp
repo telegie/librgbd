@@ -125,7 +125,7 @@ private:
     int depth_width_;
     int depth_height_;
 
-    // intrinscis
+    // intrinsics
     int resolution_width_;
     int resolution_height_;
     float cx_;

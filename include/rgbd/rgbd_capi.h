@@ -134,6 +134,51 @@ extern "C"
     float rgbd_file_video_frame_get_floor_constant(void* ptr);
     //////// END FILE VIDEO FRAME ////////
 
+    //////// START KINECT CAMERA CALIBRATION ////////
+    void* rgbd_kinect_camera_calibration_ctor(int color_width,
+                                              int color_height,
+                                              int depth_width,
+                                              int depth_height,
+                                              int resolution_width,
+                                              int resolution_height,
+                                              float cx,
+                                              float cy,
+                                              float fx,
+                                              float fy,
+                                              float k1,
+                                              float k2,
+                                              float k3,
+                                              float k4,
+                                              float k5,
+                                              float k6,
+                                              float codx,
+                                              float cody,
+                                              float p1,
+                                              float p2,
+                                              float max_radius_for_projection);
+    int rgbd_kinect_camera_calibration_get_color_width(void* ptr);
+    int rgbd_kinect_camera_calibration_get_color_height(void* ptr);
+    int rgbd_kinect_camera_calibration_get_depth_width(void* ptr);
+    int rgbd_kinect_camera_calibration_get_depth_height(void* ptr);
+    int rgbd_kinect_camera_calibration_get_resolution_width(void* ptr);
+    int rgbd_kinect_camera_calibration_get_resolution_height(void* ptr);
+    float rgbd_kinect_camera_calibration_get_cx(void* ptr);
+    float rgbd_kinect_camera_calibration_get_cy(void* ptr);
+    float rgbd_kinect_camera_calibration_get_fx(void* ptr);
+    float rgbd_kinect_camera_calibration_get_fy(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k1(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k2(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k3(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k4(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k5(void* ptr);
+    float rgbd_kinect_camera_calibration_get_k6(void* ptr);
+    float rgbd_kinect_camera_calibration_get_codx(void* ptr);
+    float rgbd_kinect_camera_calibration_get_cody(void* ptr);
+    float rgbd_kinect_camera_calibration_get_p1(void* ptr);
+    float rgbd_kinect_camera_calibration_get_p2(void* ptr);
+    float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr);
+    //////// END KINECT CAMERA CALIBRATION ////////
+
     //////// START INT16 FRAME ////////
     void rgbd_int16_frame_dtor(void* ptr);
     int rgbd_int16_frame_get_width(void* ptr);
