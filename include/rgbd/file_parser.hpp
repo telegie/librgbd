@@ -1,12 +1,20 @@
 #pragma once
 
 #include "file.hpp"
-#include "kinect_camera_calibration.hpp"
-#include "ios_camera_calibration.hpp"
 #include "file_info.hpp"
+#include "ios_camera_calibration.hpp"
+#include "kinect_camera_calibration.hpp"
 
 namespace rgbd
 {
+struct FileOffsets
+{
+    int64_t segment_info_offset;
+    int64_t tracks_offset;
+    int64_t attachments_offset;
+    int64_t first_cluster_offset;
+};
+
 class FileParser
 {
 public:
@@ -15,10 +23,12 @@ public:
 
 private:
     void init();
-
-public:
+    optional<const FileOffsets> parseOffsets(unique_ptr<EbmlElement>& element,
+                                             unique_ptr<libmatroska::KaxSegment>& segment);
     bool hasNextFrame();
     FileFrame* readFrame();
+
+public:
     unique_ptr<File> readAll();
     const FileInfo& info() const noexcept
     {
@@ -37,4 +47,4 @@ private:
     int floor_track_number_;
     unique_ptr<libmatroska::KaxCluster> cluster_;
 };
-}
+} // namespace rgbd

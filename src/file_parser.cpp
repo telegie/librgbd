@@ -7,60 +7,6 @@ using namespace libmatroska;
 
 namespace rgbd
 {
-class VideoOffsets
-{
-public:
-    VideoOffsets()
-        : segment_info_offset_{0}
-        , tracks_offset_{0}
-        , attachments_offset_{0}
-        , first_cluster_offset_{0}
-    {
-    }
-    bool isReady()
-    {
-        return segment_info_offset_ > 0 && tracks_offset_ > 0 && attachments_offset_ > 0 &&
-               first_cluster_offset_ > 0;
-    }
-    int64_t segment_info_offset()
-    {
-        return segment_info_offset_;
-    }
-    void set_segment_info_offset(int64_t segment_info_offset)
-    {
-        segment_info_offset_ = segment_info_offset;
-    }
-    int64_t tracks_offset()
-    {
-        return tracks_offset_;
-    }
-    void set_tracks_offset(int64_t tracks_offset)
-    {
-        tracks_offset_ = tracks_offset;
-    }
-    int64_t attachments_offset()
-    {
-        return attachments_offset_;
-    }
-    void set_attachments_offset(int64_t attachments_offset)
-    {
-        attachments_offset_ = attachments_offset;
-    }
-    int64_t first_cluster_offset()
-    {
-        return first_cluster_offset_;
-    }
-    void set_first_cluster_offset(int64_t first_cluster_offset)
-    {
-        first_cluster_offset_ = first_cluster_offset;
-    }
-
-private:
-    int64_t segment_info_offset_;
-    int64_t tracks_offset_;
-    int64_t attachments_offset_;
-    int64_t first_cluster_offset_;
-};
 
 std::unique_ptr<EbmlElement> next_child(IOCallback& input, EbmlStream& stream, EbmlElement* parent)
 {
@@ -240,55 +186,17 @@ void FileParser::init()
         throw std::runtime_error("No segment");
 
     auto element{next_child(*input_, stream_, segment.get())};
-    VideoOffsets offsets;
 
-    while (element != nullptr && !offsets.isReady()) {
-        EbmlId element_id(*element);
-        if (element_id == KaxSeekHead::ClassInfos.GlobalId) {
-            // Parse SeekHead offset positions
-            KaxSeekHead* seek_head{read_element<KaxSeekHead>(stream_, element.get())};
-            for (EbmlElement* e : seek_head->GetElementList()) {
-                if (EbmlId(*e) == KaxSeek::ClassInfos.GlobalId) {
-                    auto seek{read_element<KaxSeek>(stream_, e)};
-                    KaxSeekID& seek_id{GetChild<KaxSeekID>(*seek)};
-                    EbmlId ebml_id(seek_id.GetBuffer(),
-                                   static_cast<unsigned int>(seek_id.GetSize()));
-                    int64_t seek_location{seek->Location()};
+    auto offsets{parseOffsets(element, segment)};
 
-                    if (ebml_id == KaxInfo::ClassInfos.GlobalId) {
-                        offsets.set_segment_info_offset(seek_location);
-                    } else if (ebml_id == KaxTracks::ClassInfos.GlobalId) {
-                        offsets.set_tracks_offset(seek_location);
-                    } else if (ebml_id == KaxAttachments::ClassInfos.GlobalId) {
-                        offsets.set_attachments_offset(seek_location);
-                    } else {
-                        spdlog::info("Found seek not used.");
-                    }
-                }
-            }
-        } else if (element_id == KaxCluster::ClassInfos.GlobalId) {
-            if (offsets.first_cluster_offset() == 0) {
-                offsets.set_first_cluster_offset(segment->GetRelativePosition(*element.get()));
-            }
-        } else {
-            element->SkipData(stream_, element->Generic().Context);
-        }
-
-        element = next_child(*input_, stream_, segment.get());
-    }
-
-    spdlog::info("offsets.tracks_offset: {}", offsets.tracks_offset());
-    spdlog::info("offsets.attachments_offset: {}", offsets.attachments_offset());
-    spdlog::info("offsets.first_cluster_offset: {}", offsets.first_cluster_offset());
-
-    if (!offsets.isReady())
+    if (!offsets)
         throw std::runtime_error("Not all offsets has been found");
 
     auto segment_info{
-        read_offset<KaxInfo>(*input_, stream_, *segment, offsets.segment_info_offset())};
-    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, offsets.tracks_offset())};
+        read_offset<KaxInfo>(*input_, stream_, *segment, offsets->segment_info_offset)};
+    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, offsets->tracks_offset)};
     auto attachements{
-        read_offset<KaxAttachments>(*input_, stream_, *segment, offsets.attachments_offset())};
+        read_offset<KaxAttachments>(*input_, stream_, *segment, offsets->attachments_offset)};
 
     info_.set_writing_app(GetChild<KaxWritingApp>(*segment_info).GetValue().GetUTF8());
     timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*segment_info).GetValue();
@@ -381,12 +289,66 @@ void FileParser::init()
         }
     }
 
-    auto cluster{read_offset<KaxCluster>(*input_, stream_, *segment, offsets.first_cluster_offset())};
+    auto cluster{read_offset<KaxCluster>(*input_, stream_, *segment, offsets->first_cluster_offset)};
 
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");
     
     cluster_ = std::move(cluster);
+}
+
+optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& element,
+                                                     unique_ptr<KaxSegment>& segment)
+{
+    FileOffsets offsets;
+    offsets.segment_info_offset = 0;
+    offsets.tracks_offset = 0;
+    offsets.attachments_offset = 0;
+    offsets.first_cluster_offset = 0;
+
+    while (element != nullptr) {
+        if (offsets.segment_info_offset > 0
+            && offsets.tracks_offset > 0
+            && offsets.attachments_offset > 0
+            && offsets.first_cluster_offset > 0) {
+            return offsets;
+        }
+
+        EbmlId element_id(*element);
+        if (element_id == KaxSeekHead::ClassInfos.GlobalId) {
+            // Parse SeekHead offset positions
+            KaxSeekHead* seek_head{read_element<KaxSeekHead>(stream_, element.get())};
+            for (EbmlElement* e : seek_head->GetElementList()) {
+                if (EbmlId(*e) == KaxSeek::ClassInfos.GlobalId) {
+                    auto seek{read_element<KaxSeek>(stream_, e)};
+                    KaxSeekID& seek_id{GetChild<KaxSeekID>(*seek)};
+                    EbmlId ebml_id(seek_id.GetBuffer(),
+                                   static_cast<unsigned int>(seek_id.GetSize()));
+                    int64_t seek_location{seek->Location()};
+
+                    if (ebml_id == KaxInfo::ClassInfos.GlobalId) {
+                        offsets.segment_info_offset = seek_location;
+                    } else if (ebml_id == KaxTracks::ClassInfos.GlobalId) {
+                        offsets.tracks_offset = seek_location;
+                    } else if (ebml_id == KaxAttachments::ClassInfos.GlobalId) {
+                        offsets.attachments_offset = seek_location;
+                    } else {
+                        spdlog::info("Found seek not used.");
+                    }
+                }
+            }
+        } else if (element_id == KaxCluster::ClassInfos.GlobalId) {
+            if (offsets.first_cluster_offset == 0) {
+                offsets.first_cluster_offset = segment->GetRelativePosition(*element.get());
+            }
+        } else {
+            element->SkipData(stream_, element->Generic().Context);
+        }
+
+        element = next_child(*input_, stream_, segment.get());
+    }
+
+    return nullopt;
 }
 
 bool FileParser::hasNextFrame()
