@@ -26,9 +26,47 @@
 
 namespace rgbd
 {
+struct FileOffsets
+{
+    int64_t segment_info_offset;
+    int64_t tracks_offset;
+    int64_t attachments_offset;
+    int64_t first_cluster_offset;
+};
+
+struct FileInfo
+{
+    uint64_t timecode_scale_ns;
+    double duration_us;
+    string writing_app;
+};
+
+struct FileVideoTrack
+{
+    int track_number;
+    string codec;
+    int width;
+    int height;
+};
+
+struct FileTracks
+{
+    FileVideoTrack color_track;
+    FileVideoTrack depth_track;
+    optional<FileVideoTrack> depth_confidence_track;
+    int audio_track_number;
+    int floor_track_number;
+};
+
+struct FileAttachments
+{
+    shared_ptr<CameraCalibration> camera_calibration;
+    Bytes cover_png_bytes;
+};
+
 enum class FileFrameType
 {
-    RGBD = 0,
+    Video = 0,
     Audio = 1
 };
 
@@ -56,7 +94,7 @@ public:
     }
     FileFrameType getType()
     {
-        return FileFrameType::RGBD;
+        return FileFrameType::Video;
     }
     int64_t global_timecode() const noexcept
     {
@@ -117,16 +155,35 @@ private:
 class File
 {
 public:
-    File(const shared_ptr<CameraCalibration>& camera_calibration,
+    File(const FileOffsets& offsets,
+         const FileInfo& info,
+         const FileTracks& tracks,
+         const FileAttachments& attachments,
          vector<unique_ptr<FileVideoFrame>>&& video_frames,
          vector<unique_ptr<FileAudioFrame>>&& audio_frames);
+    FileOffsets& offsets() noexcept
+    {
+        return offsets_;
+    }
+    FileInfo& info() noexcept
+    {
+        return info_;
+    }
+    FileTracks& tracks() noexcept
+    {
+        return tracks_;
+    }
+    FileAttachments& attachments() noexcept
+    {
+        return attachments_;
+    }
     CameraCalibration* camera_calibration() noexcept
     {
-        return camera_calibration_.get();
+        return attachments_.camera_calibration.get();
     }
     const CameraCalibration* camera_calibration() const noexcept
     {
-        return camera_calibration_.get();
+        return attachments_.camera_calibration.get();
     }
     const vector<unique_ptr<FileVideoFrame>>& video_frames() const noexcept
     {
@@ -138,7 +195,10 @@ public:
     }
 
 private:
-    shared_ptr<CameraCalibration> camera_calibration_;
+    FileOffsets offsets_;
+    FileInfo info_;
+    FileTracks tracks_;
+    FileAttachments attachments_;
     vector<unique_ptr<FileVideoFrame>> video_frames_;
     vector<unique_ptr<FileAudioFrame>> audio_frames_;
 };

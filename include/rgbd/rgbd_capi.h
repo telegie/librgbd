@@ -82,12 +82,18 @@ extern "C"
 
     //////// START FILE ////////
     void rgbd_file_dtor(void* ptr);
-    void* rgbd_file_get_camera_calibration(void* ptr);
+    void* rgbd_file_get_attachments(void* ptr);
     size_t rgbd_file_get_video_frame_count(void* ptr);
     void* rgbd_file_get_video_frame(void* ptr, size_t index);
     size_t rgbd_file_get_audio_frame_count(void* ptr);
     void* rgbd_file_get_audio_frame(void* ptr, size_t index);
     //////// END FILE ////////
+
+    //////// START FILE ATTACHMENTS ////////
+    void rgbd_file_attachments_dtor(void* ptr);
+    void* rgbd_file_attachments_get_camera_calibration(void* ptr);
+    void* rgbd_file_attachments_get_cover_png_bytes(void* ptr);
+    //////// END FILE ATTACHMENTS ////////
 
     //////// START FILE AUDIO FRAME ////////
     void rgbd_file_audio_frame_dtor(void* ptr);
@@ -115,7 +121,8 @@ extern "C"
     int rgbd_file_parser_get_depth_track_width(void* ptr);
     int rgbd_file_parser_get_depth_track_height(void* ptr);
     void* rgbd_file_parser_get_cover_png_bytes(void* ptr);
-    void* rgbd_file_parser_read_all(void* ptr);
+    void* rgbd_file_parser_parse_no_frames(void* ptr);
+    void* rgbd_file_parser_parse_all_frames(void* ptr);
     //////// END FILE PARSER ////////
 
     //////// START FILE VIDEO FRAME ////////

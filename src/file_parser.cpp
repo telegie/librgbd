@@ -504,7 +504,7 @@ unique_ptr<File> FileParser::parseAllClusters()
         auto frame{parseCluster(cluster)};
         cluster = find_next<KaxCluster>(stream_, true);
         switch (frame->getType()) {
-        case FileFrameType::RGBD: {
+        case FileFrameType::Video: {
             auto video_frame{dynamic_cast<FileVideoFrame*>(frame)};
             video_frames.emplace_back(video_frame);
             break;
@@ -519,7 +519,26 @@ unique_ptr<File> FileParser::parseAllClusters()
         }
     }
 
-    return std::make_unique<File>(
-        file_attachments_->camera_calibration, std::move(video_frames), std::move(audio_frames));
+    return std::make_unique<File>(*file_offsets_,
+                                  *file_info_,
+                                  *file_tracks_,
+                                  *file_attachments_,
+                                  std::move(video_frames), std::move(audio_frames));
+}
+
+unique_ptr<File> FileParser::parseNoFrames()
+{
+    vector<unique_ptr<FileVideoFrame>> video_frames;
+    vector<unique_ptr<FileAudioFrame>> audio_frames;
+    return std::make_unique<File>(*file_offsets_,
+                                  *file_info_,
+                                  *file_tracks_,
+                                  *file_attachments_,
+                                  std::move(video_frames), std::move(audio_frames));
+}
+
+unique_ptr<File> FileParser::parseAllFrames()
+{
+    return parseAllClusters();
 }
 } // namespace rgbd

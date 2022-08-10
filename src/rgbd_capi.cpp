@@ -191,6 +191,11 @@ void rgbd_file_dtor(void* ptr)
     delete static_cast<rgbd::File*>(ptr);
 }
 
+void* rgbd_file_get_attachments(void* ptr)
+{
+    return &(static_cast<rgbd::File*>(ptr)->attachments());
+}
+
 void* rgbd_file_get_camera_calibration(void* ptr)
 {
     return static_cast<rgbd::File*>(ptr)->camera_calibration();
@@ -216,6 +221,25 @@ void* rgbd_file_get_audio_frame(void* ptr, size_t index)
     return static_cast<rgbd::File*>(ptr)->audio_frames()[index].get();
 }
 //////// END FILE ////////
+
+//////// START FILE ATTACHMENTS ////////
+void rgbd_file_attachments_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileAttachments*>(ptr);
+}
+
+void* rgbd_file_attachments_get_camera_calibration(void* ptr)
+{
+    auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
+    return file_attachments->camera_calibration.get();
+}
+
+void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
+{
+    auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
+    return new rgbd::CByteArray{file_attachments->cover_png_bytes};
+}
+//////// END FILE ATTACHMENTS ////////
 
 //////// START FILE AUDIO FRAME ////////
 void rgbd_file_audio_frame_dtor(void* ptr)
@@ -341,10 +365,16 @@ void* rgbd_file_parser_get_cover_png_bytes(void* ptr)
     return new rgbd::CByteArray{file_parser->file_attachments()->cover_png_bytes};
 }
 
-void* rgbd_file_parser_read_all(void* ptr)
+void* rgbd_file_parser_parse_no_frames(void* ptr)
 {
     auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->parseAllClusters().release();
+    return file_parser->parseNoFrames().release();
+}
+
+void* rgbd_file_parser_parse_all_frames(void* ptr)
+{
+    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    return file_parser->parseAllFrames().release();
 }
 //////// END FILE PARSER ////////
 
