@@ -180,7 +180,6 @@ void FileParser::init()
         throw std::runtime_error("No segment");
 
     auto element{next_child(*input_, stream_, segment.get())};
-
     auto file_offsets{parseOffsets(element, segment)};
 
     if (!file_offsets) {
@@ -190,14 +189,12 @@ void FileParser::init()
 
     auto segment_info{
         read_offset<KaxInfo>(*input_, stream_, *segment, file_offsets->segment_info_offset)};
-    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, file_offsets->tracks_offset)};
-    auto attachements{
-        read_offset<KaxAttachments>(*input_, stream_, *segment, file_offsets->attachments_offset)};
 
     info_.set_writing_app(GetChild<KaxWritingApp>(*segment_info).GetValue().GetUTF8());
     timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*segment_info).GetValue();
     info_.set_duration_us(GetChild<KaxDuration>(*segment_info).GetValue());
 
+    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, file_offsets->tracks_offset)};
     file_tracks_ = parseTracks(tracks);
 
     if (!file_tracks_) {
@@ -205,46 +202,10 @@ void FileParser::init()
         throw std::runtime_error("Failed to parse tracks...");
     }
 
-    for (EbmlElement* e : attachements->GetElementList()) {
-        if (EbmlId(*e) == KaxAttached::ClassInfos.GlobalId) {
-            KaxAttached* attached_file{read_element<KaxAttached>(stream_, e)};
-            if (!attached_file)
-                throw std::runtime_error("Failed reading attached_file");
+    auto attachments{
+        read_offset<KaxAttachments>(*input_, stream_, *segment, file_offsets->attachments_offset)};
 
-            auto file_name{GetChild<KaxFileName>(*attached_file).GetValue().GetUTF8()};
-            spdlog::info("attached file_name: {}", file_name);
-            if (file_name == "calibration.json") {
-                auto& file_data{GetChild<KaxFileData>(*attached_file)};
-                vector<char> calibration_vector(file_data.GetSize());
-                memcpy(calibration_vector.data(), file_data.GetBuffer(), file_data.GetSize());
-                string calibration_str{calibration_vector.begin(), calibration_vector.end()};
-                // Brace initialization of json behaves differently in gcc than in clang.
-                // Do not use brace initialization.
-                // reference: https://github.com/nlohmann/json/issues/2339
-                json calibration_json(json::parse(calibration_str));
-
-                string calibration_type{calibration_json["calibrationType"].get<string>()};
-                if (calibration_type == "azureKinect") {
-                    info_.set_camera_calibration(new KinectCameraCalibration{
-                        KinectCameraCalibration::fromJson(calibration_json)});
-                } else if (calibration_type == "ios") {
-                    auto ios_calibration{IosCameraCalibration::fromJson(calibration_json)};
-                    info_.set_camera_calibration(
-                        new IosCameraCalibration{IosCameraCalibration::fromJson(calibration_json)});
-                } else {
-                    throw std::runtime_error("Invalid calibration_type");
-                }
-            } else if (file_name == "cover.png") {
-                spdlog::info("found cover.png");
-                auto& file_data{GetChild<KaxFileData>(*attached_file)};
-                Bytes cover_png_bytes(file_data.GetSize());
-                memcpy(cover_png_bytes.data(), file_data.GetBuffer(), file_data.GetSize());
-                info_.set_cover_png_bytes(cover_png_bytes);
-            } else {
-                throw std::runtime_error("Invalid attached file found");
-            };
-        }
-    }
+    auto file_attachments{parseAttachments(attachments)};
 
     auto cluster{
         read_offset<KaxCluster>(*input_, stream_, *segment, file_offsets->first_cluster_offset)};
@@ -392,6 +353,67 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     file_tracks.floor_track_number = *floor_track_number;
 
     return file_tracks;
+}
+
+optional<const FileAttachments>
+FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments)
+{
+    shared_ptr<CameraCalibration> camera_calibration;
+    Bytes cover_png_bytes;
+
+    for (EbmlElement* e : attachments->GetElementList()) {
+        if (EbmlId(*e) == KaxAttached::ClassInfos.GlobalId) {
+            KaxAttached* attached_file{read_element<KaxAttached>(stream_, e)};
+            if (!attached_file)
+                throw std::runtime_error("Failed reading attached_file");
+
+            auto file_name{GetChild<KaxFileName>(*attached_file).GetValue().GetUTF8()};
+            spdlog::info("attached file_name: {}", file_name);
+            if (file_name == "calibration.json") {
+                auto& file_data{GetChild<KaxFileData>(*attached_file)};
+                vector<char> calibration_vector(file_data.GetSize());
+                memcpy(calibration_vector.data(), file_data.GetBuffer(), file_data.GetSize());
+                string calibration_str{calibration_vector.begin(), calibration_vector.end()};
+                // Brace initialization of json behaves differently in gcc than in clang.
+                // Do not use brace initialization.
+                // reference: https://github.com/nlohmann/json/issues/2339
+                json calibration_json(json::parse(calibration_str));
+
+                string calibration_type{calibration_json["calibrationType"].get<string>()};
+                if (calibration_type == "azureKinect") {
+                    camera_calibration = shared_ptr<CameraCalibration>(new KinectCameraCalibration{
+                        KinectCameraCalibration::fromJson(calibration_json)});
+                } else if (calibration_type == "ios") {
+                    camera_calibration = shared_ptr<CameraCalibration>(
+                        new IosCameraCalibration{IosCameraCalibration::fromJson(calibration_json)});
+                } else {
+                    throw std::runtime_error("Invalid calibration_type");
+                }
+            } else if (file_name == "cover.png") {
+                spdlog::info("found cover.png");
+                auto& file_data{GetChild<KaxFileData>(*attached_file)};
+                cover_png_bytes = Bytes(file_data.GetSize());
+                memcpy(cover_png_bytes.data(), file_data.GetBuffer(), file_data.GetSize());
+            } else {
+                throw std::runtime_error("Invalid attached file found");
+            };
+        }
+    }
+
+    if (camera_calibration)
+        info_.set_camera_calibration(camera_calibration);
+
+    if (cover_png_bytes.size() > 0)
+        info_.set_cover_png_bytes(cover_png_bytes);
+
+    if (!camera_calibration || cover_png_bytes.size() == 0)
+        return nullopt;
+
+    FileAttachments file_attachments;
+    file_attachments.camera_calibration = camera_calibration;
+    file_attachments.cover_png_bytes = cover_png_bytes;
+
+    return file_attachments;
 }
 
 bool FileParser::hasNextFrame()

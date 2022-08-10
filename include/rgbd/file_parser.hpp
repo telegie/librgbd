@@ -24,6 +24,12 @@ struct FileTracks
     int floor_track_number;
 };
 
+struct FileAttachments
+{
+    shared_ptr<CameraCalibration> camera_calibration;
+    Bytes cover_png_bytes;
+};
+
 class FileParser
 {
 public:
@@ -35,6 +41,8 @@ private:
     optional<const FileOffsets> parseOffsets(unique_ptr<EbmlElement>& element,
                                              unique_ptr<libmatroska::KaxSegment>& segment);
     optional<const FileTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
+    optional<const FileAttachments>
+    parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments);
     bool hasNextFrame();
     FileFrame* readFrame();
 

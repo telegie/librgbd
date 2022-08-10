@@ -69,6 +69,10 @@ public:
     {
         camera_calibration_ = shared_ptr<CameraCalibration>(camera_calibration);
     }
+    void set_camera_calibration(shared_ptr<CameraCalibration>& camera_calibration) noexcept
+    {
+        camera_calibration_ = camera_calibration;
+    }
     const shared_ptr<CameraCalibration> camera_calibration() const noexcept
     {
         return camera_calibration_;
