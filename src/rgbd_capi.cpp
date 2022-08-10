@@ -350,7 +350,7 @@ void* rgbd_file_parser_get_info(void* ptr)
 
 void* rgbd_file_parser_read_all(void* ptr)
 {
-    return static_cast<rgbd::FileParser*>(ptr)->readAll().release();
+    return static_cast<rgbd::FileParser*>(ptr)->parseAllClusters().release();
 }
 //////// END FILE PARSER ////////
 

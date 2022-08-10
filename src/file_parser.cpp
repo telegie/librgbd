@@ -140,6 +140,7 @@ FileParser::FileParser(const void* ptr, size_t size)
     , stream_{*input_}
     , info_{}
     , timecode_scale_ns_{0}
+    , file_offsets_{}
     , file_tracks_{}
     , cluster_{nullptr}
 {
@@ -151,6 +152,7 @@ FileParser::FileParser(const string& file_path)
     , stream_{*input_}
     , info_{}
     , timecode_scale_ns_{0}
+    , file_offsets_{}
     , file_tracks_{}
     , cluster_{nullptr}
 {
@@ -175,26 +177,26 @@ void FileParser::init()
                  doc_type_version,
                  doc_type_read_version);
 
-    auto segment{find_next<KaxSegment>(stream_, true)};
-    if (!segment)
+    segment_ = find_next<KaxSegment>(stream_, true);
+    if (!segment_)
         throw std::runtime_error("No segment");
 
-    auto element{next_child(*input_, stream_, segment.get())};
-    auto file_offsets{parseOffsets(element, segment)};
+    auto element{next_child(*input_, stream_, segment_.get())};
+    file_offsets_ = parseOffsets(element, segment_);
 
-    if (!file_offsets) {
+    if (!file_offsets_) {
         spdlog::error("Failed to parse offsets...");
         throw std::runtime_error("Failed to parse offsets...");
     }
 
     auto segment_info{
-        read_offset<KaxInfo>(*input_, stream_, *segment, file_offsets->segment_info_offset)};
+        read_offset<KaxInfo>(*input_, stream_, *segment_, file_offsets_->segment_info_offset)};
 
     info_.set_writing_app(GetChild<KaxWritingApp>(*segment_info).GetValue().GetUTF8());
     timecode_scale_ns_ = GetChild<KaxTimecodeScale>(*segment_info).GetValue();
     info_.set_duration_us(GetChild<KaxDuration>(*segment_info).GetValue());
 
-    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment, file_offsets->tracks_offset)};
+    auto tracks{read_offset<KaxTracks>(*input_, stream_, *segment_, file_offsets_->tracks_offset)};
     file_tracks_ = parseTracks(tracks);
 
     if (!file_tracks_) {
@@ -203,17 +205,9 @@ void FileParser::init()
     }
 
     auto attachments{
-        read_offset<KaxAttachments>(*input_, stream_, *segment, file_offsets->attachments_offset)};
+        read_offset<KaxAttachments>(*input_, stream_, *segment_, file_offsets_->attachments_offset)};
 
     auto file_attachments{parseAttachments(attachments)};
-
-    auto cluster{
-        read_offset<KaxCluster>(*input_, stream_, *segment, file_offsets->first_cluster_offset)};
-
-    if (!cluster)
-        throw std::runtime_error("Failed to read first cluster");
-
-    cluster_ = std::move(cluster);
 }
 
 optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<EbmlElement>& element,
@@ -421,7 +415,7 @@ bool FileParser::hasNextFrame()
     return cluster_ != nullptr;
 }
 
-FileFrame* FileParser::readFrame()
+FileFrame* FileParser::parseCluster()
 {
     if (read_element<KaxCluster>(stream_, cluster_.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
@@ -514,13 +508,21 @@ FileFrame* FileParser::readFrame()
     throw std::runtime_error{"No frame from RecordParser::readFrame"};
 }
 
-unique_ptr<File> FileParser::readAll()
+unique_ptr<File> FileParser::parseAllClusters()
 {
+    auto cluster{
+        read_offset<KaxCluster>(*input_, stream_, *segment_, file_offsets_->first_cluster_offset)};
+
+    if (!cluster)
+        throw std::runtime_error("Failed to read first cluster");
+
+    cluster_ = std::move(cluster);
+
     vector<unique_ptr<FileVideoFrame>> rgbd_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
 
-    while (hasNextFrame()) {
-        auto frame{readFrame()};
+    while (cluster_ != nullptr) {
+        auto frame{parseCluster()};
         switch (frame->getType()) {
         case FileFrameType::RGBD: {
             auto rgbd_frame{dynamic_cast<FileVideoFrame*>(frame)};
