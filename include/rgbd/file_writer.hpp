@@ -41,6 +41,11 @@ public:
                int framerate,
                int depth_diff_multiplier,
                int samplerate);
+    void writeCover(int width,
+                    int height,
+                    gsl::span<const uint8_t> y_channel,
+                    gsl::span<const uint8_t> u_channel,
+                    gsl::span<const uint8_t> v_channel);
     void writeVideoFrame(const Frame& rgbd_frame);
     void writeVideoFrame(int64_t time_point_us,
                          int width,

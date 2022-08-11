@@ -352,6 +352,30 @@ FileWriter::FileWriter(const string& file_path,
         tracks.Render(*io_callback_);
     }
 }
+void FileWriter::writeCover(int width,
+                            int height,
+                            gsl::span<const uint8_t> y_channel,
+                            gsl::span<const uint8_t> u_channel,
+                            gsl::span<const uint8_t> v_channel)
+{
+    //
+    // add cover art
+    //
+    auto& attachments{GetChild<KaxAttachments>(*segment_)};
+    auto cover_attached_file{new KaxAttached};
+    attachments.PushElement(*cover_attached_file);
+    GetChild<KaxFileName>(*cover_attached_file).SetValueUTF8("cover.png");
+    GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
+    GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
+
+    auto png_bytes{get_cover_png_bytes(width, height, y_channel, u_channel, v_channel)};
+    GetChild<KaxFileData>(*cover_attached_file)
+        .CopyBuffer(reinterpret_cast<binary*>(png_bytes.data()),
+                    gsl::narrow<uint32_t>(png_bytes.size()));
+
+    // Write KaxAttachments
+    attachments.Render(*io_callback_);
+}
 
 void FileWriter::writeVideoFrame(const Frame& rgbd_frame)
 {
@@ -393,26 +417,6 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
 
     if (!depth_confidence_track_ && depth_confidence_values)
         throw std::runtime_error("Video has no depth confidence track but found in frame.");
-
-    if (rgbd_index_ == 0) {
-        //
-        // add cover art
-        //
-        auto& attachments{GetChild<KaxAttachments>(*segment_)};
-        auto cover_attached_file{new KaxAttached};
-        attachments.PushElement(*cover_attached_file);
-        GetChild<KaxFileName>(*cover_attached_file).SetValueUTF8("cover.png");
-        GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
-        GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
-
-        auto png_bytes{get_cover_png_bytes(width, height, y_channel, u_channel, v_channel)};
-        GetChild<KaxFileData>(*cover_attached_file)
-            .CopyBuffer(reinterpret_cast<binary*>(png_bytes.data()),
-                        gsl::narrow<uint32_t>(png_bytes.size()));
-
-        // Write KaxAttachments
-        attachments.Render(*io_callback_);
-    }
 
     int64_t time_point_ns{time_point_us * 1000};
     if (!initial_time_point_ns_)

@@ -160,6 +160,15 @@ extern "C"
                                 int depth_diff_multiplier,
                                 int samplerate);
     void rgbd_file_writer_dtor(void* ptr);
+    void rgbd_file_writer_write_cover(void* ptr,
+                                      int width,
+                                      int height,
+                                      const uint8_t* y_channel,
+                                      size_t y_channel_size,
+                                      const uint8_t* u_channel,
+                                      size_t u_channel_size,
+                                      const uint8_t* v_channel,
+                                      size_t v_channel_size);
     void rgbd_file_writer_write_video_frame(void* ptr,
                                             int64_t time_point_us,
                                             int width,
