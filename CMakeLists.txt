@@ -221,6 +221,9 @@ elseif(RGBD_OS_MAC)
     ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/arm64-mac/lib/libvpx.a
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
+    "-framework AudioToolbox"
+    -lz
+    -liconv
   )
   if(NOT PROJECT_IS_TOP_LEVEL)
     set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
@@ -272,14 +275,7 @@ target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
 
 if(RGBD_OS_MAC OR RGBD_OS_LINUX)
-  # Building shared library requires more things linked.
-  if(RGBD_OS_MAC)
-    list(APPEND RgbdLibraryDependencies
-      "-framework AudioToolbox"
-      -lz
-      -liconv
-    )
-  elseif(RGBD_OS_LINUX)
+  if(RGBD_OS_LINUX)
     # Position-independent code is needed to create a shared library.
     list(APPEND RgbdCompileOptions -fPIC)
     list(APPEND RgbdLinkOptions "-Wl,-Bsymbolic")

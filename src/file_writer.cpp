@@ -352,6 +352,16 @@ FileWriter::FileWriter(const string& file_path,
         tracks.Render(*io_callback_);
     }
 }
+
+void FileWriter::writeCover(const YuvFrame& yuv_frame)
+{
+    writeCover(yuv_frame.width(),
+               yuv_frame.height(),
+               yuv_frame.y_channel(),
+               yuv_frame.u_channel(),
+               yuv_frame.v_channel());
+}
+
 void FileWriter::writeCover(int width,
                             int height,
                             gsl::span<const uint8_t> y_channel,
@@ -377,28 +387,42 @@ void FileWriter::writeCover(int width,
     attachments.Render(*io_callback_);
 }
 
-void FileWriter::writeVideoFrame(const Frame& rgbd_frame)
+void FileWriter::writeVideoFrame(const Frame& frame)
 {
-    if (rgbd_frame.depth_confidence_frame()) {
-        writeVideoFrame(rgbd_frame.time_point_us(),
-                        rgbd_frame.yuv_frame().width(),
-                        rgbd_frame.yuv_frame().height(),
-                        rgbd_frame.yuv_frame().y_channel(),
-                        rgbd_frame.yuv_frame().u_channel(),
-                        rgbd_frame.yuv_frame().v_channel(),
-                        rgbd_frame.depth_frame().values(),
-                        rgbd_frame.depth_confidence_frame()->values(),
-                        rgbd_frame.floor());
+    writeVideoFrame(frame.time_point_us(),
+                    frame.yuv_frame(),
+                    frame.depth_frame(),
+                    frame.depth_confidence_frame(),
+                    frame.floor());
+}
+
+
+void FileWriter::writeVideoFrame(int64_t time_point_us,
+                     const YuvFrame& yuv_frame,
+                     const Int16Frame& depth_frame,
+                     const optional<UInt8Frame>& depth_confidence_frame,
+                     const Plane& floor)
+{
+    if (depth_confidence_frame) {
+        writeVideoFrame(time_point_us,
+                        yuv_frame.width(),
+                        yuv_frame.height(),
+                        yuv_frame.y_channel(),
+                        yuv_frame.u_channel(),
+                        yuv_frame.v_channel(),
+                        depth_frame.values(),
+                        depth_confidence_frame->values(),
+                        floor);
     } else {
-        writeVideoFrame(rgbd_frame.time_point_us(),
-                        rgbd_frame.yuv_frame().width(),
-                        rgbd_frame.yuv_frame().height(),
-                        rgbd_frame.yuv_frame().y_channel(),
-                        rgbd_frame.yuv_frame().u_channel(),
-                        rgbd_frame.yuv_frame().v_channel(),
-                        rgbd_frame.depth_frame().values(),
+        writeVideoFrame(time_point_us,
+                        yuv_frame.width(),
+                        yuv_frame.height(),
+                        yuv_frame.y_channel(),
+                        yuv_frame.u_channel(),
+                        yuv_frame.v_channel(),
+                        depth_frame.values(),
                         nullopt,
-                        rgbd_frame.floor());
+                        floor);
     }
 }
 

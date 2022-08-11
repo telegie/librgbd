@@ -45,8 +45,15 @@ struct FileVideoTrack
 {
     int track_number;
     string codec;
+    uint64_t default_duration_ns;
     int width;
     int height;
+};
+
+struct FileAudioTrack
+{
+    int track_number;
+    double sampling_frequency;
 };
 
 struct FileTracks
@@ -54,7 +61,7 @@ struct FileTracks
     FileVideoTrack color_track;
     FileVideoTrack depth_track;
     optional<FileVideoTrack> depth_confidence_track;
-    int audio_track_number;
+    FileAudioTrack audio_track;
     int floor_track_number;
 };
 
@@ -176,14 +183,6 @@ public:
     FileAttachments& attachments() noexcept
     {
         return attachments_;
-    }
-    CameraCalibration* camera_calibration() noexcept
-    {
-        return attachments_.camera_calibration.get();
-    }
-    const CameraCalibration* camera_calibration() const noexcept
-    {
-        return attachments_.camera_calibration.get();
     }
     const vector<unique_ptr<FileVideoFrame>>& video_frames() const noexcept
     {

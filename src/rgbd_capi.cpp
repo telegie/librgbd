@@ -206,11 +206,6 @@ void* rgbd_file_get_attachments(void* ptr)
     return &(static_cast<rgbd::File*>(ptr)->attachments());
 }
 
-void* rgbd_file_get_camera_calibration(void* ptr)
-{
-    return static_cast<rgbd::File*>(ptr)->camera_calibration();
-}
-
 size_t rgbd_file_get_video_frame_count(void* ptr)
 {
     return static_cast<rgbd::File*>(ptr)->video_frames().size();
@@ -374,7 +369,7 @@ void* rgbd_file_tracks_get_depth_confidence_track(void* ptr)
 int rgbd_file_tracks_get_audio_track_number(void* ptr)
 {
     auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
-    return file_tracks->audio_track_number;
+    return file_tracks-> audio_track.track_number;
 }
 
 int rgbd_file_tracks_get_floor_track_number(void* ptr)

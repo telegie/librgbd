@@ -5,6 +5,9 @@
 #include <fstream>
 #include <rgbd/file_parser.hpp>
 #include <rgbd/video_folder.hpp>
+#include <rgbd/file_writer.hpp>
+#include <rgbd/ffmpeg_video_decoder.hpp>
+#include <rgbd/tdc1_decoder.hpp>
 
 namespace rgbd
 {
@@ -59,21 +62,50 @@ void split_file(const std::string& file_path)
     auto file{parser.parseAllFrames()};
     auto& video_frames{file->video_frames()};
 
-    int previous_chunk_index{0};
+    int previous_chunk_index{-1};
+    unique_ptr<FileWriter> file_writer;
+
+    FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
+    TDC1Decoder depth_decoder;
+
     for (auto& video_frame : video_frames) {
         int64_t global_timecode{video_frame->global_timecode()};
         constexpr int TWO_SECONDS{2000000};
         int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
+
+        YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
+        Int16Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+
         if (chunk_index == previous_chunk_index + 1) {
-            // TODO: Reset encoders.
+            if (file_writer)
+                file_writer->flush();
+
+            auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
+            file_writer = make_unique<FileWriter>(
+                output_path,
+                false,
+                *file->attachments().camera_calibration,
+                2500,
+                30,
+                500,
+                static_cast<int>(file->tracks().audio_track.sampling_frequency));
+
+            file_writer->writeCover(color_frame);
             previous_chunk_index = chunk_index;
         } else if (chunk_index == previous_chunk_index) {
             // Same chunk, so ignore.
         } else {
             throw std::runtime_error("Invalid chunk_index found...");
         }
-        spdlog::info("global_timecode, chunk_index: {}, {}", global_timecode, chunk_index);
+
+        file_writer->writeVideoFrame(video_frame->global_timecode(),
+                                     color_frame,
+                                     depth_frame,
+                                     nullopt,
+                                     video_frame->floor());
     }
+
+    file_writer->flush();
 }
 
 int main(int argc, char** argv)
