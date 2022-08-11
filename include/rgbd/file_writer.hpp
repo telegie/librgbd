@@ -2,16 +2,16 @@
 
 #include <random>
 
-#include "constants.hpp"
-#include "camera_calibration.hpp"
-#include "ffmpeg_video_encoder.hpp"
-#include "ffmpeg_audio_encoder.hpp"
-#include "tdc1_encoder.hpp"
+#include "audio_frame.hpp"
 #include "byte_utils.hpp"
+#include "camera_calibration.hpp"
+#include "constants.hpp"
+#include "ffmpeg_audio_encoder.hpp"
+#include "ffmpeg_video_encoder.hpp"
 #include "frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
-#include "audio_frame.hpp"
+#include "tdc1_encoder.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4245 4267 4828 6387 26495 26812)
@@ -35,24 +35,24 @@ class FileWriter
 {
 public:
     FileWriter(const string& file_path,
-                 bool has_depth_confidence,
-                 const CameraCalibration& calibration,
-                 int color_bitrate,
-                 int framerate,
-                 int depth_diff_multiplier,
-                 int samplerate);
-    void recordFrame(const Frame& rgbd_frame);
-    void recordFrame(int64_t time_point_us,
-                     int width,
-                     int height,
-                     gsl::span<const uint8_t> y_channel,
-                     gsl::span<const uint8_t> u_channel,
-                     gsl::span<const uint8_t> v_channel,
-                     gsl::span<const int16_t> depth_values,
-                     optional<gsl::span<const uint8_t>> depth_confidence_values,
-                     const Plane& floor);
-    void recordAudioFrame(const AudioFrame& audio_frame);
-    void recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
+               bool has_depth_confidence,
+               const CameraCalibration& calibration,
+               int color_bitrate,
+               int framerate,
+               int depth_diff_multiplier,
+               int samplerate);
+    void writeVideoFrame(const Frame& rgbd_frame);
+    void writeVideoFrame(int64_t time_point_us,
+                         int width,
+                         int height,
+                         gsl::span<const uint8_t> y_channel,
+                         gsl::span<const uint8_t> u_channel,
+                         gsl::span<const uint8_t> v_channel,
+                         gsl::span<const int16_t> depth_values,
+                         optional<gsl::span<const uint8_t>> depth_confidence_values,
+                         const Plane& floor);
+    void writeAudioFrame(const AudioFrame& audio_frame);
+    void writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
     void flush();
 
 private:
@@ -76,4 +76,4 @@ private:
     int framerate_;
     int samplerate_;
 };
-} // namespace tg
+} // namespace rgbd

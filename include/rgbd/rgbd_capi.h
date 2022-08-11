@@ -160,7 +160,7 @@ extern "C"
                                 int depth_diff_multiplier,
                                 int samplerate);
     void rgbd_file_writer_dtor(void* ptr);
-    void rgbd_file_writer_record_rgbd_frame(void* ptr,
+    void rgbd_file_writer_write_video_frame(void* ptr,
                                             int64_t time_point_us,
                                             int width,
                                             int height,
@@ -178,10 +178,10 @@ extern "C"
                                             float floor_normal_y,
                                             float floor_normal_z,
                                             float floor_distance);
-    void rgbd_file_writer_record_audio_frame(void* ptr,
-                                             int64_t time_point_us,
-                                             const float* pcm_samples,
-                                             size_t pcm_samples_size);
+    void rgbd_file_writer_write_audio_frame(void* ptr,
+                                            int64_t time_point_us,
+                                            const float* pcm_samples,
+                                            size_t pcm_samples_size);
     void rgbd_file_writer_flush(void* ptr);
     //////// END FILE WRITER ////////
 

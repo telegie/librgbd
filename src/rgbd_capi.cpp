@@ -480,7 +480,7 @@ void rgbd_file_writer_dtor(void* ptr)
     delete static_cast<rgbd::FileWriter*>(ptr);
 }
 
-void rgbd_file_writer_record_rgbd_frame(void* ptr,
+void rgbd_file_writer_write_video_frame(void* ptr,
                                         int64_t time_point_us,
                                         int width,
                                         int height,
@@ -501,7 +501,7 @@ void rgbd_file_writer_record_rgbd_frame(void* ptr,
 {
     glm::vec3 floor_normal{floor_normal_x, floor_normal_y, floor_normal_z};
     if (depth_confidence_values) {
-        static_cast<rgbd::FileWriter*>(ptr)->recordFrame(
+        static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
             width,
             height,
@@ -512,7 +512,7 @@ void rgbd_file_writer_record_rgbd_frame(void* ptr,
             gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
             rgbd::Plane{floor_normal, floor_distance});
     } else {
-        static_cast<rgbd::FileWriter*>(ptr)->recordFrame(
+        static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
             width,
             height,
@@ -525,12 +525,12 @@ void rgbd_file_writer_record_rgbd_frame(void* ptr,
     }
 }
 
-void rgbd_file_writer_record_audio_frame(void* ptr,
-                                         int64_t time_point_us,
-                                         const float* pcm_samples,
-                                         size_t pcm_samples_size)
+void rgbd_file_writer_write_audio_frame(void* ptr,
+                                        int64_t time_point_us,
+                                        const float* pcm_samples,
+                                        size_t pcm_samples_size)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->recordAudioFrame(
+    static_cast<rgbd::FileWriter*>(ptr)->writeAudioFrame(
         time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
 }
 

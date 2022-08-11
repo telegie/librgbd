@@ -99,12 +99,12 @@ Bytes get_cover_png_bytes(int width,
 }
 
 FileWriter::FileWriter(const string& file_path,
-                           bool has_depth_confidence,
-                           const CameraCalibration& calibration,
-                           int color_bitrate,
-                           int framerate,
-                           int depth_diff_multiplier,
-                           int samplerate)
+                       bool has_depth_confidence,
+                       const CameraCalibration& calibration,
+                       int color_bitrate,
+                       int framerate,
+                       int depth_diff_multiplier,
+                       int samplerate)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
@@ -139,8 +139,8 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTimecodeScale>(segment_info).SetValue(MATROSKA_TIMESCALE_NS);
         GetChild<KaxMuxingApp>(segment_info).SetValue(L"libmatroska-1.6.3");
         GetChild<KaxWritingApp>(segment_info)
-            .SetValueUTF8(
-                fmt::format("librgbd-{}.{}.{}", rgbd::MAJOR_VERSION, rgbd::MINOR_VERSION, rgbd::PATCH_VERSION));
+            .SetValueUTF8(fmt::format(
+                "librgbd-{}.{}.{}", rgbd::MAJOR_VERSION, rgbd::MINOR_VERSION, rgbd::PATCH_VERSION));
         GetChild<KaxDateUTC>(segment_info).SetEpochDate(time(0));
         GetChild<KaxTitle>(segment_info).SetValue(L"Telegie Video");
     }
@@ -194,11 +194,11 @@ FileWriter::FileWriter(const string& file_path,
     //
     // depth_confidence_track_ init
     //
-    if (has_depth_confidence)
-    {
+    if (has_depth_confidence) {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         depth_confidence_track_ = new KaxTrackEntry;
-        tracks.PushElement(*depth_confidence_track_); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *depth_confidence_track_); // Track will be freed when the file is closed.
         depth_confidence_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*depth_confidence_track_).SetValue(DEPTH_CONFIDENCE_TRACK_NUMBER);
@@ -207,10 +207,13 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackName>(*depth_confidence_track_).SetValueUTF8("DEPTH_CONFIDENCE");
         GetChild<KaxCodecID>(*depth_confidence_track_).SetValue("V_RVL");
 
-        GetChild<KaxTrackDefaultDuration>(*depth_confidence_track_).SetValue(ONE_SECOND_NS / framerate);
+        GetChild<KaxTrackDefaultDuration>(*depth_confidence_track_)
+            .SetValue(ONE_SECOND_NS / framerate);
         auto& depth_confidence_video_track{GetChild<KaxTrackVideo>(*depth_confidence_track_)};
-        GetChild<KaxVideoPixelWidth>(depth_confidence_video_track).SetValue(calibration.getDepthWidth());
-        GetChild<KaxVideoPixelHeight>(depth_confidence_video_track).SetValue(calibration.getDepthHeight());
+        GetChild<KaxVideoPixelWidth>(depth_confidence_video_track)
+            .SetValue(calibration.getDepthWidth());
+        GetChild<KaxVideoPixelHeight>(depth_confidence_video_track)
+            .SetValue(calibration.getDepthHeight());
     }
     //
     // init audio_track_
@@ -350,40 +353,40 @@ FileWriter::FileWriter(const string& file_path,
     }
 }
 
-void FileWriter::recordFrame(const Frame& rgbd_frame)
+void FileWriter::writeVideoFrame(const Frame& rgbd_frame)
 {
     if (rgbd_frame.depth_confidence_frame()) {
-        recordFrame(rgbd_frame.time_point_us(),
-                    rgbd_frame.yuv_frame().width(),
-                    rgbd_frame.yuv_frame().height(),
-                    rgbd_frame.yuv_frame().y_channel(),
-                    rgbd_frame.yuv_frame().u_channel(),
-                    rgbd_frame.yuv_frame().v_channel(),
-                    rgbd_frame.depth_frame().values(),
-                    rgbd_frame.depth_confidence_frame()->values(),
-                    rgbd_frame.floor());
+        writeVideoFrame(rgbd_frame.time_point_us(),
+                        rgbd_frame.yuv_frame().width(),
+                        rgbd_frame.yuv_frame().height(),
+                        rgbd_frame.yuv_frame().y_channel(),
+                        rgbd_frame.yuv_frame().u_channel(),
+                        rgbd_frame.yuv_frame().v_channel(),
+                        rgbd_frame.depth_frame().values(),
+                        rgbd_frame.depth_confidence_frame()->values(),
+                        rgbd_frame.floor());
     } else {
-        recordFrame(rgbd_frame.time_point_us(),
-                    rgbd_frame.yuv_frame().width(),
-                    rgbd_frame.yuv_frame().height(),
-                    rgbd_frame.yuv_frame().y_channel(),
-                    rgbd_frame.yuv_frame().u_channel(),
-                    rgbd_frame.yuv_frame().v_channel(),
-                    rgbd_frame.depth_frame().values(),
-                    nullopt,
-                    rgbd_frame.floor());
+        writeVideoFrame(rgbd_frame.time_point_us(),
+                        rgbd_frame.yuv_frame().width(),
+                        rgbd_frame.yuv_frame().height(),
+                        rgbd_frame.yuv_frame().y_channel(),
+                        rgbd_frame.yuv_frame().u_channel(),
+                        rgbd_frame.yuv_frame().v_channel(),
+                        rgbd_frame.depth_frame().values(),
+                        nullopt,
+                        rgbd_frame.floor());
     }
 }
 
-void FileWriter::recordFrame(int64_t time_point_us,
-                               int width,
-                               int height,
-                               gsl::span<const uint8_t> y_channel,
-                               gsl::span<const uint8_t> u_channel,
-                               gsl::span<const uint8_t> v_channel,
-                               gsl::span<const int16_t> depth_values,
-                               optional<gsl::span<const uint8_t>> depth_confidence_values,
-                               const Plane& floor)
+void FileWriter::writeVideoFrame(int64_t time_point_us,
+                                 int width,
+                                 int height,
+                                 gsl::span<const uint8_t> y_channel,
+                                 gsl::span<const uint8_t> u_channel,
+                                 gsl::span<const uint8_t> v_channel,
+                                 gsl::span<const int16_t> depth_values,
+                                 optional<gsl::span<const uint8_t>> depth_confidence_values,
+                                 const Plane& floor)
 {
     if (depth_confidence_track_ && !depth_confidence_values)
         throw std::runtime_error("Video has depth confidence track but not found in frame.");
@@ -450,11 +453,13 @@ void FileWriter::recordFrame(int64_t time_point_us,
     if (depth_confidence_values) {
         depth_confidence_bytes = rvl::compress<uint8_t>(*depth_confidence_values);
         auto depth_confidence_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-        auto depth_confidence_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(depth_confidence_bytes.data()),
-                                              gsl::narrow<uint32_t>(depth_confidence_bytes.size())}};
+        auto depth_confidence_data_buffer{
+            new DataBuffer{reinterpret_cast<uint8_t*>(depth_confidence_bytes.data()),
+                           gsl::narrow<uint32_t>(depth_confidence_bytes.size())}};
         video_cluster->AddBlockBlob(depth_confidence_block_blob);
         depth_confidence_block_blob->SetParent(*video_cluster);
-        depth_confidence_block_blob->AddFrameAuto(*depth_confidence_track_, video_timecode, *depth_confidence_data_buffer);
+        depth_confidence_block_blob->AddFrameAuto(
+            *depth_confidence_track_, video_timecode, *depth_confidence_data_buffer);
     }
 
     auto floor_bytes{floor.toBytes()};
@@ -472,12 +477,12 @@ void FileWriter::recordFrame(int64_t time_point_us,
     ++rgbd_index_;
 }
 
-void FileWriter::recordAudioFrame(const AudioFrame& audio_frame)
+void FileWriter::writeAudioFrame(const AudioFrame& audio_frame)
 {
-    recordAudioFrame(audio_frame.time_point_us(), audio_frame.pcm_samples());
+    writeAudioFrame(audio_frame.time_point_us(), audio_frame.pcm_samples());
 }
 
-void FileWriter::recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples)
+void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples)
 {
     if (pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0)
         throw std::runtime_error("pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0");
@@ -571,4 +576,4 @@ void FileWriter::flush()
 
     io_callback_->close();
 }
-} // namespace tg
+} // namespace rgbd
