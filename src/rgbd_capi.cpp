@@ -8,7 +8,7 @@
 #include "integer_frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
-#include "recorder.hpp"
+#include "file_writer.hpp"
 #include "tdc1_decoder.hpp"
 
 //////// START CONSTANTS ////////
@@ -457,6 +457,89 @@ int rgbd_file_video_track_get_height(void* ptr)
 }
 //////// START FILE VIDEO TRACK ////////
 
+//////// START FILE WRITER ////////
+void* rgbd_file_writer_ctor(const char* file_path,
+                            bool has_depth_confidence,
+                            void* calibration,
+                            int color_bitrate,
+                            int framerate,
+                            int depth_diff_multiplier,
+                            int samplerate)
+{
+    return new rgbd::FileWriter(file_path,
+                                has_depth_confidence,
+                                *static_cast<const rgbd::CameraCalibration*>(calibration),
+                                color_bitrate,
+                                framerate,
+                                depth_diff_multiplier,
+                                samplerate);
+}
+
+void rgbd_file_writer_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileWriter*>(ptr);
+}
+
+void rgbd_file_writer_record_rgbd_frame(void* ptr,
+                                        int64_t time_point_us,
+                                        int width,
+                                        int height,
+                                        const uint8_t* y_channel,
+                                        size_t y_channel_size,
+                                        const uint8_t* u_channel,
+                                        size_t u_channel_size,
+                                        const uint8_t* v_channel,
+                                        size_t v_channel_size,
+                                        const int16_t* depth_values,
+                                        size_t depth_values_size,
+                                        const uint8_t* depth_confidence_values,
+                                        size_t depth_confidence_values_size,
+                                        float floor_normal_x,
+                                        float floor_normal_y,
+                                        float floor_normal_z,
+                                        float floor_distance)
+{
+    glm::vec3 floor_normal{floor_normal_x, floor_normal_y, floor_normal_z};
+    if (depth_confidence_values) {
+        static_cast<rgbd::FileWriter*>(ptr)->recordFrame(
+            time_point_us,
+            width,
+            height,
+            gsl::span<const uint8_t>{y_channel, y_channel_size},
+            gsl::span<const uint8_t>{u_channel, u_channel_size},
+            gsl::span<const uint8_t>{v_channel, v_channel_size},
+            gsl::span<const int16_t>{depth_values, depth_values_size},
+            gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
+            rgbd::Plane{floor_normal, floor_distance});
+    } else {
+        static_cast<rgbd::FileWriter*>(ptr)->recordFrame(
+            time_point_us,
+            width,
+            height,
+            gsl::span<const uint8_t>{y_channel, y_channel_size},
+            gsl::span<const uint8_t>{u_channel, u_channel_size},
+            gsl::span<const uint8_t>{v_channel, v_channel_size},
+            gsl::span<const int16_t>{depth_values, depth_values_size},
+            std::nullopt,
+            rgbd::Plane{floor_normal, floor_distance});
+    }
+}
+
+void rgbd_file_writer_record_audio_frame(void* ptr,
+                                         int64_t time_point_us,
+                                         const float* pcm_samples,
+                                         size_t pcm_samples_size)
+{
+    static_cast<rgbd::FileWriter*>(ptr)->recordAudioFrame(
+        time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
+}
+
+void rgbd_file_writer_flush(void* ptr)
+{
+    return static_cast<rgbd::FileWriter*>(ptr)->flush();
+}
+//////// END FILE WRITER ////////
+
 //////// START KINECT CAMERA CALIBRATION ////////
 void* rgbd_kinect_camera_calibration_ctor(int color_width,
                                           int color_height,
@@ -730,89 +813,6 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
     return new rgbd::CFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
-
-//////// START RECORDER ////////
-void* rgbd_recorder_ctor(const char* file_path,
-                         bool has_depth_confidence,
-                         void* calibration,
-                         int color_bitrate,
-                         int framerate,
-                         int depth_diff_multiplier,
-                         int samplerate)
-{
-    return new rgbd::Recorder(file_path,
-                              has_depth_confidence,
-                              *static_cast<const rgbd::CameraCalibration*>(calibration),
-                              color_bitrate,
-                              framerate,
-                              depth_diff_multiplier,
-                              samplerate);
-}
-
-void rgbd_recorder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::Recorder*>(ptr);
-}
-
-void rgbd_recorder_record_rgbd_frame(void* ptr,
-                                     int64_t time_point_us,
-                                     int width,
-                                     int height,
-                                     const uint8_t* y_channel,
-                                     size_t y_channel_size,
-                                     const uint8_t* u_channel,
-                                     size_t u_channel_size,
-                                     const uint8_t* v_channel,
-                                     size_t v_channel_size,
-                                     const int16_t* depth_values,
-                                     size_t depth_values_size,
-                                     const uint8_t* depth_confidence_values,
-                                     size_t depth_confidence_values_size,
-                                     float floor_normal_x,
-                                     float floor_normal_y,
-                                     float floor_normal_z,
-                                     float floor_distance)
-{
-    glm::vec3 floor_normal{floor_normal_x, floor_normal_y, floor_normal_z};
-    if (depth_confidence_values) {
-        static_cast<rgbd::Recorder*>(ptr)->recordFrame(
-            time_point_us,
-            width,
-            height,
-            gsl::span<const uint8_t>{y_channel, y_channel_size},
-            gsl::span<const uint8_t>{u_channel, u_channel_size},
-            gsl::span<const uint8_t>{v_channel, v_channel_size},
-            gsl::span<const int16_t>{depth_values, depth_values_size},
-            gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
-            rgbd::Plane{floor_normal, floor_distance});
-    } else {
-        static_cast<rgbd::Recorder*>(ptr)->recordFrame(
-            time_point_us,
-            width,
-            height,
-            gsl::span<const uint8_t>{y_channel, y_channel_size},
-            gsl::span<const uint8_t>{u_channel, u_channel_size},
-            gsl::span<const uint8_t>{v_channel, v_channel_size},
-            gsl::span<const int16_t>{depth_values, depth_values_size},
-            std::nullopt,
-            rgbd::Plane{floor_normal, floor_distance});
-    }
-}
-
-void rgbd_recorder_record_audio_frame(void* ptr,
-                                      int64_t time_point_us,
-                                      const float* pcm_samples,
-                                      size_t pcm_samples_size)
-{
-    static_cast<rgbd::Recorder*>(ptr)->recordAudioFrame(
-        time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
-}
-
-void rgbd_recorder_record_flush(void* ptr)
-{
-    return static_cast<rgbd::Recorder*>(ptr)->flush();
-}
-//////// END RECORDER ////////
 
 //////// START TDC1 DECODER ////////
 void* rgbd_tdc1_decoder_ctor()

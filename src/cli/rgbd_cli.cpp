@@ -1,11 +1,13 @@
-#include <rgbd/file_parser.hpp>
+#include <cli/cli.h>
+#include <cli/clilocalsession.h>
+#include <cli/loopscheduler.h>
 #include <cxxopts.hpp>
 #include <fstream>
-#include <cli/cli.h>
-#include <cli/loopscheduler.h>
-#include <cli/clilocalsession.h>
+#include <rgbd/file_parser.hpp>
 #include <rgbd/video_folder.hpp>
 
+namespace rgbd
+{
 void print_help(const cxxopts::Options& options)
 {
     std::cout << options.help() << std::endl;
@@ -13,7 +15,7 @@ void print_help(const cxxopts::Options& options)
 
 void print_file_info(std::ostream& out, const std::string& file_path)
 {
-    rgbd::FileParser parser{file_path};
+    FileParser parser{file_path};
     auto file{parser.parseNoFrames()};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
@@ -32,7 +34,8 @@ void print_file_info(std::ostream& out, const std::string& file_path)
     out << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
 
     if (file->tracks().depth_confidence_track) {
-        out << fmt::format("Depth confidence track codec: {}\n", file->tracks().depth_confidence_track->codec);
+        out << fmt::format("Depth confidence track codec: {}\n",
+                           file->tracks().depth_confidence_track->codec);
         out << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
     } else {
         out << "No depth confidence track." << std::endl;
@@ -41,7 +44,7 @@ void print_file_info(std::ostream& out, const std::string& file_path)
 
 void extract_cover(const std::string& file_path)
 {
-    rgbd::FileParser parser{file_path};
+    FileParser parser{file_path};
     auto file{parser.parseNoFrames()};
     auto& cover_png_bytes{file->attachments().cover_png_bytes};
     std::ofstream fout;
@@ -50,21 +53,37 @@ void extract_cover(const std::string& file_path)
     fout.close();
 }
 
-void split_file()
+void split_file(const std::string& file_path)
 {
+    FileParser parser{file_path};
+    auto file{parser.parseAllFrames()};
+    auto& video_frames{file->video_frames()};
 
+    int previous_chunk_index{0};
+    for (auto& video_frame : video_frames) {
+        int64_t global_timecode{video_frame->global_timecode()};
+        constexpr int TWO_SECONDS{2000000};
+        int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
+        if (chunk_index == previous_chunk_index + 1) {
+            // TODO: Reset encoders.
+            previous_chunk_index = chunk_index;
+        } else if (chunk_index == previous_chunk_index) {
+            // Same chunk, so ignore.
+        } else {
+            throw std::runtime_error("Invalid chunk_index found...");
+        }
+        spdlog::info("global_timecode, chunk_index: {}, {}", global_timecode, chunk_index);
+    }
 }
 
 int main(int argc, char** argv)
 {
     cxxopts::Options options{"rgbd-cli", "CLI for librgbd."};
     options.add_option("", cxxopts::Option{"h,help", "Print Usage"});
-    options.add_option("", cxxopts::Option{"i,info",
-                                           "Print File Info",
-                                           cxxopts::value<std::string>()});
-    options.add_option("", cxxopts::Option{"c,cover",
-                                           "Extract cover.png",
-                                           cxxopts::value<std::string>()});
+    options.add_option("",
+                       cxxopts::Option{"i,info", "Print File Info", cxxopts::value<std::string>()});
+    options.add_option(
+        "", cxxopts::Option{"c,cover", "Extract cover.png", cxxopts::value<std::string>()});
 
     auto result{options.parse(argc, argv)};
     if (result.count("help")) {
@@ -84,15 +103,20 @@ int main(int argc, char** argv)
     // create a menu (this is the root menu of our cli)
     auto root_menu = std::make_unique<cli::Menu>("rgbd-cli");
 
-    root_menu->Insert("info", [](std::ostream& out){
+    root_menu->Insert("info", [](std::ostream& out) {
         auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
         auto file_path{video_folder->runSelectFileCLI()};
         print_file_info(out, file_path->generic_u8string());
     });
-    root_menu->Insert("cover", [](std::ostream& out){
+    root_menu->Insert("cover", [](std::ostream& out) {
         auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
         auto file_path{video_folder->runSelectFileCLI()};
         extract_cover(file_path->generic_u8string());
+    });
+    root_menu->Insert("split", [](std::ostream& out) {
+        auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
+        auto file_path{video_folder->runSelectFileCLI()};
+        split_file(file_path->generic_u8string());
     });
 
     // create the cli with the root menu
@@ -106,4 +130,10 @@ int main(int argc, char** argv)
     scheduler.Run();
 
     return 0;
+}
+} // namespace rgbd
+
+int main(int argc, char** argv)
+{
+    return rgbd::main(argc, argv);
 }

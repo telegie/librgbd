@@ -1,4 +1,4 @@
-#include "recorder.hpp"
+#include "file_writer.hpp"
 
 #include <rgbd/png_utils.hpp>
 #include <rgbd/rvl.hpp>
@@ -98,13 +98,13 @@ Bytes get_cover_png_bytes(int width,
     return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
 }
 
-Recorder::Recorder(const string& file_path,
-                   bool has_depth_confidence,
-                   const CameraCalibration& calibration,
-                   int color_bitrate,
-                   int framerate,
-                   int depth_diff_multiplier,
-                   int samplerate)
+FileWriter::FileWriter(const string& file_path,
+                           bool has_depth_confidence,
+                           const CameraCalibration& calibration,
+                           int color_bitrate,
+                           int framerate,
+                           int depth_diff_multiplier,
+                           int samplerate)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
@@ -350,7 +350,7 @@ Recorder::Recorder(const string& file_path,
     }
 }
 
-void Recorder::recordFrame(const Frame& rgbd_frame)
+void FileWriter::recordFrame(const Frame& rgbd_frame)
 {
     if (rgbd_frame.depth_confidence_frame()) {
         recordFrame(rgbd_frame.time_point_us(),
@@ -375,15 +375,15 @@ void Recorder::recordFrame(const Frame& rgbd_frame)
     }
 }
 
-void Recorder::recordFrame(int64_t time_point_us,
-                           int width,
-                           int height,
-                           gsl::span<const uint8_t> y_channel,
-                           gsl::span<const uint8_t> u_channel,
-                           gsl::span<const uint8_t> v_channel,
-                           gsl::span<const int16_t> depth_values,
-                           optional<gsl::span<const uint8_t>> depth_confidence_values,
-                           const Plane& floor)
+void FileWriter::recordFrame(int64_t time_point_us,
+                               int width,
+                               int height,
+                               gsl::span<const uint8_t> y_channel,
+                               gsl::span<const uint8_t> u_channel,
+                               gsl::span<const uint8_t> v_channel,
+                               gsl::span<const int16_t> depth_values,
+                               optional<gsl::span<const uint8_t>> depth_confidence_values,
+                               const Plane& floor)
 {
     if (depth_confidence_track_ && !depth_confidence_values)
         throw std::runtime_error("Video has depth confidence track but not found in frame.");
@@ -472,12 +472,12 @@ void Recorder::recordFrame(int64_t time_point_us,
     ++rgbd_index_;
 }
 
-void Recorder::recordAudioFrame(const AudioFrame& audio_frame)
+void FileWriter::recordAudioFrame(const AudioFrame& audio_frame)
 {
     recordAudioFrame(audio_frame.time_point_us(), audio_frame.pcm_samples());
 }
 
-void Recorder::recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples)
+void FileWriter::recordAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples)
 {
     if (pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0)
         throw std::runtime_error("pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0");
@@ -525,7 +525,7 @@ void Recorder::recordAudioFrame(int64_t time_point_us, gsl::span<const float> pc
     }
 }
 
-void Recorder::flush()
+void FileWriter::flush()
 {
     {
         auto duration{gsl::narrow<uint64_t>(last_timecode_ / MATROSKA_TIMESCALE_NS)};

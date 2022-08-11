@@ -124,6 +124,7 @@ set(RgbdSources
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/file.hpp
   include/rgbd/file_parser.hpp
+  include/rgbd/file_writer.hpp
   include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -132,7 +133,6 @@ set(RgbdSources
   include/rgbd/kinect_camera_calibration.hpp
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
-  include/rgbd/recorder.hpp
   include/rgbd/rgbd.hpp
   include/rgbd/rgbd_capi.h
   include/rgbd/rvl.hpp
@@ -154,6 +154,7 @@ set(RgbdSources
   src/ffmpeg_utils.cpp
   src/file.cpp
   src/file_parser.cpp
+  src/file_writer.cpp
   src/frame.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
@@ -162,7 +163,6 @@ set(RgbdSources
   src/kinect_camera_calibration.cpp
   src/plane.cpp
   src/png_utils.cpp
-  src/recorder.cpp
   src/rgbd_capi.cpp
   src/rvl.cpp
   src/tdc1_decoder.cpp

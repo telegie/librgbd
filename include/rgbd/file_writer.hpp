@@ -31,16 +31,16 @@
 
 namespace rgbd
 {
-class Recorder
+class FileWriter
 {
 public:
-    Recorder(const string& file_path,
-             bool has_depth_confidence,
-             const CameraCalibration& calibration,
-             int color_bitrate,
-             int framerate,
-             int depth_diff_multiplier,
-             int samplerate);
+    FileWriter(const string& file_path,
+                 bool has_depth_confidence,
+                 const CameraCalibration& calibration,
+                 int color_bitrate,
+                 int framerate,
+                 int depth_diff_multiplier,
+                 int samplerate);
     void recordFrame(const Frame& rgbd_frame);
     void recordFrame(int64_t time_point_us,
                      int width,

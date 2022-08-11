@@ -14,6 +14,7 @@
 #include <rgbd/ffmpeg_utils.hpp>
 #include <rgbd/file.hpp>
 #include <rgbd/file_parser.hpp>
+#include <rgbd/file_writer.hpp>
 #include <rgbd/frame.hpp>
 #include <rgbd/integer_frame.hpp>
 #include <rgbd/ios_calibration_utils.hpp>
@@ -22,7 +23,6 @@
 #include <rgbd/kinect_camera_calibration.hpp>
 #include <rgbd/plane.hpp>
 #include <rgbd/png_utils.hpp>
-#include <rgbd/recorder.hpp>
 #include <rgbd/rvl.hpp>
 #include <rgbd/tdc1_decoder.hpp>
 #include <rgbd/tdc1_encoder.hpp>

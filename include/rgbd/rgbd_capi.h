@@ -151,6 +151,40 @@ extern "C"
     int rgbd_file_video_track_get_height(void* ptr);
     //////// START FILE VIDEO TRACK ////////
 
+    //////// START FILE WRITER ////////
+    void* rgbd_file_writer_ctor(const char* file_path,
+                                bool has_depth_confidence,
+                                void* calibration,
+                                int color_bitrate,
+                                int framerate,
+                                int depth_diff_multiplier,
+                                int samplerate);
+    void rgbd_file_writer_dtor(void* ptr);
+    void rgbd_file_writer_record_rgbd_frame(void* ptr,
+                                            int64_t time_point_us,
+                                            int width,
+                                            int height,
+                                            const uint8_t* y_channel,
+                                            size_t y_channel_size,
+                                            const uint8_t* u_channel,
+                                            size_t u_channel_size,
+                                            const uint8_t* v_channel,
+                                            size_t v_channel_size,
+                                            const int16_t* depth_values,
+                                            size_t depth_values_size,
+                                            const uint8_t* depth_confidence_values,
+                                            size_t depth_confidence_values_size,
+                                            float floor_normal_x,
+                                            float floor_normal_y,
+                                            float floor_normal_z,
+                                            float floor_distance);
+    void rgbd_file_writer_record_audio_frame(void* ptr,
+                                             int64_t time_point_us,
+                                             const float* pcm_samples,
+                                             size_t pcm_samples_size);
+    void rgbd_file_writer_flush(void* ptr);
+    //////// END FILE WRITER ////////
+
     //////// START KINECT CAMERA CALIBRATION ////////
     void* rgbd_kinect_camera_calibration_ctor(int color_width,
                                               int color_height,
@@ -232,40 +266,6 @@ extern "C"
     float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr);
     void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr);
     //////// END IOS CAMERA CALIBRATION ////////
-
-    //////// START RECORDER ////////
-    void* rgbd_recorder_ctor(const char* file_path,
-                             bool has_depth_confidence,
-                             void* calibration,
-                             int color_bitrate,
-                             int framerate,
-                             int depth_diff_multiplier,
-                             int samplerate);
-    void rgbd_recorder_dtor(void* ptr);
-    void rgbd_recorder_record_rgbd_frame(void* ptr,
-                                       int64_t time_point_us,
-                                       int width,
-                                       int height,
-                                       const uint8_t* y_channel,
-                                       size_t y_channel_size,
-                                       const uint8_t* u_channel,
-                                       size_t u_channel_size,
-                                       const uint8_t* v_channel,
-                                       size_t v_channel_size,
-                                       const int16_t* depth_values,
-                                       size_t depth_values_size,
-                                       const uint8_t* depth_confidence_values,
-                                       size_t depth_confidence_values_size,
-                                       float floor_normal_x,
-                                       float floor_normal_y,
-                                       float floor_normal_z,
-                                       float floor_distance);
-    void rgbd_recorder_record_audio_frame(void* ptr,
-                                        int64_t time_point_us,
-                                        const float* pcm_samples,
-                                        size_t pcm_samples_size);
-    void rgbd_recorder_record_flush(void* ptr);
-    //////// END RECORDER ////////
 
     //////// START TDC1 DECODER ////////
     void* rgbd_tdc1_decoder_ctor();
