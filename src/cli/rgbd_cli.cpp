@@ -14,8 +14,7 @@ void print_help(const cxxopts::Options& options)
 void print_file_info(std::ostream& out, const std::string& file_path)
 {
     rgbd::FileParser parser{file_path};
-    auto& file_info{parser.info()};
-    auto file{parser.readAll()};
+    auto file{parser.parseNoFrames()};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
     size_t depth_confidence_byte_size{0};
@@ -27,13 +26,13 @@ void print_file_info(std::ostream& out, const std::string& file_path)
             depth_confidence_byte_size += depth_confidence_bytes->size();
     }
     out << fmt::format("Total video frame count: {}\n", file->video_frames().size());
-    out << fmt::format("Color track codec: {}\n", file_info.color_track_info().codec);
+    out << fmt::format("Color track codec: {}\n", file->tracks().color_track.codec);
     out << fmt::format("Color track size: {} KB\n", color_byte_size / 1024);
-    out << fmt::format("Depth track codec: {}\n", file_info.depth_track_info().codec);
+    out << fmt::format("Depth track codec: {}\n", file->tracks().depth_track.codec);
     out << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
 
-    if (file_info.depth_confidence_track_info()) {
-        out << fmt::format("Depth confidence track codec: {}\n", file_info.depth_confidence_track_info()->codec);
+    if (file->tracks().depth_confidence_track) {
+        out << fmt::format("Depth confidence track codec: {}\n", file->tracks().depth_confidence_track->codec);
         out << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
     } else {
         out << "No depth confidence track." << std::endl;
@@ -43,9 +42,8 @@ void print_file_info(std::ostream& out, const std::string& file_path)
 void extract_cover(const std::string& file_path)
 {
     rgbd::FileParser parser{file_path};
-    auto& file_info{parser.info()};
-    auto file{parser.readAll()};
-    auto& cover_png_bytes{file_info.cover_png_bytes()};
+    auto file{parser.parseNoFrames()};
+    auto& cover_png_bytes{file->attachments().cover_png_bytes};
     std::ofstream fout;
     fout.open("librgbd_cover.png", std::ios::binary | std::ios::out);
     fout.write((const char*)cover_png_bytes.data(), cover_png_bytes.size());
