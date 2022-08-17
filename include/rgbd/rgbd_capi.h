@@ -104,6 +104,12 @@ extern "C"
     void* rgbd_file_audio_frame_get_bytes(void* ptr);
     //////// END FILE AUDIO FRAME ////////
 
+    //////// START FILE AUDIO TRACK ////////
+    void rgbd_file_audio_track_dtor(void* ptr);
+    int rgbd_file_audio_track_get_track_number(void* ptr);
+    double rgbd_file_audio_track_get_sampling_frequency(void* ptr);
+    //////// END FILE AUDIO TRACK ////////
+
     //////// START FILE FRAME ////////
     void rgbd_file_frame_dtor(void* ptr);
     rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
@@ -129,7 +135,7 @@ extern "C"
     void* rgbd_file_tracks_get_color_track(void* ptr);
     void* rgbd_file_tracks_get_depth_track(void* ptr);
     void* rgbd_file_tracks_get_depth_confidence_track(void* ptr);
-    int rgbd_file_tracks_get_audio_track_number(void* ptr);
+    void* rgbd_file_tracks_get_audio_track(void* ptr);
     int rgbd_file_tracks_get_floor_track_number(void* ptr);
     //////// START FILE TRACKS ////////
 

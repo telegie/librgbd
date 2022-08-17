@@ -263,6 +263,23 @@ void* rgbd_file_audio_frame_get_bytes(void* ptr)
 }
 //////// END FILE AUDIO FRAME ////////
 
+//////// START FILE AUDIO TRACK ////////
+void rgbd_file_audio_track_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileAudioTrack*>(ptr);
+}
+
+int rgbd_file_audio_track_get_track_number(void* ptr)
+{
+    return static_cast<rgbd::FileAudioTrack*>(ptr)->track_number;
+}
+
+double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
+{
+    return static_cast<rgbd::FileAudioTrack*>(ptr)->sampling_frequency;
+}
+//////// END FILE AUDIO TRACK ////////
+
 //////// START FILE FRAME ////////
 void rgbd_file_frame_dtor(void* ptr)
 {
@@ -366,10 +383,10 @@ void* rgbd_file_tracks_get_depth_confidence_track(void* ptr)
     return &(*file_tracks->depth_confidence_track);
 }
 
-int rgbd_file_tracks_get_audio_track_number(void* ptr)
+void* rgbd_file_tracks_get_audio_track(void* ptr)
 {
     auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
-    return file_tracks-> audio_track.track_number;
+    return &(file_tracks->audio_track);
 }
 
 int rgbd_file_tracks_get_floor_track_number(void* ptr)
