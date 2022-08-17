@@ -3,7 +3,7 @@
 #include <rgbd/audio_frame.hpp>
 #include <rgbd/byte_utils.hpp>
 #include <rgbd/camera_calibration.hpp>
-#include <rgbd/capi_utils.hpp>
+#include <rgbd/capi_containers.hpp>
 #include <rgbd/constants.hpp>
 #include <rgbd/depth_decoder.hpp>
 #include <rgbd/depth_encoder.hpp>

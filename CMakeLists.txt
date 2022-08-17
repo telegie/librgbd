@@ -113,7 +113,7 @@ set(RgbdSources
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
   include/rgbd/camera_calibration.hpp
-  include/rgbd/capi_utils.hpp
+  include/rgbd/capi_containers.hpp
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
   include/rgbd/depth_encoder.hpp
@@ -143,7 +143,7 @@ set(RgbdSources
   src/audio_frame.cpp
   src/byte_utils.cpp
   src/camera_calibration.cpp
-  src/capi_utils.cpp
+  src/capi_containers.cpp
   src/constants.cpp
   src/depth_decoder.cpp
   src/depth_encoder.cpp

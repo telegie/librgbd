@@ -1,6 +1,6 @@
 #include "rgbd_capi.h"
 
-#include "capi_utils.hpp"
+#include "capi_containers.hpp"
 #include "ffmpeg_audio_decoder.hpp"
 #include "ffmpeg_video_decoder.hpp"
 #include "file.hpp"
@@ -58,76 +58,77 @@ int RGBD_AUDIO_OUTPUT_SAMPLES_PER_FRAME()
 }
 //////// END CONSTANTS ////////
 
-//////// START CAPI UTILITY CLASSES ////////
-void rgbd_cbyte_array_dtor(void* ptr)
+//////// START CAPI CONTAINER CLASSES ////////
+void rgbd_native_byte_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::CByteArray*>(ptr);
+    delete static_cast<rgbd::NativeByteArray*>(ptr);
 }
 
-uint8_t* rgbd_cbyte_array_data(void* ptr)
+uint8_t* rgbd_native_byte_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::CByteArray*>(ptr)->data();
+    return static_cast<rgbd::NativeByteArray*>(ptr)->data();
 }
 
-size_t rgbd_cbyte_array_size(void* ptr)
+size_t rgbd_native_byte_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::CByteArray*>(ptr)->size();
+    return static_cast<rgbd::NativeByteArray*>(ptr)->size();
 }
 
-void rgbd_cfloat_array_dtor(void* ptr)
+void rgbd_native_float_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::CFloatArray*>(ptr);
+    delete static_cast<rgbd::NativeFloatArray*>(ptr);
 }
 
-float* rgbd_cfloat_array_data(void* ptr)
+float* rgbd_native_float_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::CFloatArray*>(ptr)->data();
+    return static_cast<rgbd::NativeFloatArray*>(ptr)->data();
 }
 
-size_t rgbd_cfloat_array_size(void* ptr)
+size_t rgbd_native_float_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::CFloatArray*>(ptr)->size();
+    return static_cast<rgbd::NativeFloatArray*>(ptr)->size();
 }
 
-void rgbd_cint16_array_dtor(void* ptr)
+void rgbd_native_int16_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::CInt16Array*>(ptr);
+    delete static_cast<rgbd::NativeInt16Array*>(ptr);
 }
 
-int16_t* rgbd_cint16_array_data(void* ptr)
+int16_t* rgbd_native_int16_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::CInt16Array*>(ptr)->data();
+    return static_cast<rgbd::NativeInt16Array*>(ptr)->data();
 }
 
-size_t rgbd_cint16_array_size(void* ptr)
+size_t rgbd_native_int16_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::CInt16Array*>(ptr)->size();
+    return static_cast<rgbd::NativeInt16Array*>(ptr)->size();
 }
 
-void rgbd_cuint8_array_dtor(void* ptr)
+void rgbd_native_uint8_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::CUInt8Array*>(ptr);
+    delete static_cast<rgbd::NativeUInt8Array*>(ptr);
 }
 
-uint8_t* rgbd_cuint8_array_data(void* ptr)
+uint8_t* rgbd_native_uint8_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::CUInt8Array*>(ptr)->data();
+    return static_cast<rgbd::NativeUInt8Array*>(ptr)->data();
 }
 
-size_t rgbd_cuint8_array_size(void* ptr)
+size_t rgbd_native_uint8_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::CUInt8Array*>(ptr)->size();
+    return static_cast<rgbd::NativeUInt8Array*>(ptr)->size();
 }
 
-void rgbd_cstring_dtor(void* ptr)
+void rgbd_native_string_dtor(void* ptr)
 {
-    delete static_cast<rgbd::CString*>(ptr);
+    delete static_cast<rgbd::NativeString*>(ptr);
 }
-const char* rgbd_cstring_c_str(void* ptr)
+
+const char* rgbd_native_string_get_c_str(void* ptr)
 {
-    return static_cast<rgbd::CString*>(ptr)->c_str();
+    return static_cast<rgbd::NativeString*>(ptr)->c_str();
 }
-//////// END CAPI UTILITY CLASSES ////////
+//////// END CAPI CONTAINER CLASSES ////////
 
 //////// START CAMERA CALIBRATION ////////
 void rgbd_camera_calibration_dtor(void* ptr)
@@ -160,7 +161,7 @@ void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
 {
     auto depth_frame{static_cast<rgbd::FFmpegAudioDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
-    return new rgbd::CFloatArray{std::move(depth_frame)};
+    return new rgbd::NativeFloatArray{std::move(depth_frame)};
 }
 //////// END FFMPEG AUDIO DECODER ////////
 
@@ -242,7 +243,7 @@ void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 {
     auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
-    return new rgbd::CByteArray{file_attachments->cover_png_bytes};
+    return new rgbd::NativeByteArray{file_attachments->cover_png_bytes};
 }
 //////// END FILE ATTACHMENTS ////////
 
@@ -259,7 +260,7 @@ int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr)
 
 void* rgbd_file_audio_frame_get_bytes(void* ptr)
 {
-    return new rgbd::CByteArray{static_cast<rgbd::FileAudioFrame*>(ptr)->bytes()};
+    return new rgbd::NativeByteArray{static_cast<rgbd::FileAudioFrame*>(ptr)->bytes()};
 }
 //////// END FILE AUDIO FRAME ////////
 
@@ -314,7 +315,7 @@ double rgbd_file_info_get_duration_us(void* ptr)
 void* rgbd_file_info_get_writing_app(void* ptr)
 {
     auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::CString{file_info->writing_app};
+    return new rgbd::NativeString{file_info->writing_app};
 }
 //////// END FILE INFO ////////
 
@@ -409,12 +410,12 @@ int64_t rgbd_file_video_frame_get_global_timecode(void* ptr)
 
 void* rgbd_file_video_frame_get_color_bytes(void* ptr)
 {
-    return new rgbd::CByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->color_bytes()};
+    return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->color_bytes()};
 }
 
 void* rgbd_file_video_frame_get_depth_bytes(void* ptr)
 {
-    return new rgbd::CByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->depth_bytes()};
+    return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->depth_bytes()};
 }
 
 float rgbd_file_video_frame_get_floor_normal_x(void* ptr)
@@ -453,7 +454,7 @@ int rgbd_file_video_track_get_track_number(void* ptr)
 void* rgbd_file_video_track_get_codec(void* ptr)
 {
     auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
-    return new rgbd::CString{file_video_track->codec};
+    return new rgbd::NativeString{file_video_track->codec};
 }
 
 int rgbd_file_video_track_get_width(void* ptr)
@@ -740,7 +741,7 @@ int rgbd_int16_frame_get_height(void* ptr)
 
 void* rgbd_int16_frame_get_values(void* ptr)
 {
-    return new rgbd::CInt16Array{static_cast<rgbd::Int16Frame*>(ptr)->values()};
+    return new rgbd::NativeInt16Array{static_cast<rgbd::Int16Frame*>(ptr)->values()};
 }
 //////// END INT16 FRAME ////////
 
@@ -840,7 +841,7 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 {
     auto floats{
         static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
-    return new rgbd::CFloatArray{std::move(floats)};
+    return new rgbd::NativeFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
 
@@ -873,17 +874,17 @@ void rgbd_yuv_frame_dtor(void* ptr)
 
 void* rgbd_yuv_frame_get_y_channel(void* ptr)
 {
-    return new rgbd::CUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->y_channel()};
+    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->y_channel()};
 }
 
 void* rgbd_yuv_frame_get_u_channel(void* ptr)
 {
-    return new rgbd::CUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->u_channel()};
+    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->u_channel()};
 }
 
 void* rgbd_yuv_frame_get_v_channel(void* ptr)
 {
-    return new rgbd::CUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->v_channel()};
+    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->v_channel()};
 }
 
 int rgbd_yuv_frame_get_width(void* ptr)
