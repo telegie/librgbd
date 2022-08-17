@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 project(librgbd)
 
 set(RGBD_VERSION_MAJOR 1)
-set(RGBD_VERSION_MINOR 2)
+set(RGBD_VERSION_MINOR 3)
 set(RGBD_VERSION_PATCH 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
@@ -28,11 +28,11 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 endif()
 
 ### CLI BEGIN ###
-add_subdirectory(deps/cli)
+add_subdirectory(deps/cli EXCLUDE_FROM_ALL)
 ### CLI END ###
 
 ### CXXOPTS BEGIN ###
-add_subdirectory(deps/cxxopts)
+add_subdirectory(deps/cxxopts EXCLUDE_FROM_ALL)
 ### CXXOPTS END ###
 
 ### FFMPEG BEGIN ###
@@ -227,8 +227,8 @@ elseif(RGBD_OS_MAC)
   )
   if(NOT PROJECT_IS_TOP_LEVEL)
     set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
+    set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
   endif()
-  set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
 elseif(RGBD_OS_LINUX)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_LINUX_DIR}/include
@@ -299,4 +299,6 @@ endif()
 if(RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-cli DESTINATION bin)
   install(TARGETS rgbd-shared DESTINATION bin)
+  install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
+          DESTINATION include/rgbd)
 endif()
