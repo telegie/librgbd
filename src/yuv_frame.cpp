@@ -41,6 +41,9 @@ YuvFrame::YuvFrame(const int width,
     , width_{width}
     , height_{height}
 {
+    Expects(y_channel_.size() == (width * height));
+    Expects(u_channel_.size() == (width * height / 4));
+    Expects(v_channel_.size() == (width * height / 4));
 }
 
 YuvFrame::YuvFrame(AVFrameHandle& av_frame)

@@ -4,14 +4,13 @@
 
 namespace rgbd
 {
-template<class T>
-class IntegerFrame
+template <class T> class IntegerFrame
 {
 public:
-    IntegerFrame(int width, int height, const T* buffer)
+    IntegerFrame(int width, int height, const T* data)
         : width_{width}
         , height_{height}
-        , values_(buffer, buffer + (static_cast<int64_t>(width) * height))
+        , values_(data, data + (static_cast<int64_t>(width) * height))
     {
     }
     IntegerFrame(int width, int height, const vector<T> pixels)
@@ -19,6 +18,7 @@ public:
         , height_{height}
         , values_(pixels)
     {
+        Expects(pixels.size() == (width * height));
     }
     IntegerFrame getDownsampled(int downsampling_factor) const
     {
@@ -61,4 +61,4 @@ private:
 
 using Int32Frame = IntegerFrame<int32_t>;
 using UInt8Frame = IntegerFrame<uint8_t>;
-}
+} // namespace rgbd
