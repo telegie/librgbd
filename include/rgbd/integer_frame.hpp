@@ -8,13 +8,13 @@ template<class T>
 class IntegerFrame
 {
 public:
-    IntegerFrame(const T* buffer, int width, int height)
+    IntegerFrame(int width, int height, const T* buffer)
         : width_{width}
         , height_{height}
         , values_(buffer, buffer + (static_cast<int64_t>(width) * height))
     {
     }
-    IntegerFrame(const vector<T> pixels, int width, int height)
+    IntegerFrame(int width, int height, const vector<T> pixels)
         : width_{width}
         , height_{height}
         , values_(pixels)

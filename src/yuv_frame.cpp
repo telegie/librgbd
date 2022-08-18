@@ -30,11 +30,11 @@ vector<uint8_t> convert_channel_plane_to_bytes(const uint8_t* buffer,
     return bytes;
 }
 
-YuvFrame::YuvFrame(vector<uint8_t>&& y_channel,
+YuvFrame::YuvFrame(const int width,
+                   const int height,
+                   vector<uint8_t>&& y_channel,
                    vector<uint8_t>&& u_channel,
-                   vector<uint8_t>&& v_channel,
-                   const int width,
-                   const int height) noexcept
+                   vector<uint8_t>&& v_channel) noexcept
     : y_channel_(std::move(y_channel))
     , u_channel_(std::move(u_channel))
     , v_channel_(std::move(v_channel))
@@ -128,11 +128,11 @@ YuvFrame YuvFrame::getDownsampled(int downsampling_factor) const
         }
     }
 
-    return YuvFrame{std::move(downsampled_y_channel),
+    return YuvFrame{downsampled_width,
+                    downsampled_height,
+                    std::move(downsampled_y_channel),
                     std::move(downsampled_u_channel),
-                    std::move(downsampled_v_channel),
-                    downsampled_width,
-                    downsampled_height};
+                    std::move(downsampled_v_channel)};
 }
 
 YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,
@@ -170,8 +170,7 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* bu
         }
     }
 
-    return YuvFrame(
-        std::move(y_channel), std::move(u_channel), std::move(v_channel), width, height);
+    return YuvFrame(width, height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
 }
 
 YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer,
@@ -212,6 +211,6 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer
     }
 
     return YuvFrame(
-        std::move(y_channel), std::move(u_channel), std::move(v_channel), half_width, half_height);
+        half_width, half_height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
 }
 } // namespace tg

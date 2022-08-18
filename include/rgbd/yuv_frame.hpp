@@ -14,11 +14,11 @@ namespace rgbd
 class YuvFrame
 {
 public:
-    YuvFrame(vector<uint8_t>&& y_channel,
+    YuvFrame(const int width,
+             const int height,
+             vector<uint8_t>&& y_channel,
              vector<uint8_t>&& u_channel,
-             vector<uint8_t>&& v_channel,
-             const int width,
-             const int height) noexcept;
+             vector<uint8_t>&& v_channel) noexcept;
     YuvFrame(AVFrameHandle& av_frame);
     YuvFrame(const YuvFrame& other) noexcept;
     YuvFrame(YuvFrame&& other) noexcept;

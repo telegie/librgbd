@@ -27,13 +27,13 @@ Int32Frame TDC1Decoder::decode(gsl::span<const std::byte> bytes) noexcept
     const int depth_value_count{gsl::narrow<int>(previous_depth_values_.size())};
     if (keyframe) {
         previous_depth_values_ = rvl::decompress<int32_t>(encoded_depth_values, depth_value_count);
-        return Int32Frame{previous_depth_values_, width, height};
+        return Int32Frame{width, height, previous_depth_values_};
     }
 
     const auto depth_value_diffs{rvl::decompress<int32_t>(encoded_depth_values, depth_value_count)};
     for (gsl::index i{0}; i < depth_value_count; ++i)
         previous_depth_values_[i] += depth_value_diffs[i];
 
-    return Int32Frame{previous_depth_values_, width, height};
+    return Int32Frame{width, height, previous_depth_values_};
 }
 } // namespace tg
