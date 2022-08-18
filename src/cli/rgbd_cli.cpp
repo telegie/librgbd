@@ -74,7 +74,7 @@ void split_file(const std::string& file_path)
         int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
 
         YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
-        Int16Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+        Int32Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
         if (chunk_index == previous_chunk_index + 1) {
             if (file_writer)
@@ -87,6 +87,7 @@ void split_file(const std::string& file_path)
                 *file->attachments().camera_calibration,
                 2500,
                 30,
+                DepthCodecType::TDC1,
                 500,
                 static_cast<int>(file->tracks().audio_track.sampling_frequency));
 
