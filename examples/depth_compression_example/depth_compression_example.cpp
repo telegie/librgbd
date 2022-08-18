@@ -28,7 +28,7 @@ void run()
     spdlog::info("depth_size: {}", depth_size);
 
     rgbd::TDC1Decoder decoder;
-    vector<rgbd::Int16Frame> decoded_frames;
+    vector<rgbd::Int32Frame> decoded_frames;
     for (auto& video_frame : file->video_frames())
         decoded_frames.push_back(decoder.decode(video_frame->depth_bytes()));
 
@@ -43,7 +43,7 @@ void run()
     size_t uncompressed_byte_size_sum{0};
     bool first{true};
     for (auto& decoded_frame : decoded_frames) {
-        Bytes rvl_frame{rvl::compress<int16_t>(decoded_frame.values())};
+        Bytes rvl_frame{rvl::compress<int32_t>(decoded_frame.values())};
 
         Bytes tdc1_frame{encoder.encode(decoded_frame.values(), first)};
         tdc1_frames.push_back(tdc1_frame);
@@ -57,7 +57,7 @@ void run()
         rvl_byte_size_sum += rvl_frame.size();
         tdc1_byte_size_sum += tdc1_frame.size();
         tdc1_zstd_byte_size_sum += zstd_frame.size();
-        uncompressed_byte_size_sum += decoded_frame.width() * decoded_frame.height() * sizeof(int16_t);
+        uncompressed_byte_size_sum += decoded_frame.width() * decoded_frame.height() * sizeof(int32_t);
         first = false;
     }
 
