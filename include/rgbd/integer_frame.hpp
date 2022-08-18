@@ -59,6 +59,6 @@ private:
     std::vector<T> values_;
 };
 
-using Int16Frame = IntegerFrame<int16_t>;
+using Int32Frame = IntegerFrame<int32_t>;
 using UInt8Frame = IntegerFrame<uint8_t>;
 }

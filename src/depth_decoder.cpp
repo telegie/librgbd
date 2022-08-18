@@ -19,7 +19,7 @@ DepthDecoder::DepthDecoder(DepthCodecType depth_codec_type)
 
 }
 
-Int16Frame DepthDecoder::decode(gsl::span<const std::byte> bytes) noexcept
+Int32Frame DepthDecoder::decode(gsl::span<const std::byte> bytes) noexcept
 {
     return impl_->decode(bytes);
 }

@@ -16,7 +16,7 @@ DepthCodecType RVLEncoder::getCodecType() noexcept
     return DepthCodecType::RVL;
 }
 
-Bytes RVLEncoder::encode(gsl::span<const int16_t> depth_values, bool keyframe) noexcept
+Bytes RVLEncoder::encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept
 {
     Bytes bytes;
     append_bytes(bytes, convert_to_bytes(width_));

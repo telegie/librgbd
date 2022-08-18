@@ -89,19 +89,19 @@ size_t rgbd_native_float_array_get_size(void* ptr)
     return static_cast<rgbd::NativeFloatArray*>(ptr)->size();
 }
 
-void rgbd_native_int16_array_dtor(void* ptr)
+void rgbd_native_int32_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeInt16Array*>(ptr);
+    delete static_cast<rgbd::NativeInt32Array*>(ptr);
 }
 
-int16_t* rgbd_native_int16_array_get_data(void* ptr)
+int32_t* rgbd_native_int32_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::NativeInt16Array*>(ptr)->data();
+    return static_cast<rgbd::NativeInt32Array*>(ptr)->data();
 }
 
-size_t rgbd_native_int16_array_get_size(void* ptr)
+size_t rgbd_native_int32_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::NativeInt16Array*>(ptr)->size();
+    return static_cast<rgbd::NativeInt32Array*>(ptr)->size();
 }
 
 void rgbd_native_uint8_array_dtor(void* ptr)
@@ -161,7 +161,7 @@ void* rgbd_depth_decoder_decode(void* ptr,
 {
     auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
-    return new rgbd::Int16Frame{std::move(depth_frame)};
+    return new rgbd::Int32Frame{std::move(depth_frame)};
 }
 //////// END DEPTH DECODER ////////
 
@@ -544,7 +544,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                         size_t u_channel_size,
                                         const uint8_t* v_channel,
                                         size_t v_channel_size,
-                                        const int16_t* depth_values,
+                                        const int32_t* depth_values,
                                         size_t depth_values_size,
                                         const uint8_t* depth_confidence_values,
                                         size_t depth_confidence_values_size,
@@ -562,7 +562,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
             gsl::span<const uint8_t>{y_channel, y_channel_size},
             gsl::span<const uint8_t>{u_channel, u_channel_size},
             gsl::span<const uint8_t>{v_channel, v_channel_size},
-            gsl::span<const int16_t>{depth_values, depth_values_size},
+            gsl::span<const int32_t>{depth_values, depth_values_size},
             gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
             rgbd::Plane{floor_normal, floor_distance});
     } else {
@@ -573,7 +573,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
             gsl::span<const uint8_t>{y_channel, y_channel_size},
             gsl::span<const uint8_t>{u_channel, u_channel_size},
             gsl::span<const uint8_t>{v_channel, v_channel_size},
-            gsl::span<const int16_t>{depth_values, depth_values_size},
+            gsl::span<const int32_t>{depth_values, depth_values_size},
             std::nullopt,
             rgbd::Plane{floor_normal, floor_distance});
     }
@@ -746,27 +746,27 @@ float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr)
 }
 //////// END KINECT CAMERA CALIBRATION ////////
 
-//////// START INT16 FRAME ////////
-void rgbd_int16_frame_dtor(void* ptr)
+//////// START INT32 FRAME ////////
+void rgbd_int32_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::Int16Frame*>(ptr);
+    delete static_cast<rgbd::Int32Frame*>(ptr);
 }
 
-int rgbd_int16_frame_get_width(void* ptr)
+int rgbd_int32_frame_get_width(void* ptr)
 {
-    return static_cast<rgbd::Int16Frame*>(ptr)->width();
+    return static_cast<rgbd::Int32Frame*>(ptr)->width();
 }
 
-int rgbd_int16_frame_get_height(void* ptr)
+int rgbd_int32_frame_get_height(void* ptr)
 {
-    return static_cast<rgbd::Int16Frame*>(ptr)->height();
+    return static_cast<rgbd::Int32Frame*>(ptr)->height();
 }
 
-void* rgbd_int16_frame_get_values(void* ptr)
+void* rgbd_int32_frame_get_values(void* ptr)
 {
-    return new rgbd::NativeInt16Array{static_cast<rgbd::Int16Frame*>(ptr)->values()};
+    return new rgbd::NativeInt32Array{static_cast<rgbd::Int32Frame*>(ptr)->values()};
 }
-//////// END INT16 FRAME ////////
+//////// END INT32 FRAME ////////
 
 //////// START IOS CAMERA CALIBRATION ////////
 void* rgbd_ios_camera_calibration_ctor(int color_width,

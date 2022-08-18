@@ -10,7 +10,7 @@ class TDC1Encoder : public DepthEncoder
 public:
     TDC1Encoder(int width, int height, int diff_multiplier) noexcept;
     DepthCodecType getCodecType() noexcept;
-    Bytes encode(gsl::span<const int16_t> depth_values, bool keyframe) noexcept;
+    Bytes encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept;
 
 private:
     const int width_;

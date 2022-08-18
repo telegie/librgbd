@@ -54,9 +54,9 @@ extern "C"
     float* rgbd_native_float_array_get_data(void* ptr);
     size_t rgbd_native_float_array_get_size(void* ptr);
 
-    void rgbd_native_int16_array_dtor(void* ptr);
-    int16_t* rgbd_native_int16_array_get_data(void* ptr);
-    size_t rgbd_native_int16_array_get_size(void* ptr);
+    void rgbd_native_int32_array_dtor(void* ptr);
+    int32_t* rgbd_native_int32_array_get_data(void* ptr);
+    size_t rgbd_native_int32_array_get_size(void* ptr);
 
     void rgbd_native_uint8_array_dtor(void* ptr);
     uint8_t* rgbd_native_uint8_array_get_data(void* ptr);
@@ -201,7 +201,7 @@ extern "C"
                                             size_t u_channel_size,
                                             const uint8_t* v_channel,
                                             size_t v_channel_size,
-                                            const int16_t* depth_values,
+                                            const int32_t* depth_values,
                                             size_t depth_values_size,
                                             const uint8_t* depth_confidence_values,
                                             size_t depth_confidence_values_size,
@@ -261,11 +261,11 @@ extern "C"
     float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr);
     //////// END KINECT CAMERA CALIBRATION ////////
 
-    //////// START INT16 FRAME ////////
-    void rgbd_int16_frame_dtor(void* ptr);
-    int rgbd_int16_frame_get_width(void* ptr);
-    int rgbd_int16_frame_get_height(void* ptr);
-    void* rgbd_int16_frame_get_values(void* ptr);
+    //////// START INT32 FRAME ////////
+    void rgbd_int32_frame_dtor(void* ptr);
+    int rgbd_int32_frame_get_width(void* ptr);
+    int rgbd_int32_frame_get_height(void* ptr);
+    void* rgbd_int32_frame_get_values(void* ptr);
     //////// END INT16 FRAME ////////
 
     //////// START IOS CAMERA CALIBRATION ////////

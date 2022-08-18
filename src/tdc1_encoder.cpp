@@ -17,7 +17,7 @@ DepthCodecType TDC1Encoder::getCodecType() noexcept
     return DepthCodecType::TDC1;
 }
 
-Bytes TDC1Encoder::encode(const gsl::span<const int16_t> depth_values, const bool keyframe) noexcept
+Bytes TDC1Encoder::encode(const gsl::span<const int32_t> depth_values, const bool keyframe) noexcept
 {
     Expects(depth_values.size() == previous_depth_values_.size());
 

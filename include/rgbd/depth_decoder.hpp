@@ -9,14 +9,14 @@ class DepthDecoderImpl
 {
 public:
     virtual ~DepthDecoderImpl() {}
-    virtual Int16Frame decode(gsl::span<const std::byte> bytes) noexcept = 0;
+    virtual Int32Frame decode(gsl::span<const std::byte> bytes) noexcept = 0;
 };
 
 class DepthDecoder
 {
 public:
     DepthDecoder(DepthCodecType depth_codec_type);
-    Int16Frame decode(gsl::span<const std::byte> bytes) noexcept;
+    Int32Frame decode(gsl::span<const std::byte> bytes) noexcept;
 
 private:
     unique_ptr<DepthDecoderImpl> impl_;

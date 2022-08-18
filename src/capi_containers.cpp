@@ -18,8 +18,8 @@ NativeFloatArray::NativeFloatArray(vector<float>&& float_values)
 {
 }
 
-NativeInt16Array::NativeInt16Array(const vector<int16_t>& int16_values)
-    : int16_values_{int16_values}
+NativeInt32Array::NativeInt32Array(const vector<int32_t>& int32_values)
+    : int32_values_{int32_values}
 {
 }
 

@@ -45,21 +45,21 @@ private:
     vector<float> float_values_;
 };
 
-class NativeInt16Array
+class NativeInt32Array
 {
 public:
-    NativeInt16Array(const vector<int16_t>& int16_values);
-    int16_t* data()
+    NativeInt32Array(const vector<int32_t>& int32_values);
+    int32_t* data()
     {
-        return int16_values_.data();
+        return int32_values_.data();
     }
     size_t size()
     {
-        return int16_values_.size();
+        return int32_values_.size();
     }
 
 private:
-    vector<int16_t> int16_values_;
+    vector<int32_t> int32_values_;
 };
 
 class NativeUInt8Array

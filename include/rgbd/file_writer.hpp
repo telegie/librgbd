@@ -51,7 +51,7 @@ public:
     void writeVideoFrame(const Frame& frame);
     void writeVideoFrame(int64_t time_point_us,
                          const YuvFrame& yuv_frame,
-                         const Int16Frame& depth_frame,
+                         const Int32Frame& depth_frame,
                          const optional<UInt8Frame>& depth_confidence_frame,
                          const Plane& floor);
     void writeVideoFrame(int64_t time_point_us,
@@ -60,7 +60,7 @@ public:
                          gsl::span<const uint8_t> y_channel,
                          gsl::span<const uint8_t> u_channel,
                          gsl::span<const uint8_t> v_channel,
-                         gsl::span<const int16_t> depth_values,
+                         gsl::span<const int32_t> depth_values,
                          optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
     void writeAudioFrame(const AudioFrame& audio_frame);

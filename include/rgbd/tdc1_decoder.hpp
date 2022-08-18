@@ -13,11 +13,11 @@ class TDC1Decoder : public DepthDecoderImpl
 {
 public:
     TDC1Decoder() noexcept;
-    Int16Frame decode(gsl::span<const std::byte> bytes) noexcept;
+    Int32Frame decode(gsl::span<const std::byte> bytes) noexcept;
 
 private:
-    // Using int16_t to be compatible with the differences that can have
+    // Using int32_t to be compatible with the differences that can have
     // negative values.
-    vector<int16_t> previous_depth_values_;
+    vector<int32_t> previous_depth_values_;
 };
 } // namespace tg
