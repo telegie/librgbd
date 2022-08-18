@@ -5,10 +5,20 @@
 
 namespace rgbd
 {
+class DepthDecoderImpl
+{
+public:
+    virtual ~DepthDecoderImpl() {}
+    virtual Int16Frame decode(gsl::span<const std::byte> bytes) noexcept = 0;
+};
+
 class DepthDecoder
 {
 public:
-    virtual ~DepthDecoder() {}
-    virtual Int16Frame decode(gsl::span<const std::byte> bytes) noexcept = 0;
+    DepthDecoder(DepthCodecType depth_codec_type);
+    Int16Frame decode(gsl::span<const std::byte> bytes) noexcept;
+
+private:
+    unique_ptr<DepthDecoderImpl> impl_;
 };
 } // namespace tg

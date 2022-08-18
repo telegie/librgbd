@@ -1,7 +1,7 @@
 #include "file_writer.hpp"
 
 #include <rgbd/png_utils.hpp>
-#include <rgbd/rvl.hpp>
+#include <rgbd/rvl_encoder.hpp>
 
 using namespace LIBMATROSKA_NAMESPACE;
 
@@ -15,6 +15,20 @@ auto get_random_number()
 {
     std::random_device random_device;
     return random_device();
+}
+
+unique_ptr<DepthEncoder> create_depth_encoder(DepthCodecType depth_codec_type,
+                                              int width,
+                                              int height,
+                                              int depth_diff_multiplier)
+{
+    if (depth_codec_type == DepthCodecType::RVL)
+        return unique_ptr<DepthEncoder>{new RVLEncoder(width, height)};
+    if (depth_codec_type == DepthCodecType::TDC1)
+        return unique_ptr<DepthEncoder>{new TDC1Encoder{width, height, depth_diff_multiplier}};
+
+    spdlog::error("Invalid DepthCodecType found: {}", depth_codec_type);
+    throw std::runtime_error("Invalid DepthCodecType found");
 }
 
 void convert_yuv_to_rgb(int y_row,
@@ -103,6 +117,7 @@ FileWriter::FileWriter(const string& file_path,
                        const CameraCalibration& calibration,
                        int color_bitrate,
                        int framerate,
+                       DepthCodecType depth_codec_type,
                        int depth_diff_multiplier,
                        int samplerate)
     : generator_{get_random_number()}
@@ -124,9 +139,10 @@ FileWriter::FileWriter(const string& file_path,
                      calibration.getColorHeight(),
                      color_bitrate,
                      framerate}
-    , depth_encoder_{calibration.getDepthWidth(),
-                     calibration.getDepthHeight(),
-                     depth_diff_multiplier}
+    , depth_encoder_{create_depth_encoder(depth_codec_type,
+                                          calibration.getDepthWidth(),
+                                          calibration.getDepthHeight(),
+                                          depth_diff_multiplier)}
     , audio_encoder_{}
     , framerate_{framerate}
     , samplerate_{samplerate}
@@ -184,7 +200,13 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackUID>(*depth_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*depth_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*depth_track_).SetValueUTF8("DEPTH");
-        GetChild<KaxCodecID>(*depth_track_).SetValue("V_TDC1");
+        if (depth_encoder_->getCodecType() == DepthCodecType::RVL) {
+            GetChild<KaxCodecID>(*depth_track_).SetValue("V_RVL");
+        } else if (depth_encoder_->getCodecType() == DepthCodecType::TDC1) {
+            GetChild<KaxCodecID>(*depth_track_).SetValue("V_TDC1");
+        } else {
+            throw std::runtime_error("Invalid depth codec found");
+        }
 
         GetChild<KaxTrackDefaultDuration>(*depth_track_).SetValue(ONE_SECOND_NS / framerate);
         auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
@@ -396,12 +418,11 @@ void FileWriter::writeVideoFrame(const Frame& frame)
                     frame.floor());
 }
 
-
 void FileWriter::writeVideoFrame(int64_t time_point_us,
-                     const YuvFrame& yuv_frame,
-                     const Int16Frame& depth_frame,
-                     const optional<UInt8Frame>& depth_confidence_frame,
-                     const Plane& floor)
+                                 const YuvFrame& yuv_frame,
+                                 const Int16Frame& depth_frame,
+                                 const optional<UInt8Frame>& depth_confidence_frame,
+                                 const Plane& floor)
 {
     if (depth_confidence_frame) {
         writeVideoFrame(time_point_us,
@@ -467,7 +488,7 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*color_track_, video_timecode, *color_data_buffer);
 
-    auto depth_bytes{depth_encoder_.encode(depth_values, keyframe)};
+    auto depth_bytes{depth_encoder_->encode(depth_values, keyframe)};
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
     auto depth_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(depth_bytes.data()),
                                           gsl::narrow<uint32_t>(depth_bytes.size())}};

@@ -9,7 +9,7 @@
 
 namespace rgbd
 {
-class TDC1Decoder : public DepthDecoder
+class TDC1Decoder : public DepthDecoderImpl
 {
 public:
     TDC1Decoder() noexcept;

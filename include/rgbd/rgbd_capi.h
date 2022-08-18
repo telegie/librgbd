@@ -22,6 +22,12 @@ extern "C"
 
     typedef enum
     {
+        RGBD_DEPTH_CODEC_TYPE_RVL = 0,
+        RGBD_DEPTH_CODEC_TYPE_TDC1 = 1
+    } rgbdDepthCodecType;
+
+    typedef enum
+    {
         RGBD_FILE_FRAME_TYPE_VIDEO = 0,
         RGBD_FILE_FRAME_TYPE_AUDIO = 1
     } rgbdFileFrameType;
@@ -64,6 +70,14 @@ extern "C"
     void rgbd_camera_calibration_dtor(void* ptr);
     rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr);
     //////// START CAMERA CALIBRATION ////////
+
+    //////// START DEPTH DECODER ////////
+    void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
+    void rgbd_depth_decoder_dtor(void* ptr);
+    void* rgbd_depth_decoder_decode(void* ptr,
+                                    const uint8_t* encoded_depth_frame_data,
+                                    size_t encoded_depth_frame_size);
+    //////// END DEPTH DECODER ////////
 
     //////// START FFMPEG AUDIO DECODER ////////
     void* rgbd_ffmpeg_audio_decoder_ctor();
@@ -164,6 +178,7 @@ extern "C"
                                 void* calibration,
                                 int color_bitrate,
                                 int framerate,
+                                rgbdDepthCodecType depth_codec_type,
                                 int depth_diff_multiplier,
                                 int samplerate);
     void rgbd_file_writer_dtor(void* ptr);
@@ -282,14 +297,6 @@ extern "C"
     float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr);
     void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr);
     //////// END IOS CAMERA CALIBRATION ////////
-
-    //////// START TDC1 DECODER ////////
-    void* rgbd_tdc1_decoder_ctor();
-    void rgbd_tdc1_decoder_dtor(void* ptr);
-    void* rgbd_tdc1_decoder_decode(void* ptr,
-                                 const uint8_t* encoded_depth_frame_data,
-                                 size_t encoded_depth_frame_size);
-    //////// END TDC1 DECODER ////////
 
     //////// START YUV FRAME ////////
     void rgbd_yuv_frame_dtor(void* ptr);

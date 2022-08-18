@@ -136,6 +136,8 @@ set(RgbdSources
   include/rgbd/rgbd.hpp
   include/rgbd/rgbd_capi.h
   include/rgbd/rvl.hpp
+  include/rgbd/rvl_decoder.hpp
+  include/rgbd/rvl_encoder.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
   include/rgbd/video_folder.hpp
@@ -165,6 +167,8 @@ set(RgbdSources
   src/png_utils.cpp
   src/rgbd_capi.cpp
   src/rvl.cpp
+  src/rvl_decoder.cpp
+  src/rvl_encoder.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
   src/video_folder.cpp

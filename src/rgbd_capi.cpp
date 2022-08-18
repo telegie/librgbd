@@ -144,6 +144,27 @@ rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
 }
 //////// END CAMERA CALIBRATION ////////
 
+//////// START DEPTH DECODER ////////
+void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type)
+{
+    return new rgbd::DepthDecoder{static_cast<rgbd::DepthCodecType>(depth_codec_type)};
+}
+
+void rgbd_depth_decoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::DepthDecoder*>(ptr);
+}
+
+void* rgbd_depth_decoder_decode(void* ptr,
+                                const uint8_t* encoded_depth_frame_data,
+                                size_t encoded_depth_frame_size)
+{
+    auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
+        {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
+    return new rgbd::Int16Frame{std::move(depth_frame)};
+}
+//////// END DEPTH DECODER ////////
+
 //////// START FFMPEG AUDIO DECODER ////////
 void* rgbd_ffmpeg_audio_decoder_ctor()
 {
@@ -476,6 +497,7 @@ void* rgbd_file_writer_ctor(const char* file_path,
                             void* calibration,
                             int color_bitrate,
                             int framerate,
+                            rgbdDepthCodecType depth_codec_type,
                             int depth_diff_multiplier,
                             int samplerate)
 {
@@ -484,6 +506,7 @@ void* rgbd_file_writer_ctor(const char* file_path,
                                 *static_cast<const rgbd::CameraCalibration*>(calibration),
                                 color_bitrate,
                                 framerate,
+                                static_cast<rgbd::DepthCodecType>(depth_codec_type),
                                 depth_diff_multiplier,
                                 samplerate);
 }
@@ -844,27 +867,6 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
     return new rgbd::NativeFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
-
-//////// START TDC1 DECODER ////////
-void* rgbd_tdc1_decoder_ctor()
-{
-    return new rgbd::TDC1Decoder;
-}
-
-void rgbd_tdc1_decoder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::TDC1Decoder*>(ptr);
-}
-
-void* rgbd_tdc1_decoder_decode(void* ptr,
-                               const uint8_t* encoded_depth_frame_data,
-                               size_t encoded_depth_frame_size)
-{
-    auto depth_frame{static_cast<rgbd::TDC1Decoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
-    return new rgbd::Int16Frame{std::move(depth_frame)};
-}
-//////// END TDC1 DECODER ////////
 
 //////// START YUV FRAME ////////
 void rgbd_yuv_frame_dtor(void* ptr)

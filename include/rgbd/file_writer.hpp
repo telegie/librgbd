@@ -39,6 +39,7 @@ public:
                const CameraCalibration& calibration,
                int color_bitrate,
                int framerate,
+               DepthCodecType depth_codec_type,
                int depth_diff_multiplier,
                int samplerate);
     void writeCover(const YuvFrame& yuv_frame);
@@ -82,7 +83,7 @@ private:
     int64_t last_timecode_;
     int rgbd_index_;
     FFmpegVideoEncoder color_encoder_;
-    TDC1Encoder depth_encoder_;
+    unique_ptr<DepthEncoder> depth_encoder_;
     FFmpegAudioEncoder audio_encoder_;
     int framerate_;
     int samplerate_;
