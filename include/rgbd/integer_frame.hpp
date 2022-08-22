@@ -34,7 +34,7 @@ public:
                 index += downsampling_factor;
             }
         }
-        return IntegerFrame<T>{downsampled_values, downsampled_width, downsampled_height};
+        return IntegerFrame<T>{downsampled_width, downsampled_height, downsampled_values};
     }
     int width() const noexcept
     {
