@@ -13,7 +13,7 @@ public:
         , values_(data, data + (static_cast<int64_t>(width) * height))
     {
     }
-    IntegerFrame(int width, int height, const vector<T> pixels)
+    IntegerFrame(int width, int height, const vector<T>& pixels)
         : width_{width}
         , height_{height}
         , values_(pixels)
