@@ -104,6 +104,8 @@ extern "C"
     void* rgbd_file_get_video_frame(void* ptr, size_t index);
     size_t rgbd_file_get_audio_frame_count(void* ptr);
     void* rgbd_file_get_audio_frame(void* ptr, size_t index);
+    size_t rgbd_file_get_imu_frame_count(void* ptr);
+    void* rgbd_file_get_imu_frame(void* ptr, size_t index);
     //////// END FILE ////////
 
     //////// START FILE ATTACHMENTS ////////
@@ -128,6 +130,23 @@ extern "C"
     void rgbd_file_frame_dtor(void* ptr);
     rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
     //////// END FILE FRAME ////////
+
+    //////// START FILE IMU FRAME ////////
+    void rgbd_file_imu_frame_dtor(void* ptr);
+    int64_t rgbd_file_imu_frame_get_global_timecode(void* ptr);
+    float rgbd_file_imu_frame_get_acceleration_x(void* ptr);
+    float rgbd_file_imu_frame_get_acceleration_y(void* ptr);
+    float rgbd_file_imu_frame_get_acceleration_z(void* ptr);
+    float rgbd_file_imu_frame_get_rotation_rate_x(void* ptr);
+    float rgbd_file_imu_frame_get_rotation_rate_y(void* ptr);
+    float rgbd_file_imu_frame_get_rotation_rate_z(void* ptr);
+    float rgbd_file_imu_frame_get_magnetic_field_x(void* ptr);
+    float rgbd_file_imu_frame_get_magnetic_field_y(void* ptr);
+    float rgbd_file_imu_frame_get_magnetic_field_z(void* ptr);
+    float rgbd_file_imu_frame_get_gravity_x(void* ptr);
+    float rgbd_file_imu_frame_get_gravity_y(void* ptr);
+    float rgbd_file_imu_frame_get_gravity_z(void* ptr);
+    //////// END FILE IMU FRAME ////////
 
     //////// START FILE INFO ////////
     void rgbd_file_info_dtor(void* ptr);

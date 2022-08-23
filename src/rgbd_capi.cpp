@@ -247,6 +247,16 @@ void* rgbd_file_get_audio_frame(void* ptr, size_t index)
 {
     return static_cast<rgbd::File*>(ptr)->audio_frames()[index].get();
 }
+
+size_t rgbd_file_get_imu_frame_count(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->imu_frames().size();
+}
+
+void* rgbd_file_get_imu_frame(void* ptr, size_t index)
+{
+    return static_cast<rgbd::File*>(ptr)->imu_frames()[index].get();
+}
 //////// END FILE ////////
 
 //////// START FILE ATTACHMENTS ////////
@@ -314,6 +324,77 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
     return static_cast<rgbdFileFrameType>(type);
 }
 //////// END FILE FRAME ////////
+
+//////// START FILE IMU FRAME ////////
+void rgbd_file_imu_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileIMUFrame*>(ptr);
+}
+
+int64_t rgbd_file_imu_frame_get_global_timecode(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->global_timecode();
+}
+
+float rgbd_file_imu_frame_get_acceleration_x(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().x;
+}
+
+float rgbd_file_imu_frame_get_acceleration_y(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().y;
+}
+
+float rgbd_file_imu_frame_get_acceleration_z(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().z;
+}
+
+float rgbd_file_imu_frame_get_rotation_rate_x(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().x;
+}
+
+float rgbd_file_imu_frame_get_rotation_rate_y(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().y;
+}
+
+float rgbd_file_imu_frame_get_rotation_rate_z(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().z;
+}
+
+float rgbd_file_imu_frame_get_magnetic_field_x(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().x;
+}
+
+float rgbd_file_imu_frame_get_magnetic_field_y(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().y;
+}
+
+float rgbd_file_imu_frame_get_magnetic_field_z(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().z;
+}
+float rgbd_file_imu_frame_get_gravity_x(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().x;
+}
+
+float rgbd_file_imu_frame_get_gravity_y(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().y;
+}
+
+float rgbd_file_imu_frame_get_gravity_z(void* ptr)
+{
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().z;
+}
+//////// END FILE IMU FRAME ////////
 
 //////// START FILE INFO ////////
 void rgbd_file_info_dtor(void* ptr)
