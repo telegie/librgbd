@@ -65,6 +65,11 @@ public:
                          const Plane& floor);
     void writeAudioFrame(const AudioFrame& audio_frame);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
+    void writeImuFrame(int64_t time_point_us,
+                       glm::vec3 acceleration,
+                       glm::vec3 rotation_rate,
+                       glm::vec3 magnetic_field,
+                       glm::vec3 gravity);
     void flush();
 
 private:
@@ -77,6 +82,10 @@ private:
     libmatroska::KaxTrackEntry* depth_confidence_track_;
     libmatroska::KaxTrackEntry* audio_track_;
     libmatroska::KaxTrackEntry* floor_track_;
+    libmatroska::KaxTrackEntry* acceleration_track_;
+    libmatroska::KaxTrackEntry* rotation_rate_track_;
+    libmatroska::KaxTrackEntry* magnetic_field_track_;
+    libmatroska::KaxTrackEntry* gravity_track_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;
     unique_ptr<EbmlVoid> segment_info_placeholder_;
     optional<int64_t> initial_time_point_ns_;

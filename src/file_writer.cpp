@@ -112,6 +112,15 @@ Bytes get_cover_png_bytes(int width,
     return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
 }
 
+vector<byte> convert_vec3_to_bytes(const glm::vec3 v)
+{
+    vector<byte> bytes;
+    append_bytes(bytes, convert_to_bytes(v.x));
+    append_bytes(bytes, convert_to_bytes(v.y));
+    append_bytes(bytes, convert_to_bytes(v.z));
+    return bytes;
+}
+
 FileWriter::FileWriter(const string& file_path,
                        bool has_depth_confidence,
                        const CameraCalibration& calibration,
@@ -129,6 +138,10 @@ FileWriter::FileWriter(const string& file_path,
     , depth_confidence_track_{nullptr}
     , audio_track_{nullptr}
     , floor_track_{nullptr}
+    , acceleration_track_{nullptr}
+    , rotation_rate_track_{nullptr}
+    , magnetic_field_track_{nullptr}
+    , gravity_track_{nullptr}
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
     , initial_time_point_ns_{nullopt}
@@ -166,6 +179,10 @@ FileWriter::FileWriter(const string& file_path,
     constexpr uint64_t DEPTH_CONFIDENCE_TRACK_NUMBER{3};
     constexpr uint64_t AUDIO_TRACK_NUMBER{4};
     constexpr uint64_t FLOOR_TRACK_NUMBER{5};
+    constexpr uint64_t ACCELERATION_TRACK_NUMBER{6};
+    constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{7};
+    constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{8};
+    constexpr uint64_t GRAVITY_TRACK_NUMBER{9};
     //
     // init color_track_
     //
@@ -311,6 +328,66 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackType>(*floor_track_).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*floor_track_).SetValueUTF8("FLOOR");
         GetChild<KaxCodecID>(*floor_track_).SetValue("S_FLOOR");
+    }
+    //
+    // init acceleration_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        acceleration_track_ = new KaxTrackEntry;
+        tracks.PushElement(*acceleration_track_); // Track will be freed when the file is closed.
+        acceleration_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*acceleration_track_).SetValue(ACCELERATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*acceleration_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*acceleration_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*acceleration_track_).SetValueUTF8("ACCELERATION");
+        GetChild<KaxCodecID>(*acceleration_track_).SetValue("S_ACCELERATION");
+    }
+    //
+    // init rotation_rate_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        rotation_rate_track_ = new KaxTrackEntry;
+        tracks.PushElement(*rotation_rate_track_); // Track will be freed when the file is closed.
+        rotation_rate_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*rotation_rate_track_).SetValue(ROTATION_RATE_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*rotation_rate_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*rotation_rate_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*rotation_rate_track_).SetValueUTF8("ROTATION_RATE");
+        GetChild<KaxCodecID>(*rotation_rate_track_).SetValue("S_ROTATION_RATE");
+    }
+    //
+    // init magnetic_field_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        magnetic_field_track_ = new KaxTrackEntry;
+        tracks.PushElement(*magnetic_field_track_); // Track will be freed when the file is closed.
+        magnetic_field_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*magnetic_field_track_).SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*magnetic_field_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*magnetic_field_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*magnetic_field_track_).SetValueUTF8("MAGNETIC_FIELD");
+        GetChild<KaxCodecID>(*magnetic_field_track_).SetValue("S_MAGNETIC_FIELD");
+    }
+    //
+    // init gravity_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        gravity_track_ = new KaxTrackEntry;
+        tracks.PushElement(*gravity_track_); // Track will be freed when the file is closed.
+        gravity_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*gravity_track_).SetValue(GRAVITY_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*gravity_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*gravity_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*gravity_track_).SetValueUTF8("GRAVITY");
+        GetChild<KaxCodecID>(*gravity_track_).SetValue("S_GRAVITY");
     }
     //
     // init KaxAttached
@@ -536,12 +613,10 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const float> p
     if (pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0)
         throw std::runtime_error("pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0");
 
-    // Ignore audio before the first video as first video frame needs to turn into cover.png
-    // and that takes time.
-    if (!initial_time_point_ns_)
-        return;
-
     int64_t time_point_ns{time_point_us * 1000};
+    if (!initial_time_point_ns_)
+        initial_time_point_ns_ = time_point_ns;
+
     auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
 
     vector<AVPacketHandle> audio_packets;
@@ -577,6 +652,72 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const float> p
 
         last_timecode_ = audio_cluster_timecode;
     }
+}
+
+void FileWriter::writeImuFrame(int64_t time_point_us,
+                               glm::vec3 acceleration,
+                               glm::vec3 rotation_rate,
+                               glm::vec3 magnetic_field,
+                               glm::vec3 gravity)
+{
+    int64_t time_point_ns{time_point_us * 1000};
+    if (!initial_time_point_ns_)
+        initial_time_point_ns_ = time_point_ns;
+
+    auto imu_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+
+    auto& cues{GetChild<KaxCues>(*segment_)};
+
+    auto imu_cluster{new KaxCluster};
+    segment_->PushElement(*imu_cluster);
+    imu_cluster->InitTimecode(imu_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
+    imu_cluster->SetParent(*segment_);
+    imu_cluster->EnableChecksum();
+
+    vector<byte> acceleration_bytes(convert_vec3_to_bytes(acceleration));
+
+    auto acceleration_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto acceleration_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(acceleration_bytes.data()),
+                       gsl::narrow<uint32_t>(acceleration_bytes.size())}};
+    imu_cluster->AddBlockBlob(acceleration_block_blob);
+    acceleration_block_blob->SetParent(*imu_cluster);
+    acceleration_block_blob->AddFrameAuto(*acceleration_track_, imu_timecode, *acceleration_data_buffer);
+
+    vector<byte> rotation_rate_bytes(convert_vec3_to_bytes(rotation_rate));
+
+    auto rotation_rate_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto rotation_rate_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(rotation_rate_bytes.data()),
+                       gsl::narrow<uint32_t>(rotation_rate_bytes.size())}};
+    imu_cluster->AddBlockBlob(rotation_rate_block_blob);
+    rotation_rate_block_blob->SetParent(*imu_cluster);
+    rotation_rate_block_blob->AddFrameAuto(*rotation_rate_track_, imu_timecode, *rotation_rate_data_buffer);
+
+    vector<byte> magnetic_field_bytes(convert_vec3_to_bytes(magnetic_field));
+
+    auto magnetic_field_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto magnetic_field_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(magnetic_field_bytes.data()),
+                       gsl::narrow<uint32_t>(magnetic_field_bytes.size())}};
+    imu_cluster->AddBlockBlob(magnetic_field_block_blob);
+    magnetic_field_block_blob->SetParent(*imu_cluster);
+    magnetic_field_block_blob->AddFrameAuto(*magnetic_field_track_, imu_timecode, *magnetic_field_data_buffer);
+
+    vector<byte> gravity_bytes(convert_vec3_to_bytes(gravity));
+
+    auto gravity_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto gravity_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(gravity_bytes.data()),
+                       gsl::narrow<uint32_t>(gravity_bytes.size())}};
+    imu_cluster->AddBlockBlob(gravity_block_blob);
+    gravity_block_blob->SetParent(*imu_cluster);
+    gravity_block_blob->AddFrameAuto(*gravity_track_, imu_timecode, *gravity_data_buffer);
+
+    imu_cluster->Render(*io_callback_, cues);
+    imu_cluster->ReleaseFrames();
+
+    last_timecode_ = imu_timecode;
 }
 
 void FileWriter::flush()
