@@ -139,28 +139,36 @@ void rgbd_camera_calibration_dtor(void* ptr)
 rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
 {
     auto camera_device_type{
-        static_cast<const rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
+        static_cast<rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
 
 int rgbd_camera_calibration_get_color_width(void* ptr)
 {
-    static_cast<const rgbd::CameraCalibration*>(ptr)->getColorWidth();
+    return static_cast<rgbd::CameraCalibration*>(ptr)->getColorWidth();
 }
 
 int rgbd_camera_calibration_get_color_height(void* ptr)
 {
-    static_cast<const rgbd::CameraCalibration*>(ptr)->getColorHeight();
+    return static_cast<rgbd::CameraCalibration*>(ptr)->getColorHeight();
 }
 
 int rgbd_camera_calibration_get_depth_width(void* ptr)
 {
-    static_cast<const rgbd::CameraCalibration*>(ptr)->getDepthWidth();
+    return static_cast<rgbd::CameraCalibration*>(ptr)->getDepthWidth();
 }
 
 int rgbd_camera_calibration_get_depth_height(void* ptr)
 {
-    static_cast<const rgbd::CameraCalibration*>(ptr)->getDepthHeight();
+    return static_cast<rgbd::CameraCalibration*>(ptr)->getDepthHeight();
+}
+
+void* rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v)
+{
+    auto camera_calibration{static_cast<rgbd::CameraCalibration*>(ptr)};
+    auto direction{camera_calibration->getDirection(glm::vec2{uv_u, uv_v})};
+    std::vector<float> values{direction.x, direction.y ,direction.z};
+    return new rgbd::NativeFloatArray(std::move(values));
 }
 //////// END CAMERA CALIBRATION ////////
 

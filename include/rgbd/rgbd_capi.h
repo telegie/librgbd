@@ -73,6 +73,7 @@ extern "C"
     int rgbd_camera_calibration_get_color_height(void* ptr);
     int rgbd_camera_calibration_get_depth_width(void* ptr);
     int rgbd_camera_calibration_get_depth_height(void* ptr);
+    void* rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v);
     //////// START CAMERA CALIBRATION ////////
 
     //////// START DEPTH DECODER ////////
