@@ -213,6 +213,20 @@ extern "C"
                                             int64_t time_point_us,
                                             const float* pcm_samples,
                                             size_t pcm_samples_size);
+    void rgbd_file_writer_write_imu_frame(void* ptr,
+                                          int64_t time_point_us,
+                                          float acceleration_x,
+                                          float acceleration_y,
+                                          float acceleration_z,
+                                          float rotation_rate_x,
+                                          float rotation_rate_y,
+                                          float rotation_rate_z,
+                                          float magnetic_field_x,
+                                          float magnetic_field_y,
+                                          float magnetic_field_z,
+                                          float gravity_x,
+                                          float gravity_y,
+                                          float gravity_z);
     void rgbd_file_writer_flush(void* ptr);
     //////// END FILE WRITER ////////
 

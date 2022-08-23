@@ -588,6 +588,29 @@ void rgbd_file_writer_write_audio_frame(void* ptr,
         time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
 }
 
+void rgbd_file_writer_write_imu_frame(void* ptr,
+                                      int64_t time_point_us,
+                                      float acceleration_x,
+                                      float acceleration_y,
+                                      float acceleration_z,
+                                      float rotation_rate_x,
+                                      float rotation_rate_y,
+                                      float rotation_rate_z,
+                                      float magnetic_field_x,
+                                      float magnetic_field_y,
+                                      float magnetic_field_z,
+                                      float gravity_x,
+                                      float gravity_y,
+                                      float gravity_z)
+{
+    auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
+    glm::vec3 acceleration{acceleration_x, acceleration_y, acceleration_z};
+    glm::vec3 rotation_rate{rotation_rate_x, rotation_rate_y, rotation_rate_z};
+    glm::vec3 magnetic_field{magnetic_field_x, magnetic_field_y, magnetic_field_z};
+    glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
+    file_writer->writeImuFrame(time_point_us, accelerometer, rotation_rate, magnetic_field, gravity);
+}
+
 void rgbd_file_writer_flush(void* ptr)
 {
     return static_cast<rgbd::FileWriter*>(ptr)->flush();
