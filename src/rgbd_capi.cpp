@@ -142,6 +142,26 @@ rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
         static_cast<const rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
+
+int rgbd_camera_calibration_get_color_width(void* ptr)
+{
+    static_cast<const rgbd::CameraCalibration*>(ptr)->getColorWidth();
+}
+
+int rgbd_camera_calibration_get_color_height(void* ptr)
+{
+    static_cast<const rgbd::CameraCalibration*>(ptr)->getColorHeight();
+}
+
+int rgbd_camera_calibration_get_depth_width(void* ptr)
+{
+    static_cast<const rgbd::CameraCalibration*>(ptr)->getDepthWidth();
+}
+
+int rgbd_camera_calibration_get_depth_height(void* ptr)
+{
+    static_cast<const rgbd::CameraCalibration*>(ptr)->getDepthHeight();
+}
 //////// END CAMERA CALIBRATION ////////
 
 //////// START DEPTH DECODER ////////

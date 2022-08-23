@@ -69,6 +69,10 @@ extern "C"
     //////// START CAMERA CALIBRATION ////////
     void rgbd_camera_calibration_dtor(void* ptr);
     rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr);
+    int rgbd_camera_calibration_get_color_width(void* ptr);
+    int rgbd_camera_calibration_get_color_height(void* ptr);
+    int rgbd_camera_calibration_get_depth_width(void* ptr);
+    int rgbd_camera_calibration_get_depth_height(void* ptr);
     //////// START CAMERA CALIBRATION ////////
 
     //////// START DEPTH DECODER ////////
