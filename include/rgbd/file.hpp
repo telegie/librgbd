@@ -63,6 +63,10 @@ struct FileTracks
     optional<FileVideoTrack> depth_confidence_track;
     FileAudioTrack audio_track;
     int floor_track_number;
+    optional<int> acceleration_track_number;
+    optional<int> rotation_rate_track_number;
+    optional<int> magnetic_field_track_number;
+    optional<int> gravity_track_number;
 };
 
 struct FileAttachments
@@ -74,7 +78,8 @@ struct FileAttachments
 enum class FileFrameType
 {
     Video = 0,
-    Audio = 1
+    Audio = 1,
+    IMU = 2
 };
 
 class FileFrame
@@ -159,6 +164,54 @@ private:
     Bytes bytes_;
 };
 
+class FileIMUFrame : public FileFrame
+{
+public:
+    FileIMUFrame(int64_t global_timecode,
+                 glm::vec3 acceleration,
+                 glm::vec3 rotation_rate,
+                 glm::vec3 magnetic_field,
+                 glm::vec3 gravity)
+        : global_timecode_{global_timecode}
+        , acceleration_{acceleration}
+        , rotation_rate_{rotation_rate}
+        , magnetic_field_{magnetic_field}
+        , gravity_{gravity}
+    {
+    }
+    FileFrameType getType()
+    {
+        return FileFrameType::IMU;
+    }
+    int64_t global_timecode() const noexcept
+    {
+        return global_timecode_;
+    }
+    const glm::vec3& acceleration() const noexcept
+    {
+        return acceleration_;
+    }
+    const glm::vec3& rotation_rate() const noexcept
+    {
+        return rotation_rate_;
+    }
+    const glm::vec3& magnetic_field() const noexcept
+    {
+        return magnetic_field_;
+    }
+    const glm::vec3& gravity() const noexcept
+    {
+        return gravity_;
+    }
+
+private:
+    int64_t global_timecode_;
+    glm::vec3 acceleration_;
+    glm::vec3 rotation_rate_;
+    glm::vec3 magnetic_field_;
+    glm::vec3 gravity_;
+};
+
 class File
 {
 public:
@@ -167,7 +220,8 @@ public:
          const FileTracks& tracks,
          const FileAttachments& attachments,
          vector<unique_ptr<FileVideoFrame>>&& video_frames,
-         vector<unique_ptr<FileAudioFrame>>&& audio_frames);
+         vector<unique_ptr<FileAudioFrame>>&& audio_frames,
+         vector<unique_ptr<FileIMUFrame>>&& imu_frames);
     FileOffsets& offsets() noexcept
     {
         return offsets_;
@@ -192,6 +246,10 @@ public:
     {
         return audio_frames_;
     }
+    const vector<unique_ptr<FileIMUFrame>>& imu_frames() const noexcept
+    {
+        return imu_frames_;
+    }
 
 private:
     FileOffsets offsets_;
@@ -200,6 +258,7 @@ private:
     FileAttachments attachments_;
     vector<unique_ptr<FileVideoFrame>> video_frames_;
     vector<unique_ptr<FileAudioFrame>> audio_frames_;
+    vector<unique_ptr<FileIMUFrame>> imu_frames_;
 };
 
 } // namespace tg

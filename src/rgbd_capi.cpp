@@ -608,7 +608,7 @@ void rgbd_file_writer_write_imu_frame(void* ptr,
     glm::vec3 rotation_rate{rotation_rate_x, rotation_rate_y, rotation_rate_z};
     glm::vec3 magnetic_field{magnetic_field_x, magnetic_field_y, magnetic_field_z};
     glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
-    file_writer->writeImuFrame(time_point_us, accelerometer, rotation_rate, magnetic_field, gravity);
+    file_writer->writeImuFrame(time_point_us, acceleration, rotation_rate, magnetic_field, gravity);
 }
 
 void rgbd_file_writer_flush(void* ptr)

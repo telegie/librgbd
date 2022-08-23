@@ -135,6 +135,15 @@ Bytes copy_data_buffer_to_bytes(DataBuffer& data_buffer)
     return bytes;
 }
 
+glm::vec3 read_vec3(const vector<byte>& bytes)
+{
+    int cursor{0};
+    float x{read_from_bytes<float>(bytes, cursor)};
+    float y{read_from_bytes<float>(bytes, cursor)};
+    float z{read_from_bytes<float>(bytes, cursor)};
+    return glm::vec3{x, y, z};
+}
+
 FileParser::FileParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
@@ -168,14 +177,14 @@ void FileParser::parseExceptClusters()
     if (read_element<EbmlHead>(stream_, head.get()) == nullptr)
         throw std::runtime_error("Failed reading head");
 
-    string doc_type{GetChild<EDocType>(*head).GetValue()};
-    uint64_t doc_type_version{GetChild<EDocTypeVersion>(*head).GetValue()};
-    uint64_t doc_type_read_version{GetChild<EDocTypeReadVersion>(*head).GetValue()};
-
-    spdlog::info("doc_type: {}, doc_type_version: {}, doc_type_read_version: {}",
-                 doc_type,
-                 doc_type_version,
-                 doc_type_read_version);
+//    string doc_type{GetChild<EDocType>(*head).GetValue()};
+//    uint64_t doc_type_version{GetChild<EDocTypeVersion>(*head).GetValue()};
+//    uint64_t doc_type_read_version{GetChild<EDocTypeReadVersion>(*head).GetValue()};
+//
+//    spdlog::info("doc_type: {}, doc_type_version: {}, doc_type_read_version: {}",
+//                 doc_type,
+//                 doc_type_version,
+//                 doc_type_read_version);
 
     kax_segment_ = find_next<KaxSegment>(stream_, true);
     if (!kax_segment_)
@@ -250,6 +259,9 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& seg
                         tracks_offset = seek_location;
                     } else if (ebml_id == KaxAttachments::ClassInfos.GlobalId) {
                         attachments_offset = seek_location;
+                    } else if (ebml_id == KaxCues::ClassInfos.GlobalId) {
+                        // Not using Cues for now.
+//                        spdlog::info("Found cues");
                     } else {
                         spdlog::info("Found seek not used.");
                     }
@@ -276,6 +288,10 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     optional<FileVideoTrack> depth_confidence_track{nullopt};
     optional<FileAudioTrack> audio_track{nullopt};
     optional<int> floor_track_number{nullopt};
+    optional<int> acceleration_track_number{nullopt};
+    optional<int> rotation_rate_track_number{nullopt};
+    optional<int> magnetic_field_track_number{nullopt};
+    optional<int> gravity_track_number{nullopt};
 
     for (EbmlElement* e : tracks->GetElementList()) {
         if (EbmlId(*e) == KaxTrackEntry::ClassInfos.GlobalId) {
@@ -289,7 +305,8 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
 
             if (track_name == "COLOR") {
                 auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t default_duration{GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
+                uint64_t default_duration{
+                    GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
@@ -301,7 +318,8 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 color_track->height = gsl::narrow<int>(height);
             } else if (track_name == "DEPTH") {
                 auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t default_duration{GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
+                uint64_t default_duration{
+                    GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
@@ -313,7 +331,8 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 depth_track->height = gsl::narrow<int>(height);
             } else if (track_name == "DEPTH_CONFIDENCE") {
                 auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t default_duration{GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
+                uint64_t default_duration{
+                    GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
@@ -332,6 +351,14 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 audio_track->sampling_frequency = sampling_freq;
             } else if (track_name == "FLOOR") {
                 floor_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "ACCELERATION") {
+                acceleration_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "ROTATION_RATE") {
+                rotation_rate_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "MAGNETIC_FIELD") {
+                magnetic_field_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "GRAVITY") {
+                gravity_track_number = gsl::narrow<int>(track_number);
             } else {
                 spdlog::error("Invalid track_name: {}", track_name);
             }
@@ -349,6 +376,10 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     file_tracks.depth_confidence_track = depth_confidence_track;
     file_tracks.audio_track = *audio_track;
     file_tracks.floor_track_number = *floor_track_number;
+    file_tracks.acceleration_track_number = acceleration_track_number;
+    file_tracks.rotation_rate_track_number = rotation_rate_track_number;
+    file_tracks.magnetic_field_track_number = magnetic_field_track_number;
+    file_tracks.gravity_track_number = gravity_track_number;
 
     return file_tracks;
 }
@@ -366,7 +397,7 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                 throw std::runtime_error("Failed reading attached_file");
 
             auto file_name{GetChild<KaxFileName>(*attached_file).GetValue().GetUTF8()};
-            spdlog::info("attached file_name: {}", file_name);
+//            spdlog::info("attached file_name: {}", file_name);
             if (file_name == "calibration.json") {
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 vector<char> calibration_vector(file_data.GetSize());
@@ -388,7 +419,7 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                     throw std::runtime_error("Invalid calibration_type");
                 }
             } else if (file_name == "cover.png") {
-                spdlog::info("found cover.png");
+//                spdlog::info("found cover.png");
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 cover_png_bytes = Bytes(file_data.GetSize());
                 memcpy(cover_png_bytes.data(), file_data.GetBuffer(), file_data.GetSize());
@@ -422,6 +453,10 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     optional<Bytes> depth_confidence_bytes{nullopt};
     optional<Plane> floor{nullopt};
     FileAudioFrame* audio_frame{nullptr};
+    optional<glm::vec3> acceleration{nullopt};
+    optional<glm::vec3> rotation_rate{nullopt};
+    optional<glm::vec3> magnetic_field{nullopt};
+    optional<glm::vec3> gravity{nullopt};
 
     for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
@@ -452,6 +487,18 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                                                          copy_data_buffer_to_bytes(data_buffer)};
                     } else if (track_number == file_tracks_->floor_track_number) {
                         floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
+                    } else if (track_number == file_tracks_->acceleration_track_number &&
+                               file_tracks_->acceleration_track_number) {
+                        acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+                    } else if (track_number == file_tracks_->rotation_rate_track_number &&
+                               file_tracks_->rotation_rate_track_number) {
+                        rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+                    } else if (track_number == file_tracks_->magnetic_field_track_number &&
+                               file_tracks_->magnetic_field_track_number) {
+                        magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+                    } else if (track_number == file_tracks_->gravity_track_number &&
+                               file_tracks_->gravity_track_number) {
+                        gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
                     } else {
                         throw std::runtime_error{"Invalid track number from block"};
                     }
@@ -476,6 +523,18 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                                                  copy_data_buffer_to_bytes(data_buffer)};
             } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->acceleration_track_number &&
+                       file_tracks_->acceleration_track_number) {
+                acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->rotation_rate_track_number &&
+                       file_tracks_->rotation_rate_track_number) {
+                rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->magnetic_field_track_number &&
+                       file_tracks_->magnetic_field_track_number) {
+                magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->gravity_track_number &&
+                       file_tracks_->gravity_track_number) {
+                gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else {
                 throw std::runtime_error{"Invalid track number from simple_block"};
             }
@@ -497,6 +556,18 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         return audio_frame;
     }
 
+    if (acceleration) {
+        if (!rotation_rate)
+            throw std::runtime_error{"Failed to find rotation_rate"};
+        if (!magnetic_field)
+            throw std::runtime_error{"Failed to find magnetic_field"};
+        if (!gravity)
+            throw std::runtime_error{"Failed to find gravity"};
+
+        return new FileIMUFrame{
+            global_timecode, *acceleration, *rotation_rate, *magnetic_field, *gravity};
+    }
+
     throw std::runtime_error{"No frame from RecordParser::readFrame"};
 }
 
@@ -510,6 +581,7 @@ unique_ptr<File> FileParser::parseAllClusters()
 
     vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
+    vector<unique_ptr<FileIMUFrame>> imu_frames;
 
     while (cluster != nullptr) {
         auto frame{parseCluster(cluster)};
@@ -525,8 +597,13 @@ unique_ptr<File> FileParser::parseAllClusters()
             audio_frames.emplace_back(audio_frame);
             break;
         }
+        case FileFrameType::IMU: {
+            auto imu_frame{dynamic_cast<FileIMUFrame*>(frame)};
+            imu_frames.emplace_back(imu_frame);
+            break;
+        }
         default:
-            throw std::runtime_error{"Invalid RecordFrameType found in RecordParser::readFrames"};
+            throw std::runtime_error{"Invalid FileFrameType found in FileParser::parseAllClusters"};
         }
     }
 
@@ -534,18 +611,23 @@ unique_ptr<File> FileParser::parseAllClusters()
                                   *file_info_,
                                   *file_tracks_,
                                   *file_attachments_,
-                                  std::move(video_frames), std::move(audio_frames));
+                                  std::move(video_frames),
+                                  std::move(audio_frames),
+                                  std::move(imu_frames));
 }
 
 unique_ptr<File> FileParser::parseNoFrames()
 {
     vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
+    vector<unique_ptr<FileIMUFrame>> imu_frames;
     return std::make_unique<File>(*file_offsets_,
                                   *file_info_,
                                   *file_tracks_,
                                   *file_attachments_,
-                                  std::move(video_frames), std::move(audio_frames));
+                                  std::move(video_frames),
+                                  std::move(audio_frames),
+                                  std::move(imu_frames));
 }
 
 unique_ptr<File> FileParser::parseAllFrames()
