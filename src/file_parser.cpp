@@ -388,7 +388,7 @@ optional<const FileAttachments>
 FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments)
 {
     shared_ptr<CameraCalibration> camera_calibration;
-    Bytes cover_png_bytes;
+    optional<Bytes> cover_png_bytes;
 
     for (EbmlElement* e : attachments->GetElementList()) {
         if (EbmlId(*e) == KaxAttached::ClassInfos.GlobalId) {
@@ -397,7 +397,7 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                 throw std::runtime_error("Failed reading attached_file");
 
             auto file_name{GetChild<KaxFileName>(*attached_file).GetValue().GetUTF8()};
-//            spdlog::info("attached file_name: {}", file_name);
+            spdlog::info("attached file_name: {}", file_name);
             if (file_name == "calibration.json") {
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 vector<char> calibration_vector(file_data.GetSize());
@@ -419,17 +419,16 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                     throw std::runtime_error("Invalid calibration_type");
                 }
             } else if (file_name == "cover.png") {
-//                spdlog::info("found cover.png");
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 cover_png_bytes = Bytes(file_data.GetSize());
-                memcpy(cover_png_bytes.data(), file_data.GetBuffer(), file_data.GetSize());
+                memcpy(cover_png_bytes->data(), file_data.GetBuffer(), file_data.GetSize());
             } else {
                 throw std::runtime_error("Invalid attached file found");
             };
         }
     }
 
-    if (!camera_calibration || cover_png_bytes.size() == 0)
+    if (!camera_calibration)
         return nullopt;
 
     FileAttachments file_attachments;

@@ -268,13 +268,17 @@ void rgbd_file_attachments_dtor(void* ptr)
 void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 {
     auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
+    spdlog::info("file_attachments: {}", reinterpret_cast<size_t>(file_attachments));
+    spdlog::info("file_attachments->camera_calibration.get(): {}", reinterpret_cast<size_t>(file_attachments->camera_calibration.get()));
     return file_attachments->camera_calibration.get();
 }
 
 void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 {
     auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
-    return new rgbd::NativeByteArray{file_attachments->cover_png_bytes};
+    if (!file_attachments->cover_png_bytes)
+        return nullptr;
+    return new rgbd::NativeByteArray{*file_attachments->cover_png_bytes};
 }
 //////// END FILE ATTACHMENTS ////////
 

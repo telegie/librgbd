@@ -72,7 +72,8 @@ struct FileTracks
 struct FileAttachments
 {
     shared_ptr<CameraCalibration> camera_calibration;
-    Bytes cover_png_bytes;
+    // There may be no cover.png in some early (before v25) files
+    optional<Bytes> cover_png_bytes;
 };
 
 enum class FileFrameType
