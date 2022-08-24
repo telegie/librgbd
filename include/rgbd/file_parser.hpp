@@ -15,6 +15,7 @@ public:
 
 private:
     void parseExceptClusters();
+    optional<const FileInfo> parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info);
     optional<const FileOffsets> parseOffsets(unique_ptr<libmatroska::KaxSegment>& segment);
     optional<const FileTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
     optional<const FileAttachments>

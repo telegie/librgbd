@@ -199,13 +199,12 @@ void FileParser::parseExceptClusters()
 
     auto kax_info{
         read_offset<KaxInfo>(*input_, stream_, *kax_segment_, file_offsets_->segment_info_offset)};
+    file_info_ = parseInfo(kax_info);
 
-    FileInfo file_info;
-    file_info.timecode_scale_ns = GetChild<KaxTimecodeScale>(*kax_info).GetValue();
-    file_info.duration_us = GetChild<KaxDuration>(*kax_info).GetValue();
-    file_info.writing_app = GetChild<KaxWritingApp>(*kax_info).GetValue().GetUTF8();
-
-    file_info_ = file_info;
+    if (!file_info_) {
+        spdlog::error("Failed to parse info...");
+        throw std::runtime_error("Failed to parse info...");
+    }
 
     auto kax_tracks{
         read_offset<KaxTracks>(*input_, stream_, *kax_segment_, file_offsets_->tracks_offset)};
@@ -220,6 +219,31 @@ void FileParser::parseExceptClusters()
         *input_, stream_, *kax_segment_, file_offsets_->attachments_offset)};
 
     file_attachments_ = parseAttachments(attachments);
+}
+
+optional<const FileInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info)
+{
+    auto kax_timecode_scale{FindChild<KaxTimecodeScale>(*kax_info)};
+    if (!kax_timecode_scale) {
+        spdlog::error("No KaxTimecodeScale");
+        return nullopt;
+    }
+    auto kax_duration{FindChild<KaxDuration>(*kax_info)};
+    if (!kax_duration) {
+        spdlog::error("No KaxDuration");
+        return nullopt;
+    }
+    auto kax_writing_app{FindChild<KaxWritingApp>(*kax_info)};
+    if (!kax_writing_app) {
+        spdlog::error("No KaxWritingApp");
+        return nullopt;
+    }
+
+    FileInfo file_info;
+    file_info.timecode_scale_ns = kax_timecode_scale->GetValue();
+    file_info.duration_us = kax_duration->GetValue();
+    file_info.writing_app = kax_writing_app->GetValue().GetUTF8();
+    return file_info;
 }
 
 optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& segment)
