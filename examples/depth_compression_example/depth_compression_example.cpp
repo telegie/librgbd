@@ -14,7 +14,7 @@ void run()
     if (!video_file_path)
         throw std::runtime_error("No video_file_path...");
 
-    rgbd::FileParser parser{video_file_path->c_str()};
+    rgbd::FileParser parser{video_file_path->generic_string()};
     auto file{parser.parseAllFrames()};
 
     size_t color_size{0};
