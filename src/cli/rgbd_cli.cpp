@@ -50,9 +50,13 @@ void extract_cover(const std::string& file_path)
     FileParser parser{file_path};
     auto file{parser.parseNoFrames()};
     auto& cover_png_bytes{file->attachments().cover_png_bytes};
+    if (!cover_png_bytes) {
+        spdlog::error("No cover.png found.");
+        return;
+    }
     std::ofstream fout;
     fout.open("librgbd_cover.png", std::ios::binary | std::ios::out);
-    fout.write((const char*)cover_png_bytes.data(), cover_png_bytes.size());
+    fout.write((const char*)cover_png_bytes->data(), cover_png_bytes->size());
     fout.close();
 }
 
@@ -81,7 +85,7 @@ void split_file(const std::string& file_path)
                 file_writer->flush();
 
             auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
-            file_writer = make_unique<FileWriter>(
+            file_writer = std::make_unique<FileWriter>(
                 output_path,
                 false,
                 *file->attachments().camera_calibration,

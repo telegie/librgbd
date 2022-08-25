@@ -78,6 +78,10 @@ set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
 set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-mac)
 set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-linux)
 set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/arm64-ios)
+
+# libpng requires zlib
+set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
+set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
 ### LIBPNG END ###
 
 ### OPENCV BEGIN ###
@@ -205,7 +209,9 @@ if(RGBD_OS_WINDOWS)
     ${FFMPEG_WIN64_DIR}/bin/avformat.lib
     ${FFMPEG_WIN64_DIR}/bin/avutil.lib
     ${LIBPNG_WIN64_DIR}/lib/libpng16_static.lib
+    ${ZLIB_WIN64_DIR}/lib/zlibstatic.lib
   )
+  list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WINDOWS)
   if(NOT PROJECT_IS_TOP_LEVEL)
     # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
     set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
@@ -229,6 +235,7 @@ elseif(RGBD_OS_MAC)
     -lz
     -liconv
   )
+  list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_MAC)
   if(NOT PROJECT_IS_TOP_LEVEL)
     set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
     set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
@@ -246,11 +253,13 @@ elseif(RGBD_OS_LINUX)
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
   )
+  list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_IOS_DIR}/include
     ${LIBPNG_IOS_DIR}/include
   )
+  list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_IOS)
 elseif(RGBD_OS_WASM)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_WASM_DIR}/include
@@ -262,6 +271,7 @@ elseif(RGBD_OS_WASM)
     ${FFMPEG_WASM_DIR}/lib/libswresample.a
     ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/wasm32-emscripten/lib/libopus.a
   )
+  list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WASM)
 
   set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
   list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions})
@@ -278,7 +288,7 @@ target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
 target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
 
-if(RGBD_OS_MAC OR RGBD_OS_LINUX)
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   if(RGBD_OS_LINUX)
     # Position-independent code is needed to create a shared library.
     list(APPEND RgbdCompileOptions -fPIC)
@@ -300,9 +310,10 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(src/cli)
 endif()
 
-if(RGBD_OS_MAC OR RGBD_OS_LINUX)
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-cli DESTINATION bin)
   install(TARGETS rgbd-shared DESTINATION bin)
+  install(TARGETS rgbd-static DESTINATION lib)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
 endif()
