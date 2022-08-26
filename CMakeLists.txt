@@ -307,13 +307,19 @@ endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
+endif()
+
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
   add_subdirectory(src/cli)
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
-  install(TARGETS rgbd-cli DESTINATION bin)
   install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
+endif()
+
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
+  install(TARGETS rgbd-cli DESTINATION bin)
 endif()
