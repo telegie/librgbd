@@ -251,7 +251,9 @@ elseif(RGBD_OS_LINUX)
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
+    -lz
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)
@@ -307,19 +309,21 @@ endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
-endif()
-
-if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
   add_subdirectory(src/cli)
 endif()
+
+#if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
+#  add_subdirectory(src/cli)
+#endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
+  install(TARGETS rgbd-cli DESTINATION bin)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
 endif()
 
-if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
-  install(TARGETS rgbd-cli DESTINATION bin)
-endif()
+#if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
+#  install(TARGETS rgbd-cli DESTINATION bin)
+#endif()
