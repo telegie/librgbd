@@ -84,18 +84,6 @@ set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
 set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
 ### LIBPNG END ###
 
-### OPENCV BEGIN ###
-set(OPENCV_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/opencv-binaries)
-if(TG_OS_WINDOWS)
-  set(OPENCV_INCLUDE ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/include)
-  set(OPENCV_LIB ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/x64/vc16/lib)
-  set(OPENCV_BIN ${OPENCV_BINARIES_DIR}/4.5.2/x64-windows/x64/vc16/bin)
-elseif(TG_OS_MAC)
-  set(OPENCV_INCLUDE ${OPENCV_BINARIES_DIR}/4.5.2/arm64-mac/include/opencv4)
-  set(OPENCV_LIB ${OPENCV_BINARIES_DIR}/4.5.2/arm64-mac/lib)
-endif()
-### OPENCV END ###
-
 ### SPDLOG BEGIN ###
 # Use existing spdlog if there already is an spdlog added.
 if(NOT TARGET spdlog::spdlog)
@@ -215,9 +203,6 @@ if(RGBD_OS_WINDOWS)
   if(NOT PROJECT_IS_TOP_LEVEL)
     # Set RGBD_FFMPEG_BIN in parent scope for parent project to copy the dll files.
     set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
-    set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
-    set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
-    set(RGBD_OPENCV_BIN ${OPENCV_BIN} PARENT_SCOPE)
   endif()
 elseif(RGBD_OS_MAC)
   list(APPEND RgbdIncludeDirectories
@@ -236,10 +221,6 @@ elseif(RGBD_OS_MAC)
     -liconv
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_MAC)
-  if(NOT PROJECT_IS_TOP_LEVEL)
-    set(RGBD_OPENCV_INCLUDE ${OPENCV_INCLUDE} PARENT_SCOPE)
-    set(RGBD_OPENCV_LIB ${OPENCV_LIB} PARENT_SCOPE)
-  endif()
 elseif(RGBD_OS_LINUX)
   list(APPEND RgbdIncludeDirectories
     ${FFMPEG_LINUX_DIR}/include
@@ -312,10 +293,6 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(src/cli)
 endif()
 
-#if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
-#  add_subdirectory(src/cli)
-#endif()
-
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
@@ -323,7 +300,3 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
 endif()
-
-#if(RGBD_OS_WINDOWS OR RGBD_OS_MAC)
-#  install(TARGETS rgbd-cli DESTINATION bin)
-#endif()

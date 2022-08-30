@@ -28,9 +28,6 @@
 [submodule "deps/zstd"]
 	path = deps/zstd
 	url = git@github.com:facebook/zstd.git
-[submodule "deps/opencv-binaries"]
-	path = deps/opencv-binaries
-	url = git@github.com:telegie/opencv-binaries.git
 [submodule "deps/cli"]
 	path = deps/cli
 	url = git@github.com:daniele77/cli.git
