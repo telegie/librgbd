@@ -68,6 +68,7 @@ void split_file(const std::string& file_path)
 
     int previous_chunk_index{-1};
     unique_ptr<FileWriter> file_writer;
+    unique_ptr<FFmpegVideoEncoder> color_encoder;
 
     FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
@@ -80,6 +81,7 @@ void split_file(const std::string& file_path)
         YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
         Int32Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
+        bool first{false};
         if (chunk_index == previous_chunk_index + 1) {
             if (file_writer)
                 file_writer->flush();
@@ -95,17 +97,26 @@ void split_file(const std::string& file_path)
                 500,
                 static_cast<int>(file->tracks().audio_track.sampling_frequency));
 
+            color_encoder = std::make_unique<FFmpegVideoEncoder>(ColorCodecType::VP8,
+                                                                 color_frame.width(),
+                                                                 color_frame.height(),
+                                                                 2500,
+                                                                 30);
+            first = true;
+
             file_writer->writeCover(color_frame);
             previous_chunk_index = chunk_index;
         } else if (chunk_index == previous_chunk_index) {
-            // Same chunk, so ignore.
+            first = false;
         } else {
             throw std::runtime_error("Invalid chunk_index found...");
         }
 
+        auto encoded_color_frame{color_encoder->encode(color_frame, first)};
+
         file_writer->writeVideoFrame(video_frame->global_timecode(),
-                                     color_frame,
-                                     depth_frame,
+                                     encoded_color_frame->packet.getDataBytes(),
+                                     depth_frame.values(),
                                      nullopt,
                                      video_frame->floor());
     }
