@@ -4,9 +4,9 @@
 extern "C"
 {
 #endif
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #ifdef CMAKE_RGBD_OS_WINDOWS
 #define RGBD_INTERFACE_EXPORT __declspec(dllexport)
@@ -93,8 +93,15 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_depth_decoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_decode(void* ptr,
-                                    const uint8_t* encoded_depth_frame_data,
-                                    size_t encoded_depth_frame_size);
+                                                          const uint8_t* encoded_depth_frame_data,
+                                                          size_t encoded_depth_frame_size);
+    //////// END DEPTH DECODER ////////
+
+    //////// START DEPTH ENCODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_create_rvl_encoder(int width, int height);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier);
+    RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr);
     //////// END DEPTH DECODER ////////
 
     //////// START FFMPEG AUDIO DECODER ////////
@@ -123,16 +130,13 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_decoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
-                                           const uint8_t* vp8_frame_data,
-                                           size_t vp8_frame_size);
+                                                                 const uint8_t* vp8_frame_data,
+                                                                 size_t vp8_frame_size);
     //////// END FFMPEG VIDEO DECODER ////////
 
     //////// START FFMPEG VIDEO ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(rgbdColorCodecType type,
-                                                               int width,
-                                                               int height,
-                                                               int target_bitrate,
-                                                               int framerate);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(
+        rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
                                                                  const uint8_t* y_channel,
