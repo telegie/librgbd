@@ -293,6 +293,22 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
 }
 //////// END FFMPEG VIDEO DECODER ////////
 
+//////// START FFMPEG VIDEO ENCODER ////////
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(rgbdColorCodecType type,
+                                                           int width,
+                                                           int height,
+                                                           int target_bitrate,
+                                                           int framerate)
+{
+    return new rgbd::FFmpegVideoEncoder{
+        static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
+}
+RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FFmpegVideoEnfcoder*>(ptr);
+}
+//////// START FFMPEG VIDEO ENCODER ////////
+
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)
 {

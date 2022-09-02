@@ -127,6 +127,15 @@ extern "C"
                                            size_t vp8_frame_size);
     //////// END FFMPEG VIDEO DECODER ////////
 
+    //////// START FFMPEG VIDEO ENCODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(rgbdColorCodecType type,
+                                                               int width,
+                                                               int height,
+                                                               int target_bitrate,
+                                                               int framerate);
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr);
+    //////// START FFMPEG VIDEO ENCODER ////////
+
     //////// START FILE ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_info(void* ptr);

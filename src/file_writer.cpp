@@ -602,60 +602,6 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     ++rgbd_index_;
 }
 
-//void FileWriter::writeAudioFrame(const AudioFrame& audio_frame)
-//{
-//    writeAudioFrame(audio_frame.time_point_us(), audio_frame.pcm_samples());
-//}
-
-//void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples)
-//{
-//    if (pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0)
-//        throw std::runtime_error("pcm_samples.size() % AUDIO_INPUT_SAMPLES_PER_FRAME != 0");
-//
-//    int64_t time_point_ns{time_point_us * 1000};
-//    if (!initial_time_point_ns_)
-//        initial_time_point_ns_ = time_point_ns;
-//
-//    auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
-//
-//    vector<AVPacketHandle> audio_packets;
-//    for (int i{0}; i < pcm_samples.size(); i += AUDIO_INPUT_SAMPLES_PER_FRAME) {
-//        auto frame{audio_encoder_.encode({&pcm_samples[i], AUDIO_INPUT_SAMPLES_PER_FRAME})};
-//        for (auto& packet : frame->packets)
-//            audio_packets.push_back(packet);
-//    }
-//
-//    auto& cues{GetChild<KaxCues>(*segment_)};
-//
-//    const auto CLUSTER_TIMECODE_INTERVAL{
-//        gsl::narrow<uint64_t>(AUDIO_INPUT_SAMPLES_PER_FRAME * ONE_SECOND_NS / samplerate_)};
-//    for (int i{0}; i < audio_packets.size(); ++i) {
-//        auto& audio_packet{audio_packets[i]};
-//        auto audio_cluster_timecode{audio_frame_timecode + i * CLUSTER_TIMECODE_INTERVAL};
-//
-//        auto audio_bytes{audio_packet.getDataBytes()};
-//
-//        auto audio_cluster{new KaxCluster};
-//        segment_->PushElement(*audio_cluster);
-//        audio_cluster->InitTimecode(audio_cluster_timecode / MATROSKA_TIMESCALE_NS,
-//                                    MATROSKA_TIMESCALE_NS);
-//        audio_cluster->SetParent(*segment_);
-//        audio_cluster->EnableChecksum();
-//
-//        auto block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-//        auto data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(audio_bytes.data()),
-//                                        gsl::narrow<uint32_t>(audio_bytes.size())}};
-//        audio_cluster->AddBlockBlob(block_blob);
-//        block_blob->SetParent(*audio_cluster);
-//        block_blob->AddFrameAuto(*audio_track_, audio_cluster_timecode, *data_buffer);
-//
-//        audio_cluster->Render(*io_callback_, cues);
-//        audio_cluster->ReleaseFrames();
-//
-//        last_timecode_ = audio_cluster_timecode;
-//    }
-//}
-
 void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> audio_bytes)
 {
     int64_t time_point_ns{time_point_us * 1000};

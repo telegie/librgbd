@@ -63,8 +63,6 @@ public:
                          gsl::span<const int32_t> depth_values,
                          optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
-//    void writeAudioFrame(const AudioFrame& audio_frame);
-//    void writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
     void writeImuFrame(int64_t time_point_us,
                        glm::vec3 acceleration,
