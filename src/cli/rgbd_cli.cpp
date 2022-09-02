@@ -69,6 +69,7 @@ void split_file(const std::string& file_path)
     int previous_chunk_index{-1};
     unique_ptr<FileWriter> file_writer;
     unique_ptr<FFmpegVideoEncoder> color_encoder;
+    unique_ptr<DepthEncoder> depth_encoder;
 
     FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
@@ -91,10 +92,8 @@ void split_file(const std::string& file_path)
                 output_path,
                 false,
                 *file->attachments().camera_calibration,
-                2500,
                 30,
                 DepthCodecType::TDC1,
-                500,
                 static_cast<int>(file->tracks().audio_track.sampling_frequency));
 
             color_encoder = std::make_unique<FFmpegVideoEncoder>(ColorCodecType::VP8,
@@ -102,6 +101,9 @@ void split_file(const std::string& file_path)
                                                                  color_frame.height(),
                                                                  2500,
                                                                  30);
+            depth_encoder = DepthEncoder::createTDC1Encoder(depth_frame.width(),
+                                                            depth_frame.height(),
+                                                            500);
             first = true;
 
             file_writer->writeCover(color_frame);
@@ -113,10 +115,11 @@ void split_file(const std::string& file_path)
         }
 
         auto encoded_color_frame{color_encoder->encode(color_frame, first)};
+        auto encoded_depth_frame{depth_encoder->encode(depth_frame.values(), first)};
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      encoded_color_frame->packet.getDataBytes(),
-                                     depth_frame.values(),
+                                     encoded_depth_frame,
                                      nullopt,
                                      video_frame->floor());
     }
