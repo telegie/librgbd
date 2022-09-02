@@ -62,7 +62,7 @@ FFmpegVideoEncoder::FFmpegVideoEncoder(
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-AVPacketHandle FFmpegVideoEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
+unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
 {
     return encode(yuv_image.y_channel(),
                   yuv_image.u_channel(),
@@ -70,10 +70,10 @@ AVPacketHandle FFmpegVideoEncoder::encode(const YuvFrame& yuv_image, bool keyfra
                   keyframe);
 }
 
-AVPacketHandle FFmpegVideoEncoder::encode(gsl::span<const uint8_t> y_channel,
-                                          gsl::span<const uint8_t> u_channel,
-                                          gsl::span<const uint8_t> v_channel,
-                                          const bool keyframe)
+unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(gsl::span<const uint8_t> y_channel,
+                                                               gsl::span<const uint8_t> u_channel,
+                                                               gsl::span<const uint8_t> v_channel,
+                                                               const bool keyframe)
 {
     for (int row{0}; row < codec_context_->height; ++row) {
         int frame_row_index{row * frame_->linesize[0]};
@@ -109,7 +109,9 @@ AVPacketHandle FFmpegVideoEncoder::encode(gsl::span<const uint8_t> y_channel,
         throw std::runtime_error("Should be only one packet from one frame.");
 
     ++next_pts_;
-    return packets[0];
+    auto frame{std::make_unique<FFmpegVideoEncoderFrame>()};
+    frame->packet = packets[0];
+    return frame;
 }
 
 vector<AVPacketHandle> FFmpegVideoEncoder::encodeVideoFrame(AVCodecContext* codec_context, AVFrame* frame)

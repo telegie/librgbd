@@ -48,18 +48,14 @@ public:
                     gsl::span<const uint8_t> y_channel,
                     gsl::span<const uint8_t> u_channel,
                     gsl::span<const uint8_t> v_channel);
-    void writeVideoFrame(const Frame& frame);
+//    void writeVideoFrame(const Frame& frame);
+//    void writeVideoFrame(int64_t time_point_us,
+//                         const YuvFrame& yuv_frame,
+//                         const Int32Frame& depth_frame,
+//                         const optional<UInt8Frame>& depth_confidence_frame,
+//                         const Plane& floor);
     void writeVideoFrame(int64_t time_point_us,
-                         const YuvFrame& yuv_frame,
-                         const Int32Frame& depth_frame,
-                         const optional<UInt8Frame>& depth_confidence_frame,
-                         const Plane& floor);
-    void writeVideoFrame(int64_t time_point_us,
-                         int width,
-                         int height,
-                         gsl::span<const uint8_t> y_channel,
-                         gsl::span<const uint8_t> u_channel,
-                         gsl::span<const uint8_t> v_channel,
+                         gsl::span<const byte> color_bytes,
                          gsl::span<const int32_t> depth_values,
                          optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
@@ -90,7 +86,6 @@ private:
     optional<int64_t> initial_time_point_ns_;
     int64_t last_timecode_;
     int rgbd_index_;
-    FFmpegVideoEncoder color_encoder_;
     unique_ptr<DepthEncoder> depth_encoder_;
     int framerate_;
     int samplerate_;

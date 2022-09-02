@@ -303,9 +303,27 @@ RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(rgbdColorCodecType ty
     return new rgbd::FFmpegVideoEncoder{
         static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
 }
+
 RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FFmpegVideoEnfcoder*>(ptr);
+    delete static_cast<rgbd::FFmpegVideoEncoder*>(ptr);
+}
+
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
+                                                             const uint8_t* y_channel,
+                                                             size_t y_channel_size,
+                                                             const uint8_t* u_channel,
+                                                             size_t u_channel_size,
+                                                             const uint8_t* v_channel,
+                                                             size_t v_channel_size,
+                                                             bool keyframe)
+{
+    auto encoder{static_cast<rgbd::FFmpegVideoEncoder*>(ptr)};
+    auto frame{encoder->encode(gsl::span<const uint8_t>{y_channel, y_channel_size},
+                               gsl::span<const uint8_t>{u_channel, u_channel_size},
+                               gsl::span<const uint8_t>{v_channel, v_channel_size},
+                               keyframe)};
+    return frame.release();
 }
 //////// START FFMPEG VIDEO ENCODER ////////
 
@@ -724,14 +742,8 @@ void rgbd_file_writer_write_cover(void* ptr,
 
 void rgbd_file_writer_write_video_frame(void* ptr,
                                         int64_t time_point_us,
-                                        int width,
-                                        int height,
-                                        const uint8_t* y_channel,
-                                        size_t y_channel_size,
-                                        const uint8_t* u_channel,
-                                        size_t u_channel_size,
-                                        const uint8_t* v_channel,
-                                        size_t v_channel_size,
+                                        const uint8_t* color_bytes,
+                                        size_t color_byte_size,
                                         const int32_t* depth_values,
                                         size_t depth_values_size,
                                         const uint8_t* depth_confidence_values,
@@ -745,27 +757,20 @@ void rgbd_file_writer_write_video_frame(void* ptr,
     if (depth_confidence_values) {
         static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
-            width,
-            height,
-            gsl::span<const uint8_t>{y_channel, y_channel_size},
-            gsl::span<const uint8_t>{u_channel, u_channel_size},
-            gsl::span<const uint8_t>{v_channel, v_channel_size},
+            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes), color_byte_size},
             gsl::span<const int32_t>{depth_values, depth_values_size},
             gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
             rgbd::Plane{floor_normal, floor_distance});
     } else {
         static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
-            width,
-            height,
-            gsl::span<const uint8_t>{y_channel, y_channel_size},
-            gsl::span<const uint8_t>{u_channel, u_channel_size},
-            gsl::span<const uint8_t>{v_channel, v_channel_size},
+            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes), color_byte_size},
             gsl::span<const int32_t>{depth_values, depth_values_size},
             std::nullopt,
             rgbd::Plane{floor_normal, floor_distance});
     }
 }
+
 void rgbd_file_writer_write_audio_frame(void* ptr,
                                         int64_t time_point_us,
                                         const uint8_t* audio_bytes,

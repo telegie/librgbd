@@ -147,11 +147,6 @@ FileWriter::FileWriter(const string& file_path,
     , initial_time_point_ns_{nullopt}
     , last_timecode_{0}
     , rgbd_index_{0}
-    , color_encoder_{ColorCodecType::VP8,
-                     calibration.getColorWidth(),
-                     calibration.getColorHeight(),
-                     color_bitrate,
-                     framerate}
     , depth_encoder_{create_depth_encoder(depth_codec_type,
                                           calibration.getDepthWidth(),
                                           calibration.getDepthHeight(),
@@ -485,50 +480,46 @@ void FileWriter::writeCover(int width,
     attachments.Render(*io_callback_);
 }
 
-void FileWriter::writeVideoFrame(const Frame& frame)
-{
-    writeVideoFrame(frame.time_point_us(),
-                    frame.yuv_frame(),
-                    frame.depth_frame(),
-                    frame.depth_confidence_frame(),
-                    frame.floor());
-}
+//void FileWriter::writeVideoFrame(const Frame& frame)
+//{
+//    writeVideoFrame(frame.time_point_us(),
+//                    frame.yuv_frame(),
+//                    frame.depth_frame(),
+//                    frame.depth_confidence_frame(),
+//                    frame.floor());
+//}
+//
+//void FileWriter::writeVideoFrame(int64_t time_point_us,
+//                                 const YuvFrame& yuv_frame,
+//                                 const Int32Frame& depth_frame,
+//                                 const optional<UInt8Frame>& depth_confidence_frame,
+//                                 const Plane& floor)
+//{
+//    if (depth_confidence_frame) {
+//        writeVideoFrame(time_point_us,
+//                        yuv_frame.width(),
+//                        yuv_frame.height(),
+//                        yuv_frame.y_channel(),
+//                        yuv_frame.u_channel(),
+//                        yuv_frame.v_channel(),
+//                        depth_frame.values(),
+//                        depth_confidence_frame->values(),
+//                        floor);
+//    } else {
+//        writeVideoFrame(time_point_us,
+//                        yuv_frame.width(),
+//                        yuv_frame.height(),
+//                        yuv_frame.y_channel(),
+//                        yuv_frame.u_channel(),
+//                        yuv_frame.v_channel(),
+//                        depth_frame.values(),
+//                        nullopt,
+//                        floor);
+//    }
+//}
 
 void FileWriter::writeVideoFrame(int64_t time_point_us,
-                                 const YuvFrame& yuv_frame,
-                                 const Int32Frame& depth_frame,
-                                 const optional<UInt8Frame>& depth_confidence_frame,
-                                 const Plane& floor)
-{
-    if (depth_confidence_frame) {
-        writeVideoFrame(time_point_us,
-                        yuv_frame.width(),
-                        yuv_frame.height(),
-                        yuv_frame.y_channel(),
-                        yuv_frame.u_channel(),
-                        yuv_frame.v_channel(),
-                        depth_frame.values(),
-                        depth_confidence_frame->values(),
-                        floor);
-    } else {
-        writeVideoFrame(time_point_us,
-                        yuv_frame.width(),
-                        yuv_frame.height(),
-                        yuv_frame.y_channel(),
-                        yuv_frame.u_channel(),
-                        yuv_frame.v_channel(),
-                        depth_frame.values(),
-                        nullopt,
-                        floor);
-    }
-}
-
-void FileWriter::writeVideoFrame(int64_t time_point_us,
-                                 int width,
-                                 int height,
-                                 gsl::span<const uint8_t> y_channel,
-                                 gsl::span<const uint8_t> u_channel,
-                                 gsl::span<const uint8_t> v_channel,
+                                 gsl::span<const byte> color_bytes,
                                  gsl::span<const int32_t> depth_values,
                                  optional<gsl::span<const uint8_t>> depth_confidence_values,
                                  const Plane& floor)
@@ -555,10 +546,10 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->SetParent(*segment_);
     video_cluster->EnableChecksum();
 
-    auto color_bytes{
-        color_encoder_.encode(y_channel, u_channel, v_channel, keyframe).getDataBytes()};
+//    auto color_bytes{
+//        color_encoder_.encode(y_channel, u_channel, v_channel, keyframe)->packet.getDataBytes()};
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto color_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(color_bytes.data()),
+    auto color_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
                                           gsl::narrow<uint32_t>(color_bytes.size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);

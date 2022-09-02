@@ -134,6 +134,14 @@ extern "C"
                                                                int target_bitrate,
                                                                int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
+                                                                 const uint8_t* y_channel,
+                                                                 size_t y_channel_size,
+                                                                 const uint8_t* u_channel,
+                                                                 size_t u_channel_size,
+                                                                 const uint8_t* v_channel,
+                                                                 size_t v_channel_size,
+                                                                 bool keyframe);
     //////// START FFMPEG VIDEO ENCODER ////////
 
     //////// START FILE ////////
@@ -254,14 +262,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void
     rgbd_file_writer_write_video_frame(void* ptr,
                                        int64_t time_point_us,
-                                       int width,
-                                       int height,
-                                       const uint8_t* y_channel,
-                                       size_t y_channel_size,
-                                       const uint8_t* u_channel,
-                                       size_t u_channel_size,
-                                       const uint8_t* v_channel,
-                                       size_t v_channel_size,
+                                       const uint8_t* color_bytes,
+                                       size_t color_byte_size,
                                        const int32_t* depth_values,
                                        size_t depth_values_size,
                                        const uint8_t* depth_confidence_values,
