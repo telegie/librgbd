@@ -38,7 +38,7 @@ FFmpegAudioEncoder::FFmpegAudioEncoder()
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-void FFmpegAudioEncoder::encode(gsl::span<const float> pcm_samples, vector<AVPacketHandle>& packets)
+FFmpegAudioEncoderFrame FFmpegAudioEncoder::encode(gsl::span<const float> pcm_samples)
 {
     // frame_->nb_samples gets set to 960 for opus in 48 kHz.
     if (pcm_samples.size() != AUDIO_INPUT_SAMPLES_PER_FRAME)
@@ -56,12 +56,16 @@ void FFmpegAudioEncoder::encode(gsl::span<const float> pcm_samples, vector<AVPac
     frame_->pts = next_pts_;
     next_pts_ += frame_->nb_samples;
 
-    encodeAudioFrame(codec_context_.get(), frame_.get(), packets);
+    FFmpegAudioEncoderFrame frame;
+    encodeAudioFrame(codec_context_.get(), frame_.get(), frame.packets);
+    return frame;
 }
 
-void FFmpegAudioEncoder::flush(vector<AVPacketHandle>& packets)
+FFmpegAudioEncoderFrame FFmpegAudioEncoder::flush()
 {
-    encodeAudioFrame(codec_context_.get(), nullptr, packets);
+    FFmpegAudioEncoderFrame frame;
+    encodeAudioFrame(codec_context_.get(), nullptr, frame.packets);
+    return frame;
 }
 
 void FFmpegAudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,

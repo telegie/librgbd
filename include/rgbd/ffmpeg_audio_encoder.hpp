@@ -4,12 +4,23 @@
 
 namespace rgbd
 {
+struct FFmpegAudioEncoderFrame
+{
+    vector<AVPacketHandle> packets;
+
+    // Here to make sure constructor of packets is called.
+    FFmpegAudioEncoderFrame()
+        : packets()
+    {
+    }
+};
+
 class FFmpegAudioEncoder
 {
 public:
     FFmpegAudioEncoder();
-    void encode(gsl::span<const float> pcm_samples, vector<AVPacketHandle>& packets);
-    void flush(vector<AVPacketHandle>& packets);
+    FFmpegAudioEncoderFrame encode(gsl::span<const float> pcm_samples);
+    FFmpegAudioEncoderFrame flush();
     AVCodecContextHandle& codec_context()
     {
         return codec_context_;

@@ -214,6 +214,18 @@ void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
 }
 //////// END FFMPEG AUDIO DECODER ////////
 
+//////// START FFMPEG AUDIO ENCODER ////////
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor()
+{
+    return new rgbd::FFmpegAudioEncoder;
+}
+
+RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FFmpegAudioEncoder*>(ptr);
+}
+//////// END FFMPEG AUDIO ENCODER ////////
+
 //////// START FFMPEG VIDEO DECODER ////////
 void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)
 {

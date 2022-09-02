@@ -100,6 +100,11 @@ extern "C"
                                                                  size_t opus_frame_size);
     //////// END FFMPEG AUDIO DECODER ////////
 
+    //////// START FFMPEG AUDIO ENCODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr);
+    //////// END FFMPEG AUDIO ENCODER ////////
+
     //////// START FFMPEG VIDEO DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_decoder_dtor(void* ptr);
