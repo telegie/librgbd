@@ -19,8 +19,8 @@ class FFmpegAudioEncoder
 {
 public:
     FFmpegAudioEncoder();
-    FFmpegAudioEncoderFrame encode(gsl::span<const float> pcm_samples);
-    FFmpegAudioEncoderFrame flush();
+    unique_ptr<FFmpegAudioEncoderFrame> encode(gsl::span<const float> pcm_samples);
+    unique_ptr<FFmpegAudioEncoderFrame> flush();
     AVCodecContextHandle& codec_context()
     {
         return codec_context_;

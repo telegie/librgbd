@@ -5,10 +5,10 @@
 #include "ffmpeg_video_decoder.hpp"
 #include "file.hpp"
 #include "file_parser.hpp"
+#include "file_writer.hpp"
 #include "integer_frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
-#include "file_writer.hpp"
 #include "tdc1_decoder.hpp"
 
 //////// START CONSTANTS ////////
@@ -130,6 +130,19 @@ const char* rgbd_native_string_get_c_str(void* ptr)
 }
 //////// END CAPI CONTAINER CLASSES ////////
 
+//////// START AV PACKET HANDLE ////////
+RGBD_INTERFACE_EXPORT void rgbd_av_packet_handle_dtor(void* ptr)
+{
+    delete static_cast<rgbd::AVPacketHandle*>(ptr);
+}
+
+RGBD_INTERFACE_EXPORT void* rgbd_av_packet_handle_get_data_bytes(void* ptr)
+{
+    auto packet{static_cast<rgbd::AVPacketHandle*>(ptr)};
+    return new rgbd::NativeByteArray{packet->getDataBytes()};
+}
+//////// END AV PACKET HANDLE ////////
+
 //////// START CAMERA CALIBRATION ////////
 void rgbd_camera_calibration_dtor(void* ptr)
 {
@@ -138,8 +151,7 @@ void rgbd_camera_calibration_dtor(void* ptr)
 
 rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
 {
-    auto camera_device_type{
-        static_cast<rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
+    auto camera_device_type{static_cast<rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
 
@@ -167,7 +179,7 @@ void* rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v)
 {
     auto camera_calibration{static_cast<rgbd::CameraCalibration*>(ptr)};
     auto direction{camera_calibration->getDirection(glm::vec2{uv_u, uv_v})};
-    std::vector<float> values{direction.x, direction.y ,direction.z};
+    std::vector<float> values{direction.x, direction.y, direction.z};
     return new rgbd::NativeFloatArray(std::move(values));
 }
 //////// END CAMERA CALIBRATION ////////
@@ -224,7 +236,41 @@ RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr)
 {
     delete static_cast<rgbd::FFmpegAudioEncoder*>(ptr);
 }
+
+RGBD_INTERFACE_EXPORT void*
+rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
+{
+    auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
+    auto frame{encoder->encode(gsl::span<const float>{pcm_samples, pcm_samples_size})};
+    return frame.release();
+}
+
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr)
+{
+    auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
+    auto frame{encoder->flush()};
+    return frame.release();
+}
 //////// END FFMPEG AUDIO ENCODER ////////
+
+//////// START FFMPEG AUDIO ENCODER FRAME ////////
+RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr);
+}
+
+RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr)
+{
+    auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
+    return frame->packets.size();
+}
+
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index)
+{
+    auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
+    return &frame->packets[index];
+}
+//////// END FFMPEG AUDIO ENCODER FRAME ////////
 
 //////// START FFMPEG VIDEO DECODER ////////
 void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)
@@ -309,7 +355,8 @@ void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 {
     auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
     spdlog::info("file_attachments: {}", reinterpret_cast<size_t>(file_attachments));
-    spdlog::info("file_attachments->camera_calibration.get(): {}", reinterpret_cast<size_t>(file_attachments->camera_calibration.get()));
+    spdlog::info("file_attachments->camera_calibration.get(): {}",
+                 reinterpret_cast<size_t>(file_attachments->camera_calibration.get()));
     return file_attachments->camera_calibration.get();
 }
 

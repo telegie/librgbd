@@ -622,7 +622,7 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const float> p
     vector<AVPacketHandle> audio_packets;
     for (int i{0}; i < pcm_samples.size(); i += AUDIO_INPUT_SAMPLES_PER_FRAME) {
         auto frame{audio_encoder_.encode({&pcm_samples[i], AUDIO_INPUT_SAMPLES_PER_FRAME})};
-        for (auto& packet : frame.packets)
+        for (auto& packet : frame->packets)
             audio_packets.push_back(packet);
     }
 

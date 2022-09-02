@@ -72,6 +72,11 @@ extern "C"
     RGBD_INTERFACE_EXPORT const char* rgbd_native_string_get_c_str(void* ptr);
     //////// END CAPI CONTAINER CLASSES ////////
 
+    //////// START AV PACKET HANDLE ////////
+    RGBD_INTERFACE_EXPORT void rgbd_av_packet_handle_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_av_packet_handle_get_data_bytes(void* ptr);
+    //////// END AV PACKET HANDLE ////////
+
     //////// START CAMERA CALIBRATION ////////
     RGBD_INTERFACE_EXPORT void rgbd_camera_calibration_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT rgbdCameraDeviceType
@@ -103,7 +108,16 @@ extern "C"
     //////// START FFMPEG AUDIO ENCODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor();
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr);
     //////// END FFMPEG AUDIO ENCODER ////////
+
+    //////// START FFMPEG AUDIO ENCODER FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index);
+    //////// END FFMPEG AUDIO ENCODER FRAME ////////
 
     //////// START FFMPEG VIDEO DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);

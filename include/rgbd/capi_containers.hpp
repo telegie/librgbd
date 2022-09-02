@@ -11,7 +11,7 @@ namespace rgbd
 class NativeByteArray
 {
 public:
-  NativeByteArray(const Bytes& byte_values);
+    NativeByteArray(const Bytes& byte_values);
     NativeByteArray(Bytes&& byte_values);
     // Converting std::byte* into uint8_t* since
     // Swift does not know about std::byte.
