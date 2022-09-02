@@ -23,9 +23,9 @@ unique_ptr<DepthEncoder> create_depth_encoder(DepthCodecType depth_codec_type,
                                               int depth_diff_multiplier)
 {
     if (depth_codec_type == DepthCodecType::RVL)
-        return unique_ptr<DepthEncoder>{new RVLEncoder(width, height)};
+        return DepthEncoder::createRVLEncoder(width, height);
     if (depth_codec_type == DepthCodecType::TDC1)
-        return unique_ptr<DepthEncoder>{new TDC1Encoder{width, height, depth_diff_multiplier}};
+        return DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier);
 
     spdlog::error("Invalid DepthCodecType found: {}", depth_codec_type);
     throw std::runtime_error("Invalid DepthCodecType found");

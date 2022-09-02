@@ -4,7 +4,7 @@
 
 namespace rgbd
 {
-class RVLEncoder : public DepthEncoder
+class RVLEncoder : public DepthEncoderImpl
 {
 public:
     RVLEncoder(int width, int height) noexcept;

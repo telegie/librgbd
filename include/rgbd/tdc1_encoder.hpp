@@ -5,7 +5,7 @@
 
 namespace rgbd
 {
-class TDC1Encoder : public DepthEncoder
+class TDC1Encoder : public DepthEncoderImpl
 {
 public:
     TDC1Encoder(int width, int height, int diff_multiplier) noexcept;
