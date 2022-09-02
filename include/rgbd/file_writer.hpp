@@ -63,8 +63,9 @@ public:
                          gsl::span<const int32_t> depth_values,
                          optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
-    void writeAudioFrame(const AudioFrame& audio_frame);
-    void writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
+//    void writeAudioFrame(const AudioFrame& audio_frame);
+//    void writeAudioFrame(int64_t time_point_us, gsl::span<const float> pcm_samples);
+    void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
     void writeImuFrame(int64_t time_point_us,
                        glm::vec3 acceleration,
                        glm::vec3 rotation_rate,
@@ -93,7 +94,6 @@ private:
     int rgbd_index_;
     FFmpegVideoEncoder color_encoder_;
     unique_ptr<DepthEncoder> depth_encoder_;
-    FFmpegAudioEncoder audio_encoder_;
     int framerate_;
     int samplerate_;
 };

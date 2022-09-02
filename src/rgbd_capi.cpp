@@ -750,14 +750,14 @@ void rgbd_file_writer_write_video_frame(void* ptr,
             rgbd::Plane{floor_normal, floor_distance});
     }
 }
-
 void rgbd_file_writer_write_audio_frame(void* ptr,
                                         int64_t time_point_us,
-                                        const float* pcm_samples,
-                                        size_t pcm_samples_size)
+                                        const uint8_t* audio_bytes,
+                                        size_t audio_byte_size)
 {
     static_cast<rgbd::FileWriter*>(ptr)->writeAudioFrame(
-        time_point_us, gsl::span<const float>{pcm_samples, pcm_samples_size});
+        time_point_us,
+        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(audio_bytes), audio_byte_size});
 }
 
 void rgbd_file_writer_write_imu_frame(void* ptr,
