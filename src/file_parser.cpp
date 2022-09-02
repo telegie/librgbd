@@ -510,17 +510,18 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                                                          copy_data_buffer_to_bytes(data_buffer)};
                     } else if (track_number == file_tracks_->floor_track_number) {
                         floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (track_number == file_tracks_->acceleration_track_number &&
-                               file_tracks_->acceleration_track_number) {
+                    } else if (file_tracks_->acceleration_track_number &&
+                               track_number == file_tracks_->acceleration_track_number) {
+                        global_timecode = block_global_timecode;
                         acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (track_number == file_tracks_->rotation_rate_track_number &&
-                               file_tracks_->rotation_rate_track_number) {
+                    } else if (file_tracks_->rotation_rate_track_number &&
+                               track_number == file_tracks_->rotation_rate_track_number) {
                         rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (track_number == file_tracks_->magnetic_field_track_number &&
-                               file_tracks_->magnetic_field_track_number) {
+                    } else if (file_tracks_->magnetic_field_track_number &&
+                               track_number == file_tracks_->magnetic_field_track_number) {
                         magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (track_number == file_tracks_->gravity_track_number &&
-                               file_tracks_->gravity_track_number) {
+                    } else if (file_tracks_->gravity_track_number &&
+                               track_number == file_tracks_->gravity_track_number) {
                         gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
                     } else {
                         throw std::runtime_error{"Invalid track number from block"};
@@ -546,17 +547,18 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                                                  copy_data_buffer_to_bytes(data_buffer)};
             } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->acceleration_track_number &&
-                       file_tracks_->acceleration_track_number) {
+            } else if (file_tracks_->acceleration_track_number &&
+                       track_number == file_tracks_->acceleration_track_number) {
+                global_timecode = block_global_timecode;
                 acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->rotation_rate_track_number &&
-                       file_tracks_->rotation_rate_track_number) {
+            } else if (file_tracks_->rotation_rate_track_number &&
+                       track_number == file_tracks_->rotation_rate_track_number) {
                 rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->magnetic_field_track_number &&
-                       file_tracks_->magnetic_field_track_number) {
+            } else if (file_tracks_->magnetic_field_track_number &&
+                       track_number == file_tracks_->magnetic_field_track_number) {
                 magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->gravity_track_number &&
-                       file_tracks_->gravity_track_number) {
+            } else if (file_tracks_->gravity_track_number &&
+                       track_number == file_tracks_->gravity_track_number) {
                 gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else {
                 throw std::runtime_error{"Invalid track number from simple_block"};
