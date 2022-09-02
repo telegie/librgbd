@@ -124,10 +124,8 @@ vector<byte> convert_vec3_to_bytes(const glm::vec3 v)
 FileWriter::FileWriter(const string& file_path,
                        bool has_depth_confidence,
                        const CameraCalibration& calibration,
-                       int color_bitrate,
                        int framerate,
                        DepthCodecType depth_codec_type,
-                       int depth_diff_multiplier,
                        int samplerate)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
@@ -146,13 +144,6 @@ FileWriter::FileWriter(const string& file_path,
     , segment_info_placeholder_{nullptr}
     , initial_time_point_ns_{nullopt}
     , last_timecode_{0}
-    , rgbd_index_{0}
-    , depth_encoder_{create_depth_encoder(depth_codec_type,
-                                          calibration.getDepthWidth(),
-                                          calibration.getDepthHeight(),
-                                          depth_diff_multiplier)}
-    , framerate_{framerate}
-    , samplerate_{samplerate}
 {
     //
     // init segment_info
@@ -211,9 +202,9 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackUID>(*depth_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*depth_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*depth_track_).SetValueUTF8("DEPTH");
-        if (depth_encoder_->getCodecType() == DepthCodecType::RVL) {
+        if (depth_codec_type == DepthCodecType::RVL) {
             GetChild<KaxCodecID>(*depth_track_).SetValue("V_RVL");
-        } else if (depth_encoder_->getCodecType() == DepthCodecType::TDC1) {
+        } else if (depth_codec_type == DepthCodecType::TDC1) {
             GetChild<KaxCodecID>(*depth_track_).SetValue("V_TDC1");
         } else {
             throw std::runtime_error("Invalid depth codec found");
@@ -480,47 +471,9 @@ void FileWriter::writeCover(int width,
     attachments.Render(*io_callback_);
 }
 
-//void FileWriter::writeVideoFrame(const Frame& frame)
-//{
-//    writeVideoFrame(frame.time_point_us(),
-//                    frame.yuv_frame(),
-//                    frame.depth_frame(),
-//                    frame.depth_confidence_frame(),
-//                    frame.floor());
-//}
-//
-//void FileWriter::writeVideoFrame(int64_t time_point_us,
-//                                 const YuvFrame& yuv_frame,
-//                                 const Int32Frame& depth_frame,
-//                                 const optional<UInt8Frame>& depth_confidence_frame,
-//                                 const Plane& floor)
-//{
-//    if (depth_confidence_frame) {
-//        writeVideoFrame(time_point_us,
-//                        yuv_frame.width(),
-//                        yuv_frame.height(),
-//                        yuv_frame.y_channel(),
-//                        yuv_frame.u_channel(),
-//                        yuv_frame.v_channel(),
-//                        depth_frame.values(),
-//                        depth_confidence_frame->values(),
-//                        floor);
-//    } else {
-//        writeVideoFrame(time_point_us,
-//                        yuv_frame.width(),
-//                        yuv_frame.height(),
-//                        yuv_frame.y_channel(),
-//                        yuv_frame.u_channel(),
-//                        yuv_frame.v_channel(),
-//                        depth_frame.values(),
-//                        nullopt,
-//                        floor);
-//    }
-//}
-
 void FileWriter::writeVideoFrame(int64_t time_point_us,
                                  gsl::span<const byte> color_bytes,
-                                 gsl::span<const int32_t> depth_values,
+                                 gsl::span<const byte> depth_bytes,
                                  optional<gsl::span<const uint8_t>> depth_confidence_values,
                                  const Plane& floor)
 {
@@ -537,17 +490,12 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     auto& cues{GetChild<KaxCues>(*segment_)};
     auto video_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
 
-    // A keyframe every two seconds.
-    bool keyframe{rgbd_index_ % (framerate_ * 2) == 0};
-
     auto video_cluster{new KaxCluster};
     segment_->PushElement(*video_cluster);
     video_cluster->InitTimecode(video_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
     video_cluster->SetParent(*segment_);
     video_cluster->EnableChecksum();
 
-//    auto color_bytes{
-//        color_encoder_.encode(y_channel, u_channel, v_channel, keyframe)->packet.getDataBytes()};
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
     auto color_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
                                           gsl::narrow<uint32_t>(color_bytes.size())}};
@@ -555,9 +503,8 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*color_track_, video_timecode, *color_data_buffer);
 
-    auto depth_bytes{depth_encoder_->encode(depth_values, keyframe)};
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto depth_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(depth_bytes.data()),
+    auto depth_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(depth_bytes.data())),
                                           gsl::narrow<uint32_t>(depth_bytes.size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
@@ -590,7 +537,6 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->ReleaseFrames();
 
     last_timecode_ = video_timecode;
-    ++rgbd_index_;
 }
 
 void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> audio_bytes)

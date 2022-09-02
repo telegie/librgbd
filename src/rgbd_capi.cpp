@@ -221,6 +221,15 @@ RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr)
 {
     delete static_cast<rgbd::DepthEncoder*>(ptr);
 }
+
+RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_encode(void* ptr,
+                                                      const int32_t* depth_values_data,
+                                                      size_t depth_values_size,
+                                                      bool keyframe)
+{
+    return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(
+        gsl::span<const int32_t>{depth_values_data, depth_values_size}, keyframe)};
+}
 //////// END DEPTH DECODER ////////
 
 //////// START FFMPEG AUDIO DECODER ////////
@@ -716,19 +725,15 @@ int rgbd_file_video_track_get_height(void* ptr)
 void* rgbd_file_writer_ctor(const char* file_path,
                             bool has_depth_confidence,
                             void* calibration,
-                            int color_bitrate,
                             int framerate,
                             rgbdDepthCodecType depth_codec_type,
-                            int depth_diff_multiplier,
                             int samplerate)
 {
     return new rgbd::FileWriter(file_path,
                                 has_depth_confidence,
                                 *static_cast<const rgbd::CameraCalibration*>(calibration),
-                                color_bitrate,
                                 framerate,
                                 static_cast<rgbd::DepthCodecType>(depth_codec_type),
-                                depth_diff_multiplier,
                                 samplerate);
 }
 
@@ -759,8 +764,8 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                         int64_t time_point_us,
                                         const uint8_t* color_bytes,
                                         size_t color_byte_size,
-                                        const int32_t* depth_values,
-                                        size_t depth_values_size,
+                                        const uint8_t* depth_bytes,
+                                        size_t depth_byte_size,
                                         const uint8_t* depth_confidence_values,
                                         size_t depth_confidence_values_size,
                                         float floor_normal_x,
@@ -774,7 +779,8 @@ void rgbd_file_writer_write_video_frame(void* ptr,
             time_point_us,
             gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
                                        color_byte_size},
-            gsl::span<const int32_t>{depth_values, depth_values_size},
+            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
+                                       depth_byte_size},
             gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
             rgbd::Plane{floor_normal, floor_distance});
     } else {
@@ -782,7 +788,8 @@ void rgbd_file_writer_write_video_frame(void* ptr,
             time_point_us,
             gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
                                        color_byte_size},
-            gsl::span<const int32_t>{depth_values, depth_values_size},
+            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
+                                       depth_byte_size},
             std::nullopt,
             rgbd::Plane{floor_normal, floor_distance});
     }

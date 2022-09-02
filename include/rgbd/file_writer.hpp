@@ -37,10 +37,8 @@ public:
     FileWriter(const string& file_path,
                bool has_depth_confidence,
                const CameraCalibration& calibration,
-               int color_bitrate,
                int framerate,
                DepthCodecType depth_codec_type,
-               int depth_diff_multiplier,
                int samplerate);
     void writeCover(const YuvFrame& yuv_frame);
     void writeCover(int width,
@@ -50,7 +48,7 @@ public:
                     gsl::span<const uint8_t> v_channel);
     void writeVideoFrame(int64_t time_point_us,
                          gsl::span<const byte> color_bytes,
-                         gsl::span<const int32_t> depth_values,
+                         gsl::span<const byte> depth_bytes,
                          optional<gsl::span<const uint8_t>> depth_confidence_values,
                          const Plane& floor);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
@@ -79,9 +77,5 @@ private:
     unique_ptr<EbmlVoid> segment_info_placeholder_;
     optional<int64_t> initial_time_point_ns_;
     int64_t last_timecode_;
-    int rgbd_index_;
-    unique_ptr<DepthEncoder> depth_encoder_;
-    int framerate_;
-    int samplerate_;
 };
 } // namespace rgbd

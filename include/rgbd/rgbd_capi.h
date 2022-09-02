@@ -102,6 +102,11 @@ extern "C"
     RGBD_INTERFACE_EXPORT void*
     rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier);
     RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_depth_encoder_encode(void* ptr,
+                              const int32_t* depth_values_data,
+                              size_t depth_values_size,
+                              bool keyframe);
     //////// END DEPTH DECODER ////////
 
     //////// START FFMPEG AUDIO DECODER ////////
@@ -248,10 +253,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor(const char* file_path,
                                                       bool has_depth_confidence,
                                                       void* calibration,
-                                                      int color_bitrate,
                                                       int framerate,
                                                       rgbdDepthCodecType depth_codec_type,
-                                                      int depth_diff_multiplier,
                                                       int samplerate);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_cover(void* ptr,
@@ -268,8 +271,8 @@ extern "C"
                                        int64_t time_point_us,
                                        const uint8_t* color_bytes,
                                        size_t color_byte_size,
-                                       const int32_t* depth_values,
-                                       size_t depth_values_size,
+                                       const uint8_t* depth_bytes,
+                                       size_t depth_byte_size,
                                        const uint8_t* depth_confidence_values,
                                        size_t depth_confidence_values_size,
                                        float floor_normal_x,
