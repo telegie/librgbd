@@ -153,6 +153,11 @@ extern "C"
                                                                  bool keyframe);
     //////// START FFMPEG VIDEO ENCODER ////////
 
+    //////// START FFMPEG VIDEO ENCODER FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr);
+    //////// END FFMPEG VIDEO ENCODER FRAME ////////
+
     //////// START FILE ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_info(void* ptr);

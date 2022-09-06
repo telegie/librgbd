@@ -324,6 +324,7 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
 RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(
     rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
 {
+    spdlog::info("rgbd_ffmpeg_video_encoder_ctor called");
     return new rgbd::FFmpegVideoEncoder{
         static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
 }
@@ -350,6 +351,19 @@ RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
     return frame.release();
 }
 //////// START FFMPEG VIDEO ENCODER ////////
+
+//////// START FFMPEG VIDEO ENCODER FRAME ////////
+RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr);
+}
+
+RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr)
+{
+    auto frame{static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr)};
+    return &frame->packet;
+}
+//////// END FFMPEG VIDEO ENCODER FRAME ////////
 
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)
