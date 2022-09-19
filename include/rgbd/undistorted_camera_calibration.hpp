@@ -16,7 +16,7 @@ public:
                                  float fy,
                                  float cx,
                                  float cy);
-    UndistortedCameraCalibration fromJson(const json& json);
+    static UndistortedCameraCalibration fromJson(const json& json);
     json toJson() const noexcept;
     CameraDeviceType getCameraDeviceType() const noexcept;
     int getColorWidth() const noexcept;

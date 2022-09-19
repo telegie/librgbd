@@ -40,7 +40,7 @@ UndistortedCameraCalibration UndistortedCameraCalibration::fromJson(const json& 
 
 json UndistortedCameraCalibration::toJson() const noexcept
 {
-    return json{{"calibrationType", "ios"},
+    return json{{"calibrationType", "undistorted"},
                 {"colorWidth", color_width_},
                 {"colorHeight", color_height_},
                 {"depthWidth", depth_width_},

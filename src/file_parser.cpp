@@ -2,6 +2,7 @@
 
 #include <rgbd/ios_camera_calibration.hpp>
 #include <rgbd/kinect_camera_calibration.hpp>
+#include <rgbd/undistorted_camera_calibration.hpp>
 
 using namespace libmatroska;
 
@@ -438,6 +439,9 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                 } else if (calibration_type == "ios") {
                     camera_calibration = shared_ptr<CameraCalibration>(
                         new IosCameraCalibration{IosCameraCalibration::fromJson(calibration_json)});
+                } else if (calibration_type == "undistorted") {
+                    camera_calibration = shared_ptr<CameraCalibration>(
+                        new UndistortedCameraCalibration{UndistortedCameraCalibration::fromJson(calibration_json)});
                 } else {
                     throw std::runtime_error("Invalid calibration_type");
                 }
