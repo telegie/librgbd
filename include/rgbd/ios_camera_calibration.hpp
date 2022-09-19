@@ -85,4 +85,4 @@ private:
     float lens_distortion_center_y_;
     vector<float> lens_distortion_lookup_table_;
 };
-} // namespace tg
+} // namespace rgbd

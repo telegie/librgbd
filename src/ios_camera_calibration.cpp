@@ -174,4 +174,4 @@ glm::vec3 IosCameraCalibration::getDirection(const glm::vec2& uv) const noexcept
 {
     return compute_ios_direction(*this, uv);
 }
-} // namespace tg
+} // namespace rgbd

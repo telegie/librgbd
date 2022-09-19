@@ -42,7 +42,8 @@ using Bytes = vector<std::byte>;
 enum class CameraDeviceType : int32_t
 {
     AzureKinect = 0,
-    IOS = 1
+    IOS = 1,
+    Undistorted = 2
 };
 
 enum class ColorCodecType : int32_t

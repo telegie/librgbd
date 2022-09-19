@@ -26,5 +26,6 @@
 #include <rgbd/rvl.hpp>
 #include <rgbd/tdc1_decoder.hpp>
 #include <rgbd/tdc1_encoder.hpp>
+#include <rgbd/undistorted_camera_calibration.hpp>
 #include <rgbd/video_folder.hpp>
 #include <rgbd/yuv_frame.hpp>

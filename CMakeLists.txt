@@ -132,6 +132,7 @@ set(RgbdSources
   include/rgbd/rvl_encoder.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
+  include/rgbd/undistorted_camera_calibration.hpp
   include/rgbd/video_folder.hpp
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
@@ -163,6 +164,7 @@ set(RgbdSources
   src/rvl_encoder.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
+  src/undistorted_camera_calibration.cpp
   src/video_folder.cpp
   src/yuv_frame.cpp
 )
