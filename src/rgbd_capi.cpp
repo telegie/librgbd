@@ -10,6 +10,7 @@
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
 #include "tdc1_decoder.hpp"
+#include "undistorted_camera_calibration.hpp"
 
 //////// START CONSTANTS ////////
 int RGBD_MAJOR_VERSION()
@@ -426,9 +427,6 @@ void rgbd_file_attachments_dtor(void* ptr)
 void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 {
     auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
-    spdlog::info("file_attachments: {}", reinterpret_cast<size_t>(file_attachments));
-    spdlog::info("file_attachments->camera_calibration.get(): {}",
-                 reinterpret_cast<size_t>(file_attachments->camera_calibration.get()));
     return file_attachments->camera_calibration.get();
 }
 
@@ -895,26 +893,6 @@ void* rgbd_kinect_camera_calibration_ctor(int color_width,
                                              max_radius_for_projection};
 }
 
-int rgbd_kinect_camera_calibration_get_color_width(void* ptr)
-{
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getColorWidth();
-}
-
-int rgbd_kinect_camera_calibration_get_color_height(void* ptr)
-{
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getColorHeight();
-}
-
-int rgbd_kinect_camera_calibration_get_depth_width(void* ptr)
-{
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getDepthWidth();
-}
-
-int rgbd_kinect_camera_calibration_get_depth_height(void* ptr)
-{
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->getDepthHeight();
-}
-
 int rgbd_kinect_camera_calibration_get_resolution_width(void* ptr)
 {
     return static_cast<rgbd::KinectCameraCalibration*>(ptr)->resolution_width();
@@ -1055,26 +1033,6 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
         {lens_distortion_lookup_table, lens_distortion_lookup_table_size}};
 }
 
-int rgbd_ios_camera_calibration_get_color_width(void* ptr)
-{
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorWidth();
-}
-
-int rgbd_ios_camera_calibration_get_color_height(void* ptr)
-{
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getColorHeight();
-}
-
-int rgbd_ios_camera_calibration_get_depth_width(void* ptr)
-{
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthWidth();
-}
-
-int rgbd_ios_camera_calibration_get_depth_height(void* ptr)
-{
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->getDepthHeight();
-}
-
 float rgbd_ios_camera_calibration_get_fx(void* ptr)
 {
     return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fx();
@@ -1122,6 +1080,41 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
     return new rgbd::NativeFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
+
+//////// START UNDISTORTED CAMERA CALIBRATION ////////
+void* rgbd_undistorted_camera_calibration_ctor(int color_width,
+                                                                     int color_height,
+                                                                     int depth_width,
+                                                                     int depth_height,
+                                                                     float fx,
+                                                                     float fy,
+                                                                     float cx,
+                                                                     float cy)
+{
+    return new rgbd::UndistortedCameraCalibration{
+        color_width, color_height, depth_width, depth_height, fx, fy, cx, cy};
+}
+
+float rgbd_undistorted_camera_calibration_get_fx(void* ptr)
+{
+    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->fx();
+}
+
+float rgbd_undistorted_camera_calibration_get_fy(void* ptr)
+{
+    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->fy();
+}
+
+float rgbd_undistorted_camera_calibration_get_cx(void* ptr)
+{
+    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->cx();
+}
+
+float rgbd_undistorted_camera_calibration_get_cy(void* ptr)
+{
+    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->cy();
+}
+//////// END UNDISTORTED CAMERA CALIBRATION ////////
 
 //////// START YUV FRAME ////////
 void rgbd_yuv_frame_dtor(void* ptr)

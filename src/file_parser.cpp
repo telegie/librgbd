@@ -421,7 +421,6 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
                 throw std::runtime_error("Failed reading attached_file");
 
             auto file_name{GetChild<KaxFileName>(*attached_file).GetValue().GetUTF8()};
-            spdlog::info("attached file_name: {}", file_name);
             if (file_name == "calibration.json") {
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 vector<char> calibration_vector(file_data.GetSize());
