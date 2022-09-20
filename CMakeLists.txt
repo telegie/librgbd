@@ -258,8 +258,23 @@ elseif(RGBD_OS_WASM)
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WASM)
 
+  set(RgbdLibraryWasmExportedFunctions
+    _rgbd_file_get_tracks
+    _rgbd_file_parser_ctor_from_data
+    _rgbd_file_parser_parse_all_frames
+    _rgbd_file_tracks_get_color_track
+    _rgbd_file_video_track_get_width
+    _rgbd_file_video_track_get_height
+  )
+  # Switch the ; (semicolons) between the elements of list RgbdLibraryWasmExportedFunctions to , (commas).
+  string(REPLACE ";" "," RgbdLibraryWasmExportedFunctionsStr "${RgbdLibraryWasmExportedFunctions}")
+
+
   set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
-  list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions})
+  set(RgbdLibraryWasmLinkOptions
+    "SHELL:-s EXPORTED_FUNCTIONS=${RgbdLibraryWasmExportedFunctionsStr}"
+  )
+  list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions} ${RgbdLibraryWasmLinkOptions})
   list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
 endif()
 

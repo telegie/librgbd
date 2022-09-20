@@ -1,9 +1,5 @@
 #pragma once
 
-#ifdef CMAKE_RGBD_OS_WASM
-#include <emscripten.h>
-#endif
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -14,8 +10,8 @@ extern "C"
 
 #ifdef CMAKE_RGBD_OS_WINDOWS
 #define RGBD_INTERFACE_EXPORT __declspec(dllexport)
-#elif CMAKE_RGBD_OS_WASM
-#define RGBD_INTERFACE_EXPORT EMSCRIPTEN_KEEPALIVE
+#else
+#define RGBD_INTERFACE_EXPORT
 #endif
 
     //////// START ENUMS ////////
