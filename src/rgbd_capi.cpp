@@ -132,12 +132,12 @@ const char* rgbd_native_string_get_c_str(void* ptr)
 //////// END CAPI CONTAINER CLASSES ////////
 
 //////// START AV PACKET HANDLE ////////
-RGBD_INTERFACE_EXPORT void rgbd_av_packet_handle_dtor(void* ptr)
+void rgbd_av_packet_handle_dtor(void* ptr)
 {
     delete static_cast<rgbd::AVPacketHandle*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_av_packet_handle_get_data_bytes(void* ptr)
+void* rgbd_av_packet_handle_get_data_bytes(void* ptr)
 {
     auto packet{static_cast<rgbd::AVPacketHandle*>(ptr)};
     return new rgbd::NativeByteArray{packet->getDataBytes()};
@@ -207,26 +207,26 @@ void* rgbd_depth_decoder_decode(void* ptr,
 //////// END DEPTH DECODER ////////
 
 //////// START DEPTH ENCODER ////////
-RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_create_rvl_encoder(int width, int height)
+void* rgbd_depth_encoder_create_rvl_encoder(int width, int height)
 {
     return rgbd::DepthEncoder::createRVLEncoder(width, height).release();
 }
 
-RGBD_INTERFACE_EXPORT void*
+void*
 rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier)
 {
     return rgbd::DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier).release();
 }
 
-RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr)
+void rgbd_depth_encoder_dtor(void* ptr)
 {
     delete static_cast<rgbd::DepthEncoder*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_encode(void* ptr,
-                                                      const int32_t* depth_values_data,
-                                                      size_t depth_values_size,
-                                                      bool keyframe)
+void* rgbd_depth_encoder_encode(void* ptr,
+                                const int32_t* depth_values_data,
+                                size_t depth_values_size,
+                                bool keyframe)
 {
     return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(
         gsl::span<const int32_t>{depth_values_data, depth_values_size}, keyframe)};
@@ -255,25 +255,24 @@ void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
 //////// END FFMPEG AUDIO DECODER ////////
 
 //////// START FFMPEG AUDIO ENCODER ////////
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor()
+void* rgbd_ffmpeg_audio_encoder_ctor()
 {
     return new rgbd::FFmpegAudioEncoder;
 }
 
-RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr)
+void rgbd_ffmpeg_audio_encoder_dtor(void* ptr)
 {
     delete static_cast<rgbd::FFmpegAudioEncoder*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT void*
-rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
+void* rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
 {
     auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
     auto frame{encoder->encode(gsl::span<const float>{pcm_samples, pcm_samples_size})};
     return frame.release();
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr)
+void* rgbd_ffmpeg_audio_encoder_flush(void* ptr)
 {
     auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
     auto frame{encoder->flush()};
@@ -282,18 +281,18 @@ RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr)
 //////// END FFMPEG AUDIO ENCODER ////////
 
 //////// START FFMPEG AUDIO ENCODER FRAME ////////
-RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr)
+void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr)
 {
     delete static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr)
+size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr)
 {
     auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
     return frame->packets.size();
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index)
+void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index)
 {
     auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
     return &frame->packets[index];
@@ -322,7 +321,7 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
 //////// END FFMPEG VIDEO DECODER ////////
 
 //////// START FFMPEG VIDEO ENCODER ////////
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(
+void* rgbd_ffmpeg_video_encoder_ctor(
     rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
 {
     spdlog::info("rgbd_ffmpeg_video_encoder_ctor called");
@@ -330,19 +329,19 @@ RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(
         static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
 }
 
-RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
+void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
 {
     delete static_cast<rgbd::FFmpegVideoEncoder*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
-                                                             const uint8_t* y_channel,
-                                                             size_t y_channel_size,
-                                                             const uint8_t* u_channel,
-                                                             size_t u_channel_size,
-                                                             const uint8_t* v_channel,
-                                                             size_t v_channel_size,
-                                                             bool keyframe)
+void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
+                                       const uint8_t* y_channel,
+                                       size_t y_channel_size,
+                                       const uint8_t* u_channel,
+                                       size_t u_channel_size,
+                                       const uint8_t* v_channel,
+                                       size_t v_channel_size,
+                                       bool keyframe)
 {
     auto encoder{static_cast<rgbd::FFmpegVideoEncoder*>(ptr)};
     auto frame{encoder->encode(gsl::span<const uint8_t>{y_channel, y_channel_size},
@@ -354,12 +353,12 @@ RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
 //////// START FFMPEG VIDEO ENCODER ////////
 
 //////// START FFMPEG VIDEO ENCODER FRAME ////////
-RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr)
+void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr)
 {
     delete static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr);
 }
 
-RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr)
+void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr)
 {
     auto frame{static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr)};
     return &frame->packet;
