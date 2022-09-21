@@ -46,8 +46,8 @@ glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const g
     float magnification{get_magnification(r, lens_distortion_lookup_table, r_max)};
 
     // calibrated_uu, vv are with lens distortion calibrated
-    float calibrated_delta_uu{delta_uu * magnification};
-    float calibrated_delta_vv{delta_vv * magnification};
+    float calibrated_delta_uu{delta_uu * (1.0f + magnification)};
+    float calibrated_delta_vv{delta_vv * (1.0f + magnification)};
 
     float calibrated_uu{lens_distortion_center_x + calibrated_delta_uu};
     float calibrated_vv{lens_distortion_center_y + calibrated_delta_vv};
