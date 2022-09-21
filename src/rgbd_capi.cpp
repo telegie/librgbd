@@ -336,18 +336,12 @@ void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
 
 void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
                                        const uint8_t* y_channel,
-                                       size_t y_channel_size,
                                        const uint8_t* u_channel,
-                                       size_t u_channel_size,
                                        const uint8_t* v_channel,
-                                       size_t v_channel_size,
                                        bool keyframe)
 {
     auto encoder{static_cast<rgbd::FFmpegVideoEncoder*>(ptr)};
-    auto frame{encoder->encode(gsl::span<const uint8_t>{y_channel, y_channel_size},
-                               gsl::span<const uint8_t>{u_channel, u_channel_size},
-                               gsl::span<const uint8_t>{v_channel, v_channel_size},
-                               keyframe)};
+    auto frame{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
     return frame.release();
 }
 //////// START FFMPEG VIDEO ENCODER ////////

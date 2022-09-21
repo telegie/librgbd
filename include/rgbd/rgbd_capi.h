@@ -152,11 +152,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
                                                                  const uint8_t* y_channel,
-                                                                 size_t y_channel_size,
                                                                  const uint8_t* u_channel,
-                                                                 size_t u_channel_size,
                                                                  const uint8_t* v_channel,
-                                                                 size_t v_channel_size,
                                                                  bool keyframe);
     //////// START FFMPEG VIDEO ENCODER ////////
 

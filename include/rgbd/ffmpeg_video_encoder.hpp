@@ -16,9 +16,9 @@ public:
     FFmpegVideoEncoder(
         ColorCodecType type, int width, int height, int target_bitrate, int framerate);
     unique_ptr<FFmpegVideoEncoderFrame> encode(const YuvFrame& yuv_image, bool keyframe);
-    unique_ptr<FFmpegVideoEncoderFrame> encode(gsl::span<const uint8_t> y_channel,
-                                               gsl::span<const uint8_t> u_channel,
-                                               gsl::span<const uint8_t> v_channel,
+    unique_ptr<FFmpegVideoEncoderFrame> encode(const uint8_t* y_channel,
+                                               const uint8_t* u_channel,
+                                               const uint8_t* v_channel,
                                                const bool keyframe);
     AVCodecContextHandle& codec_context()
     {

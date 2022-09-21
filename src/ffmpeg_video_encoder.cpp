@@ -64,15 +64,15 @@ FFmpegVideoEncoder::FFmpegVideoEncoder(
 
 unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
 {
-    return encode(yuv_image.y_channel(),
-                  yuv_image.u_channel(),
-                  yuv_image.v_channel(),
+    return encode(yuv_image.y_channel().data(),
+                  yuv_image.u_channel().data(),
+                  yuv_image.v_channel().data(),
                   keyframe);
 }
 
-unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(gsl::span<const uint8_t> y_channel,
-                                                               gsl::span<const uint8_t> u_channel,
-                                                               gsl::span<const uint8_t> v_channel,
+unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const uint8_t* y_channel,
+                                                               const uint8_t* u_channel,
+                                                               const uint8_t* v_channel,
                                                                const bool keyframe)
 {
     for (int row{0}; row < codec_context_->height; ++row) {
