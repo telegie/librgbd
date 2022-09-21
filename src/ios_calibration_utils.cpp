@@ -17,19 +17,12 @@ float get_magnification(float r, const vector<float>& lens_distortion_lookup_tab
     return (1.0f - frac) * mag1 + frac * mag2;
 }
 
-float apply_magnification(float value, float center, float magnification)
-{
-    float diff{value - center};
-    return diff + magnification * diff + center;
-}
-
+// Reference: https://github.com/shu223/iOS-Depth-Sampler/issues/5
 glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const glm::vec2& uv)
 {
-    float fx{calibration.fx()};
-    float fy{calibration.fy()};
-    float ox{calibration.ox()};
-    float oy{calibration.oy()};
-
+    // The lookup table holds the relative radial magnification for n linearly spaced radii.
+    // The first position corresponds to radius = 0
+    // The last position corresponds to the largest radius found in the image.
     float reference_dimension_width{calibration.reference_dimension_width()};
     float reference_dimension_height{calibration.reference_dimension_height()};
 
@@ -37,21 +30,34 @@ glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const g
     float lens_distortion_center_y{calibration.lens_distortion_center_y()};
     const vector<float>& lens_distortion_lookup_table{calibration.lens_distortion_lookup_table()};
 
-    float delta_x_max{std::max(ox, reference_dimension_width - ox)};
-    float delta_y_max{std::max(oy, reference_dimension_height - oy)};
-    float r_max{std::sqrt(delta_x_max * delta_x_max + delta_y_max * delta_y_max)};
+    // uu and vv are u and v in the reference width/height dimension.
+    float uu{uv.x * reference_dimension_width};
+    float vv{(1.0f - uv.y) * reference_dimension_height};
 
-    // u, v are in the reference dimension
-    float u{uv.x * reference_dimension_width};
-    float v{(1.0f - uv.y) * reference_dimension_height};
-    float r{std::sqrt(u * u + v * v)};
+    float delta_uu{uu - lens_distortion_center_x};
+    float delta_vv{vv - lens_distortion_center_y};
+    float r{std::sqrt(delta_uu * delta_uu + delta_vv * delta_vv)};
+
+    // Find the largest r value possible.
+    float delta_uu_max{std::max(lens_distortion_center_x, reference_dimension_width - lens_distortion_center_x)};
+    float delta_vv_max{std::max(lens_distortion_center_y, reference_dimension_height - lens_distortion_center_y)};
+    float r_max{std::sqrt(delta_uu_max * delta_uu_max + delta_vv_max * delta_vv_max)};
 
     float magnification{get_magnification(r, lens_distortion_lookup_table, r_max)};
 
-    // uu, vv are with lens distortion calibrated
-    float uu{apply_magnification(u, lens_distortion_center_x, magnification)};
-    float vv{apply_magnification(v, lens_distortion_center_y, magnification)};
+    // calibrated_uu, vv are with lens distortion calibrated
+    float calibrated_delta_uu{delta_uu * magnification};
+    float calibrated_delta_vv{delta_vv * magnification};
 
-    return glm::vec3{(uu - ox) / fx, (vv - oy) / fy, -1.0f};
+    float calibrated_uu{lens_distortion_center_x + calibrated_delta_uu};
+    float calibrated_vv{lens_distortion_center_y + calibrated_delta_vv};
+
+    float fx{calibration.fx()};
+    float fy{calibration.fy()};
+    float ox{calibration.ox()};
+    float oy{calibration.oy()};
+    // fx, fy, ox, oy are large numbers, expecting values coming from the reference dimension.
+    // So using uu and vv directly without converting them back to u and v.
+    return glm::vec3{(calibrated_uu - ox) / fx, (calibrated_vv - oy) / fy, -1.0f};
 }
 } // namespace tg
