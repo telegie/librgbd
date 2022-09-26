@@ -17,20 +17,6 @@ auto get_random_number()
     return random_device();
 }
 
-unique_ptr<DepthEncoder> create_depth_encoder(DepthCodecType depth_codec_type,
-                                              int width,
-                                              int height,
-                                              int depth_diff_multiplier)
-{
-    if (depth_codec_type == DepthCodecType::RVL)
-        return DepthEncoder::createRVLEncoder(width, height);
-    if (depth_codec_type == DepthCodecType::TDC1)
-        return DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier);
-
-    spdlog::error("Invalid DepthCodecType found: {}", depth_codec_type);
-    throw std::runtime_error("Invalid DepthCodecType found");
-}
-
 void convert_yuv_to_rgb(int y_row,
                         int y_col,
                         int y_width,
@@ -122,11 +108,8 @@ vector<byte> convert_vec3_to_bytes(const glm::vec3 v)
 }
 
 FileWriter::FileWriter(const string& file_path,
-                       bool has_depth_confidence,
                        const CameraCalibration& calibration,
-                       int framerate,
-                       DepthCodecType depth_codec_type,
-                       int samplerate)
+                       const FileWriterConfig& config)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
@@ -184,7 +167,7 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackName>(*color_track_).SetValueUTF8("COLOR");
         GetChild<KaxCodecID>(*color_track_).SetValue("V_VP8");
 
-        GetChild<KaxTrackDefaultDuration>(*color_track_).SetValue(ONE_SECOND_NS / framerate);
+        GetChild<KaxTrackDefaultDuration>(*color_track_).SetValue(ONE_SECOND_NS / config.framerate);
         auto& color_video_track{GetChild<KaxTrackVideo>(*color_track_)};
         GetChild<KaxVideoPixelWidth>(color_video_track).SetValue(calibration.getColorWidth());
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
@@ -202,15 +185,15 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackUID>(*depth_track_).SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*depth_track_).SetValue(track_video);
         GetChild<KaxTrackName>(*depth_track_).SetValueUTF8("DEPTH");
-        if (depth_codec_type == DepthCodecType::RVL) {
+        if (config.depth_codec_type == DepthCodecType::RVL) {
             GetChild<KaxCodecID>(*depth_track_).SetValue("V_RVL");
-        } else if (depth_codec_type == DepthCodecType::TDC1) {
+        } else if (config.depth_codec_type == DepthCodecType::TDC1) {
             GetChild<KaxCodecID>(*depth_track_).SetValue("V_TDC1");
         } else {
             throw std::runtime_error("Invalid depth codec found");
         }
 
-        GetChild<KaxTrackDefaultDuration>(*depth_track_).SetValue(ONE_SECOND_NS / framerate);
+        GetChild<KaxTrackDefaultDuration>(*depth_track_).SetValue(ONE_SECOND_NS / config.framerate);
         auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
         GetChild<KaxVideoPixelHeight>(depth_video_track).SetValue(calibration.getDepthHeight());
@@ -218,7 +201,7 @@ FileWriter::FileWriter(const string& file_path,
     //
     // depth_confidence_track_ init
     //
-    if (has_depth_confidence) {
+    if (config.has_depth_confidence) {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         depth_confidence_track_ = new KaxTrackEntry;
         tracks.PushElement(
@@ -232,7 +215,7 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxCodecID>(*depth_confidence_track_).SetValue("V_RVL");
 
         GetChild<KaxTrackDefaultDuration>(*depth_confidence_track_)
-            .SetValue(ONE_SECOND_NS / framerate);
+            .SetValue(ONE_SECOND_NS / config.framerate);
         auto& depth_confidence_video_track{GetChild<KaxTrackVideo>(*depth_confidence_track_)};
         GetChild<KaxVideoPixelWidth>(depth_confidence_video_track)
             .SetValue(calibration.getDepthWidth());
@@ -276,7 +259,7 @@ FileWriter::FileWriter(const string& file_path,
         append_bytes(opus_head_bytes, convert_to_bytes(channel_count));
         uint16_t preskip{3840};
         append_bytes(opus_head_bytes, convert_to_bytes(preskip));
-        uint32_t intput_samplerate{gsl::narrow<uint32_t>(samplerate)};
+        uint32_t intput_samplerate{gsl::narrow<uint32_t>(config.samplerate)};
         append_bytes(opus_head_bytes, convert_to_bytes(intput_samplerate));
         uint16_t output_gain{0};
         append_bytes(opus_head_bytes, convert_to_bytes(output_gain));
@@ -292,10 +275,10 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxCodecPrivate>(*audio_track_).SetBuffer(opus_head, OPUS_HEAD_SIZE);
 
         // KaxTrackDefaultDuration expects "number of nanoseconds (not scaled) per frame" here.
-        GetChild<KaxTrackDefaultDuration>(*audio_track_).SetValue(ONE_SECOND_NS / samplerate);
+        GetChild<KaxTrackDefaultDuration>(*audio_track_).SetValue(ONE_SECOND_NS / config.samplerate);
         auto& audio_track_details = GetChild<KaxTrackAudio>(*audio_track_);
-        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(samplerate);
-        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(samplerate);
+        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(config.samplerate);
+        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(config.samplerate);
         GetChild<KaxAudioChannels>(audio_track_details).SetValue(AUDIO_INPUT_CHANNEL_COUNT);
         GetChild<KaxAudioBitDepth>(audio_track_details).SetValue(sizeof(float) * 8);
     }

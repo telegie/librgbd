@@ -31,15 +31,21 @@
 
 namespace rgbd
 {
+struct FileWriterConfig
+{
+    int framerate{30};
+    int samplerate{AUDIO_SAMPLE_RATE};
+    optional<DepthCodecType> depth_codec_type{std::nullopt};
+    bool has_depth_confidence{false};
+    float depth_unit{DEFAULT_DEPTH_UNIT}; // 1 mm
+};
+
 class FileWriter
 {
 public:
     FileWriter(const string& file_path,
-               bool has_depth_confidence,
                const CameraCalibration& calibration,
-               int framerate,
-               DepthCodecType depth_codec_type,
-               int samplerate);
+               const FileWriterConfig& config);
     void writeCover(const YuvFrame& yuv_frame);
     void writeCover(int width,
                     int height,

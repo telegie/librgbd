@@ -212,8 +212,7 @@ void* rgbd_depth_encoder_create_rvl_encoder(int width, int height)
     return rgbd::DepthEncoder::createRVLEncoder(width, height).release();
 }
 
-void*
-rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier)
+void* rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier)
 {
     return rgbd::DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier).release();
 }
@@ -727,19 +726,11 @@ int rgbd_file_video_track_get_height(void* ptr)
 //////// START FILE VIDEO TRACK ////////
 
 //////// START FILE WRITER ////////
-void* rgbd_file_writer_ctor(const char* file_path,
-                            bool has_depth_confidence,
-                            void* calibration,
-                            int framerate,
-                            rgbdDepthCodecType depth_codec_type,
-                            int samplerate)
+void* rgbd_file_writer_ctor(const char* file_path, void* calibration, void* config)
 {
     return new rgbd::FileWriter(file_path,
-                                has_depth_confidence,
                                 *static_cast<const rgbd::CameraCalibration*>(calibration),
-                                framerate,
-                                static_cast<rgbd::DepthCodecType>(depth_codec_type),
-                                samplerate);
+                                *static_cast<const rgbd::FileWriterConfig*>(config));
 }
 
 void rgbd_file_writer_dtor(void* ptr)
@@ -839,6 +830,44 @@ void rgbd_file_writer_flush(void* ptr)
     return static_cast<rgbd::FileWriter*>(ptr)->flush();
 }
 //////// END FILE WRITER ////////
+
+//////// START FILE WRITER CONFIG ////////
+void* rgbd_file_writer_config_ctor()
+{
+    return new rgbd::FileWriterConfig;
+}
+
+void rgbd_file_writer_config_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileWriterConfig*>(ptr);
+}
+
+void rgbd_file_writer_config_set_framerate(void* ptr, int framerate)
+{
+    static_cast<rgbd::FileWriterConfig*>(ptr)->framerate = framerate;
+}
+
+void rgbd_file_writer_config_set_samplerate(void* ptr, int samplerate)
+{
+    static_cast<rgbd::FileWriterConfig*>(ptr)->samplerate = samplerate;
+}
+
+void rgbd_file_writer_config_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
+{
+    static_cast<rgbd::FileWriterConfig*>(ptr)->depth_codec_type =
+        static_cast<rgbd::DepthCodecType>(depth_codec_type);
+}
+
+void rgbd_file_writer_config_set_has_depth_confidence(void* ptr, bool has_depth_confidence)
+{
+    static_cast<rgbd::FileWriterConfig*>(ptr)->has_depth_confidence = has_depth_confidence;
+}
+
+void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)
+{
+    static_cast<rgbd::FileWriterConfig*>(ptr)->depth_unit = depth_unit;
+}
+//////// END FILE WRITER CONFIG ////////
 
 //////// START KINECT CAMERA CALIBRATION ////////
 void* rgbd_kinect_camera_calibration_ctor(int color_width,
@@ -1076,13 +1105,13 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 
 //////// START UNDISTORTED CAMERA CALIBRATION ////////
 void* rgbd_undistorted_camera_calibration_ctor(int color_width,
-                                                                     int color_height,
-                                                                     int depth_width,
-                                                                     int depth_height,
-                                                                     float fx,
-                                                                     float fy,
-                                                                     float cx,
-                                                                     float cy)
+                                               int color_height,
+                                               int depth_width,
+                                               int depth_height,
+                                               float fx,
+                                               float fy,
+                                               float cx,
+                                               float cy)
 {
     return new rgbd::UndistortedCameraCalibration{
         color_width, color_height, depth_width, depth_height, fx, fy, cx, cy};
