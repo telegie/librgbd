@@ -3,11 +3,11 @@
 #include <cli/loopscheduler.h>
 #include <cxxopts.hpp>
 #include <fstream>
-#include <rgbd/file_parser.hpp>
-#include <rgbd/video_folder.hpp>
-#include <rgbd/file_writer.hpp>
 #include <rgbd/ffmpeg_video_decoder.hpp>
+#include <rgbd/file_parser.hpp>
+#include <rgbd/file_writer.hpp>
 #include <rgbd/tdc1_decoder.hpp>
+#include <rgbd/video_folder.hpp>
 
 namespace rgbd
 {
@@ -19,7 +19,7 @@ void print_help(const cxxopts::Options& options)
 void print_file_info(std::ostream& out, const std::string& file_path)
 {
     FileParser parser{file_path};
-    auto file{parser.parseNoFrames()};
+    auto file{parser.parseAllFrames()};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
     size_t depth_confidence_byte_size{0};
@@ -31,10 +31,14 @@ void print_file_info(std::ostream& out, const std::string& file_path)
             depth_confidence_byte_size += depth_confidence_bytes->size();
     }
     out << fmt::format("Total video frame count: {}\n", file->video_frames().size());
-    out << fmt::format("Color track codec: {}\n", file->tracks().color_track.codec);
-    out << fmt::format("Color track size: {} KB\n", color_byte_size / 1024);
-    out << fmt::format("Depth track codec: {}\n", file->tracks().depth_track.codec);
-    out << fmt::format("Depth track size: {} KB\n", depth_byte_size / 1024);
+    out << fmt::format("Color codec: {}\n", file->tracks().color_track.codec);
+    out << fmt::format("Color width: {}\n", file->tracks().color_track.width);
+    out << fmt::format("Color height: {}\n", file->tracks().color_track.height);
+    out << fmt::format("Color byte size: {} KB\n", color_byte_size / 1024);
+    out << fmt::format("Depth codec: {}\n", file->tracks().depth_track.codec);
+    out << fmt::format("Color width: {}\n", file->tracks().depth_track.width);
+    out << fmt::format("Color height: {}\n", file->tracks().depth_track.height);
+    out << fmt::format("Depth byte size: {} KB\n", depth_byte_size / 1024);
 
     if (file->tracks().depth_confidence_track) {
         out << fmt::format("Depth confidence track codec: {}\n",
@@ -43,6 +47,9 @@ void print_file_info(std::ostream& out, const std::string& file_path)
     } else {
         out << "No depth confidence track." << std::endl;
     }
+
+    auto device_type{file->attachments().camera_calibration->getCameraDeviceType()};
+    out << fmt::format("Camera Device Type: {}\n", stringify_camera_device_type(device_type));
 }
 
 void extract_cover(const std::string& file_path)
@@ -96,14 +103,10 @@ void split_file(const std::string& file_path)
                 DepthCodecType::TDC1,
                 static_cast<int>(file->tracks().audio_track.sampling_frequency));
 
-            color_encoder = std::make_unique<FFmpegVideoEncoder>(ColorCodecType::VP8,
-                                                                 color_frame.width(),
-                                                                 color_frame.height(),
-                                                                 2500,
-                                                                 30);
-            depth_encoder = DepthEncoder::createTDC1Encoder(depth_frame.width(),
-                                                            depth_frame.height(),
-                                                            500);
+            color_encoder = std::make_unique<FFmpegVideoEncoder>(
+                ColorCodecType::VP8, color_frame.width(), color_frame.height(), 2500, 30);
+            depth_encoder =
+                DepthEncoder::createTDC1Encoder(depth_frame.width(), depth_frame.height(), 500);
             first = true;
 
             file_writer->writeCover(color_frame);

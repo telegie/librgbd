@@ -1,12 +1,12 @@
 #pragma once
 
+#include <gsl/gsl>
 #include <list>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
-#include <gsl/gsl>
 #pragma warning(push)
 #pragma warning(disable : 26819 26495 28020)
 #include <nlohmann/json.hpp>
@@ -45,6 +45,8 @@ enum class CameraDeviceType : int32_t
     IOS = 1,
     Undistorted = 2
 };
+
+string stringify_camera_device_type(const CameraDeviceType& camera_device_type);
 
 enum class ColorCodecType : int32_t
 {
@@ -88,4 +90,4 @@ constexpr int DEFAULT_AUDIO_RING_BUFFER_SECONDS_RECIPROCAL{5};
 // Divided with sizeof(float) as the ring buffer holds floats, not bytes.
 constexpr int DEFAULT_AUDIO_RING_BUFFER_SIZE{AUDIO_SAMPLE_RATE * AUDIO_INPUT_CHANNEL_COUNT /
                                              DEFAULT_AUDIO_RING_BUFFER_SECONDS_RECIPROCAL};
-}
+} // namespace rgbd
