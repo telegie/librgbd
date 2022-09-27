@@ -28,6 +28,11 @@ int RGBD_PATCH_VERSION()
     return rgbd::PATCH_VERSION;
 }
 
+float RGBD_DEFAULT_DEPTH_UNIT()
+{
+    return rgbd::DEFAULT_DEPTH_UNIT;
+}
+
 int RGBD_AUDIO_SAMPLE_RATE()
 {
     return rgbd::AUDIO_SAMPLE_RATE;
