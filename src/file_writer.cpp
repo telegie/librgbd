@@ -194,6 +194,15 @@ FileWriter::FileWriter(const string& file_path,
         }
 
         GetChild<KaxTrackDefaultDuration>(*depth_track_).SetValue(ONE_SECOND_NS / config.framerate);
+
+        json codec_private_json{{"depthUnit", config.depth_unit}};
+        string codec_private_str{codec_private_json.dump()};
+        std::vector<char> codec_private_vector(codec_private_str.begin(), codec_private_str.end());
+        GetChild<KaxCodecPrivate>(*depth_track_)
+            .CopyBuffer(reinterpret_cast<binary*>(codec_private_vector.data()),
+                        gsl::narrow<uint32_t>(codec_private_vector.size()));
+        spdlog::info("FileWriter codec_private_str: {}", codec_private_str);
+
         auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
         GetChild<KaxVideoPixelHeight>(depth_video_track).SetValue(calibration.getDepthHeight());
@@ -275,7 +284,8 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxCodecPrivate>(*audio_track_).SetBuffer(opus_head, OPUS_HEAD_SIZE);
 
         // KaxTrackDefaultDuration expects "number of nanoseconds (not scaled) per frame" here.
-        GetChild<KaxTrackDefaultDuration>(*audio_track_).SetValue(ONE_SECOND_NS / config.samplerate);
+        GetChild<KaxTrackDefaultDuration>(*audio_track_)
+            .SetValue(ONE_SECOND_NS / config.samplerate);
         auto& audio_track_details = GetChild<KaxTrackAudio>(*audio_track_);
         GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(config.samplerate);
         GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(config.samplerate);
@@ -480,15 +490,17 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->EnableChecksum();
 
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto color_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
-                                          gsl::narrow<uint32_t>(color_bytes.size())}};
+    auto color_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
+                       gsl::narrow<uint32_t>(color_bytes.size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*color_track_, video_timecode, *color_data_buffer);
 
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto depth_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(depth_bytes.data())),
-                                          gsl::narrow<uint32_t>(depth_bytes.size())}};
+    auto depth_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(depth_bytes.data())),
+                       gsl::narrow<uint32_t>(depth_bytes.size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
     depth_block_blob->AddFrameAuto(*depth_track_, video_timecode, *depth_data_buffer);
@@ -544,8 +556,9 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
     // const_cast is okay here since the audio_bytes will not be modified here,
     // and this lets the argument become a const one, which is helpful for the C API side.
     // For example, this makes calling the C API easier from Swift.
-    auto data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(audio_bytes.data())),
-                                    gsl::narrow<uint32_t>(audio_bytes.size())}};
+    auto data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(audio_bytes.data())),
+                       gsl::narrow<uint32_t>(audio_bytes.size())}};
     audio_cluster->AddBlockBlob(block_blob);
     block_blob->SetParent(*audio_cluster);
     block_blob->AddFrameAuto(*audio_track_, audio_cluster_timecode, *data_buffer);
@@ -584,7 +597,8 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
                        gsl::narrow<uint32_t>(acceleration_bytes.size())}};
     imu_cluster->AddBlockBlob(acceleration_block_blob);
     acceleration_block_blob->SetParent(*imu_cluster);
-    acceleration_block_blob->AddFrameAuto(*acceleration_track_, imu_timecode, *acceleration_data_buffer);
+    acceleration_block_blob->AddFrameAuto(
+        *acceleration_track_, imu_timecode, *acceleration_data_buffer);
 
     vector<byte> rotation_rate_bytes(convert_vec3_to_bytes(rotation_rate));
 
@@ -594,7 +608,8 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
                        gsl::narrow<uint32_t>(rotation_rate_bytes.size())}};
     imu_cluster->AddBlockBlob(rotation_rate_block_blob);
     rotation_rate_block_blob->SetParent(*imu_cluster);
-    rotation_rate_block_blob->AddFrameAuto(*rotation_rate_track_, imu_timecode, *rotation_rate_data_buffer);
+    rotation_rate_block_blob->AddFrameAuto(
+        *rotation_rate_track_, imu_timecode, *rotation_rate_data_buffer);
 
     vector<byte> magnetic_field_bytes(convert_vec3_to_bytes(magnetic_field));
 
@@ -604,14 +619,14 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
                        gsl::narrow<uint32_t>(magnetic_field_bytes.size())}};
     imu_cluster->AddBlockBlob(magnetic_field_block_blob);
     magnetic_field_block_blob->SetParent(*imu_cluster);
-    magnetic_field_block_blob->AddFrameAuto(*magnetic_field_track_, imu_timecode, *magnetic_field_data_buffer);
+    magnetic_field_block_blob->AddFrameAuto(
+        *magnetic_field_track_, imu_timecode, *magnetic_field_data_buffer);
 
     vector<byte> gravity_bytes(convert_vec3_to_bytes(gravity));
 
     auto gravity_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto gravity_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(gravity_bytes.data()),
-                       gsl::narrow<uint32_t>(gravity_bytes.size())}};
+    auto gravity_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(gravity_bytes.data()),
+                                            gsl::narrow<uint32_t>(gravity_bytes.size())}};
     imu_cluster->AddBlockBlob(gravity_block_blob);
     gravity_block_blob->SetParent(*imu_cluster);
     gravity_block_blob->AddFrameAuto(*gravity_track_, imu_timecode, *gravity_data_buffer);

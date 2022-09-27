@@ -348,6 +348,19 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
+                spdlog::info("before codec_private");
+                auto codec_private{FindChild<KaxCodecPrivate>(*track_entry)};
+                if (codec_private) {
+                    vector<char> codec_private_vector(codec_private->GetSize());
+                    memcpy(codec_private_vector.data(), codec_private->GetBuffer(), codec_private->GetSize());
+                    string codec_private_str{codec_private_vector.begin(), codec_private_vector.end()};
+                    // Brace initialization of json behaves differently in gcc than in clang.
+                    // Do not use brace initialization.
+                    // reference: https://github.com/nlohmann/json/issues/2339
+                    json codec_private_json(json::parse(codec_private_str));
+                    spdlog::info("codec_private: {}", codec_private_json.dump(4));
+                }
+
                 depth_track = FileVideoTrack{};
                 depth_track->track_number = gsl::narrow<int>(track_number);
                 depth_track->codec = codec_id;
