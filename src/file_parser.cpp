@@ -309,7 +309,7 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& seg
 optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
 {
     optional<FileVideoTrack> color_track{nullopt};
-    optional<FileVideoTrack> depth_track{nullopt};
+    optional<FileDepthVideoTrack> depth_track{nullopt};
     optional<FileVideoTrack> depth_confidence_track{nullopt};
     optional<FileAudioTrack> audio_track{nullopt};
     optional<int> floor_track_number{nullopt};
@@ -349,6 +349,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
                 spdlog::info("before codec_private");
+                float depth_unit{DEFAULT_DEPTH_UNIT};
                 auto codec_private{FindChild<KaxCodecPrivate>(*track_entry)};
                 if (codec_private) {
                     vector<char> codec_private_vector(codec_private->GetSize());
@@ -359,14 +360,17 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                     // reference: https://github.com/nlohmann/json/issues/2339
                     json codec_private_json(json::parse(codec_private_str));
                     spdlog::info("codec_private: {}", codec_private_json.dump(4));
+                    depth_unit = codec_private_json["depthUnit"].get<float>();
+                    spdlog::info("depth_unit: {}", depth_unit);
                 }
 
-                depth_track = FileVideoTrack{};
+                depth_track = FileDepthVideoTrack{};
                 depth_track->track_number = gsl::narrow<int>(track_number);
                 depth_track->codec = codec_id;
                 depth_track->default_duration_ns = default_duration;
                 depth_track->width = gsl::narrow<int>(width);
                 depth_track->height = gsl::narrow<int>(height);
+                depth_track->depth_unit = depth_unit;
             } else if (track_name == "DEPTH_CONFIDENCE") {
                 auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
                 uint64_t default_duration{

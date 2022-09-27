@@ -50,6 +50,11 @@ struct FileVideoTrack
     int height;
 };
 
+struct FileDepthVideoTrack : public FileVideoTrack
+{
+    float depth_unit;
+};
+
 struct FileAudioTrack
 {
     int track_number;
@@ -59,7 +64,7 @@ struct FileAudioTrack
 struct FileTracks
 {
     FileVideoTrack color_track;
-    FileVideoTrack depth_track;
+    FileDepthVideoTrack depth_track;
     optional<FileVideoTrack> depth_confidence_track;
     FileAudioTrack audio_track;
     int floor_track_number;
