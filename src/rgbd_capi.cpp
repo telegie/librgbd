@@ -470,6 +470,13 @@ double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 }
 //////// END FILE AUDIO TRACK ////////
 
+//////// START FILE DEPTH VIDEO TRACK ////////
+float rgbd_file_depth_video_track_get_depth_unit(void* ptr)
+{
+    return static_cast<rgbd::FileDepthVideoTrack*>(ptr)->depth_unit;
+}
+//////// END FILE DEPTH VIDEO TRACK ////////
+
 //////// START FILE FRAME ////////
 void rgbd_file_frame_dtor(void* ptr)
 {

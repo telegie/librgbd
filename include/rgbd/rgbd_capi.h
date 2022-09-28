@@ -193,6 +193,10 @@ extern "C"
     RGBD_INTERFACE_EXPORT double rgbd_file_audio_track_get_sampling_frequency(void* ptr);
     //////// END FILE AUDIO TRACK ////////
 
+    //////// START FILE DEPTH VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT float rgbd_file_depth_video_track_get_depth_unit(void* ptr);
+    //////// END FILE DEPTH VIDEO TRACK ////////
+
     //////// START FILE FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
