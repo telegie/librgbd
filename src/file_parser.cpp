@@ -348,7 +348,6 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
-                spdlog::info("before codec_private");
                 float depth_unit{DEFAULT_DEPTH_UNIT};
                 auto codec_private{FindChild<KaxCodecPrivate>(*track_entry)};
                 if (codec_private) {
