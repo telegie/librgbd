@@ -95,13 +95,10 @@ void split_file(const std::string& file_path)
                 file_writer->flush();
 
             auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
+            FileWriterConfig writer_config;
+            writer_config.depth_codec_type = DepthCodecType::TDC1;
             file_writer = std::make_unique<FileWriter>(
-                output_path,
-                false,
-                *file->attachments().camera_calibration,
-                30,
-                DepthCodecType::TDC1,
-                static_cast<int>(file->tracks().audio_track.sampling_frequency));
+                output_path, *file->attachments().camera_calibration, writer_config);
 
             color_encoder = std::make_unique<FFmpegVideoEncoder>(
                 ColorCodecType::VP8, color_frame.width(), color_frame.height(), 2500, 30);
