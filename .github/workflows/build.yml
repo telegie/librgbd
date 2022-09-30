@@ -22,22 +22,3 @@ jobs:
         run: |
           cd build
           make -j2
-
-  bulid-macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository and submodules
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Configure
-        run: |
-          mkdir build
-          cd build
-          cmake ../
-
-      - name: Build
-        run: |
-          cd build
-          make -j2
