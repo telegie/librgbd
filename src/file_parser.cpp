@@ -358,9 +358,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                     // Do not use brace initialization.
                     // reference: https://github.com/nlohmann/json/issues/2339
                     json codec_private_json(json::parse(codec_private_str));
-                    spdlog::info("codec_private: {}", codec_private_json.dump(4));
                     depth_unit = codec_private_json["depthUnit"].get<float>();
-                    spdlog::info("depth_unit: {}", depth_unit);
                 }
 
                 depth_track = FileDepthVideoTrack{};
