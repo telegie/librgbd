@@ -127,6 +127,69 @@ void split_file(const std::string& file_path)
     file_writer->flush();
 }
 
+void trim_file(const std::string& file_path, float from_sec, float to_sec)
+{
+    int64_t from_us{static_cast<int64_t>(from_sec * 1000000)};
+    int64_t to_us{static_cast<int64_t>(to_sec * 1000000)};
+    FileParser parser{file_path};
+    auto file{parser.parseAllFrames()};
+    auto& video_frames{file->video_frames()};
+
+    auto output_path{"trimmed.mkv"};
+    FileWriterConfig writer_config;
+    writer_config.depth_codec_type = DepthCodecType::TDC1;
+    FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
+
+    FFmpegVideoEncoder color_encoder{ColorCodecType::VP8,
+                                     file->tracks().color_track.width,
+                                     file->tracks().color_track.height,
+                                     2500,
+                                     30};
+    unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
+        file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
+
+    FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
+    TDC1Decoder depth_decoder;
+
+    int previous_keyframe_index{-1};
+    for (auto& video_frame : video_frames) {
+        int64_t original_global_timecode{video_frame->global_timecode()};
+        if (original_global_timecode < from_us)
+            continue;
+        if (original_global_timecode > to_us)
+            break;
+
+        int64_t trimmed_global_timecode{video_frame->global_timecode() - from_us};
+        constexpr int TWO_SECONDS{2000000};
+        int keyframe_index{gsl::narrow<int>(trimmed_global_timecode / TWO_SECONDS)};
+
+        YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
+        Int32Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+
+        bool keyframe{false};
+        if (keyframe_index == previous_keyframe_index + 1) {
+            if (keyframe_index == 0)
+                file_writer.writeCover(color_frame);
+
+            keyframe = true;
+            previous_keyframe_index = keyframe_index;
+        } else if(keyframe_index != previous_keyframe_index) {
+            throw std::runtime_error("Invalid keyframe_index found...");
+        }
+
+        auto encoded_color_frame{color_encoder.encode(color_frame, keyframe)};
+        auto encoded_depth_frame{depth_encoder->encode(depth_frame.values(), keyframe)};
+
+        file_writer.writeVideoFrame(trimmed_global_timecode,
+                                     encoded_color_frame->packet.getDataBytes(),
+                                     encoded_depth_frame,
+                                     nullopt,
+                                     video_frame->floor());
+    }
+
+    file_writer.flush();
+}
+
 int main(int argc, char** argv)
 {
     cxxopts::Options options{"rgbd-cli", "CLI for librgbd."};
@@ -168,6 +231,18 @@ int main(int argc, char** argv)
         auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
         auto file_path{video_folder->runSelectFileCLI()};
         split_file(file_path->generic_u8string());
+    });
+    root_menu->Insert("trim", [](std::ostream& out) {
+        auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
+        auto file_path{video_folder->runSelectFileCLI()};
+
+        std::cout << "From:" << std::endl;
+        float from_sec;
+        std::cin >> from_sec;
+        std::cout << "To:" << std::endl;
+        float to_sec;
+        std::cin >> to_sec;
+        trim_file(file_path->generic_u8string(), from_sec, to_sec);
     });
 
     // create the cli with the root menu
