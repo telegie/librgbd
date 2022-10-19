@@ -227,7 +227,7 @@ extern "C"
     //////// END FILE INFO ////////
 
     //////// START FILE PARSER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size);
+    RGBD_INTERFACE_EXPORT int rgbd_file_parser_ctor_from_data(void** parser_ptr, void* data_ptr, size_t data_size);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_parse_no_frames(void* ptr);

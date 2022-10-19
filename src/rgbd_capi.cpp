@@ -587,13 +587,14 @@ void* rgbd_file_info_get_writing_app(void* ptr)
 //////// END FILE INFO ////////
 
 //////// START FILE PARSER ////////
-void* rgbd_file_parser_ctor_from_data(void* ptr, size_t size)
+int rgbd_file_parser_ctor_from_data(void** parser_ptr, void* data_ptr, size_t data_size)
 {
     try {
-        return new rgbd::FileParser{ptr, size};
+        *parser_ptr = new rgbd::FileParser{data_ptr, data_size};
+        return 0;
     } catch (std::runtime_error e) {
-        spdlog::error("error from rgbd_file_parser_ctor: {}", e.what());
-        return nullptr;
+        spdlog::error("error from rgbd_file_parser_ctor_from_data: {}", e.what());
+        return -1;
     }
 }
 
