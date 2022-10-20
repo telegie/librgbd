@@ -787,13 +787,8 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                         const uint8_t* depth_bytes,
                                         size_t depth_byte_size,
                                         const uint8_t* depth_confidence_values,
-                                        size_t depth_confidence_values_size,
-                                        float floor_normal_x,
-                                        float floor_normal_y,
-                                        float floor_normal_z,
-                                        float floor_distance)
+                                        size_t depth_confidence_values_size)
 {
-    glm::vec3 floor_normal{floor_normal_x, floor_normal_y, floor_normal_z};
     if (depth_confidence_values) {
         static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
@@ -801,8 +796,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                        color_byte_size},
             gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
                                        depth_byte_size},
-            gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size},
-            rgbd::Plane{floor_normal, floor_distance});
+            gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size});
     } else {
         static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
             time_point_us,
@@ -810,8 +804,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                        color_byte_size},
             gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
                                        depth_byte_size},
-            std::nullopt,
-            rgbd::Plane{floor_normal, floor_distance});
+            std::nullopt);
     }
 }
 

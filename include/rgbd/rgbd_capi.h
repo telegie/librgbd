@@ -284,11 +284,7 @@ extern "C"
                                        const uint8_t* depth_bytes,
                                        size_t depth_byte_size,
                                        const uint8_t* depth_confidence_values,
-                                       size_t depth_confidence_values_size,
-                                       float floor_normal_x,
-                                       float floor_normal_y,
-                                       float floor_normal_z,
-                                       float floor_distance);
+                                       size_t depth_confidence_values_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_audio_frame(void* ptr,
                                                                   int64_t time_point_us,
                                                                   const uint8_t* audio_bytes,

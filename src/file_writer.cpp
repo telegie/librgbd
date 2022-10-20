@@ -1,7 +1,6 @@
 #include "file_writer.hpp"
 
 #include <rgbd/png_utils.hpp>
-#include <rgbd/rvl_encoder.hpp>
 
 using namespace LIBMATROSKA_NAMESPACE;
 
@@ -118,7 +117,6 @@ FileWriter::FileWriter(const string& file_path,
     , depth_track_{nullptr}
     , depth_confidence_track_{nullptr}
     , audio_track_{nullptr}
-    , floor_track_{nullptr}
     , acceleration_track_{nullptr}
     , rotation_rate_track_{nullptr}
     , magnetic_field_track_{nullptr}
@@ -146,11 +144,10 @@ FileWriter::FileWriter(const string& file_path,
     constexpr uint64_t DEPTH_TRACK_NUMBER{2};
     constexpr uint64_t DEPTH_CONFIDENCE_TRACK_NUMBER{3};
     constexpr uint64_t AUDIO_TRACK_NUMBER{4};
-    constexpr uint64_t FLOOR_TRACK_NUMBER{5};
-    constexpr uint64_t ACCELERATION_TRACK_NUMBER{6};
-    constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{7};
-    constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{8};
-    constexpr uint64_t GRAVITY_TRACK_NUMBER{9};
+    constexpr uint64_t ACCELERATION_TRACK_NUMBER{5};
+    constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{6};
+    constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{7};
+    constexpr uint64_t GRAVITY_TRACK_NUMBER{8};
     //
     // init color_track_
     //
@@ -291,21 +288,6 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(config.samplerate);
         GetChild<KaxAudioChannels>(audio_track_details).SetValue(AUDIO_INPUT_CHANNEL_COUNT);
         GetChild<KaxAudioBitDepth>(audio_track_details).SetValue(sizeof(float) * 8);
-    }
-    //
-    // init floor_track_
-    //
-    {
-        auto& tracks{GetChild<KaxTracks>(*segment_)};
-        floor_track_ = new KaxTrackEntry;
-        tracks.PushElement(*floor_track_); // Track will be freed when the file is closed.
-        floor_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
-
-        GetChild<KaxTrackNumber>(*floor_track_).SetValue(FLOOR_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*floor_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*floor_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*floor_track_).SetValueUTF8("FLOOR");
-        GetChild<KaxCodecID>(*floor_track_).SetValue("S_FLOOR");
     }
     //
     // init acceleration_track_
@@ -467,8 +449,7 @@ void FileWriter::writeCover(int width,
 void FileWriter::writeVideoFrame(int64_t time_point_us,
                                  gsl::span<const byte> color_bytes,
                                  gsl::span<const byte> depth_bytes,
-                                 optional<gsl::span<const uint8_t>> depth_confidence_values,
-                                 const Plane& floor)
+                                 optional<gsl::span<const uint8_t>> depth_confidence_values)
 {
     if (depth_confidence_track_ && !depth_confidence_values)
         throw std::runtime_error("Video has depth confidence track but not found in frame.");
@@ -519,14 +500,6 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
         depth_confidence_block_blob->AddFrameAuto(
             *depth_confidence_track_, video_timecode, *depth_confidence_data_buffer);
     }
-
-    auto floor_bytes{floor.toBytes()};
-    auto floor_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-    auto floor_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(floor_bytes.data()),
-                                          gsl::narrow<uint32_t>(floor_bytes.size())}};
-    video_cluster->AddBlockBlob(floor_block_blob);
-    floor_block_blob->SetParent(*video_cluster);
-    floor_block_blob->AddFrameAuto(*floor_track_, video_timecode, *floor_data_buffer);
 
     video_cluster->Render(*io_callback_, cues);
     video_cluster->ReleaseFrames();

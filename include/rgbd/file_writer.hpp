@@ -55,8 +55,7 @@ public:
     void writeVideoFrame(int64_t time_point_us,
                          gsl::span<const byte> color_bytes,
                          gsl::span<const byte> depth_bytes,
-                         optional<gsl::span<const uint8_t>> depth_confidence_values,
-                         const Plane& floor);
+                         optional<gsl::span<const uint8_t>> depth_confidence_values);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
     void writeImuFrame(int64_t time_point_us,
                        glm::vec3 acceleration,
@@ -74,7 +73,6 @@ private:
     libmatroska::KaxTrackEntry* depth_track_;
     libmatroska::KaxTrackEntry* depth_confidence_track_;
     libmatroska::KaxTrackEntry* audio_track_;
-    libmatroska::KaxTrackEntry* floor_track_;
     libmatroska::KaxTrackEntry* acceleration_track_;
     libmatroska::KaxTrackEntry* rotation_rate_track_;
     libmatroska::KaxTrackEntry* magnetic_field_track_;
