@@ -13,7 +13,7 @@ public:
           YuvFrame&& yuv_frame,
           Int32Frame&& depth_frame,
           optional<UInt8Frame>&& depth_confidence_frame,
-          const Plane& floor) noexcept
+          const optional<Plane>& floor) noexcept
         : time_point_us_{time_point_us}
         , yuv_frame_{std::move(yuv_frame)}
         , depth_frame_{std::move(depth_frame)}
@@ -45,7 +45,7 @@ public:
     {
         return depth_confidence_frame_;
     }
-    const Plane& floor() const noexcept
+    const optional<Plane>& floor() const noexcept
     {
         return floor_;
     }
@@ -56,6 +56,6 @@ private:
     Int32Frame depth_frame_;
     optional<UInt8Frame> depth_confidence_frame_;
     vector<vector<float>> pcm_frames_;
-    Plane floor_;
+    optional<Plane> floor_;
 };
 } // namespace tg

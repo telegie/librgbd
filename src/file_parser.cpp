@@ -8,7 +8,6 @@ using namespace libmatroska;
 
 namespace rgbd
 {
-
 std::unique_ptr<EbmlElement> next_child(IOCallback& input, EbmlStream& stream, EbmlElement* parent)
 {
     try {
@@ -406,7 +405,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
         }
     }
 
-    if (!color_track || !depth_track || !audio_track || !floor_track_number)
+    if (!color_track || !depth_track || !audio_track)
         return nullopt;
 
     FileTracks file_tracks;
@@ -414,7 +413,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     file_tracks.depth_track = *depth_track;
     file_tracks.depth_confidence_track = depth_confidence_track;
     file_tracks.audio_track = *audio_track;
-    file_tracks.floor_track_number = *floor_track_number;
+    file_tracks.floor_track_number = floor_track_number;
     file_tracks.acceleration_track_number = acceleration_track_number;
     file_tracks.rotation_rate_track_number = rotation_rate_track_number;
     file_tracks.magnetic_field_track_number = magnetic_field_track_number;
@@ -587,11 +586,8 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
 
     // emplace only when the cluster is for video, not audio.
     if (color_bytes.size() > 0) {
-        if (!floor)
-            throw std::runtime_error{"Failed to find a floor"};
-
         return new FileVideoFrame{
-            global_timecode, color_bytes, depth_bytes, depth_confidence_bytes, *floor};
+            global_timecode, color_bytes, depth_bytes, depth_confidence_bytes, floor};
     }
 
     if (audio_frame) {

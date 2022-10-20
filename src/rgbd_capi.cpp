@@ -657,12 +657,6 @@ void* rgbd_file_tracks_get_audio_track(void* ptr)
     auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
     return &(file_tracks->audio_track);
 }
-
-int rgbd_file_tracks_get_floor_track_number(void* ptr)
-{
-    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
-    return file_tracks->floor_track_number;
-}
 //////// START FILE TRACKS ////////
 
 //////// START FILE VIDEO FRAME ////////
@@ -686,24 +680,41 @@ void* rgbd_file_video_frame_get_depth_bytes(void* ptr)
     return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->depth_bytes()};
 }
 
+bool rgbd_file_video_frame_has_floor(void* ptr)
+{
+    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().has_value();
+}
+
 float rgbd_file_video_frame_get_floor_normal_x(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().normal().x;
+    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    if (!floor)
+        return 0.0f;
+    return floor->normal().x;
 }
 
 float rgbd_file_video_frame_get_floor_normal_y(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().normal().y;
+    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    if (!floor)
+        return 0.0f;
+    return floor->normal().y;
 }
 
 float rgbd_file_video_frame_get_floor_normal_z(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().normal().z;
+    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    if (!floor)
+        return 0.0f;
+    return floor->normal().z;
 }
 
 float rgbd_file_video_frame_get_floor_constant(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().constant();
+    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    if (!floor)
+        return 0.0f;
+    return floor->constant();
 }
 //////// END FILE VIDEO FRAME ////////
 
