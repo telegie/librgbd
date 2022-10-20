@@ -120,8 +120,7 @@ void split_file(const std::string& file_path)
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      encoded_color_frame->packet.getDataBytes(),
                                      encoded_depth_frame,
-                                     nullopt,
-                                     video_frame->floor());
+                                     nullopt);
     }
 
     file_writer->flush();
@@ -183,8 +182,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         file_writer.writeVideoFrame(trimmed_global_timecode,
                                      encoded_color_frame->packet.getDataBytes(),
                                      encoded_depth_frame,
-                                     nullopt,
-                                     video_frame->floor());
+                                     nullopt);
     }
 
     file_writer.flush();
