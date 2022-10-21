@@ -136,6 +136,23 @@ const char* rgbd_native_string_get_c_str(void* ptr)
 }
 //////// END CAPI CONTAINER CLASSES ////////
 
+//////// START HELPER FUNCTIONS FOR WEBASSEBMLY ////////
+void** rgbd_pointer_by_reference_ctor()
+{
+    return new void*;
+}
+
+void rgbd_pointer_by_reference_dtor(void** ref)
+{
+    delete ref;
+}
+
+void* rgbd_pointer_by_reference_get_value(void** ref)
+{
+    return *ref;
+}
+//////// END HELPER FUNCTIONS FOR WEBASSEBMLY ////////
+
 //////// START AV PACKET HANDLE ////////
 void rgbd_av_packet_handle_dtor(void* ptr)
 {
@@ -328,7 +345,6 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
 void* rgbd_ffmpeg_video_encoder_ctor(
     rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
 {
-    spdlog::info("rgbd_ffmpeg_video_encoder_ctor called");
     return new rgbd::FFmpegVideoEncoder{
         static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
 }
@@ -587,10 +603,10 @@ void* rgbd_file_info_get_writing_app(void* ptr)
 //////// END FILE INFO ////////
 
 //////// START FILE PARSER ////////
-int rgbd_file_parser_ctor_from_data(void** parser_ptr, void* data_ptr, size_t data_size)
+int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size)
 {
     try {
-        *parser_ptr = new rgbd::FileParser{data_ptr, data_size};
+        *parser_ptr_ref = new rgbd::FileParser{data_ptr, data_size};
         return 0;
     } catch (std::runtime_error e) {
         spdlog::error("error from rgbd_file_parser_ctor_from_data: {}", e.what());

@@ -80,6 +80,14 @@ extern "C"
     RGBD_INTERFACE_EXPORT const char* rgbd_native_string_get_c_str(void* ptr);
     //////// END CAPI CONTAINER CLASSES ////////
 
+    //////// START HELPER FUNCTIONS FOR WEBASSEBMLY ////////
+    // Inspired by Java JNA class PointerByReference.
+    // https://github.com/java-native-access/jna/blob/master/src/com/sun/jna/ptr/PointerByReference.java
+    RGBD_INTERFACE_EXPORT void** rgbd_pointer_by_reference_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_pointer_by_reference_dtor(void** ref);
+    RGBD_INTERFACE_EXPORT void* rgbd_pointer_by_reference_get_value(void** ref);
+    //////// END HELPER FUNCTIONS FOR WEBASSEBMLY ////////
+
     //////// START AV PACKET HANDLE ////////
     RGBD_INTERFACE_EXPORT void rgbd_av_packet_handle_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_av_packet_handle_get_data_bytes(void* ptr);
@@ -227,7 +235,7 @@ extern "C"
     //////// END FILE INFO ////////
 
     //////// START FILE PARSER ////////
-    RGBD_INTERFACE_EXPORT int rgbd_file_parser_ctor_from_data(void** parser_ptr, void* data_ptr, size_t data_size);
+    RGBD_INTERFACE_EXPORT int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_parse_no_frames(void* ptr);
