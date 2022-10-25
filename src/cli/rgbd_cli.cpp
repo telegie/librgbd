@@ -86,8 +86,8 @@ void split_file(const std::string& file_path)
         constexpr int TWO_SECONDS{2000000};
         int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
 
-        YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
-        Int32Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+        auto color_frame{color_decoder.decode(video_frame->color_bytes())};
+        auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
         bool first{false};
         if (chunk_index == previous_chunk_index + 1) {
@@ -101,12 +101,12 @@ void split_file(const std::string& file_path)
                 output_path, *file->attachments().camera_calibration, writer_config);
 
             color_encoder = std::make_unique<FFmpegVideoEncoder>(
-                ColorCodecType::VP8, color_frame.width(), color_frame.height(), 2500, 30);
+                ColorCodecType::VP8, color_frame->width(), color_frame->height(), 2500, 30);
             depth_encoder =
-                DepthEncoder::createTDC1Encoder(depth_frame.width(), depth_frame.height(), 500);
+                DepthEncoder::createTDC1Encoder(depth_frame->width(), depth_frame->height(), 500);
             first = true;
 
-            file_writer->writeCover(color_frame);
+            file_writer->writeCover(*color_frame);
             previous_chunk_index = chunk_index;
         } else if (chunk_index == previous_chunk_index) {
             first = false;
@@ -114,8 +114,8 @@ void split_file(const std::string& file_path)
             throw std::runtime_error("Invalid chunk_index found...");
         }
 
-        auto encoded_color_frame{color_encoder->encode(color_frame, first)};
-        auto encoded_depth_frame{depth_encoder->encode(depth_frame.values(), first)};
+        auto encoded_color_frame{color_encoder->encode(*color_frame, first)};
+        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), first)};
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      encoded_color_frame->packet.getDataBytes(),
@@ -162,13 +162,13 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         constexpr int TWO_SECONDS{2000000};
         int keyframe_index{gsl::narrow<int>(trimmed_global_timecode / TWO_SECONDS)};
 
-        YuvFrame color_frame{color_decoder.decode(video_frame->color_bytes())};
-        Int32Frame depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+        auto color_frame{color_decoder.decode(video_frame->color_bytes())};
+        auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
         bool keyframe{false};
         if (keyframe_index == previous_keyframe_index + 1) {
             if (keyframe_index == 0)
-                file_writer.writeCover(color_frame);
+                file_writer.writeCover(*color_frame);
 
             keyframe = true;
             previous_keyframe_index = keyframe_index;
@@ -176,8 +176,8 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
             throw std::runtime_error("Invalid keyframe_index found...");
         }
 
-        auto encoded_color_frame{color_encoder.encode(color_frame, keyframe)};
-        auto encoded_depth_frame{depth_encoder->encode(depth_frame.values(), keyframe)};
+        auto encoded_color_frame{color_encoder.encode(*color_frame, keyframe)};
+        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
                                      encoded_color_frame->packet.getDataBytes(),

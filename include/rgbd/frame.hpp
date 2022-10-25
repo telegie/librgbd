@@ -25,21 +25,21 @@ public:
     {
         return time_point_us_;
     }
-    const YuvFrame& yuv_frame() const noexcept
+    const unique_ptr<YuvFrame>& yuv_frame() const noexcept
     {
-        return *yuv_frame_;
+        return yuv_frame_;
     }
-    YuvFrame& yuv_frame() noexcept
+    unique_ptr<YuvFrame>& yuv_frame() noexcept
     {
-        return *yuv_frame_;
+        return yuv_frame_;
     }
-    const Int32Frame& depth_frame() const noexcept
+    const unique_ptr<Int32Frame>& depth_frame() const noexcept
     {
-        return *depth_frame_;
+        return depth_frame_;
     }
-    Int32Frame& depth_frame() noexcept
+    unique_ptr<Int32Frame>& depth_frame() noexcept
     {
-        return *depth_frame_;
+        return depth_frame_;
     }
     const optional<UInt8Frame>& depth_confidence_frame() const noexcept
     {
