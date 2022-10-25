@@ -224,7 +224,7 @@ void* rgbd_depth_decoder_decode(void* ptr,
 {
     auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
-    return new rgbd::Int32Frame{std::move(depth_frame)};
+    return depth_frame.release();
 }
 //////// END DEPTH DECODER ////////
 
@@ -337,7 +337,7 @@ void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
 {
     auto yuv_frame{static_cast<rgbd::FFmpegVideoDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(vp8_frame_data), vp8_frame_size})};
-    return new rgbd::YuvFrame{std::move(yuv_frame)};
+    return yuv_frame.release();
 }
 //////// END FFMPEG VIDEO DECODER ////////
 

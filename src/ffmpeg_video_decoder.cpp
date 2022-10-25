@@ -13,7 +13,7 @@ namespace rgbd
 // A helper function for Vp8Decoder::decode() that feeds frames of packet into decoder_frames.
 void decode_video_packet(AVCodecContext* codec_context,
                          AVPacket* packet,
-                         std::vector<YuvFrame>& yuv_frames)
+                         std::vector<unique_ptr<YuvFrame>>& yuv_frames)
 {
     if (avcodec_send_packet(codec_context, packet) < 0)
         throw std::runtime_error("Error from avcodec_send_packet.");
@@ -29,7 +29,7 @@ void decode_video_packet(AVCodecContext* codec_context,
             throw std::runtime_error("Error from avcodec_send_packet.");
         }
 
-        yuv_frames.emplace_back(av_frame);
+        yuv_frames.push_back(std::make_unique<YuvFrame>(av_frame));
     }
 }
 
@@ -45,9 +45,9 @@ FFmpegVideoDecoder::FFmpegVideoDecoder(ColorCodecType type)
 }
 
 // Decode frames in vp8_frame_data.
-YuvFrame FFmpegVideoDecoder::decode(gsl::span<const std::byte> vp8_frame)
+unique_ptr<YuvFrame> FFmpegVideoDecoder::decode(gsl::span<const std::byte> vp8_frame)
 {
-    std::vector<YuvFrame> yuv_frames;
+    std::vector<unique_ptr<YuvFrame>> yuv_frames;
     /* use the parser to split the data into frames */
     size_t data_size{vp8_frame.size()};
     // Adding buffer padding is important!

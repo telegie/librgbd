@@ -9,6 +9,6 @@ class RVLDecoder : public DepthDecoderImpl
 {
 public:
     RVLDecoder() noexcept;
-    Int32Frame decode(gsl::span<const std::byte> bytes) noexcept;
+    unique_ptr<Int32Frame> decode(gsl::span<const std::byte> bytes) noexcept;
 };
 }

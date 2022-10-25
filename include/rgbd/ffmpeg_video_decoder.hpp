@@ -9,7 +9,7 @@ class FFmpegVideoDecoder
 {
 public:
     FFmpegVideoDecoder(ColorCodecType type);
-    YuvFrame decode(gsl::span<const std::byte> vp8_frame);
+    unique_ptr<YuvFrame> decode(gsl::span<const std::byte> vp8_frame);
 
 private:
     AVCodecParserContextHandle codec_parser_context_;

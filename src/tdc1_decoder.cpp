@@ -13,7 +13,7 @@ TDC1Decoder::TDC1Decoder() noexcept
 {
 }
 
-Int32Frame TDC1Decoder::decode(gsl::span<const std::byte> bytes) noexcept
+unique_ptr<Int32Frame> TDC1Decoder::decode(gsl::span<const std::byte> bytes) noexcept
 {
     int cursor{0};
     int width{read_from_bytes<int32_t>(bytes, cursor)};
@@ -27,13 +27,13 @@ Int32Frame TDC1Decoder::decode(gsl::span<const std::byte> bytes) noexcept
     const int depth_value_count{gsl::narrow<int>(previous_depth_values_.size())};
     if (keyframe) {
         previous_depth_values_ = rvl::decompress<int32_t>(encoded_depth_values, depth_value_count);
-        return Int32Frame{width, height, previous_depth_values_};
+        return std::make_unique<Int32Frame>(width, height, previous_depth_values_);
     }
 
     const auto depth_value_diffs{rvl::decompress<int32_t>(encoded_depth_values, depth_value_count)};
     for (gsl::index i{0}; i < depth_value_count; ++i)
         previous_depth_values_[i] += depth_value_diffs[i];
 
-    return Int32Frame{width, height, previous_depth_values_};
+    return std::make_unique<Int32Frame>(width, height, previous_depth_values_);
 }
 } // namespace tg

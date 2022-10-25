@@ -10,8 +10,8 @@ class Frame
 {
 public:
     Frame(int64_t time_point_us,
-          YuvFrame&& yuv_frame,
-          Int32Frame&& depth_frame,
+          unique_ptr<YuvFrame>&& yuv_frame,
+          unique_ptr<Int32Frame>&& depth_frame,
           optional<UInt8Frame>&& depth_confidence_frame,
           const optional<Plane>& floor) noexcept
         : time_point_us_{time_point_us}
@@ -27,19 +27,19 @@ public:
     }
     const YuvFrame& yuv_frame() const noexcept
     {
-        return yuv_frame_;
+        return *yuv_frame_;
     }
     YuvFrame& yuv_frame() noexcept
     {
-        return yuv_frame_;
+        return *yuv_frame_;
     }
     const Int32Frame& depth_frame() const noexcept
     {
-        return depth_frame_;
+        return *depth_frame_;
     }
     Int32Frame& depth_frame() noexcept
     {
-        return depth_frame_;
+        return *depth_frame_;
     }
     const optional<UInt8Frame>& depth_confidence_frame() const noexcept
     {
@@ -52,8 +52,8 @@ public:
 
 private:
     int64_t time_point_us_;
-    YuvFrame yuv_frame_;
-    Int32Frame depth_frame_;
+    unique_ptr<YuvFrame> yuv_frame_;
+    unique_ptr<Int32Frame> depth_frame_;
     optional<UInt8Frame> depth_confidence_frame_;
     vector<vector<float>> pcm_frames_;
     optional<Plane> floor_;
