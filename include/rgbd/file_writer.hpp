@@ -52,6 +52,7 @@ public:
                     gsl::span<const uint8_t> u_channel,
                     gsl::span<const uint8_t> v_channel);
     void writeVideoFrame(int64_t time_point_us,
+                         bool keyframe,
                          gsl::span<const byte> color_bytes,
                          gsl::span<const byte> depth_bytes);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
@@ -77,6 +78,8 @@ private:
     unique_ptr<EbmlVoid> seek_head_placeholder_;
     unique_ptr<EbmlVoid> segment_info_placeholder_;
     optional<int64_t> initial_time_point_ns_;
+    libmatroska::KaxBlockBlob* past_color_block_blob_;
+    libmatroska::KaxBlockBlob* past_depth_block_blob_;
     int64_t last_timecode_;
 };
 } // namespace rgbd

@@ -286,6 +286,7 @@ extern "C"
     RGBD_INTERFACE_EXPORT void
     rgbd_file_writer_write_video_frame(void* ptr,
                                        int64_t time_point_us,
+                                       bool keyframe,
                                        const uint8_t* color_bytes,
                                        size_t color_byte_size,
                                        const uint8_t* depth_bytes,

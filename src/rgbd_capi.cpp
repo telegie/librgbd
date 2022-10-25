@@ -790,6 +790,7 @@ void rgbd_file_writer_write_cover(void* ptr,
 
 void rgbd_file_writer_write_video_frame(void* ptr,
                                         int64_t time_point_us,
+                                        bool keyframe,
                                         const uint8_t* color_bytes,
                                         size_t color_byte_size,
                                         const uint8_t* depth_bytes,
@@ -797,6 +798,7 @@ void rgbd_file_writer_write_video_frame(void* ptr,
 {
     static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
         time_point_us,
+        keyframe,
         gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
                                    color_byte_size},
         gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),

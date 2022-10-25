@@ -123,6 +123,8 @@ FileWriter::FileWriter(const string& file_path,
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
     , initial_time_point_ns_{nullopt}
+    , past_color_block_blob_{nullptr}
+    , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
 {
     //
@@ -421,6 +423,7 @@ void FileWriter::writeCover(int width,
 }
 
 void FileWriter::writeVideoFrame(int64_t time_point_us,
+                                 bool keyframe,
                                  gsl::span<const byte> color_bytes,
                                  gsl::span<const byte> depth_bytes)
 {
@@ -437,24 +440,37 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->SetParent(*segment_);
     video_cluster->EnableChecksum();
 
-    auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto color_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
                        gsl::narrow<uint32_t>(color_bytes.size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
-    color_block_blob->AddFrameAuto(*color_track_, video_timecode, *color_data_buffer);
+    color_block_blob->AddFrameAuto(*color_track_,
+                                   video_timecode,
+                                   *color_data_buffer,
+                                   LACING_AUTO,
+                                   keyframe ? nullptr : past_color_block_blob_);
 
-    auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto depth_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(depth_bytes.data())),
                        gsl::narrow<uint32_t>(depth_bytes.size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
-    depth_block_blob->AddFrameAuto(*depth_track_, video_timecode, *depth_data_buffer);
+    depth_block_blob->AddFrameAuto(*depth_track_,
+                                   video_timecode,
+                                   *depth_data_buffer,
+                                   LACING_AUTO,
+                                   keyframe ? nullptr : past_depth_block_blob_);
 
     video_cluster->Render(*io_callback_, cues);
     video_cluster->ReleaseFrames();
+
+    if (keyframe) {
+        past_color_block_blob_ = color_block_blob;
+        past_depth_block_blob_ = depth_block_blob;
+    }
 
     last_timecode_ = video_timecode;
 }
