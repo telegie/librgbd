@@ -493,7 +493,7 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
     audio_cluster->SetParent(*segment_);
     audio_cluster->EnableChecksum();
 
-    auto block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     // const_cast is okay here since the audio_bytes will not be modified here,
     // and this lets the argument become a const one, which is helpful for the C API side.
     // For example, this makes calling the C API easier from Swift.
@@ -532,7 +532,7 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
 
     vector<byte> acceleration_bytes(convert_vec3_to_bytes(acceleration));
 
-    auto acceleration_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto acceleration_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto acceleration_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(acceleration_bytes.data()),
                        gsl::narrow<uint32_t>(acceleration_bytes.size())}};
@@ -543,7 +543,7 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
 
     vector<byte> rotation_rate_bytes(convert_vec3_to_bytes(rotation_rate));
 
-    auto rotation_rate_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto rotation_rate_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto rotation_rate_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(rotation_rate_bytes.data()),
                        gsl::narrow<uint32_t>(rotation_rate_bytes.size())}};
@@ -554,7 +554,7 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
 
     vector<byte> magnetic_field_bytes(convert_vec3_to_bytes(magnetic_field));
 
-    auto magnetic_field_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto magnetic_field_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto magnetic_field_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(magnetic_field_bytes.data()),
                        gsl::narrow<uint32_t>(magnetic_field_bytes.size())}};
@@ -565,7 +565,7 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
 
     vector<byte> gravity_bytes(convert_vec3_to_bytes(gravity));
 
-    auto gravity_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
+    auto gravity_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto gravity_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(gravity_bytes.data()),
                                             gsl::narrow<uint32_t>(gravity_bytes.size())}};
     imu_cluster->AddBlockBlob(gravity_block_blob);

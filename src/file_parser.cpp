@@ -484,47 +484,6 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
         if (id == KaxClusterTimecode::ClassInfos.GlobalId) {
-        } else if (id == KaxBlockGroup::ClassInfos.GlobalId) {
-            auto block_group{static_cast<KaxBlockGroup*>(e)};
-            if (read_element<KaxBlockGroup>(stream_, block_group) == nullptr)
-                throw std::runtime_error{"Failed reading block_group"};
-
-            for (EbmlElement* ee : block_group->GetElementList()) {
-                if (EbmlId(*ee) == KaxBlock::ClassInfos.GlobalId) {
-                    auto block{static_cast<KaxBlock*>(ee)};
-                    block->SetParent(*cluster);
-                    auto track_number{block->TrackNum()};
-                    auto block_global_timecode{gsl::narrow<int64_t>(block->GlobalTimecode())};
-                    auto data_buffer{block->GetBuffer(0)};
-                    if (track_number == file_tracks_->color_track.track_number) {
-                        global_timecode = block_global_timecode;
-                        color_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (track_number == file_tracks_->depth_track.track_number) {
-                        depth_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (track_number == file_tracks_->audio_track.track_number) {
-                        global_timecode = block_global_timecode;
-                        audio_frame = new FileAudioFrame{block_global_timecode,
-                                                         copy_data_buffer_to_bytes(data_buffer)};
-                    } else if (track_number == file_tracks_->floor_track_number) {
-                        floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (file_tracks_->acceleration_track_number &&
-                               track_number == file_tracks_->acceleration_track_number) {
-                        global_timecode = block_global_timecode;
-                        acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (file_tracks_->rotation_rate_track_number &&
-                               track_number == file_tracks_->rotation_rate_track_number) {
-                        rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (file_tracks_->magnetic_field_track_number &&
-                               track_number == file_tracks_->magnetic_field_track_number) {
-                        magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else if (file_tracks_->gravity_track_number &&
-                               track_number == file_tracks_->gravity_track_number) {
-                        gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-                    } else {
-                        throw std::runtime_error{"Invalid track number from block"};
-                    }
-                }
-            }
         } else if (id == KaxSimpleBlock::ClassInfos.GlobalId) {
             auto simple_block{static_cast<KaxSimpleBlock*>(e)};
             simple_block->SetParent(*cluster);
