@@ -9,6 +9,8 @@
 
 namespace rgbd
 {
+bool is_tdc1_keyframe(gsl::span<const std::byte> bytes);
+
 class TDC1Decoder : public DepthDecoderImpl
 {
 public:

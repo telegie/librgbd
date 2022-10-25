@@ -8,6 +8,13 @@
 
 namespace rgbd
 {
+bool is_tdc1_keyframe(gsl::span<const std::byte> bytes)
+{
+    int cursor{8};
+    bool keyframe{read_from_bytes<int32_t>(bytes, cursor) > 0 ? true : false};
+    return keyframe;
+}
+
 TDC1Decoder::TDC1Decoder() noexcept
     : previous_depth_values_{}
 {

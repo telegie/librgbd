@@ -3,6 +3,7 @@
 #include <rgbd/ios_camera_calibration.hpp>
 #include <rgbd/kinect_camera_calibration.hpp>
 #include <rgbd/undistorted_camera_calibration.hpp>
+#include <rgbd/tdc1_decoder.hpp>
 
 using namespace libmatroska;
 
@@ -488,7 +489,6 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         } else if (id == KaxSimpleBlock::ClassInfos.GlobalId) {
             auto simple_block{static_cast<KaxSimpleBlock*>(e)};
             simple_block->SetParent(*cluster);
-            keyframe = simple_block->IsKeyframe();
             auto track_number{simple_block->TrackNum()};
             auto block_global_timecode{gsl::narrow<int64_t>(simple_block->GlobalTimecode())};
             auto data_buffer{simple_block->GetBuffer(0)};
@@ -497,6 +497,17 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                 color_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == file_tracks_->depth_track.track_number) {
                 depth_bytes = copy_data_buffer_to_bytes(data_buffer);
+
+                keyframe = simple_block->IsKeyframe();
+                // The below step is added since before 1.4.0, FileWriter was incorrectly
+                // flagging all frames as keyframes.
+                // Depth frames were correctly marked whether they were keyframe or not,
+                // so using this information to obtain correct information.
+                if (file_tracks_->depth_track.codec == "V_TDC1") {
+                    if (!is_tdc1_keyframe(depth_bytes)) {
+                        keyframe = false;
+                    }
+                }
             } else if (track_number == file_tracks_->audio_track.track_number) {
                 audio_frame = new FileAudioFrame{block_global_timecode,
                                                  copy_data_buffer_to_bytes(data_buffer)};
