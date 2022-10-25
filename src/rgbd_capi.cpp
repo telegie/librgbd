@@ -678,6 +678,11 @@ int64_t rgbd_file_video_frame_get_global_timecode(void* ptr)
     return static_cast<rgbd::FileVideoFrame*>(ptr)->global_timecode();
 }
 
+bool rgbd_file_video_frame_get_keyframe(void* ptr)
+{
+    return static_cast<rgbd::FileVideoFrame*>(ptr)->keyframe();
+}
+
 void* rgbd_file_video_frame_get_color_bytes(void* ptr)
 {
     return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->color_bytes()};

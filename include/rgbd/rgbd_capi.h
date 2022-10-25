@@ -252,6 +252,7 @@ extern "C"
     //////// START FILE VIDEO FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_get_keyframe(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_color_bytes(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_depth_bytes(void* ptr);
     RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_has_floor(void* ptr);
