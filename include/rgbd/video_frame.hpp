@@ -6,13 +6,13 @@
 
 namespace rgbd
 {
-class Frame
+class VideoFrame
 {
 public:
-    Frame(int64_t time_point_us,
-          unique_ptr<YuvFrame>&& yuv_frame,
-          unique_ptr<Int32Frame>&& depth_frame,
-          const optional<Plane>& floor) noexcept
+    VideoFrame(int64_t time_point_us,
+               unique_ptr<YuvFrame>&& yuv_frame,
+               unique_ptr<Int32Frame>&& depth_frame,
+               const optional<Plane>& floor) noexcept
         : time_point_us_{time_point_us}
         , yuv_frame_{std::move(yuv_frame)}
         , depth_frame_{std::move(depth_frame)}

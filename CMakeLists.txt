@@ -117,7 +117,6 @@ set(RgbdSources
   include/rgbd/file.hpp
   include/rgbd/file_parser.hpp
   include/rgbd/file_writer.hpp
-  include/rgbd/frame.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
   include/rgbd/ios_camera_calibration.hpp
@@ -134,6 +133,7 @@ set(RgbdSources
   include/rgbd/tdc1_encoder.hpp
   include/rgbd/undistorted_camera_calibration.hpp
   include/rgbd/video_folder.hpp
+  include/rgbd/video_frame.hpp
   include/rgbd/yuv_frame.hpp
   src/audio_frame.cpp
   src/byte_utils.cpp
@@ -150,7 +150,6 @@ set(RgbdSources
   src/file.cpp
   src/file_parser.cpp
   src/file_writer.cpp
-  src/frame.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
   src/ios_camera_calibration.cpp
@@ -166,6 +165,7 @@ set(RgbdSources
   src/tdc1_encoder.cpp
   src/undistorted_camera_calibration.cpp
   src/video_folder.cpp
+  src/video_frame.cpp
   src/yuv_frame.cpp
 )
 set(RgbdIncludeDirectories

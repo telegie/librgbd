@@ -106,6 +106,7 @@ void split_file(const std::string& file_path)
         auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), first)};
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
+                                     first,
                                      encoded_color_frame->packet.getDataBytes(),
                                      encoded_depth_frame);
     }
@@ -167,8 +168,9 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
-                                     encoded_color_frame->packet.getDataBytes(),
-                                     encoded_depth_frame);
+                                    keyframe,
+                                    encoded_color_frame->packet.getDataBytes(),
+                                    encoded_depth_frame);
     }
 
     file_writer.flush();

@@ -8,9 +8,9 @@
 #include "constants.hpp"
 #include "ffmpeg_audio_encoder.hpp"
 #include "ffmpeg_video_encoder.hpp"
-#include "frame.hpp"
 #include "ios_camera_calibration.hpp"
 #include "kinect_camera_calibration.hpp"
+#include "video_frame.hpp"
 #include "tdc1_encoder.hpp"
 
 #pragma warning(push)
