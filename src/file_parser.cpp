@@ -309,7 +309,6 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
 {
     optional<FileVideoTrack> color_track{nullopt};
     optional<FileDepthVideoTrack> depth_track{nullopt};
-    optional<FileVideoTrack> depth_confidence_track{nullopt};
     optional<FileAudioTrack> audio_track{nullopt};
     optional<int> floor_track_number{nullopt};
     optional<int> acceleration_track_number{nullopt};
@@ -367,19 +366,6 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 depth_track->width = gsl::narrow<int>(width);
                 depth_track->height = gsl::narrow<int>(height);
                 depth_track->depth_unit = depth_unit;
-            } else if (track_name == "DEPTH_CONFIDENCE") {
-                auto& track_video{GetChild<KaxTrackVideo>(*track_entry)};
-                uint64_t default_duration{
-                    GetChild<KaxTrackDefaultDuration>(track_video).GetValue()};
-                uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
-                uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
-
-                depth_confidence_track = FileVideoTrack{};
-                depth_confidence_track->track_number = gsl::narrow<int>(track_number);
-                depth_confidence_track->codec = codec_id;
-                depth_confidence_track->default_duration_ns = default_duration;
-                depth_confidence_track->width = gsl::narrow<int>(width);
-                depth_confidence_track->height = gsl::narrow<int>(height);
             } else if (track_name == "AUDIO") {
                 auto& track_audio{GetChild<KaxTrackAudio>(*track_entry)};
                 double sampling_freq{GetChild<KaxAudioSamplingFreq>(track_audio).GetValue()};
@@ -411,7 +397,6 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     FileTracks file_tracks;
     file_tracks.color_track = *color_track;
     file_tracks.depth_track = *depth_track;
-    file_tracks.depth_confidence_track = depth_confidence_track;
     file_tracks.audio_track = *audio_track;
     file_tracks.floor_track_number = floor_track_number;
     file_tracks.acceleration_track_number = acceleration_track_number;
@@ -489,7 +474,6 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     int64 global_timecode{0};
     Bytes color_bytes;
     Bytes depth_bytes;
-    optional<Bytes> depth_confidence_bytes{nullopt};
     optional<Plane> floor{nullopt};
     FileAudioFrame* audio_frame{nullptr};
     optional<glm::vec3> acceleration{nullopt};
@@ -517,9 +501,6 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                         color_bytes = copy_data_buffer_to_bytes(data_buffer);
                     } else if (track_number == file_tracks_->depth_track.track_number) {
                         depth_bytes = copy_data_buffer_to_bytes(data_buffer);
-                    } else if (file_tracks_->depth_confidence_track &&
-                               track_number == file_tracks_->depth_confidence_track->track_number) {
-                        depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
                     } else if (track_number == file_tracks_->audio_track.track_number) {
                         global_timecode = block_global_timecode;
                         audio_frame = new FileAudioFrame{block_global_timecode,
@@ -555,9 +536,6 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                 color_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == file_tracks_->depth_track.track_number) {
                 depth_bytes = copy_data_buffer_to_bytes(data_buffer);
-            } else if (file_tracks_->depth_confidence_track &&
-                       track_number == file_tracks_->depth_confidence_track->track_number) {
-                depth_confidence_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == file_tracks_->audio_track.track_number) {
                 audio_frame = new FileAudioFrame{block_global_timecode,
                                                  copy_data_buffer_to_bytes(data_buffer)};
@@ -587,7 +565,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     // emplace only when the cluster is for video, not audio.
     if (color_bytes.size() > 0) {
         return new FileVideoFrame{
-            global_timecode, color_bytes, depth_bytes, depth_confidence_bytes, floor};
+            global_timecode, color_bytes, depth_bytes, floor};
     }
 
     if (audio_frame) {

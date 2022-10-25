@@ -36,7 +36,6 @@ struct FileWriterConfig
     int framerate{30};
     int samplerate{AUDIO_SAMPLE_RATE};
     optional<DepthCodecType> depth_codec_type{std::nullopt};
-    bool has_depth_confidence{false};
     float depth_unit{DEFAULT_DEPTH_UNIT}; // 1 mm
 };
 
@@ -54,8 +53,7 @@ public:
                     gsl::span<const uint8_t> v_channel);
     void writeVideoFrame(int64_t time_point_us,
                          gsl::span<const byte> color_bytes,
-                         gsl::span<const byte> depth_bytes,
-                         optional<gsl::span<const uint8_t>> depth_confidence_values);
+                         gsl::span<const byte> depth_bytes);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
     void writeImuFrame(int64_t time_point_us,
                        glm::vec3 acceleration,
@@ -71,7 +69,6 @@ private:
     unique_ptr<libmatroska::KaxSegment> segment_;
     libmatroska::KaxTrackEntry* color_track_;
     libmatroska::KaxTrackEntry* depth_track_;
-    libmatroska::KaxTrackEntry* depth_confidence_track_;
     libmatroska::KaxTrackEntry* audio_track_;
     libmatroska::KaxTrackEntry* acceleration_track_;
     libmatroska::KaxTrackEntry* rotation_rate_track_;

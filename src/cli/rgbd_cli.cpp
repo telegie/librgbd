@@ -22,13 +22,9 @@ void print_file_info(std::ostream& out, const std::string& file_path)
     auto file{parser.parseAllFrames()};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
-    size_t depth_confidence_byte_size{0};
     for (auto& video_frame : file->video_frames()) {
         color_byte_size += video_frame->color_bytes().size();
         depth_byte_size += video_frame->depth_bytes().size();
-        auto& depth_confidence_bytes{video_frame->depth_confidence_bytes()};
-        if (depth_confidence_bytes)
-            depth_confidence_byte_size += depth_confidence_bytes->size();
     }
     out << fmt::format("Total video frame count: {}\n", file->video_frames().size());
     out << fmt::format("Color codec: {}\n", file->tracks().color_track.codec);
@@ -39,14 +35,6 @@ void print_file_info(std::ostream& out, const std::string& file_path)
     out << fmt::format("Color width: {}\n", file->tracks().depth_track.width);
     out << fmt::format("Color height: {}\n", file->tracks().depth_track.height);
     out << fmt::format("Depth byte size: {} KB\n", depth_byte_size / 1024);
-
-    if (file->tracks().depth_confidence_track) {
-        out << fmt::format("Depth confidence track codec: {}\n",
-                           file->tracks().depth_confidence_track->codec);
-        out << fmt::format("Depth confidence size: {} KB\n", depth_confidence_byte_size / 1024);
-    } else {
-        out << "No depth confidence track." << std::endl;
-    }
 
     auto device_type{file->attachments().camera_calibration->getCameraDeviceType()};
     out << fmt::format("Camera Device Type: {}\n", stringify_camera_device_type(device_type));
@@ -119,8 +107,7 @@ void split_file(const std::string& file_path)
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      encoded_color_frame->packet.getDataBytes(),
-                                     encoded_depth_frame,
-                                     nullopt);
+                                     encoded_depth_frame);
     }
 
     file_writer->flush();
@@ -181,8 +168,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
                                      encoded_color_frame->packet.getDataBytes(),
-                                     encoded_depth_frame,
-                                     nullopt);
+                                     encoded_depth_frame);
     }
 
     file_writer.flush();

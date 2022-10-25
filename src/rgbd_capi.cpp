@@ -660,14 +660,6 @@ void* rgbd_file_tracks_get_depth_track(void* ptr)
     return &file_tracks->depth_track;
 }
 
-void* rgbd_file_tracks_get_depth_confidence_track(void* ptr)
-{
-    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
-    if (!file_tracks->depth_confidence_track)
-        return nullptr;
-    return &(*file_tracks->depth_confidence_track);
-}
-
 void* rgbd_file_tracks_get_audio_track(void* ptr)
 {
     auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
@@ -801,27 +793,14 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                         const uint8_t* color_bytes,
                                         size_t color_byte_size,
                                         const uint8_t* depth_bytes,
-                                        size_t depth_byte_size,
-                                        const uint8_t* depth_confidence_values,
-                                        size_t depth_confidence_values_size)
+                                        size_t depth_byte_size)
 {
-    if (depth_confidence_values) {
-        static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
-            time_point_us,
-            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
-                                       color_byte_size},
-            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
-                                       depth_byte_size},
-            gsl::span<const uint8_t>{depth_confidence_values, depth_confidence_values_size});
-    } else {
-        static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
-            time_point_us,
-            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
-                                       color_byte_size},
-            gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
-                                       depth_byte_size},
-            std::nullopt);
-    }
+    static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
+        time_point_us,
+        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
+                                   color_byte_size},
+        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
+                                   depth_byte_size});
 }
 
 void rgbd_file_writer_write_audio_frame(void* ptr,
@@ -889,11 +868,6 @@ void rgbd_file_writer_config_set_depth_codec_type(void* ptr, rgbdDepthCodecType 
 {
     static_cast<rgbd::FileWriterConfig*>(ptr)->depth_codec_type =
         static_cast<rgbd::DepthCodecType>(depth_codec_type);
-}
-
-void rgbd_file_writer_config_set_has_depth_confidence(void* ptr, bool has_depth_confidence)
-{
-    static_cast<rgbd::FileWriterConfig*>(ptr)->has_depth_confidence = has_depth_confidence;
 }
 
 void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)

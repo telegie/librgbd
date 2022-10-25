@@ -246,7 +246,6 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_file_tracks_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_color_track(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_depth_track(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_depth_confidence_track(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_audio_track(void* ptr);
     //////// START FILE TRACKS ////////
 
@@ -290,9 +289,7 @@ extern "C"
                                        const uint8_t* color_bytes,
                                        size_t color_byte_size,
                                        const uint8_t* depth_bytes,
-                                       size_t depth_byte_size,
-                                       const uint8_t* depth_confidence_values,
-                                       size_t depth_confidence_values_size);
+                                       size_t depth_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_audio_frame(void* ptr,
                                                                   int64_t time_point_us,
                                                                   const uint8_t* audio_bytes,

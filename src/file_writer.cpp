@@ -115,7 +115,6 @@ FileWriter::FileWriter(const string& file_path,
     , segment_{std::make_unique<KaxSegment>()}
     , color_track_{nullptr}
     , depth_track_{nullptr}
-    , depth_confidence_track_{nullptr}
     , audio_track_{nullptr}
     , acceleration_track_{nullptr}
     , rotation_rate_track_{nullptr}
@@ -142,12 +141,11 @@ FileWriter::FileWriter(const string& file_path,
 
     constexpr uint64_t COLOR_TRACK_NUMBER{1};
     constexpr uint64_t DEPTH_TRACK_NUMBER{2};
-    constexpr uint64_t DEPTH_CONFIDENCE_TRACK_NUMBER{3};
-    constexpr uint64_t AUDIO_TRACK_NUMBER{4};
-    constexpr uint64_t ACCELERATION_TRACK_NUMBER{5};
-    constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{6};
-    constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{7};
-    constexpr uint64_t GRAVITY_TRACK_NUMBER{8};
+    constexpr uint64_t AUDIO_TRACK_NUMBER{3};
+    constexpr uint64_t ACCELERATION_TRACK_NUMBER{4};
+    constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{5};
+    constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{6};
+    constexpr uint64_t GRAVITY_TRACK_NUMBER{7};
     //
     // init color_track_
     //
@@ -203,30 +201,6 @@ FileWriter::FileWriter(const string& file_path,
         auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
         GetChild<KaxVideoPixelHeight>(depth_video_track).SetValue(calibration.getDepthHeight());
-    }
-    //
-    // depth_confidence_track_ init
-    //
-    if (config.has_depth_confidence) {
-        auto& tracks{GetChild<KaxTracks>(*segment_)};
-        depth_confidence_track_ = new KaxTrackEntry;
-        tracks.PushElement(
-            *depth_confidence_track_); // Track will be freed when the file is closed.
-        depth_confidence_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
-
-        GetChild<KaxTrackNumber>(*depth_confidence_track_).SetValue(DEPTH_CONFIDENCE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*depth_confidence_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*depth_confidence_track_).SetValue(track_video);
-        GetChild<KaxTrackName>(*depth_confidence_track_).SetValueUTF8("DEPTH_CONFIDENCE");
-        GetChild<KaxCodecID>(*depth_confidence_track_).SetValue("V_RVL");
-
-        GetChild<KaxTrackDefaultDuration>(*depth_confidence_track_)
-            .SetValue(ONE_SECOND_NS / config.framerate);
-        auto& depth_confidence_video_track{GetChild<KaxTrackVideo>(*depth_confidence_track_)};
-        GetChild<KaxVideoPixelWidth>(depth_confidence_video_track)
-            .SetValue(calibration.getDepthWidth());
-        GetChild<KaxVideoPixelHeight>(depth_confidence_video_track)
-            .SetValue(calibration.getDepthHeight());
     }
     //
     // init audio_track_
@@ -448,15 +422,8 @@ void FileWriter::writeCover(int width,
 
 void FileWriter::writeVideoFrame(int64_t time_point_us,
                                  gsl::span<const byte> color_bytes,
-                                 gsl::span<const byte> depth_bytes,
-                                 optional<gsl::span<const uint8_t>> depth_confidence_values)
+                                 gsl::span<const byte> depth_bytes)
 {
-    if (depth_confidence_track_ && !depth_confidence_values)
-        throw std::runtime_error("Video has depth confidence track but not found in frame.");
-
-    if (!depth_confidence_track_ && depth_confidence_values)
-        throw std::runtime_error("Video has no depth confidence track but found in frame.");
-
     int64_t time_point_ns{time_point_us * 1000};
     if (!initial_time_point_ns_)
         initial_time_point_ns_ = time_point_ns;
@@ -485,21 +452,6 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
     depth_block_blob->AddFrameAuto(*depth_track_, video_timecode, *depth_data_buffer);
-
-    // depth_confidence_bytes needs to stay outside to keep the bytes inside it alive
-    // until the video_cluster is Render()ed.
-    Bytes depth_confidence_bytes;
-    if (depth_confidence_values) {
-        depth_confidence_bytes = rvl::compress<uint8_t>(*depth_confidence_values);
-        auto depth_confidence_block_blob{new KaxBlockBlob(BLOCK_BLOB_SIMPLE_AUTO)};
-        auto depth_confidence_data_buffer{
-            new DataBuffer{reinterpret_cast<uint8_t*>(depth_confidence_bytes.data()),
-                           gsl::narrow<uint32_t>(depth_confidence_bytes.size())}};
-        video_cluster->AddBlockBlob(depth_confidence_block_blob);
-        depth_confidence_block_blob->SetParent(*video_cluster);
-        depth_confidence_block_blob->AddFrameAuto(
-            *depth_confidence_track_, video_timecode, *depth_confidence_data_buffer);
-    }
 
     video_cluster->Render(*io_callback_, cues);
     video_cluster->ReleaseFrames();
