@@ -467,11 +467,8 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     video_cluster->Render(*io_callback_, cues);
     video_cluster->ReleaseFrames();
 
-    if (keyframe) {
-        past_color_block_blob_ = color_block_blob;
-        past_depth_block_blob_ = depth_block_blob;
-    }
-
+    past_color_block_blob_ = color_block_blob;
+    past_depth_block_blob_ = depth_block_blob;
     last_timecode_ = video_timecode;
 }
 
