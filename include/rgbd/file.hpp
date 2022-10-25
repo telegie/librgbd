@@ -98,10 +98,12 @@ class FileVideoFrame : public FileFrame
 {
 public:
     FileVideoFrame(int64_t global_timecode,
+                   bool keyframe,
                    const Bytes& color_bytes,
                    const Bytes& depth_bytes,
                    const optional<Plane>& floor)
         : global_timecode_{global_timecode}
+        , keyframe_{keyframe}
         , color_bytes_{color_bytes}
         , depth_bytes_{depth_bytes}
         , floor_{floor}
@@ -114,6 +116,10 @@ public:
     int64_t global_timecode() const noexcept
     {
         return global_timecode_;
+    }
+    bool keyframe() const noexcept
+    {
+        return keyframe_;
     }
     const Bytes& color_bytes() const noexcept
     {
@@ -130,6 +136,7 @@ public:
 
 private:
     int64_t global_timecode_;
+    bool keyframe_;
     Bytes color_bytes_;
     Bytes depth_bytes_;
     optional<Plane> floor_;

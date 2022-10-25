@@ -472,6 +472,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                           file_info_->timecode_scale_ns);
 
     int64 global_timecode{0};
+    optional<bool> keyframe{nullopt};
     Bytes color_bytes;
     Bytes depth_bytes;
     optional<Plane> floor{nullopt};
@@ -487,6 +488,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         } else if (id == KaxSimpleBlock::ClassInfos.GlobalId) {
             auto simple_block{static_cast<KaxSimpleBlock*>(e)};
             simple_block->SetParent(*cluster);
+            keyframe = simple_block->IsKeyframe();
             auto track_number{simple_block->TrackNum()};
             auto block_global_timecode{gsl::narrow<int64_t>(simple_block->GlobalTimecode())};
             auto data_buffer{simple_block->GetBuffer(0)};
@@ -523,8 +525,10 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
 
     // emplace only when the cluster is for video, not audio.
     if (color_bytes.size() > 0) {
+        if (!keyframe)
+            throw std::runtime_error("Failed to find keyframe info.");
         return new FileVideoFrame{
-            global_timecode, color_bytes, depth_bytes, floor};
+            global_timecode, *keyframe, color_bytes, depth_bytes, floor};
     }
 
     if (audio_frame) {
