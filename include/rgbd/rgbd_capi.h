@@ -320,8 +320,6 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_config_set_samplerate(void* ptr, int samplerate);
     RGBD_INTERFACE_EXPORT void
     rgbd_file_writer_config_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
-    RGBD_INTERFACE_EXPORT void
-    rgbd_file_writer_config_set_has_depth_confidence(void* ptr, bool has_depth_confidence);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit);
     //////// END FILE WRITER CONFIG ////////
 
