@@ -88,6 +88,27 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_pointer_by_reference_get_value(void** ref);
     //////// END HELPER FUNCTIONS FOR WEBASSEBMLY ////////
 
+    //////// START AUDIO DECODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_audio_decoder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_audio_decoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_audio_decoder_decode(void* ptr, const uint8_t* opus_frame_data, size_t opus_frame_size);
+    //////// END AUDIO DECODER ////////
+
+    //////// START AUDIO ENCODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr);
+    //////// END AUDIO ENCODER ////////
+
+    //////// START AUDIO ENCODER FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index);
+    //////// END AUDIO ENCODER FRAME ////////
+
     //////// START AV PACKET HANDLE ////////
     RGBD_INTERFACE_EXPORT void rgbd_av_packet_handle_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_av_packet_handle_get_data_bytes(void* ptr);
@@ -123,28 +144,6 @@ extern "C"
                                                           size_t depth_values_size,
                                                           bool keyframe);
     //////// END DEPTH DECODER ////////
-
-    //////// START FFMPEG AUDIO DECODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_decoder_ctor();
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_decoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
-                                                                 const uint8_t* opus_frame_data,
-                                                                 size_t opus_frame_size);
-    //////// END FFMPEG AUDIO DECODER ////////
-
-    //////// START FFMPEG AUDIO ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor();
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void*
-    rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr);
-    //////// END FFMPEG AUDIO ENCODER ////////
-
-    //////// START FFMPEG AUDIO ENCODER FRAME ////////
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index);
-    //////// END FFMPEG AUDIO ENCODER FRAME ////////
 
     //////// START FFMPEG VIDEO DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);

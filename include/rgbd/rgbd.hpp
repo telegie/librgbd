@@ -1,16 +1,16 @@
 #pragma once
 
+#include <rgbd/audio_decoder.hpp>
+#include <rgbd/audio_encoder.hpp>
 #include <rgbd/audio_frame.hpp>
 #include <rgbd/byte_utils.hpp>
 #include <rgbd/camera_calibration.hpp>
 #include <rgbd/capi_containers.hpp>
+#include <rgbd/color_decoder.hpp>
+#include <rgbd/color_encoder.hpp>
 #include <rgbd/constants.hpp>
 #include <rgbd/depth_decoder.hpp>
 #include <rgbd/depth_encoder.hpp>
-#include <rgbd/ffmpeg_audio_decoder.hpp>
-#include <rgbd/ffmpeg_audio_encoder.hpp>
-#include <rgbd/ffmpeg_video_decoder.hpp>
-#include <rgbd/ffmpeg_video_encoder.hpp>
 #include <rgbd/ffmpeg_utils.hpp>
 #include <rgbd/file.hpp>
 #include <rgbd/file_parser.hpp>

@@ -1,4 +1,4 @@
-#include "ffmpeg_audio_decoder.hpp"
+#include "audio_decoder.hpp"
 
 #include <iostream>
 extern "C"
@@ -42,7 +42,7 @@ void decode_audio_packet(AVCodecContext* codec_context,
     }
 }
 
-FFmpegAudioDecoder::FFmpegAudioDecoder()
+AudioDecoder::AudioDecoder()
     : codec_parser_context_{avcodec_find_decoder(AV_CODEC_ID_OPUS)->id}
     , codec_context_{avcodec_find_decoder(AV_CODEC_ID_OPUS)}
     , packet_{}
@@ -57,7 +57,7 @@ FFmpegAudioDecoder::FFmpegAudioDecoder()
 }
 
 // Decode frames in vp8_frame_data.
-vector<float> FFmpegAudioDecoder::decode(gsl::span<const std::byte> opus_frame)
+vector<float> AudioDecoder::decode(gsl::span<const std::byte> opus_frame)
 {
     std::vector<float> pcm_samples;
     /* use the parser to split the data into frames */

@@ -102,17 +102,17 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
 endif()
 ### ZSTD END ###
 set(RgbdSources
+  include/rgbd/audio_decoder.hpp
+  include/rgbd/audio_encoder.hpp
   include/rgbd/audio_frame.hpp
   include/rgbd/byte_utils.hpp
   include/rgbd/camera_calibration.hpp
   include/rgbd/capi_containers.hpp
+  include/rgbd/color_decoder.hpp
+  include/rgbd/color_encoder.hpp
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
   include/rgbd/depth_encoder.hpp
-  include/rgbd/ffmpeg_audio_decoder.hpp
-  include/rgbd/ffmpeg_audio_encoder.hpp
-  include/rgbd/ffmpeg_video_decoder.hpp
-  include/rgbd/ffmpeg_video_encoder.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/file.hpp
   include/rgbd/file_parser.hpp
@@ -135,17 +135,17 @@ set(RgbdSources
   include/rgbd/video_folder.hpp
   include/rgbd/video_frame.hpp
   include/rgbd/yuv_frame.hpp
+  src/audio_encoder.cpp
+  src/audio_decoder.cpp
   src/audio_frame.cpp
   src/byte_utils.cpp
   src/camera_calibration.cpp
   src/capi_containers.cpp
+  src/color_decoder.cpp
+  src/color_encoder.cpp
   src/constants.cpp
   src/depth_decoder.cpp
   src/depth_encoder.cpp
-  src/ffmpeg_audio_encoder.cpp
-  src/ffmpeg_audio_decoder.cpp
-  src/ffmpeg_video_decoder.cpp
-  src/ffmpeg_video_encoder.cpp
   src/ffmpeg_utils.cpp
   src/file.cpp
   src/file_parser.cpp

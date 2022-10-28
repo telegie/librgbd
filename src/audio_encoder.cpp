@@ -1,4 +1,4 @@
-#include "ffmpeg_audio_encoder.hpp"
+#include "audio_encoder.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4244 26812)
@@ -10,7 +10,7 @@ extern "C"
 
 namespace rgbd
 {
-FFmpegAudioEncoder::FFmpegAudioEncoder()
+AudioEncoder::AudioEncoder()
     : codec_context_{avcodec_find_encoder(AV_CODEC_ID_OPUS)}
     , frame_{}
     , next_pts_{0}
@@ -38,7 +38,7 @@ FFmpegAudioEncoder::FFmpegAudioEncoder()
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-unique_ptr<FFmpegAudioEncoderFrame> FFmpegAudioEncoder::encode(gsl::span<const float> pcm_samples)
+unique_ptr<AudioEncoderFrame> AudioEncoder::encode(gsl::span<const float> pcm_samples)
 {
     // frame_->nb_samples gets set to 960 for opus in 48 kHz.
     if (pcm_samples.size() != AUDIO_INPUT_SAMPLES_PER_FRAME)
@@ -56,19 +56,19 @@ unique_ptr<FFmpegAudioEncoderFrame> FFmpegAudioEncoder::encode(gsl::span<const f
     frame_->pts = next_pts_;
     next_pts_ += frame_->nb_samples;
 
-    auto frame{std::make_unique<FFmpegAudioEncoderFrame>()};
+    auto frame{std::make_unique<AudioEncoderFrame>()};
     encodeAudioFrame(codec_context_.get(), frame_.get(), frame->packets);
     return frame;
 }
 
-unique_ptr<FFmpegAudioEncoderFrame> FFmpegAudioEncoder::flush()
+unique_ptr<AudioEncoderFrame> AudioEncoder::flush()
 {
-    auto frame{std::make_unique<FFmpegAudioEncoderFrame>()};
+    auto frame{std::make_unique<AudioEncoderFrame>()};
     encodeAudioFrame(codec_context_.get(), nullptr, frame->packets);
     return frame;
 }
 
-void FFmpegAudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,
+void AudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,
                                           AVFrame* frame,
                                           vector<AVPacketHandle>& packets)
 {

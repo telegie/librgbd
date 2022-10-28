@@ -4,10 +4,10 @@
 
 namespace rgbd
 {
-class FFmpegAudioDecoder
+class AudioDecoder
 {
 public:
-    FFmpegAudioDecoder();
+    AudioDecoder();
     vector<float> decode(gsl::span<const std::byte> opus_frame);
 
 private:

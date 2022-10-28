@@ -1,4 +1,4 @@
-#include "ffmpeg_video_encoder.hpp"
+#include "color_encoder.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4244 26812)

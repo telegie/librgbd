@@ -1,8 +1,8 @@
 #include "rgbd_capi.h"
 
 #include "capi_containers.hpp"
-#include "ffmpeg_audio_decoder.hpp"
-#include "ffmpeg_video_decoder.hpp"
+#include "audio_decoder.hpp"
+#include "color_decoder.hpp"
 #include "file.hpp"
 #include "file_parser.hpp"
 #include "file_writer.hpp"
@@ -153,6 +153,72 @@ void* rgbd_pointer_by_reference_get_value(void** ref)
 }
 //////// END HELPER FUNCTIONS FOR WEBASSEBMLY ////////
 
+//////// START AUDIO DECODER ////////
+void* rgbd_audio_decoder_ctor()
+{
+    return new rgbd::AudioDecoder;
+}
+
+void rgbd_audio_decoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::AudioDecoder*>(ptr);
+}
+
+void* rgbd_audio_decoder_decode(void* ptr,
+                                const uint8_t* opus_frame_data,
+                                size_t opus_frame_size)
+{
+    auto pmc_values{static_cast<rgbd::AudioDecoder*>(ptr)->decode(
+        {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
+    return new rgbd::NativeFloatArray{std::move(pmc_values)};
+}
+//////// END AUDIO DECODER ////////
+
+//////// START AUDIO ENCODER ////////
+void* rgbd_audio_encoder_ctor()
+{
+    return new rgbd::AudioEncoder;
+}
+
+void rgbd_audio_encoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::AudioEncoder*>(ptr);
+}
+
+void* rgbd_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
+{
+    auto encoder{static_cast<rgbd::AudioEncoder*>(ptr)};
+    auto frame{encoder->encode(gsl::span<const float>{pcm_samples, pcm_samples_size})};
+    return frame.release();
+}
+
+void* rgbd_audio_encoder_flush(void* ptr)
+{
+    auto encoder{static_cast<rgbd::AudioEncoder*>(ptr)};
+    auto frame{encoder->flush()};
+    return frame.release();
+}
+//////// END AUDIO ENCODER ////////
+
+//////// START AUDIO ENCODER FRAME ////////
+void rgbd_audio_encoder_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::AudioEncoderFrame*>(ptr);
+}
+
+size_t rgbd_audio_encoder_frame_get_packet_count(void* ptr)
+{
+    auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
+    return frame->packets.size();
+}
+
+void* rgbd_audio_encoder_frame_get_packet(void* ptr, size_t index)
+{
+    auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
+    return &frame->packets[index];
+}
+//////// END AUDIO ENCODER FRAME ////////
+
 //////// START AV PACKET HANDLE ////////
 void rgbd_av_packet_handle_dtor(void* ptr)
 {
@@ -253,72 +319,6 @@ void* rgbd_depth_encoder_encode(void* ptr,
         gsl::span<const int32_t>{depth_values_data, depth_values_size}, keyframe)};
 }
 //////// END DEPTH DECODER ////////
-
-//////// START FFMPEG AUDIO DECODER ////////
-void* rgbd_ffmpeg_audio_decoder_ctor()
-{
-    return new rgbd::FFmpegAudioDecoder;
-}
-
-void rgbd_ffmpeg_audio_decoder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegAudioDecoder*>(ptr);
-}
-
-void* rgbd_ffmpeg_audio_decoder_decode(void* ptr,
-                                       const uint8_t* opus_frame_data,
-                                       size_t opus_frame_size)
-{
-    auto depth_frame{static_cast<rgbd::FFmpegAudioDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
-    return new rgbd::NativeFloatArray{std::move(depth_frame)};
-}
-//////// END FFMPEG AUDIO DECODER ////////
-
-//////// START FFMPEG AUDIO ENCODER ////////
-void* rgbd_ffmpeg_audio_encoder_ctor()
-{
-    return new rgbd::FFmpegAudioEncoder;
-}
-
-void rgbd_ffmpeg_audio_encoder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegAudioEncoder*>(ptr);
-}
-
-void* rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
-{
-    auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
-    auto frame{encoder->encode(gsl::span<const float>{pcm_samples, pcm_samples_size})};
-    return frame.release();
-}
-
-void* rgbd_ffmpeg_audio_encoder_flush(void* ptr)
-{
-    auto encoder{static_cast<rgbd::FFmpegAudioEncoder*>(ptr)};
-    auto frame{encoder->flush()};
-    return frame.release();
-}
-//////// END FFMPEG AUDIO ENCODER ////////
-
-//////// START FFMPEG AUDIO ENCODER FRAME ////////
-void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr);
-}
-
-size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr)
-{
-    auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
-    return frame->packets.size();
-}
-
-void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index)
-{
-    auto frame{static_cast<rgbd::FFmpegAudioEncoderFrame*>(ptr)};
-    return &frame->packets[index];
-}
-//////// END FFMPEG AUDIO ENCODER FRAME ////////
 
 //////// START FFMPEG VIDEO DECODER ////////
 void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)

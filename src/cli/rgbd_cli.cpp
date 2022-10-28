@@ -3,7 +3,7 @@
 #include <cli/loopscheduler.h>
 #include <cxxopts.hpp>
 #include <fstream>
-#include <rgbd/ffmpeg_video_decoder.hpp>
+#include <rgbd/color_decoder.hpp>
 #include <rgbd/file_parser.hpp>
 #include <rgbd/file_writer.hpp>
 #include <rgbd/tdc1_decoder.hpp>
