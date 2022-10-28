@@ -63,10 +63,10 @@ void split_file(const std::string& file_path)
 
     int previous_chunk_index{-1};
     unique_ptr<FileWriter> file_writer;
-    unique_ptr<FFmpegVideoEncoder> color_encoder;
+    unique_ptr<ColorEncoder> color_encoder;
     unique_ptr<DepthEncoder> depth_encoder;
 
-    FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
+    ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
 
     for (auto& video_frame : video_frames) {
@@ -88,7 +88,7 @@ void split_file(const std::string& file_path)
             file_writer = std::make_unique<FileWriter>(
                 output_path, *file->attachments().camera_calibration, writer_config);
 
-            color_encoder = std::make_unique<FFmpegVideoEncoder>(
+            color_encoder = std::make_unique<ColorEncoder>(
                 ColorCodecType::VP8, color_frame->width(), color_frame->height(), 2500, 30);
             depth_encoder =
                 DepthEncoder::createTDC1Encoder(depth_frame->width(), depth_frame->height(), 500);
@@ -127,15 +127,15 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     writer_config.depth_codec_type = DepthCodecType::TDC1;
     FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
 
-    FFmpegVideoEncoder color_encoder{ColorCodecType::VP8,
-                                     file->tracks().color_track.width,
-                                     file->tracks().color_track.height,
-                                     2500,
-                                     30};
+    ColorEncoder color_encoder{ColorCodecType::VP8,
+                               file->tracks().color_track.width,
+                               file->tracks().color_track.height,
+                               2500,
+                               30};
     unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
         file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
 
-    FFmpegVideoDecoder color_decoder{ColorCodecType::VP8};
+    ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
 
     int previous_keyframe_index{-1};

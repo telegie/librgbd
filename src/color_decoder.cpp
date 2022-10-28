@@ -33,7 +33,7 @@ void decode_video_packet(AVCodecContext* codec_context,
     }
 }
 
-FFmpegVideoDecoder::FFmpegVideoDecoder(ColorCodecType type)
+ColorDecoder::ColorDecoder(ColorCodecType type)
     : codec_parser_context_{find_decoder_avcodec(type)->id}
     , codec_context_{find_decoder_avcodec(type)}
     , packet_{}
@@ -45,7 +45,7 @@ FFmpegVideoDecoder::FFmpegVideoDecoder(ColorCodecType type)
 }
 
 // Decode frames in vp8_frame_data.
-unique_ptr<YuvFrame> FFmpegVideoDecoder::decode(gsl::span<const std::byte> vp8_frame)
+unique_ptr<YuvFrame> ColorDecoder::decode(gsl::span<const std::byte> vp8_frame)
 {
     std::vector<unique_ptr<YuvFrame>> yuv_frames;
     /* use the parser to split the data into frames */

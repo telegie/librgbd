@@ -273,6 +273,63 @@ void* rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v)
 }
 //////// END CAMERA CALIBRATION ////////
 
+//////// START COLOR DECODER ////////
+void* rgbd_color_decoder_ctor(rgbdColorCodecType type)
+{
+    return new rgbd::ColorDecoder{static_cast<rgbd::ColorCodecType>(type)};
+}
+
+void rgbd_color_decoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::ColorDecoder*>(ptr);
+}
+
+void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t vp8_frame_size)
+{
+    auto yuv_frame{static_cast<rgbd::ColorDecoder*>(ptr)->decode(
+        {reinterpret_cast<const std::byte*>(vp8_frame_data), vp8_frame_size})};
+    return yuv_frame.release();
+}
+//////// END COLOR DECODER ////////
+
+//////// START COLOR ENCODER ////////
+void* rgbd_color_encoder_ctor(
+    rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
+{
+    return new rgbd::ColorEncoder{
+        static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
+}
+
+void rgbd_color_encoder_dtor(void* ptr)
+{
+    delete static_cast<rgbd::ColorEncoder*>(ptr);
+}
+
+void* rgbd_color_encoder_encode(void* ptr,
+                                const uint8_t* y_channel,
+                                const uint8_t* u_channel,
+                                const uint8_t* v_channel,
+                                bool keyframe)
+{
+    auto encoder{static_cast<rgbd::ColorEncoder*>(ptr)};
+    auto frame{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
+    return frame.release();
+}
+//////// START COLOR ENCODER ////////
+
+//////// START COLOR ENCODER FRAME ////////
+void rgbd_color_encoder_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::ColorEncoderFrame*>(ptr);
+}
+
+void* rgbd_color_encoder_frame_get_packet(void* ptr)
+{
+    auto frame{static_cast<rgbd::ColorEncoderFrame*>(ptr)};
+    return &frame->packet;
+}
+//////// END COLOR ENCODER FRAME ////////
+
 //////// START DEPTH DECODER ////////
 void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type)
 {
@@ -319,65 +376,6 @@ void* rgbd_depth_encoder_encode(void* ptr,
         gsl::span<const int32_t>{depth_values_data, depth_values_size}, keyframe)};
 }
 //////// END DEPTH DECODER ////////
-
-//////// START FFMPEG VIDEO DECODER ////////
-void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type)
-{
-    return new rgbd::FFmpegVideoDecoder{static_cast<rgbd::ColorCodecType>(type)};
-}
-
-void rgbd_ffmpeg_video_decoder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegVideoDecoder*>(ptr);
-}
-
-void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
-                                       const uint8_t* vp8_frame_data,
-                                       size_t vp8_frame_size)
-{
-    auto yuv_frame{static_cast<rgbd::FFmpegVideoDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(vp8_frame_data), vp8_frame_size})};
-    return yuv_frame.release();
-}
-//////// END FFMPEG VIDEO DECODER ////////
-
-//////// START FFMPEG VIDEO ENCODER ////////
-void* rgbd_ffmpeg_video_encoder_ctor(
-    rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
-{
-    return new rgbd::FFmpegVideoEncoder{
-        static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
-}
-
-void rgbd_ffmpeg_video_encoder_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegVideoEncoder*>(ptr);
-}
-
-void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
-                                       const uint8_t* y_channel,
-                                       const uint8_t* u_channel,
-                                       const uint8_t* v_channel,
-                                       bool keyframe)
-{
-    auto encoder{static_cast<rgbd::FFmpegVideoEncoder*>(ptr)};
-    auto frame{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
-    return frame.release();
-}
-//////// START FFMPEG VIDEO ENCODER ////////
-
-//////// START FFMPEG VIDEO ENCODER FRAME ////////
-void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr)
-{
-    delete static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr);
-}
-
-void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr)
-{
-    auto frame{static_cast<rgbd::FFmpegVideoEncoderFrame*>(ptr)};
-    return &frame->packet;
-}
-//////// END FFMPEG VIDEO ENCODER FRAME ////////
 
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)

@@ -126,6 +126,30 @@ extern "C"
     rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v);
     //////// START CAMERA CALIBRATION ////////
 
+    //////// START COLOR DECODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_color_decoder_ctor(rgbdColorCodecType type);
+    RGBD_INTERFACE_EXPORT void rgbd_color_decoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_color_decoder_decode(void* ptr,
+                                                          const uint8_t* vp8_frame_data,
+                                                          size_t vp8_frame_size);
+    //////// END COLOR DECODER ////////
+
+    //////// START COLOR ENCODER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(
+        rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
+    RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_encode(void* ptr,
+                                                          const uint8_t* y_channel,
+                                                          const uint8_t* u_channel,
+                                                          const uint8_t* v_channel,
+                                                          bool keyframe);
+    //////// START COLOR ENCODER ////////
+
+    //////// START COLOR ENCODER FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_color_encoder_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_frame_get_packet(void* ptr);
+    //////// END COLOR ENCODER FRAME ////////
+
     //////// START DEPTH DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_depth_decoder_dtor(void* ptr);
@@ -144,30 +168,6 @@ extern "C"
                                                           size_t depth_values_size,
                                                           bool keyframe);
     //////// END DEPTH DECODER ////////
-
-    //////// START FFMPEG VIDEO DECODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_ctor(rgbdColorCodecType type);
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_decoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_decoder_decode(void* ptr,
-                                                                 const uint8_t* vp8_frame_data,
-                                                                 size_t vp8_frame_size);
-    //////// END FFMPEG VIDEO DECODER ////////
-
-    //////// START FFMPEG VIDEO ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_ctor(
-        rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_encode(void* ptr,
-                                                                 const uint8_t* y_channel,
-                                                                 const uint8_t* u_channel,
-                                                                 const uint8_t* v_channel,
-                                                                 bool keyframe);
-    //////// START FFMPEG VIDEO ENCODER ////////
-
-    //////// START FFMPEG VIDEO ENCODER FRAME ////////
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_video_encoder_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_video_encoder_frame_get_packet(void* ptr);
-    //////// END FFMPEG VIDEO ENCODER FRAME ////////
 
     //////// START FILE ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_dtor(void* ptr);

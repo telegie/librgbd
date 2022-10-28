@@ -10,7 +10,7 @@ extern "C"
 
 namespace rgbd
 {
-FFmpegVideoEncoder::FFmpegVideoEncoder(
+ColorEncoder::ColorEncoder(
     ColorCodecType type, int width, int height, int target_bitrate, int framerate)
     : codec_context_{find_encoder_avcodec(type)}
     , frame_{}
@@ -62,7 +62,7 @@ FFmpegVideoEncoder::FFmpegVideoEncoder(
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
+unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
 {
     return encode(yuv_image.y_channel().data(),
                   yuv_image.u_channel().data(),
@@ -70,10 +70,10 @@ unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const YuvFrame& y
                   keyframe);
 }
 
-unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const uint8_t* y_channel,
-                                                               const uint8_t* u_channel,
-                                                               const uint8_t* v_channel,
-                                                               const bool keyframe)
+unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const uint8_t* y_channel,
+                                                   const uint8_t* u_channel,
+                                                   const uint8_t* v_channel,
+                                                   const bool keyframe)
 {
     for (int row{0}; row < codec_context_->height; ++row) {
         int frame_row_index{row * frame_->linesize[0]};
@@ -109,12 +109,12 @@ unique_ptr<FFmpegVideoEncoderFrame> FFmpegVideoEncoder::encode(const uint8_t* y_
         throw std::runtime_error("Should be only one packet from one frame.");
 
     ++next_pts_;
-    auto frame{std::make_unique<FFmpegVideoEncoderFrame>()};
+    auto frame{std::make_unique<ColorEncoderFrame>()};
     frame->packet = packets[0];
     return frame;
 }
 
-vector<AVPacketHandle> FFmpegVideoEncoder::encodeVideoFrame(AVCodecContext* codec_context, AVFrame* frame)
+vector<AVPacketHandle> ColorEncoder::encodeVideoFrame(AVCodecContext* codec_context, AVFrame* frame)
 {
     vector<AVPacketHandle> packets;
     if (avcodec_send_frame(codec_context, frame) < 0)

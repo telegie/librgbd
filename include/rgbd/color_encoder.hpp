@@ -5,21 +5,21 @@
 
 namespace rgbd
 {
-struct FFmpegVideoEncoderFrame
+struct ColorEncoderFrame
 {
     AVPacketHandle packet;
 };
 
-class FFmpegVideoEncoder
+class ColorEncoder
 {
 public:
-    FFmpegVideoEncoder(
+    ColorEncoder(
         ColorCodecType type, int width, int height, int target_bitrate, int framerate);
-    unique_ptr<FFmpegVideoEncoderFrame> encode(const YuvFrame& yuv_image, bool keyframe);
-    unique_ptr<FFmpegVideoEncoderFrame> encode(const uint8_t* y_channel,
-                                               const uint8_t* u_channel,
-                                               const uint8_t* v_channel,
-                                               const bool keyframe);
+    unique_ptr<ColorEncoderFrame> encode(const YuvFrame& yuv_image, bool keyframe);
+    unique_ptr<ColorEncoderFrame> encode(const uint8_t* y_channel,
+                                         const uint8_t* u_channel,
+                                         const uint8_t* v_channel,
+                                         const bool keyframe);
     AVCodecContextHandle& codec_context()
     {
         return codec_context_;

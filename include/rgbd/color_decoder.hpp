@@ -5,10 +5,10 @@
 
 namespace rgbd
 {
-class FFmpegVideoDecoder
+class ColorDecoder
 {
 public:
-    FFmpegVideoDecoder(ColorCodecType type);
+    ColorDecoder(ColorCodecType type);
     unique_ptr<YuvFrame> decode(gsl::span<const std::byte> vp8_frame);
 
 private:
