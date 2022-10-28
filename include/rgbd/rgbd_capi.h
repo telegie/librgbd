@@ -96,17 +96,17 @@ extern "C"
     //////// END AUDIO DECODER ////////
 
     //////// START AUDIO ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_ctor();
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_audio_encoder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_audio_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
-    rgbd_ffmpeg_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_flush(void* ptr);
+    rgbd_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_audio_encoder_flush(void* ptr);
     //////// END AUDIO ENCODER ////////
 
     //////// START AUDIO ENCODER FRAME ////////
-    RGBD_INTERFACE_EXPORT void rgbd_ffmpeg_audio_encoder_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT size_t rgbd_ffmpeg_audio_encoder_frame_get_packet_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_ffmpeg_audio_encoder_frame_get_packet(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT void rgbd_audio_encoder_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT size_t rgbd_audio_encoder_frame_get_packet_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_audio_encoder_frame_get_packet(void* ptr, size_t index);
     //////// END AUDIO ENCODER FRAME ////////
 
     //////// START AV PACKET HANDLE ////////
