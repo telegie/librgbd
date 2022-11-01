@@ -37,7 +37,10 @@ jobs:
           cd build
           cmake ../
 
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
       - name: Build
         run: |
           cd build
-          MSBuild.exe librgbd.sln
+          msbuild librgbd.sln -verbosity:diag -property:Configuration=Release
