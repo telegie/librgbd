@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 project(librgbd)
 
-set(RGBD_VERSION_MAJOR 1)
-set(RGBD_VERSION_MINOR 4)
+set(RGBD_VERSION_MAJOR 0)
+set(RGBD_VERSION_MINOR 1)
 set(RGBD_VERSION_PATCH 0)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
