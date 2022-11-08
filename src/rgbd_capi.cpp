@@ -427,6 +427,16 @@ void* rgbd_file_get_imu_frame(void* ptr, size_t index)
 {
     return static_cast<rgbd::File*>(ptr)->imu_frames()[index].get();
 }
+
+size_t rgbd_file_get_trs_frame_count(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->trs_frames().size();
+}
+
+void* rgbd_file_get_trs_frame(void* ptr, size_t index)
+{
+    return static_cast<rgbd::File*>(ptr)->trs_frames()[index].get();
+}
 //////// END FILE ////////
 
 //////// START FILE ATTACHMENTS ////////
@@ -664,6 +674,68 @@ void* rgbd_file_tracks_get_audio_track(void* ptr)
     return &(file_tracks->audio_track);
 }
 //////// START FILE TRACKS ////////
+
+//////// START FILE TRS FRAME ////////
+void rgbd_file_trs_frame_dtor(void* ptr)
+{
+    delete static_cast<rgbd::FileTRSFrame*>(ptr);
+}
+
+int64_t rgbd_file_trs_frame_get_global_timecode(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->global_timecode();
+}
+
+float rgbd_file_trs_frame_get_translation_x(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().x;
+}
+
+float rgbd_file_trs_frame_get_translation_y(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().y;
+}
+
+float rgbd_file_trs_frame_get_translation_z(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().z;
+}
+
+float rgbd_file_trs_frame_get_rotation_w(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().w;
+}
+
+float rgbd_file_trs_frame_get_rotation_x(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().x;
+}
+
+float rgbd_file_trs_frame_get_rotation_y(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().y;
+}
+
+float rgbd_file_trs_frame_get_rotation_z(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().z;
+}
+
+float rgbd_file_trs_frame_get_scale_x(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().x;
+}
+
+float rgbd_file_trs_frame_get_scale_y(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().y;
+}
+
+float rgbd_file_trs_frame_get_scale_z(void* ptr)
+{
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().z;
+}
+//////// END FILE TRS FRAME ////////
 
 //////// START FILE VIDEO FRAME ////////
 void rgbd_file_video_frame_dtor(void* ptr)

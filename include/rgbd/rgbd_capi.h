@@ -180,6 +180,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_audio_frame(void* ptr, size_t index);
     RGBD_INTERFACE_EXPORT size_t rgbd_file_get_imu_frame_count(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_imu_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_file_get_trs_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_get_trs_frame(void* ptr, size_t index);
     //////// END FILE ////////
 
     //////// START FILE ATTACHMENTS ////////
@@ -247,6 +249,21 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_depth_track(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_audio_track(void* ptr);
     //////// START FILE TRACKS ////////
+
+    //////// START FILE TRS FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_file_trs_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_file_trs_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_w(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_z(void* ptr);
+    //////// END FILE TRS FRAME ////////
 
     //////// START FILE VIDEO FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
