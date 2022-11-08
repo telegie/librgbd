@@ -63,7 +63,7 @@ public:
                        const glm::vec3& magnetic_field,
                        const glm::vec3& gravity);
     void writeTRSFrame(int64_t time_point_us,
-                       const glm::vec3& position,
+                       const glm::vec3& translation,
                        const glm::quat& rotation,
                        const glm::vec3& scale);
     void flush();
@@ -80,7 +80,7 @@ private:
     libmatroska::KaxTrackEntry* rotation_rate_track_;
     libmatroska::KaxTrackEntry* magnetic_field_track_;
     libmatroska::KaxTrackEntry* gravity_track_;
-    libmatroska::KaxTrackEntry* position_track_;
+    libmatroska::KaxTrackEntry* translation_track_;
     libmatroska::KaxTrackEntry* rotation_track_;
     libmatroska::KaxTrackEntry* scale_track_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;

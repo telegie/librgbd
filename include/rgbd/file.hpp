@@ -72,7 +72,7 @@ struct FileTracks
     optional<int> rotation_rate_track_number;
     optional<int> magnetic_field_track_number;
     optional<int> gravity_track_number;
-    optional<int> position_track_number;
+    optional<int> translation_track_number;
     optional<int> rotation_track_number;
     optional<int> scale_track_number;
 };
@@ -226,11 +226,11 @@ class FileTRSFrame : public FileFrame
 {
 public:
     FileTRSFrame(int64_t global_timecode,
-                 const glm::vec3& position,
+                 const glm::vec3& translation,
                  const glm::quat& rotation,
                  const glm::vec3& scale)
         : global_timecode_{global_timecode}
-        , position_{position}
+        , translation_{translation}
         , rotation_{rotation}
         , scale_{scale}
     {
@@ -243,9 +243,9 @@ public:
     {
         return global_timecode_;
     }
-    const glm::vec3& position() const noexcept
+    const glm::vec3& translation() const noexcept
     {
-        return position_;
+        return translation_;
     }
     const glm::quat& rotation() const noexcept
     {
@@ -258,7 +258,7 @@ public:
 
 private:
     int64_t global_timecode_;
-    glm::vec3 position_;
+    glm::vec3 translation_;
     glm::quat rotation_;
     glm::vec3 scale_;
 };

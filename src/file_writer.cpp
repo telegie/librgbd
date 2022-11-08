@@ -130,7 +130,7 @@ FileWriter::FileWriter(const string& file_path,
     , rotation_rate_track_{nullptr}
     , magnetic_field_track_{nullptr}
     , gravity_track_{nullptr}
-    , position_track_{nullptr}
+    , translation_track_{nullptr}
     , rotation_track_{nullptr}
     , scale_track_{nullptr}
     , seek_head_placeholder_{nullptr}
@@ -161,7 +161,7 @@ FileWriter::FileWriter(const string& file_path,
     constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{5};
     constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{6};
     constexpr uint64_t GRAVITY_TRACK_NUMBER{7};
-    constexpr uint64_t POSITION_TRACK_NUMBER{8};
+    constexpr uint64_t TRANSLATION_TRACK_NUMBER{8};
     constexpr uint64_t ROTATION_TRACK_NUMBER{9};
     constexpr uint64_t SCALE_TRACK_NUMBER{10};
     //
@@ -342,19 +342,19 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxCodecID>(*gravity_track_).SetValue("S_GRAVITY");
     }
     //
-    // init position_track_
+    // init translation_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        position_track_ = new KaxTrackEntry;
-        tracks.PushElement(*position_track_); // Track will be freed when the file is closed.
-        position_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        translation_track_ = new KaxTrackEntry;
+        tracks.PushElement(*translation_track_); // Track will be freed when the file is closed.
+        translation_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*position_track_).SetValue(POSITION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*position_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*position_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*position_track_).SetValueUTF8("POSITION");
-        GetChild<KaxCodecID>(*position_track_).SetValue("S_POSITION");
+        GetChild<KaxTrackNumber>(*translation_track_).SetValue(TRANSLATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*translation_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*translation_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*translation_track_).SetValueUTF8("TRANSLATION");
+        GetChild<KaxCodecID>(*translation_track_).SetValue("S_TRANSLATION");
     }
     //
     // init rotation_track_
@@ -637,7 +637,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
 }
 
 void FileWriter::writeTRSFrame(int64_t time_point_us,
-                               const glm::vec3& position,
+                               const glm::vec3& translation,
                                const glm::quat& rotation,
                                const glm::vec3& scale)
 {
@@ -655,16 +655,16 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->SetParent(*segment_);
     trs_cluster->EnableChecksum();
 
-    vector<byte> position_bytes(convert_vec3_to_bytes(position));
+    vector<byte> translation_bytes(convert_vec3_to_bytes(translation));
 
-    auto position_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto position_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(position_bytes.data()),
-                       gsl::narrow<uint32_t>(position_bytes.size())}};
-    trs_cluster->AddBlockBlob(position_block_blob);
-    position_block_blob->SetParent(*trs_cluster);
-    position_block_blob->AddFrameAuto(
-        *position_track_, trs_timecode, *position_data_buffer);
+    auto translation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
+    auto translation_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(translation_bytes.data()),
+                       gsl::narrow<uint32_t>(translation_bytes.size())}};
+    trs_cluster->AddBlockBlob(translation_block_blob);
+    translation_block_blob->SetParent(*trs_cluster);
+    translation_block_blob->AddFrameAuto(
+        *translation_track_, trs_timecode, *translation_data_buffer);
 
     vector<byte> rotation_bytes(convert_quat_to_bytes(rotation));
 

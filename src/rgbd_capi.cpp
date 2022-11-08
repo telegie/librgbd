@@ -844,9 +844,9 @@ void rgbd_file_writer_write_imu_frame(void* ptr,
 
 void rgbd_file_writer_write_trs_frame(void* ptr,
                                       int64_t time_point_us,
-                                      float position_x,
-                                      float position_y,
-                                      float position_z,
+                                      float translation_x,
+                                      float translation_y,
+                                      float translation_z,
                                       float rotation_w,
                                       float rotation_x,
                                       float rotation_y,
@@ -856,10 +856,10 @@ void rgbd_file_writer_write_trs_frame(void* ptr,
                                       float scale_z)
 {
     auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
-    glm::vec3 position{position_x, position_y, position_z};
+    glm::vec3 translation{translation_x, translation_y, translation_z};
     glm::quat rotation{rotation_w, rotation_x, rotation_y, rotation_z};
     glm::vec3 scale{scale_x, scale_y, scale_z};
-    file_writer->writeTRSFrame(time_point_us, position, rotation, scale);
+    file_writer->writeTRSFrame(time_point_us, translation, rotation, scale);
 }
 
 void rgbd_file_writer_flush(void* ptr)

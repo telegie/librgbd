@@ -311,9 +311,9 @@ extern "C"
                                                                 float gravity_z);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_trs_frame(void* ptr,
                                                                 int64_t time_point_us,
-                                                                float position_x,
-                                                                float position_y,
-                                                                float position_z,
+                                                                float translation_x,
+                                                                float translation_y,
+                                                                float translation_z,
                                                                 float rotation_w,
                                                                 float rotation_x,
                                                                 float rotation_y,

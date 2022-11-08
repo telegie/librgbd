@@ -326,7 +326,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     optional<int> rotation_rate_track_number{nullopt};
     optional<int> magnetic_field_track_number{nullopt};
     optional<int> gravity_track_number{nullopt};
-    optional<int> position_track_number{nullopt};
+    optional<int> translation_track_number{nullopt};
     optional<int> rotation_track_number{nullopt};
     optional<int> scale_track_number{nullopt};
 
@@ -397,8 +397,8 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 magnetic_field_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "GRAVITY") {
                 gravity_track_number = gsl::narrow<int>(track_number);
-            } else if (track_name == "POSITION") {
-                position_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "TRANSLATION") {
+                translation_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "ROTATION") {
                 rotation_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "SCALE") {
@@ -423,7 +423,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     file_tracks.rotation_rate_track_number = rotation_rate_track_number;
     file_tracks.magnetic_field_track_number = magnetic_field_track_number;
     file_tracks.gravity_track_number = gravity_track_number;
-    file_tracks.position_track_number = position_track_number;
+    file_tracks.translation_track_number = translation_track_number;
     file_tracks.rotation_track_number = rotation_track_number;
     file_tracks.scale_track_number = scale_track_number;
 
@@ -504,7 +504,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     optional<glm::vec3> rotation_rate{nullopt};
     optional<glm::vec3> magnetic_field{nullopt};
     optional<glm::vec3> gravity{nullopt};
-    optional<glm::vec3> position{nullopt};
+    optional<glm::vec3> translation{nullopt};
     optional<glm::quat> rotation{nullopt};
     optional<glm::vec3> scale{nullopt};
 
@@ -547,8 +547,8 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                 magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->gravity_track_number) {
                 gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->position_track_number) {
-                position = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->translation_track_number) {
+                translation = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->rotation_track_number) {
                 rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->scale_track_number) {
@@ -585,13 +585,13 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
             global_timecode, *acceleration, *rotation_rate, *magnetic_field, *gravity};
     }
 
-    if (position) {
+    if (translation) {
         if (!rotation)
             throw std::runtime_error("Failed to find rotation");
         if (!scale)
             throw std::runtime_error("Failed to find scale");
 
-        return new FileTRSFrame{global_timecode, *position, *rotation, *scale};
+        return new FileTRSFrame{global_timecode, *translation, *rotation, *scale};
     }
 
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
