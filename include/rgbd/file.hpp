@@ -1,5 +1,6 @@
 #pragma once
 
+#include <glm/gtc/quaternion.hpp>
 #include "camera_calibration.hpp"
 #include "plane.hpp"
 
@@ -71,6 +72,9 @@ struct FileTracks
     optional<int> rotation_rate_track_number;
     optional<int> magnetic_field_track_number;
     optional<int> gravity_track_number;
+    optional<int> position_track_number;
+    optional<int> rotation_track_number;
+    optional<int> scale_track_number;
 };
 
 struct FileAttachments
@@ -84,7 +88,8 @@ enum class FileFrameType
 {
     Video = 0,
     Audio = 1,
-    IMU = 2
+    IMU = 2,
+    TRS = 3
 };
 
 class FileFrame
@@ -217,6 +222,47 @@ private:
     glm::vec3 gravity_;
 };
 
+class FileTRSFrame : public FileFrame
+{
+public:
+    FileTRSFrame(int64_t global_timecode,
+                 const glm::vec3& position,
+                 const glm::quat& rotation,
+                 const glm::vec3& scale)
+        : global_timecode_{global_timecode}
+        , position_{position}
+        , rotation_{rotation}
+        , scale_{scale}
+    {
+    }
+    FileFrameType getType()
+    {
+        return FileFrameType::TRS;
+    }
+    int64_t global_timecode() const noexcept
+    {
+        return global_timecode_;
+    }
+    const glm::vec3& position() const noexcept
+    {
+        return position_;
+    }
+    const glm::quat& rotation() const noexcept
+    {
+        return rotation_;
+    }
+    const glm::vec3& scale() const noexcept
+    {
+        return scale_;
+    }
+
+private:
+    int64_t global_timecode_;
+    glm::vec3 position_;
+    glm::quat rotation_;
+    glm::vec3 scale_;
+};
+
 class File
 {
 public:
@@ -226,7 +272,18 @@ public:
          const FileAttachments& attachments,
          vector<unique_ptr<FileVideoFrame>>&& video_frames,
          vector<unique_ptr<FileAudioFrame>>&& audio_frames,
-         vector<unique_ptr<FileIMUFrame>>&& imu_frames);
+         vector<unique_ptr<FileIMUFrame>>&& imu_frames,
+         vector<unique_ptr<FileTRSFrame>>&& trs_frames)
+        : offsets_{offsets}
+        , info_{info}
+        , tracks_{tracks}
+        , attachments_{attachments}
+        , video_frames_{std::move(video_frames)}
+        , audio_frames_{std::move(audio_frames)}
+        , imu_frames_{std::move(imu_frames)}
+        , trs_frames_{std::move(trs_frames)}
+    {
+    }
     FileOffsets& offsets() noexcept
     {
         return offsets_;
@@ -255,6 +312,10 @@ public:
     {
         return imu_frames_;
     }
+    const vector<unique_ptr<FileTRSFrame>>& trs_frames() const noexcept
+    {
+        return trs_frames_;
+    }
 
 private:
     FileOffsets offsets_;
@@ -264,6 +325,7 @@ private:
     vector<unique_ptr<FileVideoFrame>> video_frames_;
     vector<unique_ptr<FileAudioFrame>> audio_frames_;
     vector<unique_ptr<FileIMUFrame>> imu_frames_;
+    vector<unique_ptr<FileTRSFrame>> trs_frames_;
 };
 
 } // namespace tg

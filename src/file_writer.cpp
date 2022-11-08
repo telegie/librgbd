@@ -97,12 +97,22 @@ Bytes get_cover_png_bytes(int width,
     return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
 }
 
-vector<byte> convert_vec3_to_bytes(const glm::vec3 v)
+vector<byte> convert_vec3_to_bytes(const glm::vec3& v)
 {
     vector<byte> bytes;
     append_bytes(bytes, convert_to_bytes(v.x));
     append_bytes(bytes, convert_to_bytes(v.y));
     append_bytes(bytes, convert_to_bytes(v.z));
+    return bytes;
+}
+
+vector<byte> convert_quat_to_bytes(const glm::quat& q)
+{
+    vector<byte> bytes;
+    append_bytes(bytes, convert_to_bytes(q.w));
+    append_bytes(bytes, convert_to_bytes(q.x));
+    append_bytes(bytes, convert_to_bytes(q.y));
+    append_bytes(bytes, convert_to_bytes(q.z));
     return bytes;
 }
 
@@ -120,6 +130,9 @@ FileWriter::FileWriter(const string& file_path,
     , rotation_rate_track_{nullptr}
     , magnetic_field_track_{nullptr}
     , gravity_track_{nullptr}
+    , position_track_{nullptr}
+    , rotation_track_{nullptr}
+    , scale_track_{nullptr}
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
     , initial_time_point_ns_{nullopt}
@@ -148,6 +161,9 @@ FileWriter::FileWriter(const string& file_path,
     constexpr uint64_t ROTATION_RATE_TRACK_NUMBER{5};
     constexpr uint64_t MAGNETIC_FIELD_TRACK_NUMBER{6};
     constexpr uint64_t GRAVITY_TRACK_NUMBER{7};
+    constexpr uint64_t POSITION_TRACK_NUMBER{8};
+    constexpr uint64_t ROTATION_TRACK_NUMBER{9};
+    constexpr uint64_t SCALE_TRACK_NUMBER{10};
     //
     // init color_track_
     //
@@ -170,7 +186,7 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
     }
     //
-    // depth_track_ init
+    // init depth_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
@@ -324,6 +340,51 @@ FileWriter::FileWriter(const string& file_path,
         GetChild<KaxTrackType>(*gravity_track_).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*gravity_track_).SetValueUTF8("GRAVITY");
         GetChild<KaxCodecID>(*gravity_track_).SetValue("S_GRAVITY");
+    }
+    //
+    // init position_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        position_track_ = new KaxTrackEntry;
+        tracks.PushElement(*position_track_); // Track will be freed when the file is closed.
+        position_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*position_track_).SetValue(POSITION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*position_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*position_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*position_track_).SetValueUTF8("POSITION");
+        GetChild<KaxCodecID>(*position_track_).SetValue("S_POSITION");
+    }
+    //
+    // init rotation_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        rotation_track_ = new KaxTrackEntry;
+        tracks.PushElement(*rotation_track_); // Track will be freed when the file is closed.
+        rotation_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*rotation_track_).SetValue(ROTATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*rotation_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*rotation_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*rotation_track_).SetValueUTF8("ROTATION");
+        GetChild<KaxCodecID>(*rotation_track_).SetValue("S_ROTATION");
+    }
+    //
+    // init scale_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(*segment_)};
+        scale_track_ = new KaxTrackEntry;
+        tracks.PushElement(*scale_track_); // Track will be freed when the file is closed.
+        scale_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*scale_track_).SetValue(SCALE_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*scale_track_).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*scale_track_).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*scale_track_).SetValueUTF8("SCALE");
+        GetChild<KaxCodecID>(*scale_track_).SetValue("S_SCALE");
     }
     //
     // init KaxAttached
@@ -507,11 +568,11 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
     last_timecode_ = audio_cluster_timecode;
 }
 
-void FileWriter::writeImuFrame(int64_t time_point_us,
-                               glm::vec3 acceleration,
-                               glm::vec3 rotation_rate,
-                               glm::vec3 magnetic_field,
-                               glm::vec3 gravity)
+void FileWriter::writeIMUFrame(int64_t time_point_us,
+                               const glm::vec3& acceleration,
+                               const glm::vec3& rotation_rate,
+                               const glm::vec3& magnetic_field,
+                               const glm::vec3& gravity)
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (!initial_time_point_ns_)
@@ -573,6 +634,64 @@ void FileWriter::writeImuFrame(int64_t time_point_us,
     imu_cluster->ReleaseFrames();
 
     last_timecode_ = imu_timecode;
+}
+
+void FileWriter::writeTRSFrame(int64_t time_point_us,
+                               const glm::vec3& position,
+                               const glm::quat& rotation,
+                               const glm::vec3& scale)
+{
+    int64_t time_point_ns{time_point_us * 1000};
+    if (!initial_time_point_ns_)
+        initial_time_point_ns_ = time_point_ns;
+
+    auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+
+    auto& cues{GetChild<KaxCues>(*segment_)};
+
+    auto trs_cluster{new KaxCluster};
+    segment_->PushElement(*trs_cluster);
+    trs_cluster->InitTimecode(trs_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
+    trs_cluster->SetParent(*segment_);
+    trs_cluster->EnableChecksum();
+
+    vector<byte> position_bytes(convert_vec3_to_bytes(position));
+
+    auto position_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
+    auto position_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(position_bytes.data()),
+                       gsl::narrow<uint32_t>(position_bytes.size())}};
+    trs_cluster->AddBlockBlob(position_block_blob);
+    position_block_blob->SetParent(*trs_cluster);
+    position_block_blob->AddFrameAuto(
+        *position_track_, trs_timecode, *position_data_buffer);
+
+    vector<byte> rotation_bytes(convert_quat_to_bytes(rotation));
+
+    auto rotation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
+    auto rotation_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
+                       gsl::narrow<uint32_t>(rotation_bytes.size())}};
+    trs_cluster->AddBlockBlob(rotation_block_blob);
+    rotation_block_blob->SetParent(*trs_cluster);
+    rotation_block_blob->AddFrameAuto(
+        *rotation_track_, trs_timecode, *rotation_data_buffer);
+
+    vector<byte> scale_bytes(convert_vec3_to_bytes(scale));
+
+    auto scale_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
+    auto scale_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),
+                       gsl::narrow<uint32_t>(scale_bytes.size())}};
+    trs_cluster->AddBlockBlob(scale_block_blob);
+    scale_block_blob->SetParent(*trs_cluster);
+    scale_block_blob->AddFrameAuto(
+        *scale_track_, trs_timecode, *scale_data_buffer);
+
+    trs_cluster->Render(*io_callback_, cues);
+    trs_cluster->ReleaseFrames();
+
+    last_timecode_ = trs_timecode;
 }
 
 void FileWriter::flush()

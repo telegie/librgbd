@@ -145,6 +145,16 @@ glm::vec3 read_vec3(const vector<byte>& bytes)
     return glm::vec3{x, y, z};
 }
 
+glm::quat read_quat(const vector<byte>& bytes)
+{
+    int cursor{0};
+    float w{read_from_bytes<float>(bytes, cursor)};
+    float x{read_from_bytes<float>(bytes, cursor)};
+    float y{read_from_bytes<float>(bytes, cursor)};
+    float z{read_from_bytes<float>(bytes, cursor)};
+    return glm::quat{w, x, y, z};
+}
+
 FileParser::FileParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
@@ -316,6 +326,9 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     optional<int> rotation_rate_track_number{nullopt};
     optional<int> magnetic_field_track_number{nullopt};
     optional<int> gravity_track_number{nullopt};
+    optional<int> position_track_number{nullopt};
+    optional<int> rotation_track_number{nullopt};
+    optional<int> scale_track_number{nullopt};
 
     for (EbmlElement* e : tracks->GetElementList()) {
         if (EbmlId(*e) == KaxTrackEntry::ClassInfos.GlobalId) {
@@ -384,6 +397,12 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 magnetic_field_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "GRAVITY") {
                 gravity_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "POSITION") {
+                position_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "ROTATION") {
+                rotation_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "SCALE") {
+                scale_track_number = gsl::narrow<int>(track_number);
             } else {
                 spdlog::error("Invalid track_name: {}", track_name);
             }
@@ -404,6 +423,9 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     file_tracks.rotation_rate_track_number = rotation_rate_track_number;
     file_tracks.magnetic_field_track_number = magnetic_field_track_number;
     file_tracks.gravity_track_number = gravity_track_number;
+    file_tracks.position_track_number = position_track_number;
+    file_tracks.rotation_track_number = rotation_track_number;
+    file_tracks.scale_track_number = scale_track_number;
 
     return file_tracks;
 }
@@ -482,6 +504,9 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     optional<glm::vec3> rotation_rate{nullopt};
     optional<glm::vec3> magnetic_field{nullopt};
     optional<glm::vec3> gravity{nullopt};
+    optional<glm::vec3> position{nullopt};
+    optional<glm::quat> rotation{nullopt};
+    optional<glm::vec3> scale{nullopt};
 
     for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
@@ -513,19 +538,21 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                                                  copy_data_buffer_to_bytes(data_buffer)};
             } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
-            } else if (file_tracks_->acceleration_track_number &&
-                       track_number == file_tracks_->acceleration_track_number) {
+            } else if (track_number == file_tracks_->acceleration_track_number) {
                 global_timecode = block_global_timecode;
                 acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (file_tracks_->rotation_rate_track_number &&
-                       track_number == file_tracks_->rotation_rate_track_number) {
+            } else if (track_number == file_tracks_->rotation_rate_track_number) {
                 rotation_rate = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (file_tracks_->magnetic_field_track_number &&
-                       track_number == file_tracks_->magnetic_field_track_number) {
+            } else if (track_number == file_tracks_->magnetic_field_track_number) {
                 magnetic_field = read_vec3(copy_data_buffer_to_bytes(data_buffer));
-            } else if (file_tracks_->gravity_track_number &&
-                       track_number == file_tracks_->gravity_track_number) {
+            } else if (track_number == file_tracks_->gravity_track_number) {
                 gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->position_track_number) {
+                position = read_vec3(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->rotation_track_number) {
+                rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->scale_track_number) {
+                scale = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else {
                 throw std::runtime_error{"Invalid track number from simple_block"};
             }
@@ -558,7 +585,16 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
             global_timecode, *acceleration, *rotation_rate, *magnetic_field, *gravity};
     }
 
-    throw std::runtime_error{"No frame from RecordParser::readFrame"};
+    if (position) {
+        if (!rotation)
+            throw std::runtime_error("Failed to find rotation");
+        if (!scale)
+            throw std::runtime_error("Failed to find scale");
+
+        return new FileTRSFrame{global_timecode, *position, *rotation, *scale};
+    }
+
+    throw std::runtime_error{"No frame from FileParser::parseCluster"};
 }
 
 unique_ptr<File> FileParser::parseAllClusters()
@@ -572,6 +608,7 @@ unique_ptr<File> FileParser::parseAllClusters()
     vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
     vector<unique_ptr<FileIMUFrame>> imu_frames;
+    vector<unique_ptr<FileTRSFrame>> trs_frames;
 
     while (cluster != nullptr) {
         auto frame{parseCluster(cluster)};
@@ -592,6 +629,11 @@ unique_ptr<File> FileParser::parseAllClusters()
             imu_frames.emplace_back(imu_frame);
             break;
         }
+        case FileFrameType::TRS: {
+            auto trs_frame{dynamic_cast<FileTRSFrame*>(frame)};
+            trs_frames.emplace_back(trs_frame);
+            break;
+        }
         default:
             throw std::runtime_error{"Invalid FileFrameType found in FileParser::parseAllClusters"};
         }
@@ -603,7 +645,8 @@ unique_ptr<File> FileParser::parseAllClusters()
                                   *file_attachments_,
                                   std::move(video_frames),
                                   std::move(audio_frames),
-                                  std::move(imu_frames));
+                                  std::move(imu_frames),
+                                  std::move(trs_frames));
 }
 
 unique_ptr<File> FileParser::parseNoFrames()
@@ -611,13 +654,15 @@ unique_ptr<File> FileParser::parseNoFrames()
     vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
     vector<unique_ptr<FileIMUFrame>> imu_frames;
+    vector<unique_ptr<FileTRSFrame>> trs_frames;
     return std::make_unique<File>(*file_offsets_,
                                   *file_info_,
                                   *file_tracks_,
                                   *file_attachments_,
                                   std::move(video_frames),
                                   std::move(audio_frames),
-                                  std::move(imu_frames));
+                                  std::move(imu_frames),
+                                  std::move(trs_frames));
 }
 
 unique_ptr<File> FileParser::parseAllFrames()

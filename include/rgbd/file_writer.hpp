@@ -1,6 +1,7 @@
 #pragma once
 
 #include <random>
+#include <glm/gtc/quaternion.hpp>
 
 #include "audio_frame.hpp"
 #include "byte_utils.hpp"
@@ -56,11 +57,15 @@ public:
                          gsl::span<const byte> color_bytes,
                          gsl::span<const byte> depth_bytes);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
-    void writeImuFrame(int64_t time_point_us,
-                       glm::vec3 acceleration,
-                       glm::vec3 rotation_rate,
-                       glm::vec3 magnetic_field,
-                       glm::vec3 gravity);
+    void writeIMUFrame(int64_t time_point_us,
+                       const glm::vec3& acceleration,
+                       const glm::vec3& rotation_rate,
+                       const glm::vec3& magnetic_field,
+                       const glm::vec3& gravity);
+    void writeTRSFrame(int64_t time_point_us,
+                       const glm::vec3& position,
+                       const glm::quat& rotation,
+                       const glm::vec3& scale);
     void flush();
 
 private:
@@ -75,6 +80,9 @@ private:
     libmatroska::KaxTrackEntry* rotation_rate_track_;
     libmatroska::KaxTrackEntry* magnetic_field_track_;
     libmatroska::KaxTrackEntry* gravity_track_;
+    libmatroska::KaxTrackEntry* position_track_;
+    libmatroska::KaxTrackEntry* rotation_track_;
+    libmatroska::KaxTrackEntry* scale_track_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;
     unique_ptr<EbmlVoid> segment_info_placeholder_;
     optional<int64_t> initial_time_point_ns_;
