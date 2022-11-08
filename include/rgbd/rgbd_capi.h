@@ -309,6 +309,18 @@ extern "C"
                                                                 float gravity_x,
                                                                 float gravity_y,
                                                                 float gravity_z);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_trs_frame(void* ptr,
+                                                                int64_t time_point_us,
+                                                                float position_x,
+                                                                float position_y,
+                                                                float position_z,
+                                                                float rotation_w,
+                                                                float rotation_x,
+                                                                float rotation_y,
+                                                                float rotation_z,
+                                                                float scale_x,
+                                                                float scale_y,
+                                                                float scale_z);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_flush(void* ptr);
     //////// END FILE WRITER ////////
 
