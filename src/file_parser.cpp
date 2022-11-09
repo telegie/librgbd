@@ -548,6 +548,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
             } else if (track_number == file_tracks_->gravity_track_number) {
                 gravity = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->translation_track_number) {
+                global_timecode = block_global_timecode;
                 translation = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->rotation_track_number) {
                 rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
