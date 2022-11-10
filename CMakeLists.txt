@@ -27,6 +27,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
   set(RGBD_OS_WASM TRUE)
 endif()
 
+set(RGBD_WEB_DIR ${PROJECT_SOURCE_DIR}/web)
+set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
+
 ### CLI BEGIN ###
 add_subdirectory(deps/cli EXCLUDE_FROM_ALL)
 ### CLI END ###
