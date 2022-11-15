@@ -77,9 +77,9 @@ endif()
 
 ### LIBPNG BEGIN ###
 set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
-set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-windows/release)
+set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/install/x64-windows)
 set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/install/arm64-mac)
-set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/1.6.38-ssrobins/x64-linux)
+set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/install/x64-linux)
 set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/install/arm64-ios)
 
 # libpng requires zlib
