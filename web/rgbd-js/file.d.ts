@@ -90,6 +90,7 @@ export declare class File {
   videoFrames: FileVideoFrame[];
   audioFrames: FileAudioFrame[];
   imuFrames: FileIMUFrame[];
+  trsFrames: FileTRSFrame[];
 
   constructor(nativeFile: NativeFile);
 }
