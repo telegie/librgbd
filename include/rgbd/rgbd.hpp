@@ -11,6 +11,7 @@
 #include <rgbd/constants.hpp>
 #include <rgbd/depth_decoder.hpp>
 #include <rgbd/depth_encoder.hpp>
+#include <rgbd/direction_table.hpp>
 #include <rgbd/ffmpeg_utils.hpp>
 #include <rgbd/file.hpp>
 #include <rgbd/file_parser.hpp>

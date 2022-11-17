@@ -116,6 +116,7 @@ set(RgbdSources
   include/rgbd/constants.hpp
   include/rgbd/depth_decoder.hpp
   include/rgbd/depth_encoder.hpp
+  include/rgbd/direction_table.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/file.hpp
   include/rgbd/file_parser.hpp
@@ -149,6 +150,7 @@ set(RgbdSources
   src/constants.cpp
   src/depth_decoder.cpp
   src/depth_encoder.cpp
+  src/direction_table.cpp
   src/ffmpeg_utils.cpp
   src/file.cpp
   src/file_parser.cpp
