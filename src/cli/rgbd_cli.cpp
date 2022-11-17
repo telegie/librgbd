@@ -19,7 +19,7 @@ void print_help(const cxxopts::Options& options)
 void print_file_info(std::ostream& out, const std::string& file_path)
 {
     FileParser parser{file_path};
-    auto file{parser.parseAllFrames()};
+    auto file{parser.parse(false, false)};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
     for (auto& video_frame : file->video_frames()) {
@@ -43,7 +43,7 @@ void print_file_info(std::ostream& out, const std::string& file_path)
 void extract_cover(const std::string& file_path)
 {
     FileParser parser{file_path};
-    auto file{parser.parseNoFrames()};
+    auto file{parser.parse(false, false)};
     auto& cover_png_bytes{file->attachments().cover_png_bytes};
     if (!cover_png_bytes) {
         spdlog::error("No cover.png found.");
@@ -58,7 +58,7 @@ void extract_cover(const std::string& file_path)
 void split_file(const std::string& file_path)
 {
     FileParser parser{file_path};
-    auto file{parser.parseAllFrames()};
+    auto file{parser.parse(false, false)};
     auto& video_frames{file->video_frames()};
 
     int previous_chunk_index{-1};
@@ -119,7 +119,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     int64_t from_us{static_cast<int64_t>(from_sec * 1000000)};
     int64_t to_us{static_cast<int64_t>(to_sec * 1000000)};
     FileParser parser{file_path};
-    auto file{parser.parseAllFrames()};
+    auto file{parser.parse(true, true)};
     auto& video_frames{file->video_frames()};
 
     auto output_path{"trimmed.mkv"};

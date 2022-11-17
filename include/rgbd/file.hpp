@@ -3,6 +3,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include "camera_calibration.hpp"
 #include "plane.hpp"
+#include "direction_table.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4245 4267 4828 6387 26495 26812)
@@ -273,7 +274,8 @@ public:
          vector<unique_ptr<FileVideoFrame>>&& video_frames,
          vector<unique_ptr<FileAudioFrame>>&& audio_frames,
          vector<unique_ptr<FileIMUFrame>>&& imu_frames,
-         vector<unique_ptr<FileTRSFrame>>&& trs_frames)
+         vector<unique_ptr<FileTRSFrame>>&& trs_frames,
+         optional<DirectionTable>&& direction_table)
         : offsets_{offsets}
         , info_{info}
         , tracks_{tracks}
@@ -282,6 +284,7 @@ public:
         , audio_frames_{std::move(audio_frames)}
         , imu_frames_{std::move(imu_frames)}
         , trs_frames_{std::move(trs_frames)}
+        , direction_table_{std::move(direction_table)}
     {
     }
     FileOffsets& offsets() noexcept
@@ -316,6 +319,10 @@ public:
     {
         return trs_frames_;
     }
+    const optional<DirectionTable> direction_table() const noexcept
+    {
+        return direction_table_;
+    }
 
 private:
     FileOffsets offsets_;
@@ -326,6 +333,7 @@ private:
     vector<unique_ptr<FileAudioFrame>> audio_frames_;
     vector<unique_ptr<FileIMUFrame>> imu_frames_;
     vector<unique_ptr<FileTRSFrame>> trs_frames_;
+    optional<DirectionTable> direction_table_;
 };
 
 } // namespace rgbd

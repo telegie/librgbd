@@ -1,9 +1,10 @@
 #include "file_parser.hpp"
 
-#include <rgbd/ios_camera_calibration.hpp>
-#include <rgbd/kinect_camera_calibration.hpp>
-#include <rgbd/undistorted_camera_calibration.hpp>
-#include <rgbd/tdc1_decoder.hpp>
+#include "direction_table.hpp"
+#include "ios_camera_calibration.hpp"
+#include "kinect_camera_calibration.hpp"
+#include "undistorted_camera_calibration.hpp"
+#include "tdc1_decoder.hpp"
 
 using namespace libmatroska;
 
@@ -598,18 +599,16 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
 }
 
-unique_ptr<File> FileParser::parseAllClusters()
+void FileParser::parseAllClusters(vector<unique_ptr<FileVideoFrame>>& video_frames,
+                                  vector<unique_ptr<FileAudioFrame>>& audio_frames,
+                                  vector<unique_ptr<FileIMUFrame>>& imu_frames,
+                                  vector<unique_ptr<FileTRSFrame>>& trs_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
 
     if (!cluster)
         throw std::runtime_error("Failed to read first cluster");
-
-    vector<unique_ptr<FileVideoFrame>> video_frames;
-    vector<unique_ptr<FileAudioFrame>> audio_frames;
-    vector<unique_ptr<FileIMUFrame>> imu_frames;
-    vector<unique_ptr<FileTRSFrame>> trs_frames;
 
     while (cluster != nullptr) {
         auto frame{parseCluster(cluster)};
@@ -639,23 +638,21 @@ unique_ptr<File> FileParser::parseAllClusters()
             throw std::runtime_error{"Invalid FileFrameType found in FileParser::parseAllClusters"};
         }
     }
-
-    return std::make_unique<File>(*file_offsets_,
-                                  *file_info_,
-                                  *file_tracks_,
-                                  *file_attachments_,
-                                  std::move(video_frames),
-                                  std::move(audio_frames),
-                                  std::move(imu_frames),
-                                  std::move(trs_frames));
 }
 
-unique_ptr<File> FileParser::parseNoFrames()
+unique_ptr<File> FileParser::parse(bool with_frames, bool with_directions)
 {
     vector<unique_ptr<FileVideoFrame>> video_frames;
     vector<unique_ptr<FileAudioFrame>> audio_frames;
     vector<unique_ptr<FileIMUFrame>> imu_frames;
     vector<unique_ptr<FileTRSFrame>> trs_frames;
+    if (with_frames)
+        parseAllClusters(video_frames, audio_frames, imu_frames, trs_frames);
+
+    optional<DirectionTable> direction_table;
+    if (with_directions)
+        direction_table = DirectionTable{*file_attachments_->camera_calibration};
+
     return std::make_unique<File>(*file_offsets_,
                                   *file_info_,
                                   *file_tracks_,
@@ -663,11 +660,7 @@ unique_ptr<File> FileParser::parseNoFrames()
                                   std::move(video_frames),
                                   std::move(audio_frames),
                                   std::move(imu_frames),
-                                  std::move(trs_frames));
-}
-
-unique_ptr<File> FileParser::parseAllFrames()
-{
-    return parseAllClusters();
+                                  std::move(trs_frames),
+                                  std::move(direction_table));
 }
 } // namespace rgbd

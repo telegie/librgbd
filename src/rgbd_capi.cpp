@@ -637,16 +637,10 @@ void rgbd_file_parser_dtor(void* ptr)
     delete static_cast<rgbd::FileParser*>(ptr);
 }
 
-void* rgbd_file_parser_parse_no_frames(void* ptr)
+void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions)
 {
     auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->parseNoFrames().release();
-}
-
-void* rgbd_file_parser_parse_all_frames(void* ptr)
-{
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
-    return file_parser->parseAllFrames().release();
+    return file_parser->parse(with_frames, with_directions).release();
 }
 //////// END FILE PARSER ////////
 

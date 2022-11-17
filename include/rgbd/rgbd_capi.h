@@ -239,8 +239,7 @@ extern "C"
     RGBD_INTERFACE_EXPORT int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_parser_parse_no_frames(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_parser_parse_all_frames(void* ptr);
+    void* RGBD_INTERFACE_EXPORT rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions);
     //////// END FILE PARSER ////////
 
     //////// START FILE TRACKS ////////
