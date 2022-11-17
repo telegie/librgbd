@@ -88,4 +88,4 @@ void AudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,
         packets.push_back(packet);
     }
 }
-} // namespace tg
+} // namespace rgbd

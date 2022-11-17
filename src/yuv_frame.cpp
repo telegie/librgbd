@@ -216,4 +216,4 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer
     return YuvFrame(
         half_width, half_height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
 }
-} // namespace tg
+} // namespace rgbd

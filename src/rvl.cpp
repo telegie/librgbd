@@ -44,4 +44,4 @@ int DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten)
     return value;
 }
 } // namespace wilson
-} // namespace tg
+} // namespace rgbd

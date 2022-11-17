@@ -226,4 +226,4 @@ glm::vec3 KinectCameraCalibration::getDirection(const glm::vec2& uv) const noexc
 {
     return compute_kinect_direction(*this, uv);
 }
-} // namespace tg
+} // namespace rgbd

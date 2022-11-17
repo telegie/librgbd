@@ -94,4 +94,4 @@ vector<float> AudioDecoder::decode(gsl::span<const std::byte> opus_frame)
 
     return pcm_samples;
 }
-} // namespace tg
+} // namespace rgbd

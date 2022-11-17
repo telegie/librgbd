@@ -43,4 +43,4 @@ private:
     glm::vec3 normal_;
     float constant_;
 };
-} // namespace tg
+} // namespace rgbd

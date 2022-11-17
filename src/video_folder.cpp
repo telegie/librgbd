@@ -64,4 +64,4 @@ optional<std::filesystem::path> VideoFolder::runSelectFileCLI()
 
     return file_paths()[selected_index];
 }
-} // namespace tg
+} // namespace rgbd

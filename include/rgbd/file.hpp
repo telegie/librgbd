@@ -328,4 +328,4 @@ private:
     vector<unique_ptr<FileTRSFrame>> trs_frames_;
 };
 
-} // namespace tg
+} // namespace rgbd

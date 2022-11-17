@@ -58,4 +58,4 @@ private:
     vector<vector<float>> pcm_frames_;
     optional<Plane> floor_;
 };
-} // namespace tg
+} // namespace rgbd

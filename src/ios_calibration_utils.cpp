@@ -60,4 +60,4 @@ glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const g
     // So using uu and vv directly without converting them back to u and v.
     return glm::vec3{(calibrated_uu - ox) / fx, (calibrated_vv - oy) / fy, -1.0f};
 }
-} // namespace tg
+} // namespace rgbd

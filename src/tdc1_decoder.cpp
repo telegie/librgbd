@@ -43,4 +43,4 @@ unique_ptr<Int32Frame> TDC1Decoder::decode(gsl::span<const std::byte> bytes) noe
 
     return std::make_unique<Int32Frame>(width, height, previous_depth_values_);
 }
-} // namespace tg
+} // namespace rgbd

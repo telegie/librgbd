@@ -25,4 +25,4 @@ private:
     int64_t time_point_us_;
     vector<float> pcm_samples_;
 };
-} // namespace tg
+} // namespace rgbd

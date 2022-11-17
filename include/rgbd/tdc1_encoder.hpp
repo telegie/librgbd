@@ -18,4 +18,4 @@ private:
     const int diff_multiplier_;
     vector<int16_t> previous_depth_values_;
 };
-} // namespace tg
+} // namespace rgbd

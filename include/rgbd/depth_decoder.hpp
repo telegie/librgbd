@@ -21,4 +21,4 @@ public:
 private:
     unique_ptr<DepthDecoderImpl> impl_;
 };
-} // namespace tg
+} // namespace rgbd

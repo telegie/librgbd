@@ -133,4 +133,4 @@ vector<AVPacketHandle> ColorEncoder::encodeVideoFrame(AVCodecContext* codec_cont
         packets.push_back(packet);
     }
 }
-} // namespace tg
+} // namespace rgbd

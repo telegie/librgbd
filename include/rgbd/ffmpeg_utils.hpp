@@ -81,4 +81,4 @@ public:
 private:
     std::unique_ptr<AVCodecParserContext, std::function<void(AVCodecParserContext*)>> unique_ptr_;
 };
-} // namespace tg
+} // namespace rgbd

@@ -15,4 +15,4 @@ private:
     AVCodecContextHandle codec_context_;
     AVPacketHandle packet_;
 };
-} // namespace tg
+} // namespace rgbd

@@ -77,4 +77,4 @@ private:
     int width_;
     int height_;
 };
-} // namespace tg
+} // namespace rgbd

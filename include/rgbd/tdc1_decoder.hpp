@@ -22,4 +22,4 @@ private:
     // negative values.
     vector<int32_t> previous_depth_values_;
 };
-} // namespace tg
+} // namespace rgbd

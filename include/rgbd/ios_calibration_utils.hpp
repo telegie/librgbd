@@ -5,4 +5,4 @@
 namespace rgbd
 {
 glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const glm::vec2& uv);
-} // namespace tg
+} // namespace rgbd

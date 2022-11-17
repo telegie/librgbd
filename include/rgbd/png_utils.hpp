@@ -18,4 +18,4 @@ public:
                        const vector<uint8_t>& b_channel,
                        const vector<uint8_t>& a_channel);
 };
-} // namespace tg
+} // namespace rgbd

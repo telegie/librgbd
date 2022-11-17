@@ -86,4 +86,4 @@ unique_ptr<YuvFrame> ColorDecoder::decode(gsl::span<const std::byte> vp8_frame)
 
     return std::move(yuv_frames[0]);
 }
-} // namespace tg
+} // namespace rgbd

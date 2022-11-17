@@ -37,4 +37,4 @@ private:
     AVFrameHandle frame_;
     int64_t next_pts_;
 };
-} // namespace tg
+} // namespace rgbd

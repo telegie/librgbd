@@ -36,4 +36,4 @@ Bytes Plane::toBytes() const noexcept
     append_bytes(bytes, convert_to_bytes(constant_));
     return bytes;
 }
-} // namespace tg
+} // namespace rgbd

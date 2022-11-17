@@ -15,4 +15,4 @@ private:
     const int width_;
     const int height_;
 };
-} // namespace tg
+} // namespace rgbd

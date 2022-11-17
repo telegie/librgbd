@@ -108,4 +108,4 @@ Bytes PNGUtils::write(int width,
 
     return bytes;
 }
-} // namespace tg
+} // namespace rgbd

@@ -24,4 +24,4 @@ template <class T> T read_from_bytes(gsl::span<const std::byte> bytes, int& curs
     cursor += sizeof(T);
     return t;
 }
-} // namespace tg
+} // namespace rgbd

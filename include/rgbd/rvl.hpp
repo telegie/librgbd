@@ -114,4 +114,4 @@ vector<T> decompress(const gsl::span<const std::byte> input, const int num_pixel
     return output;
 }
 } // namespace rvl
-} // namespace tg
+} // namespace rgbd
