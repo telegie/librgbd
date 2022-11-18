@@ -4,6 +4,8 @@
 
 #include "direction_table.hpp"
 
+#include <math.h>
+
 namespace rgbd
 {
 DirectionTable::DirectionTable(int width, int height, const std::vector<glm::vec3>& directions)
