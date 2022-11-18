@@ -10,6 +10,7 @@ namespace rgbd
 class DirectionTable
 {
 public:
+    DirectionTable(int width, int height, const std::vector<glm::vec3>& directions);
     DirectionTable(const rgbd::CameraCalibration& calibration);
     glm::vec3 getDirection(const glm::vec2& uv) const;
     int width() const noexcept

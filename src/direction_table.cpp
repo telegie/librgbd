@@ -6,6 +6,12 @@
 
 namespace rgbd
 {
+DirectionTable::DirectionTable(int width, int height, const std::vector<glm::vec3>& directions)
+    : width_{width}
+    , height_{height}
+    , directions_{directions}
+{
+}
 DirectionTable::DirectionTable(const rgbd::CameraCalibration& calibration)
     : width_{calibration.getDepthWidth()}
     , height_{calibration.getDepthHeight()}

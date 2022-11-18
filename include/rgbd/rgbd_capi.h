@@ -169,6 +169,16 @@ extern "C"
                                                           bool keyframe);
     //////// END DEPTH DECODER ////////
 
+    //////// START DIRECTION TABLE ////////
+    RGBD_INTERFACE_EXPORT void rgbd_direction_table_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_direction_table_get_width(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_direction_table_get_height(void* ptr);
+    RGBD_INTERFACE_EXPORT size_t rgbd_direction_table_get_direction_count(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_direction_table_get_direction_x(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT float rgbd_direction_table_get_direction_y(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT float rgbd_direction_table_get_direction_z(void* ptr, size_t index);
+    //////// END DIRECTION TABLE ////////
+
     //////// START FILE ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_info(void* ptr);
@@ -182,6 +192,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_imu_frame(void* ptr, size_t index);
     RGBD_INTERFACE_EXPORT size_t rgbd_file_get_trs_frame_count(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_get_trs_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT bool rgbd_file_has_direction_table(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_get_direction_table(void* ptr);
     //////// END FILE ////////
 
     //////// START FILE ATTACHMENTS ////////

@@ -377,6 +377,43 @@ void* rgbd_depth_encoder_encode(void* ptr,
 }
 //////// END DEPTH DECODER ////////
 
+//////// START DIRECTION TABLE ////////
+void rgbd_direction_table_dtor(void* ptr)
+{
+    delete static_cast<rgbd::DirectionTable*>(ptr);
+}
+
+int rgbd_direction_table_get_width(void* ptr)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->width();
+}
+
+int rgbd_direction_table_get_height(void* ptr)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->height();
+}
+
+size_t rgbd_direction_table_get_direction_count(void* ptr)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->directions().size();
+}
+
+float rgbd_direction_table_get_direction_x(void* ptr, size_t index)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].x;
+}
+
+float rgbd_direction_table_get_direction_y(void* ptr, size_t index)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].y;
+}
+
+float rgbd_direction_table_get_direction_z(void* ptr, size_t index)
+{
+    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].z;
+}
+//////// END DIRECTION TABLE ////////
+
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)
 {
@@ -436,6 +473,16 @@ size_t rgbd_file_get_trs_frame_count(void* ptr)
 void* rgbd_file_get_trs_frame(void* ptr, size_t index)
 {
     return static_cast<rgbd::File*>(ptr)->trs_frames()[index].get();
+}
+
+bool rgbd_file_has_direction_table(void* ptr)
+{
+    return static_cast<rgbd::File*>(ptr)->direction_table().has_value();
+}
+
+void* rgbd_file_get_direction_table(void* ptr)
+{
+    return &(static_cast<rgbd::File*>(ptr)->direction_table().value());
 }
 //////// END FILE ////////
 

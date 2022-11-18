@@ -319,7 +319,7 @@ public:
     {
         return trs_frames_;
     }
-    const optional<DirectionTable> direction_table() const noexcept
+    optional<DirectionTable>& direction_table() noexcept
     {
         return direction_table_;
     }
