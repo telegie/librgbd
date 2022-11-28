@@ -220,8 +220,8 @@ elseif(RGBD_OS_MAC)
     ${FFMPEG_MAC_DIR}/lib/libavcodec.a
     ${FFMPEG_MAC_DIR}/lib/libavformat.a
     ${FFMPEG_MAC_DIR}/lib/libavutil.a
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/arm64-mac/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/install/arm64-mac/lib/libvpx.a
+    ${FFMPEG_BINARIES_DIR}/opus-binaries/install/arm64-mac/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
     "-framework AudioToolbox"
     -lz
