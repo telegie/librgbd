@@ -233,12 +233,14 @@ elseif(RGBD_OS_LINUX)
     ${FFMPEG_LINUX_DIR}/include
     ${LIBPNG_LINUX_DIR}/include
   )
+  # The order here matters. libvpx and libopus should be listed
+  # after the ffmpeg ones.
   list(APPEND RgbdLibraryDependencies
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/install/x64-linux/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/install/x64-linux/lib/libopus.a
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/install/x64-linux/lib/libvpx.a
+    ${FFMPEG_BINARIES_DIR}/opus-binaries/install/x64-linux/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
     -lz
   )
