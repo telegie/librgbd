@@ -4,7 +4,7 @@
 
 #include "direction_table.hpp"
 
-#include <math.h>
+#include <cmath>
 
 namespace rgbd
 {
@@ -38,8 +38,8 @@ glm::vec3 DirectionTable::getDirection(const glm::vec2& uv) const
     float col{uv.x * width_};
     float row{uv.y * height_};
 
-    int left_col{static_cast<int>(std::floorf(col))};
-    int top_row{static_cast<int>(std::floorf(row))};
+    int left_col{static_cast<int>(std::floor(col))};
+    int top_row{static_cast<int>(std::floor(row))};
 
     int left_top_index{left_col + top_row * width_};
     glm::vec3 left_top_direction{directions_[left_top_index]};

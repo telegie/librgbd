@@ -42,8 +42,8 @@ add_subdirectory(deps/cxxopts EXCLUDE_FROM_ALL)
 set(FFMPEG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/ffmpeg-binaries)
 set(FFMPEG_WIN64_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-windows)
 set(FFMPEG_MAC_DIR ${FFMPEG_BINARIES_DIR}/install/arm64-mac)
-set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
-set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten)
+set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/install/x64-linux)
+set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/install/wasm32-emscripten)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/install/arm64-ios)
 ### FFMPEG END ###
 
@@ -234,12 +234,11 @@ elseif(RGBD_OS_LINUX)
     ${LIBPNG_LINUX_DIR}/include
   )
   list(APPEND RgbdLibraryDependencies
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
+    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/install/x64-linux/lib/libvpx.a
+    ${FFMPEG_BINARIES_DIR}/opus-binaries/install/x64-linux/lib/libopus.a
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
     -lz
   )
