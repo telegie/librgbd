@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.18)
 project(librgbd)
 
 set(RGBD_VERSION_MAJOR 0)
@@ -42,8 +42,8 @@ add_subdirectory(deps/cxxopts EXCLUDE_FROM_ALL)
 set(FFMPEG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/ffmpeg-binaries)
 set(FFMPEG_WIN64_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-windows)
 set(FFMPEG_MAC_DIR ${FFMPEG_BINARIES_DIR}/install/arm64-mac)
-set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
-set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten)
+set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/install/x64-linux)
+set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/install/wasm32-emscripten)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/install/arm64-ios)
 ### FFMPEG END ###
 
@@ -246,12 +246,14 @@ elseif(RGBD_OS_LINUX)
     ${FFMPEG_LINUX_DIR}/include
     ${LIBPNG_LINUX_DIR}/include
   )
+  # The order here matters. libvpx and libopus should be listed
+  # after the ffmpeg ones.
   list(APPEND RgbdLibraryDependencies
-    ${LIBVPX_LINUX_DIR}/lib/libvpx.a
-    ${OPUS_LINUX_DIR}/lib/libopus.a
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
+    ${LIBVPX_LINUX_DIR}/lib/libvpx.a
+    ${OPUS_LINUX_DIR}/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
     -lz
   )
