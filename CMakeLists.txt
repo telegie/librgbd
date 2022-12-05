@@ -87,6 +87,19 @@ set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
 set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
 ### LIBPNG END ###
 
+### LIBVPX BEGIN ###
+set(LIBVPX_BINARIES_DIR ${FFMPEG_BINARIES_DIR}/libvpx-binaries)
+set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/arm64-mac)
+set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-linux)
+### LIBVPX END ###
+
+### OPUS BEGIN ###
+set(OPUS_BINARIES_DIR ${FFMPEG_BINARIES_DIR}/opus-binaries)
+set(OPUS_MAC_DIR ${OPUS_BINARIES_DIR}/e4d4b74/arm64-mac)
+set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
+set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
+### OPUS END ###
+
 ### SPDLOG BEGIN ###
 # Use existing spdlog if there already is an spdlog added.
 if(NOT TARGET spdlog::spdlog)
@@ -220,8 +233,8 @@ elseif(RGBD_OS_MAC)
     ${FFMPEG_MAC_DIR}/lib/libavcodec.a
     ${FFMPEG_MAC_DIR}/lib/libavformat.a
     ${FFMPEG_MAC_DIR}/lib/libavutil.a
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/arm64-mac/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/arm64-mac/lib/libopus.a
+    ${LIBVPX_MAC_DIR}/lib/libvpx.a
+    ${OPUS_MAC_DIR}/lib/libopus.a
     ${LIBPNG_MAC_DIR}/lib/libpng.a
     "-framework AudioToolbox"
     -lz
@@ -234,12 +247,11 @@ elseif(RGBD_OS_LINUX)
     ${LIBPNG_LINUX_DIR}/include
   )
   list(APPEND RgbdLibraryDependencies
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/x64-linux/lib/libopus.a
+    ${LIBVPX_LINUX_DIR}/lib/libvpx.a
+    ${OPUS_LINUX_DIR}/lib/libopus.a
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
-    ${FFMPEG_BINARIES_DIR}/libvpx-binaries/1.10.0/x64-linux/lib/libvpx.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
     -lz
   )
@@ -259,7 +271,7 @@ elseif(RGBD_OS_WASM)
     ${FFMPEG_WASM_DIR}/lib/libavformat.a
     ${FFMPEG_WASM_DIR}/lib/libavutil.a
     ${FFMPEG_WASM_DIR}/lib/libswresample.a
-    ${FFMPEG_BINARIES_DIR}/opus-binaries/e4d4b74/wasm32-emscripten/lib/libopus.a
+    ${OPUS_WASM_DIR}/lib/libopus.a
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WASM)
 
