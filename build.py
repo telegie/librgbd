@@ -28,7 +28,22 @@ def build_arm64_mac_binaries():
     subprocess.run(["cmake",
                     "-S", here,
                     "-B", build_path,
+                    "-D", "CMAKE_OSX_ARCHITECTURES=arm64",
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/install/arm64-mac"],
+                   check=True)
+    subprocess.run(["make", "-C", build_path, "-j8"], check=True)
+    subprocess.run(["make", "-C", build_path, "install"], check=True)
+
+
+def build_x64_mac_binaries():
+    here = Path(__file__).parent.resolve()
+    build_path = f"{here}/build/x64-mac"
+
+    subprocess.run(["cmake",
+                    "-S", here,
+                    "-B", build_path,
+                    "-D", "CMAKE_OSX_ARCHITECTURES=x86_64",
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-mac"],
                    check=True)
     subprocess.run(["make", "-C", build_path, "-j8"], check=True)
     subprocess.run(["make", "-C", build_path, "install"], check=True)
@@ -42,8 +57,8 @@ def build_x64_linux_binaries():
                     "-S", here,
                     "-B", build_path,
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-linux"])
-    subprocess.run(["make", "-C", build_path, "-j8"])
-    subprocess.run(["make", "-C", build_path, "install"])
+    subprocess.run(["make", "-C", build_path, "-j8"], check=True)
+    subprocess.run(["make", "-C", build_path, "install"], check=True)
 
 
 def main():
@@ -55,6 +70,7 @@ def main():
         return
     elif platform.system() == "Darwin":
         build_arm64_mac_binaries()
+        build_x64_mac_binaries()
         return
     elif platform.system() == "Linux":
         build_x64_linux_binaries()
