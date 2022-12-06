@@ -5,11 +5,25 @@ import subprocess
 from pathlib import Path
 
 
+def build_x64_windows_binaries():
+    here = Path(__file__).parent.resolve()
+    build_path = f"{here}/build/x64-windows"
+
+    subprocess.run(["cmake",
+                    "-S", here,
+                    "-B", build_path,
+                    "-A" "x64",
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-windows"],
+                   check=True)
+    subprocess.run(["msbuild",
+                    f"{build_path}/INSTALL.vcxproj",
+                    "/p:Configuration=RelWithDebInfo"],
+                   check=True)
+
+
 def build_arm64_mac_binaries():
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/arm64-mac"
-    if not os.path.exists(build_path):
-        os.makedirs(build_path)
 
     subprocess.run(["cmake",
                     "-S", here,
@@ -23,8 +37,6 @@ def build_arm64_mac_binaries():
 def build_x64_linux_binaries():
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/x64-linux"
-    if not os.path.exists(build_path):
-        os.makedirs(build_path)
 
     subprocess.run(["cmake",
                     "-S", here,
@@ -38,7 +50,10 @@ def main():
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/bootstrap.py"], check=True)
 
-    if platform.system() == "Darwin":
+    if platform.system() == "Windows":
+        build_x64_windows_binaries()
+        return
+    elif platform.system() == "Darwin":
         build_arm64_mac_binaries()
         return
     elif platform.system() == "Linux":
