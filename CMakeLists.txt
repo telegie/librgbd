@@ -106,7 +106,7 @@ set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/install/arm64-ios)
 
 # libpng requires zlib
 set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
-set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/1.2.11/x64-windows/release)
+set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/install/x64-windows)
 ### LIBPNG END ###
 
 ### LIBVPX BEGIN ###
