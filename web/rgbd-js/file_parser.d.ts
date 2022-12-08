@@ -4,6 +4,5 @@ export declare class NativeFileParser {
 
   constructor(wasmModule: any, data: Uint8Array);
   close(): void;
-  parseNoFrames(): NativeFile;
-  parseAllFrames(): NativeFile;
+  parse(withFrames: boolean, withDirections: boolean): NativeFile;
 }

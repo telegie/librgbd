@@ -25,13 +25,11 @@ export class NativeFileParser {
     this.wasmModule._free(this.dataPtr);
   }
 
-  parseNoFrames() {
-    const filePtr = this.wasmModule.ccall('rgbd_file_parser_parse_no_frames', "number", ["number"], [this.ptr]);
-    return new NativeFile(this.wasmModule, filePtr);
-  }
-
-  parseAllFrames() {
-    const filePtr = this.wasmModule.ccall('rgbd_file_parser_parse_all_frames', "number", ["number"], [this.ptr]);
+  parse(withFrames, withDirections) {
+    const filePtr = this.wasmModule.ccall("rgbd_file_parser_parse",
+                                          "number",
+                                          ["number", "boolean", "boolean"],
+                                          [this.ptr, withFrames, withDirections]);
     return new NativeFile(this.wasmModule, filePtr);
   }
 }
