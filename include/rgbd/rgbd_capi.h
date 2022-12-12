@@ -427,7 +427,9 @@ extern "C"
                                      float lens_distortion_center_x,
                                      float lens_distortion_center_y,
                                      const float* lens_distortion_lookup_table,
-                                     size_t lens_distortion_lookup_table_size);
+                                     size_t lens_distortion_lookup_table_size,
+                                     const float* inverse_lens_distortion_lookup_table,
+                                     size_t inverse_lens_distortion_lookup_table_size);
     RGBD_INTERFACE_EXPORT float rgbd_ios_camera_calibration_get_fx(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_ios_camera_calibration_get_fy(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_ios_camera_calibration_get_ox(void* ptr);
@@ -440,6 +442,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr);
     RGBD_INTERFACE_EXPORT void*
     rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void* ptr);
     //////// END IOS CAMERA CALIBRATION ////////
 
     //////// START UNDISTORTED CAMERA CALIBRATION ////////

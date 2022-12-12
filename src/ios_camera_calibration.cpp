@@ -16,7 +16,8 @@ IosCameraCalibration::IosCameraCalibration(int color_width,
                                            float reference_dimension_height,
                                            float lens_distortion_center_x,
                                            float lens_distortion_center_y,
-                                           gsl::span<const float> lens_distortion_lookup_table)
+                                           gsl::span<const float> lens_distortion_lookup_table,
+                                           gsl::span<const float> inverse_lens_distortion_lookup_table)
     : color_width_{color_width}
     , color_height_{color_height}
     , depth_width_{depth_width}
@@ -30,8 +31,10 @@ IosCameraCalibration::IosCameraCalibration(int color_width,
     , lens_distortion_center_x_{lens_distortion_center_x}
     , lens_distortion_center_y_{lens_distortion_center_y}
     , lens_distortion_lookup_table_{}
+    , inverse_lens_distortion_lookup_table_{}
 {
     lens_distortion_lookup_table_.assign(lens_distortion_lookup_table.begin(), lens_distortion_lookup_table.end());
+    inverse_lens_distortion_lookup_table_.assign(inverse_lens_distortion_lookup_table.begin(), inverse_lens_distortion_lookup_table.end());
 }
 
 IosCameraCalibration IosCameraCalibration::fromBytes(const Bytes& bytes, int& cursor)
@@ -55,6 +58,11 @@ IosCameraCalibration IosCameraCalibration::fromBytes(const Bytes& bytes, int& cu
     for (gsl::index i{0}; i < lens_distortion_lookup_table_size; ++i)
         lens_distortion_lookup_table[i] = read_from_bytes<float>(bytes, cursor);
 
+    int inverse_lens_distortion_lookup_table_size{read_from_bytes<int>(bytes, cursor)};
+    vector<float> inverse_lens_distortion_lookup_table(inverse_lens_distortion_lookup_table_size);
+    for (gsl::index i{0}; i < inverse_lens_distortion_lookup_table_size; ++i)
+        inverse_lens_distortion_lookup_table[i] = read_from_bytes<float>(bytes, cursor);
+
     return IosCameraCalibration{color_width,
                                 color_height,
                                 depth_width,
@@ -67,7 +75,8 @@ IosCameraCalibration IosCameraCalibration::fromBytes(const Bytes& bytes, int& cu
                                 reference_dimension_height,
                                 lens_distortion_center_x,
                                 lens_distortion_center_y,
-                                lens_distortion_lookup_table};
+                                lens_distortion_lookup_table,
+                                inverse_lens_distortion_lookup_table};
 }
 
 IosCameraCalibration IosCameraCalibration::fromJson(const json& json)
@@ -89,6 +98,15 @@ IosCameraCalibration IosCameraCalibration::fromJson(const json& json)
     for (auto& value : json["lensDistortionLookupTable"])
         lens_distortion_lookup_table.push_back(value.get<float>());
 
+    vector<float> inverse_lens_distortion_lookup_table;
+    // IosCameraCalibration::toJson() did not include inverseLensDistortionLookupTable
+    // before December 2022. So, video files recorded before then do not have
+    // inverseLensDistortionLookupTable.
+    if (json.contains("inverseLensDistortionLookupTable")) {
+        for (auto& value : json["inverseLensDistortionLookupTable"])
+            lens_distortion_lookup_table.push_back(value.get<float>());
+    }
+
     return IosCameraCalibration{color_width,
                                 color_height,
                                 depth_width,
@@ -101,7 +119,8 @@ IosCameraCalibration IosCameraCalibration::fromJson(const json& json)
                                 reference_dimension_height,
                                 lens_distortion_center_x,
                                 lens_distortion_center_y,
-                                lens_distortion_lookup_table};
+                                lens_distortion_lookup_table,
+                                inverse_lens_distortion_lookup_table};
 }
 
 Bytes IosCameraCalibration::toBytes() const noexcept
@@ -125,6 +144,10 @@ Bytes IosCameraCalibration::toBytes() const noexcept
     for (float value : lens_distortion_lookup_table_)
         append_bytes(bytes, convert_to_bytes(value));
 
+    append_bytes(bytes, convert_to_bytes(gsl::narrow<int>(inverse_lens_distortion_lookup_table_.size())));
+    for (float value : inverse_lens_distortion_lookup_table_)
+        append_bytes(bytes, convert_to_bytes(value));
+
     return bytes;
 }
 
@@ -143,7 +166,8 @@ json IosCameraCalibration::toJson() const noexcept
                 {"referenceDimensionHeight", reference_dimension_height_},
                 {"lensDistortionCenterX", lens_distortion_center_x_},
                 {"lensDistortionCenterY", lens_distortion_center_y_},
-                {"lensDistortionLookupTable", lens_distortion_lookup_table_}};
+                {"lensDistortionLookupTable", lens_distortion_lookup_table_},
+                {"inverseLensDistortionLookupTable", inverse_lens_distortion_lookup_table_}};
 }
 
 CameraDeviceType IosCameraCalibration::getCameraDeviceType() const noexcept

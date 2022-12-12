@@ -1182,7 +1182,9 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
                                        float lens_distortion_center_x,
                                        float lens_distortion_center_y,
                                        const float* lens_distortion_lookup_table,
-                                       size_t lens_distortion_lookup_table_size)
+                                       size_t lens_distortion_lookup_table_size,
+                                       const float* inverse_lens_distortion_lookup_table,
+                                       size_t inverse_lens_distortion_lookup_table_size)
 {
     return new rgbd::IosCameraCalibration{
         color_width,
@@ -1197,7 +1199,8 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
         reference_dimension_height,
         lens_distortion_center_x,
         lens_distortion_center_y,
-        {lens_distortion_lookup_table, lens_distortion_lookup_table_size}};
+        {lens_distortion_lookup_table, lens_distortion_lookup_table_size},
+        {inverse_lens_distortion_lookup_table, inverse_lens_distortion_lookup_table_size}};
 }
 
 float rgbd_ios_camera_calibration_get_fx(void* ptr)
@@ -1244,6 +1247,13 @@ void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 {
     auto floats{
         static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
+    return new rgbd::NativeFloatArray{std::move(floats)};
+}
+
+void* rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void* ptr)
+{
+    auto floats{
+        static_cast<const rgbd::IosCameraCalibration*>(ptr)->inverse_lens_distortion_lookup_table()};
     return new rgbd::NativeFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////

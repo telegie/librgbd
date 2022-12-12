@@ -20,7 +20,8 @@ public:
                          float reference_dimension_height,
                          float lens_distortion_center_x,
                          float lens_distortion_center_y,
-                         gsl::span<const float> lens_distortion_lookup_table);
+                         gsl::span<const float> lens_distortion_lookup_table,
+                         gsl::span<const float> inverse_lens_distortion_lookup_table);
     static IosCameraCalibration fromBytes(const Bytes& bytes, int& cursor);
     static IosCameraCalibration fromJson(const json& json);
     Bytes toBytes() const noexcept;
@@ -68,6 +69,10 @@ public:
     {
         return lens_distortion_lookup_table_;
     }
+    const vector<float> inverse_lens_distortion_lookup_table() const noexcept
+    {
+        return inverse_lens_distortion_lookup_table_;
+    }
 
 private:
     int color_width_;
@@ -85,5 +90,6 @@ private:
     float lens_distortion_center_x_;
     float lens_distortion_center_y_;
     vector<float> lens_distortion_lookup_table_;
+    vector<float> inverse_lens_distortion_lookup_table_;
 };
 } // namespace rgbd
