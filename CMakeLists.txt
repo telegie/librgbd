@@ -105,6 +105,7 @@ set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/install/arm64-ios)
 # libpng requires zlib
 set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
 set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/install/x64-windows)
+set(ZLIB_LINUX_DIR ${ZLIB_BINARIES_DIR}/install/x64-linux)
 ### LIBPNG END ###
 
 ### LIBVPX BEGIN ###
@@ -283,7 +284,7 @@ elseif(RGBD_OS_LINUX)
     ${LIBVPX_LINUX_DIR}/lib/libvpx.a
     ${OPUS_LINUX_DIR}/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
-    -lz
+    ${ZLIB_LINUX_DIR}/lib/libz.a 
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)
