@@ -31,6 +31,7 @@ public:
     int getDepthWidth() const noexcept;
     int getDepthHeight() const noexcept;
     glm::vec3 getDirection(const glm::vec2& uv) const noexcept;
+    glm::vec2 getUv(const glm::vec3& direction) const noexcept;
     float fx() const noexcept
     {
         return fx_;

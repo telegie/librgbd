@@ -245,4 +245,12 @@ glm::vec3 compute_kinect_direction(const KinectCameraCalibration& calibration, c
     // Krypton has x: right, y: up, and is a right-hand coordinate system (i.e., z: back).
     return glm::vec3{point3d.x, -point3d.y, -point3d.z};
 }
+
+glm::vec2 compute_kinect_uv(const KinectCameraCalibration& calibration, const glm::vec3& direction)
+{
+    glm::vec3 point3d{direction.x, -direction.y, -direction.z};
+    bool valid;
+    glm::vec2 uv{kinect_transformation_project(calibration, point3d, valid)};
+    return uv;
+}
 } // namespace rgbd

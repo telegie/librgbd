@@ -18,4 +18,5 @@ glm::vec3 kinect_transformation_unproject(const KinectCameraCalibration& calibra
                                           const glm::vec2& point2d,
                                           bool& valid);
 glm::vec3 compute_kinect_direction(const KinectCameraCalibration& calibration, const glm::vec2& uv);
+glm::vec2 compute_kinect_uv(const KinectCameraCalibration& calibration, const glm::vec3& direction);
 } // namespace rgbd

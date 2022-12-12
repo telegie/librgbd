@@ -39,6 +39,7 @@ public:
     int getDepthWidth() const noexcept;
     int getDepthHeight() const noexcept;
     glm::vec3 getDirection(const glm::vec2& uv) const noexcept;
+    glm::vec2 getUv(const glm::vec3& direction) const noexcept;
     bool operator==(const KinectCameraCalibration& rhs) const
     {
         return color_width_ == rhs.color_width_ && color_height_ == rhs.color_height_ &&

@@ -175,4 +175,10 @@ glm::vec3 IosCameraCalibration::getDirection(const glm::vec2& uv) const noexcept
 {
     return compute_ios_direction(*this, uv);
 }
+
+glm::vec2 IosCameraCalibration::getUv(const glm::vec3& direction) const noexcept
+{
+    // TODO: Implement this.
+    throw std::runtime_error("Not implemented");
+}
 } // namespace rgbd

@@ -8,6 +8,7 @@
 #include <rgbd/file_writer.hpp>
 #include <rgbd/tdc1_decoder.hpp>
 #include <rgbd/video_folder.hpp>
+#include <rgbd/undistorted_camera_calibration.hpp>
 
 namespace rgbd
 {
@@ -125,7 +126,9 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     auto output_path{"trimmed.mkv"};
     FileWriterConfig writer_config;
     writer_config.depth_codec_type = DepthCodecType::TDC1;
-    FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
+    FileWriter file_writer{output_path,
+                           *file->attachments().camera_calibration,
+                           writer_config};
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                file->tracks().color_track.width,
@@ -168,6 +171,65 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
+                                    keyframe,
+                                    encoded_color_frame->packet.getDataBytes(),
+                                    encoded_depth_frame);
+    }
+
+    file_writer.flush();
+}
+
+void standardize_calibration(const std::string& file_path)
+{
+    FileParser parser{file_path};
+    auto file{parser.parse(true, true)};
+    auto& video_frames{file->video_frames()};
+
+    auto output_path{"standardized.mkv"};
+    FileWriterConfig writer_config;
+    writer_config.depth_codec_type = DepthCodecType::TDC1;
+
+    auto& calibration{*file->attachments().camera_calibration};
+    UndistortedCameraCalibration standard_calibration{
+        calibration.getColorWidth(),
+        calibration.getColorHeight(),
+        calibration.getDepthWidth(),
+        calibration.getDepthHeight(),
+        1.0f,
+        1.0f,
+        0.0f,
+        0.0f
+    };
+
+    FileWriter file_writer{output_path,
+                           standard_calibration,
+                           writer_config};
+
+    ColorEncoder color_encoder{ColorCodecType::VP8,
+                               file->tracks().color_track.width,
+                               file->tracks().color_track.height,
+                               3500,
+                               30};
+    unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
+        file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
+
+    ColorDecoder color_decoder{ColorCodecType::VP8};
+    TDC1Decoder depth_decoder;
+    bool first{true};
+    for (auto& video_frame : video_frames) {
+        auto color_frame{color_decoder.decode(video_frame->color_bytes())};
+        auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
+
+        bool keyframe{video_frame->keyframe()};
+        if (first) {
+            file_writer.writeCover(*color_frame);
+            first = false;
+        }
+
+        auto encoded_color_frame{color_encoder.encode(*color_frame, keyframe)};
+        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
+
+        file_writer.writeVideoFrame(video_frame->global_timecode(),
                                     keyframe,
                                     encoded_color_frame->packet.getDataBytes(),
                                     encoded_depth_frame);
@@ -229,6 +291,11 @@ int main(int argc, char** argv)
         float to_sec;
         std::cin >> to_sec;
         trim_file(file_path->generic_u8string(), from_sec, to_sec);
+    });
+    root_menu->Insert("standardize", [](std::ostream& out) {
+        auto video_folder{rgbd::VideoFolder::createFromDefaultPath()};
+        auto file_path{video_folder->runSelectFileCLI()};
+        standardize_calibration(file_path->generic_u8string());
     });
 
     // create the cli with the root menu
