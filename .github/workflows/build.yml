@@ -41,7 +41,7 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
-        run: sudo apt-get -y ninja-build
+        run: sudo apt-get -y install ninja-build
 
       - name: Build
         run: python3 build.py
