@@ -56,9 +56,10 @@ def build_x64_linux_binaries():
     subprocess.run(["cmake",
                     "-S", here,
                     "-B", build_path,
+                    "-G", "Ninja",
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-linux"])
-    subprocess.run(["make", "-C", build_path, "-j8"], check=True)
-    subprocess.run(["make", "-C", build_path, "install"], check=True)
+    subprocess.run(["ninja"], cwd=build_path, check=True)
+    subprocess.run(["ninja", "install"], cwd=build_path, check=True)
 
 
 def main():
