@@ -7,18 +7,18 @@ namespace rgbd
 template <class T> class IntegerFrame
 {
 public:
-    IntegerFrame(int width, int height, const T* data)
+    IntegerFrame(int width, int height, const T* values)
         : width_{width}
         , height_{height}
-        , values_(data, data + (static_cast<int64_t>(width) * height))
+        , values_(values, values + (static_cast<int64_t>(width) * height))
     {
     }
-    IntegerFrame(int width, int height, const vector<T>& pixels)
+    IntegerFrame(int width, int height, const vector<T>& values)
         : width_{width}
         , height_{height}
-        , values_(pixels)
+        , values_(values)
     {
-        Expects(pixels.size() == (width * height));
+        Expects(values.size() == (width * height));
     }
     IntegerFrame getDownsampled(int downsampling_factor) const
     {

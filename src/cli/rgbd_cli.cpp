@@ -7,8 +7,8 @@
 #include <rgbd/file_parser.hpp>
 #include <rgbd/file_writer.hpp>
 #include <rgbd/tdc1_decoder.hpp>
-#include <rgbd/video_folder.hpp>
 #include <rgbd/undistorted_camera_calibration.hpp>
+#include <rgbd/video_folder.hpp>
 
 namespace rgbd
 {
@@ -126,9 +126,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     auto output_path{"trimmed.mkv"};
     FileWriterConfig writer_config;
     writer_config.depth_codec_type = DepthCodecType::TDC1;
-    FileWriter file_writer{output_path,
-                           *file->attachments().camera_calibration,
-                           writer_config};
+    FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                file->tracks().color_track.width,
@@ -163,7 +161,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
             keyframe = true;
             previous_keyframe_index = keyframe_index;
-        } else if(keyframe_index != previous_keyframe_index) {
+        } else if (keyframe_index != previous_keyframe_index) {
             throw std::runtime_error("Invalid keyframe_index found...");
         }
 
@@ -179,6 +177,38 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     file_writer.flush();
 }
 
+vector<optional<int>> get_index_map(const CameraCalibration& from_calibration,
+                                    int from_width,
+                                    int from_height,
+                                    const CameraCalibration& to_calibration,
+                                    int to_width,
+                                    int to_height)
+{
+    // For mapping from from_calibration indices to to_calibration indices.
+    vector<optional<int>> index_map(from_width * from_height);
+    for (int from_row{0}; from_row < from_height; ++from_row) {
+        for (int from_col{0}; from_col < from_width; ++from_col) {
+            float from_u{from_col / static_cast<float>(from_width - 1)};
+            float from_v{from_row / static_cast<float>(from_height - 1)};
+
+            auto direction{from_calibration.getDirection(glm::vec2{from_u, from_v})};
+            auto to_uv{to_calibration.getUv(direction)};
+            int to_col{static_cast<int>(std::round(to_uv.x * (to_width - 1)))};
+            int to_row{static_cast<int>(std::round(to_uv.y * (to_height - 1)))};
+
+            int from_index{from_col + from_row * from_width};
+            spdlog::info("to_col: {}, to_row: {}", to_col, to_row);
+            spdlog::info("to_width: {}, to_height: {}", to_width, to_height);
+            if (to_col < 0 || to_col >= to_width || to_row < 0 || to_row >= to_height) {
+                index_map[from_index] = nullopt;
+            } else {
+                index_map[from_index] = to_col + to_row * to_width;
+            }
+        }
+    }
+    return index_map;
+}
+
 void standardize_calibration(const std::string& file_path)
 {
     FileParser parser{file_path};
@@ -189,29 +219,37 @@ void standardize_calibration(const std::string& file_path)
     FileWriterConfig writer_config;
     writer_config.depth_codec_type = DepthCodecType::TDC1;
 
-    auto& calibration{*file->attachments().camera_calibration};
-    UndistortedCameraCalibration standard_calibration{
-        calibration.getColorWidth(),
-        calibration.getColorHeight(),
-        calibration.getDepthWidth(),
-        calibration.getDepthHeight(),
-        1.0f,
-        1.0f,
-        0.0f,
-        0.0f
-    };
+    auto& original_calibration{*file->attachments().camera_calibration};
+    UndistortedCameraCalibration standard_calibration{1024, 1024, 512, 512, 1.0f, -1.0f, 0.5f, 0.5f};
 
-    FileWriter file_writer{output_path,
-                           standard_calibration,
-                           writer_config};
+    vector<optional<int>> y_index_map{get_index_map(standard_calibration,
+                                                    standard_calibration.getColorWidth(),
+                                                    standard_calibration.getColorHeight(),
+                                                    original_calibration,
+                                                    original_calibration.getColorWidth(),
+                                                    original_calibration.getColorHeight())};
+    vector<optional<int>> uv_index_map{get_index_map(standard_calibration,
+                                                     standard_calibration.getColorWidth() / 2,
+                                                     standard_calibration.getColorHeight() / 2,
+                                                     original_calibration,
+                                                     original_calibration.getColorWidth() / 2,
+                                                     original_calibration.getColorHeight() / 2)};
+    vector<optional<int>> depth_index_map{get_index_map(standard_calibration,
+                                                        standard_calibration.getDepthWidth(),
+                                                        standard_calibration.getDepthHeight(),
+                                                        original_calibration,
+                                                        original_calibration.getDepthWidth(),
+                                                        original_calibration.getDepthHeight())};
+
+    FileWriter file_writer{output_path, standard_calibration, writer_config};
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
-                               file->tracks().color_track.width,
-                               file->tracks().color_track.height,
+                               standard_calibration.getColorWidth(),
+                               standard_calibration.getColorHeight(),
                                3500,
                                30};
     unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
-        file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
+        standard_calibration.getDepthWidth(), standard_calibration.getDepthHeight(), 500)};
 
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
@@ -226,8 +264,51 @@ void standardize_calibration(const std::string& file_path)
             first = false;
         }
 
-        auto encoded_color_frame{color_encoder.encode(*color_frame, keyframe)};
-        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
+        vector<uint8_t> mapped_y_channel(standard_calibration.getColorWidth() *
+                                         standard_calibration.getColorHeight());
+        for (size_t i{0}; i < mapped_y_channel.size(); ++i) {
+            auto index{y_index_map[i]};
+            if (!index) {
+                mapped_y_channel[i] = 0;
+            } else {
+                mapped_y_channel[i] = color_frame->y_channel()[*index];
+            }
+        }
+        vector<uint8_t> mapped_u_channel(standard_calibration.getColorWidth() *
+                                         standard_calibration.getColorHeight() / 4);
+        vector<uint8_t> mapped_v_channel(standard_calibration.getColorWidth() *
+                                         standard_calibration.getColorHeight() / 4);
+        for (size_t i{0}; i < mapped_u_channel.size(); ++i) {
+            auto index{uv_index_map[i]};
+            if (!index) {
+                mapped_u_channel[i] = 0;
+                mapped_v_channel[i] = 0;
+            } else {
+                mapped_u_channel[i] = color_frame->u_channel()[*index];
+                mapped_v_channel[i] = color_frame->v_channel()[*index];
+            }
+        }
+        vector<int> mapped_depth_values(standard_calibration.getDepthWidth() *
+                                        standard_calibration.getDepthHeight());
+        for (size_t i{0}; i < mapped_depth_values.size(); ++i) {
+            auto index{depth_index_map[i]};
+            if (!index) {
+                mapped_depth_values[i] = 0;
+            } else {
+//                spdlog::info("index.has_value: {}", index.has_value());
+//                spdlog::info("index: {}", *index);
+                mapped_depth_values[i] = depth_frame->values()[*index];
+            }
+        }
+
+        YuvFrame mapped_color_frame{standard_calibration.getColorWidth(),
+                                    standard_calibration.getColorHeight(),
+                                    std::move(mapped_y_channel),
+                                    std::move(mapped_u_channel),
+                                    std::move(mapped_v_channel)};
+
+        auto encoded_color_frame{color_encoder.encode(mapped_color_frame, keyframe)};
+        auto encoded_depth_frame{depth_encoder->encode(mapped_depth_values, keyframe)};
 
         file_writer.writeVideoFrame(video_frame->global_timecode(),
                                     keyframe,
