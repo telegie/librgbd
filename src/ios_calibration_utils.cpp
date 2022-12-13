@@ -60,4 +60,43 @@ glm::vec3 compute_ios_direction(const IosCameraCalibration& calibration, const g
     // So using uu and vv directly without converting them back to u and v.
     return glm::vec3{(calibrated_uu - ox) / fx, (calibrated_vv - oy) / fy, -1.0f};
 }
+
+// The inverse function of compute_ios_direction.
+glm::vec2 compute_ios_uv(const IosCameraCalibration& calibration, const glm::vec3& direction)
+{
+    float reference_dimension_width{calibration.reference_dimension_width()};
+    float reference_dimension_height{calibration.reference_dimension_height()};
+
+    float lens_distortion_center_x{calibration.lens_distortion_center_x()};
+    float lens_distortion_center_y{calibration.lens_distortion_center_y()};
+
+    float x{direction.x / -direction.z};
+    float y{direction.y / -direction.z};
+    // float z{-1.0f}
+
+    float fx{calibration.fx()};
+    float fy{calibration.fy()};
+    float ox{calibration.ox()};
+    float oy{calibration.oy()};
+
+    float calibrated_uu{fx * x + ox};
+    float calibrated_vv{fy * y + oy};
+
+    float calibrated_delta_uu{calibrated_uu - lens_distortion_center_x};
+    float calibrated_delta_vv{calibrated_vv - lens_distortion_center_y};
+
+    // TODO: get the right value for magnification.
+    float magnification{0.0f};
+
+    float delta_uu{calibrated_delta_uu * (1.0f + magnification)};
+    float delta_vv{calibrated_delta_vv * (1.0f + magnification)};
+
+    float uu{lens_distortion_center_x + delta_uu};
+    float vv{lens_distortion_center_y + delta_vv};
+
+    float u{uu / reference_dimension_width};
+    float v{1.0f - vv / reference_dimension_height};
+
+    return glm::vec2{u, v};
+}
 } // namespace rgbd
