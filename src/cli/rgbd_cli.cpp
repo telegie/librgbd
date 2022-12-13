@@ -197,8 +197,6 @@ vector<optional<int>> get_index_map(const CameraCalibration& from_calibration,
             int to_row{static_cast<int>(std::round(to_uv.y * (to_height - 1)))};
 
             int from_index{from_col + from_row * from_width};
-            spdlog::info("to_col: {}, to_row: {}", to_col, to_row);
-            spdlog::info("to_width: {}, to_height: {}", to_width, to_height);
             if (to_col < 0 || to_col >= to_width || to_row < 0 || to_row >= to_height) {
                 index_map[from_index] = nullopt;
             } else {
@@ -220,7 +218,7 @@ void standardize_calibration(const std::string& file_path)
     writer_config.depth_codec_type = DepthCodecType::TDC1;
 
     auto& original_calibration{*file->attachments().camera_calibration};
-    UndistortedCameraCalibration standard_calibration{1024, 1024, 512, 512, 1.0f, -1.0f, 0.5f, 0.5f};
+    UndistortedCameraCalibration standard_calibration{1024, 1024, 512, 512, 0.5f, -0.5f, 0.5f, 0.5f};
 
     vector<optional<int>> y_index_map{get_index_map(standard_calibration,
                                                     standard_calibration.getColorWidth(),
@@ -254,7 +252,11 @@ void standardize_calibration(const std::string& file_path)
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
     bool first{true};
+    int audio_frame_index{0};
+    int imu_frame_index{0};
+    int trs_frame_index{0};
     for (auto& video_frame : video_frames) {
+        auto video_global_timecode{video_frame->global_timecode()};
         auto color_frame{color_decoder.decode(video_frame->color_bytes())};
         auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
@@ -281,8 +283,9 @@ void standardize_calibration(const std::string& file_path)
         for (size_t i{0}; i < mapped_u_channel.size(); ++i) {
             auto index{uv_index_map[i]};
             if (!index) {
-                mapped_u_channel[i] = 0;
-                mapped_v_channel[i] = 0;
+                // Black color corresponds to y = 0, u = 128, v = 128.
+                mapped_u_channel[i] = 128;
+                mapped_v_channel[i] = 128;
             } else {
                 mapped_u_channel[i] = color_frame->u_channel()[*index];
                 mapped_v_channel[i] = color_frame->v_channel()[*index];
@@ -310,10 +313,32 @@ void standardize_calibration(const std::string& file_path)
         auto encoded_color_frame{color_encoder.encode(mapped_color_frame, keyframe)};
         auto encoded_depth_frame{depth_encoder->encode(mapped_depth_values, keyframe)};
 
-        file_writer.writeVideoFrame(video_frame->global_timecode(),
+        file_writer.writeVideoFrame(video_global_timecode,
                                     keyframe,
                                     encoded_color_frame->packet.getDataBytes(),
                                     encoded_depth_frame);
+
+        while (audio_frame_index < file->audio_frames().size()) {
+            auto& audio_frame{file->audio_frames()[audio_frame_index]};
+            if (audio_frame->global_timecode() > video_global_timecode)
+                break;
+            file_writer.writeAudioFrame(*audio_frame);
+            ++audio_frame_index;
+        }
+        while (imu_frame_index < file->imu_frames().size()) {
+            auto& imu_frame{file->imu_frames()[imu_frame_index]};
+            if (imu_frame->global_timecode() > video_global_timecode)
+                break;
+            file_writer.writeIMUFrame(*imu_frame);
+            ++imu_frame_index;
+        }
+        while (trs_frame_index < file->trs_frames().size()) {
+            auto& trs_frame{file->trs_frames()[trs_frame_index]};
+            if (trs_frame->global_timecode() > video_global_timecode)
+                break;
+            file_writer.writeTRSFrame(*trs_frame);
+            ++trs_frame_index;
+        }
     }
 
     file_writer.flush();

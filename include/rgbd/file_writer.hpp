@@ -13,6 +13,7 @@
 #include "kinect_camera_calibration.hpp"
 #include "video_frame.hpp"
 #include "tdc1_encoder.hpp"
+#include "file.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4245 4267 4828 6387 26495 26812)
@@ -57,15 +58,18 @@ public:
                          gsl::span<const byte> color_bytes,
                          gsl::span<const byte> depth_bytes);
     void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
+    void writeAudioFrame(const FileAudioFrame& audio_frame);
     void writeIMUFrame(int64_t time_point_us,
                        const glm::vec3& acceleration,
                        const glm::vec3& rotation_rate,
                        const glm::vec3& magnetic_field,
                        const glm::vec3& gravity);
+    void writeIMUFrame(const FileIMUFrame& imu_frame);
     void writeTRSFrame(int64_t time_point_us,
                        const glm::vec3& translation,
                        const glm::quat& rotation,
                        const glm::vec3& scale);
+    void writeTRSFrame(const FileTRSFrame& trs_frame);
     void flush();
 
 private:

@@ -568,6 +568,11 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
     last_timecode_ = audio_cluster_timecode;
 }
 
+void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
+{
+    writeAudioFrame(audio_frame.global_timecode(), audio_frame.bytes());
+}
+
 void FileWriter::writeIMUFrame(int64_t time_point_us,
                                const glm::vec3& acceleration,
                                const glm::vec3& rotation_rate,
@@ -636,6 +641,15 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     last_timecode_ = imu_timecode;
 }
 
+void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
+{
+    writeIMUFrame(imu_frame.global_timecode(),
+                  imu_frame.acceleration(),
+                  imu_frame.rotation_rate(),
+                  imu_frame.magnetic_field(),
+                  imu_frame.gravity());
+}
+
 void FileWriter::writeTRSFrame(int64_t time_point_us,
                                const glm::vec3& translation,
                                const glm::quat& rotation,
@@ -692,6 +706,14 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->ReleaseFrames();
 
     last_timecode_ = trs_timecode;
+}
+
+void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
+{
+    writeTRSFrame(trs_frame.global_timecode(),
+                  trs_frame.translation(),
+                  trs_frame.rotation(),
+                  trs_frame.scale());
 }
 
 void FileWriter::flush()
