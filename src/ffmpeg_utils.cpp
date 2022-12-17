@@ -13,12 +13,16 @@ namespace rgbd
 {
 AVCodec* find_decoder_avcodec(ColorCodecType color_codec_type)
 {
-    if (color_codec_type != ColorCodecType::VP8)
+    if (color_codec_type != ColorCodecType::VP8) {
+        spdlog::error("Invalid ColorCodecType");
         throw std::runtime_error("Invalid ColorCodecType");
+    }
 
     auto codec{avcodec_find_decoder(AV_CODEC_ID_VP8)};
-    if (!codec)
+    if (!codec) {
+        spdlog::error("avcodec_find_decoder failed");
         throw std::runtime_error("avcodec_find_decoder failed.");
+    }
 
     return codec;
 }
@@ -30,10 +34,21 @@ AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type)
         throw std::runtime_error("Invalid ColorCodecType");
     }
 
+
     auto codec{avcodec_find_encoder(AV_CODEC_ID_VP8)};
+
+
+    // const AVCodec *p = NULL;
+    // while (p = av_codec_iterate((void**)(&codec))) {
+    //     spdlog::info("av_codec_iterate found something");
+    // }
+
+
+
+
     if (!codec) {
-        spdlog::error("avcodec_find_decoder failed");
-        throw std::runtime_error("avcodec_find_decoder failed.");
+        spdlog::error("avcodec_find_encoder failed");
+        throw std::runtime_error("avcodec_find_encoder failed.");
     }
 
     return codec;

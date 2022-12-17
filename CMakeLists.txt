@@ -116,6 +116,7 @@ elseif(RGBD_ARCH_X64)
   set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-mac)
 endif()
 set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-linux)
+set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/wasm32-emscripten)
 ### LIBVPX END ###
 
 ### OPUS BEGIN ###
@@ -302,6 +303,7 @@ elseif(RGBD_OS_WASM)
     ${FFMPEG_WASM_DIR}/lib/libavformat.a
     ${FFMPEG_WASM_DIR}/lib/libavutil.a
     ${FFMPEG_WASM_DIR}/lib/libswresample.a
+    ${LIBVPX_WASM_DIR}/lib/libvpx.a
     ${OPUS_WASM_DIR}/lib/libopus.a
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WASM)
