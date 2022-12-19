@@ -36,16 +36,6 @@ AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type)
 
 
     auto codec{avcodec_find_encoder(AV_CODEC_ID_VP8)};
-
-
-    // const AVCodec *p = NULL;
-    // while (p = av_codec_iterate((void**)(&codec))) {
-    //     spdlog::info("av_codec_iterate found something");
-    // }
-
-
-
-
     if (!codec) {
         spdlog::error("avcodec_find_encoder failed");
         throw std::runtime_error("avcodec_find_encoder failed.");
@@ -55,25 +45,31 @@ AVCodec* find_encoder_avcodec(ColorCodecType color_codec_type)
 }
 
 AVCodecContextHandle::AVCodecContextHandle(const AVCodec* codec)
-        : unique_ptr_{avcodec_alloc_context3(codec),
-                      [](AVCodecContext* ptr) { avcodec_free_context(&ptr); }}
+    : unique_ptr_{avcodec_alloc_context3(codec),
+                  [](AVCodecContext* ptr) { avcodec_free_context(&ptr); }}
 {
-    if (!unique_ptr_.get())
+    if (!unique_ptr_) {
+        spdlog::error("Error from AVCodecContextHandle::AVCodecContextHandle: {}", (size_t)unique_ptr_.get());
         throw std::runtime_error("Error from AVCodecContextHandle::AVCodecContextHandle");
+    }
 }
 
 AVFrameHandle::AVFrameHandle()
     : shared_ptr_{av_frame_alloc(), [](AVFrame* ptr) { av_frame_free(&ptr); }}
 {
-    if (!shared_ptr_.get())
+    if (!shared_ptr_) {
+        spdlog::error("Error from AVFrameHandle::AVFrameHandle");
         throw std::runtime_error("Error from AVFrameHandle::AVFrameHandle");
+    }
 }
 
 AVPacketHandle::AVPacketHandle()
     : shared_ptr_{av_packet_alloc(), [](AVPacket* ptr) { av_packet_free(&ptr); }}
 {
-    if (!shared_ptr_.get())
+    if (!shared_ptr_) {
+        spdlog::error("Error from AVPacketHandle::AVPacketHandle");
         throw std::runtime_error("Error from AVPacketHandle::AVPacketHandle");
+    }
 }
 
 Bytes AVPacketHandle::getDataBytes()
@@ -85,11 +81,13 @@ Bytes AVPacketHandle::getDataBytes()
 }
 
 AVCodecParserContextHandle::AVCodecParserContextHandle(int codec_id)
-        : unique_ptr_{av_parser_init(codec_id),
-                      [](AVCodecParserContext* ptr) { av_parser_close(ptr); }}
+    : unique_ptr_{av_parser_init(codec_id),
+                    [](AVCodecParserContext* ptr) { av_parser_close(ptr); }}
 {
-    if (!unique_ptr_.get())
+    if (!unique_ptr_.get()) {
+        spdlog::error("Error from AVCodecParserContextHandle::AVCodecParserContextHandle");
         throw std::runtime_error(
                 "Error from AVCodecParserContextHandle::AVCodecParserContextHandle");
+    }
 }
 }
