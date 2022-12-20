@@ -312,23 +312,10 @@ void* rgbd_color_encoder_encode(void* ptr,
                                 bool keyframe)
 {
     auto encoder{static_cast<rgbd::ColorEncoder*>(ptr)};
-    auto frame{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
-    return frame.release();
+    auto bytes{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
+    return new rgbd::NativeByteArray{std::move(bytes)};
 }
 //////// START COLOR ENCODER ////////
-
-//////// START COLOR ENCODER FRAME ////////
-void rgbd_color_encoder_frame_dtor(void* ptr)
-{
-    delete static_cast<rgbd::ColorEncoderFrame*>(ptr);
-}
-
-void* rgbd_color_encoder_frame_get_packet(void* ptr)
-{
-    auto frame{static_cast<rgbd::ColorEncoderFrame*>(ptr)};
-    return &frame->packet;
-}
-//////// END COLOR ENCODER FRAME ////////
 
 //////// START DEPTH DECODER ////////
 void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type)

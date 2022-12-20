@@ -62,7 +62,7 @@ ColorEncoder::ColorEncoder(
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
+Bytes ColorEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
 {
     return encode(yuv_image.y_channel().data(),
                   yuv_image.u_channel().data(),
@@ -70,10 +70,10 @@ unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const YuvFrame& yuv_image, bo
                   keyframe);
 }
 
-unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const uint8_t* y_channel,
-                                                   const uint8_t* u_channel,
-                                                   const uint8_t* v_channel,
-                                                   const bool keyframe)
+Bytes ColorEncoder::encode(const uint8_t* y_channel,
+                           const uint8_t* u_channel,
+                           const uint8_t* v_channel,
+                           const bool keyframe)
 {
     for (int row{0}; row < codec_context_->height; ++row) {
         int frame_row_index{row * frame_->linesize[0]};
@@ -109,9 +109,7 @@ unique_ptr<ColorEncoderFrame> ColorEncoder::encode(const uint8_t* y_channel,
         throw std::runtime_error("Should be only one packet from one frame.");
 
     ++next_pts_;
-    auto frame{std::make_unique<ColorEncoderFrame>()};
-    frame->packet = packets[0];
-    return frame;
+    return packets[0].getDataBytes();
 }
 
 vector<AVPacketHandle> ColorEncoder::encodeVideoFrame(AVCodecContext* codec_context, AVFrame* frame)

@@ -145,11 +145,6 @@ extern "C"
                                                           bool keyframe);
     //////// START COLOR ENCODER ////////
 
-    //////// START COLOR ENCODER FRAME ////////
-    RGBD_INTERFACE_EXPORT void rgbd_color_encoder_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_frame_get_packet(void* ptr);
-    //////// END COLOR ENCODER FRAME ////////
-
     //////// START DEPTH DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_depth_decoder_dtor(void* ptr);
