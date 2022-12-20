@@ -103,13 +103,13 @@ void split_file(const std::string& file_path)
             throw std::runtime_error("Invalid chunk_index found...");
         }
 
-        auto encoded_color_frame{color_encoder->encode(*color_frame, first)};
-        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), first)};
+        auto color_bytes{color_encoder->encode(*color_frame, first)};
+        auto depth_bytes{depth_encoder->encode(depth_frame->values(), first)};
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      first,
-                                     encoded_color_frame->packet.getDataBytes(),
-                                     encoded_depth_frame);
+                                     color_bytes,
+                                     depth_bytes);
     }
 
     file_writer->flush();
@@ -165,13 +165,13 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
             throw std::runtime_error("Invalid keyframe_index found...");
         }
 
-        auto encoded_color_frame{color_encoder.encode(*color_frame, keyframe)};
-        auto encoded_depth_frame{depth_encoder->encode(depth_frame->values(), keyframe)};
+        auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
+        auto depth_bytes{depth_encoder->encode(depth_frame->values(), keyframe)};
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
                                     keyframe,
-                                    encoded_color_frame->packet.getDataBytes(),
-                                    encoded_depth_frame);
+                                    color_bytes,
+                                    depth_bytes);
     }
 
     file_writer.flush();
@@ -310,13 +310,13 @@ void standardize_calibration(const std::string& file_path)
                                     std::move(mapped_u_channel),
                                     std::move(mapped_v_channel)};
 
-        auto encoded_color_frame{color_encoder.encode(mapped_color_frame, keyframe)};
-        auto encoded_depth_frame{depth_encoder->encode(mapped_depth_values, keyframe)};
+        auto color_bytes{color_encoder.encode(mapped_color_frame, keyframe)};
+        auto depth_bytes{depth_encoder->encode(mapped_depth_values, keyframe)};
 
         file_writer.writeVideoFrame(video_global_timecode,
                                     keyframe,
-                                    encoded_color_frame->packet.getDataBytes(),
-                                    encoded_depth_frame);
+                                    color_bytes,
+                                    depth_bytes);
 
         while (audio_frame_index < file->audio_frames().size()) {
             auto& audio_frame{file->audio_frames()[audio_frame_index]};
