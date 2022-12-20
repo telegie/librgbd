@@ -105,8 +105,8 @@ extern "C"
 
     //////// START AUDIO ENCODER FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_audio_encoder_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT size_t rgbd_audio_encoder_frame_get_packet_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_audio_encoder_frame_get_packet(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_audio_encoder_frame_get_packet_bytes_list_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_audio_encoder_frame_get_packet_bytes(void* ptr, size_t index);
     //////// END AUDIO ENCODER FRAME ////////
 
     //////// START AV PACKET HANDLE ////////

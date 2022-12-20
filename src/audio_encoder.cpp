@@ -57,20 +57,20 @@ unique_ptr<AudioEncoderFrame> AudioEncoder::encode(gsl::span<const float> pcm_sa
     next_pts_ += frame_->nb_samples;
 
     auto frame{std::make_unique<AudioEncoderFrame>()};
-    encodeAudioFrame(codec_context_.get(), frame_.get(), frame->packets);
+    encodeAudioFrame(codec_context_.get(), frame_.get(), frame->packet_bytes_list);
     return frame;
 }
 
 unique_ptr<AudioEncoderFrame> AudioEncoder::flush()
 {
     auto frame{std::make_unique<AudioEncoderFrame>()};
-    encodeAudioFrame(codec_context_.get(), nullptr, frame->packets);
+    encodeAudioFrame(codec_context_.get(), nullptr, frame->packet_bytes_list);
     return frame;
 }
 
 void AudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,
-                                          AVFrame* frame,
-                                          vector<AVPacketHandle>& packets)
+                                    AVFrame* frame,
+                                    vector<Bytes>& packet_bytes_list)
 {
     if (avcodec_send_frame(codec_context, frame) < 0)
         throw std::runtime_error("avcodec_send_frame failed");
@@ -85,7 +85,7 @@ void AudioEncoder::encodeAudioFrame(AVCodecContext* codec_context,
         } else if (result < 0) {
             throw std::runtime_error("Error during encoding");
         }
-        packets.push_back(packet);
+        packet_bytes_list.push_back(packet.getDataBytes());
     }
 }
 } // namespace rgbd

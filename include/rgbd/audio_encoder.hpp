@@ -6,13 +6,7 @@ namespace rgbd
 {
 struct AudioEncoderFrame
 {
-    vector<AVPacketHandle> packets;
-
-    // Here to make sure constructor of packets is called.
-    AudioEncoderFrame()
-        : packets()
-    {
-    }
+    vector<Bytes> packet_bytes_list;
 };
 
 class AudioEncoder
@@ -33,7 +27,7 @@ public:
 private:
     static void encodeAudioFrame(AVCodecContext* codec_context,
                                  AVFrame* frame,
-                                 vector<AVPacketHandle>& packets);
+                                 vector<Bytes>& packet_bytes);
 
 private:
     AVCodecContextHandle codec_context_;

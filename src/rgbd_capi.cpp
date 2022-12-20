@@ -206,16 +206,16 @@ void rgbd_audio_encoder_frame_dtor(void* ptr)
     delete static_cast<rgbd::AudioEncoderFrame*>(ptr);
 }
 
-size_t rgbd_audio_encoder_frame_get_packet_count(void* ptr)
+size_t rgbd_audio_encoder_frame_get_packet_bytes_list_count(void* ptr)
 {
     auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
-    return frame->packets.size();
+    return frame->packet_bytes_list.size();
 }
 
-void* rgbd_audio_encoder_frame_get_packet(void* ptr, size_t index)
+void* rgbd_audio_encoder_frame_get_packet_bytes(void* ptr, size_t index)
 {
     auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
-    return &frame->packets[index];
+    return new rgbd::NativeByteArray{frame->packet_bytes_list[index]};
 }
 //////// END AUDIO ENCODER FRAME ////////
 
