@@ -45,7 +45,7 @@ void run()
     for (auto& decoded_frame : decoded_frames) {
         Bytes rvl_frame{rvl::compress<int32_t>(decoded_frame->values())};
 
-        Bytes tdc1_frame{encoder.encode(decoded_frame->values(), first)};
+        Bytes tdc1_frame{encoder.encode(decoded_frame->values().data(), first)};
         tdc1_frames.push_back(tdc1_frame);
 
         Bytes zstd_frame{ZSTD_compressBound(tdc1_frame.size())};

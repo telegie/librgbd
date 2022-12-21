@@ -104,7 +104,7 @@ void split_file(const std::string& file_path)
         }
 
         auto color_bytes{color_encoder->encode(*color_frame, first)};
-        auto depth_bytes{depth_encoder->encode(depth_frame->values(), first)};
+        auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
         file_writer->writeVideoFrame(video_frame->global_timecode(),
                                      first,
@@ -166,7 +166,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         }
 
         auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
-        auto depth_bytes{depth_encoder->encode(depth_frame->values(), keyframe)};
+        auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), keyframe)};
 
         file_writer.writeVideoFrame(trimmed_global_timecode,
                                     keyframe,
@@ -311,7 +311,7 @@ void standardize_calibration(const std::string& file_path)
                                     std::move(mapped_v_channel)};
 
         auto color_bytes{color_encoder.encode(mapped_color_frame, keyframe)};
-        auto depth_bytes{depth_encoder->encode(mapped_depth_values, keyframe)};
+        auto depth_bytes{depth_encoder->encode(mapped_depth_values.data(), keyframe)};
 
         file_writer.writeVideoFrame(video_global_timecode,
                                     keyframe,
