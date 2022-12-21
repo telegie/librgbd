@@ -1,5 +1,5 @@
-export declare const RGBD_DEPTH_CODEC_TYPE_RVL: number;
-export declare const RGBD_DEPTH_CODEC_TYPE_TDC1: number;
+export declare const DEPTH_CODEC_TYPE_RVL: number;
+export declare const DEPTH_CODEC_TYPE_TDC1: number;
 
 export declare class NativeDepthDecoder {
   wasmModule: any;

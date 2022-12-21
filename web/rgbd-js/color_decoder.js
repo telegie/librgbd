@@ -1,6 +1,6 @@
 import { NativeYuvFrame, YuvFrame } from "./yuv_frame.js";
 
-export const RGBD_COLOR_CODEC_TYPE_VP8 = 0;
+export const COLOR_CODEC_TYPE_VP8 = 0;
 
 export class NativeColorDecoder {
   constructor(wasmModule, colorCodecType) {

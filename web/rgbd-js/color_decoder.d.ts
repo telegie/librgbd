@@ -1,4 +1,4 @@
-export declare const RGBD_COLOR_CODEC_TYPE_VP8: number;
+export declare const COLOR_CODEC_TYPE_VP8: number;
 
 export declare class NativeColorDecoder {
   wasmModule: any;

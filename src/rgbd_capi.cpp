@@ -313,7 +313,6 @@ void* rgbd_color_encoder_encode(void* ptr,
 {
     auto encoder{static_cast<rgbd::ColorEncoder*>(ptr)};
     auto bytes{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
-    spdlog::info("rgbd_color_encoder_encode bytes.size(): {}", bytes.size());
     return new rgbd::NativeByteArray{std::move(bytes)};
 }
 //////// START COLOR ENCODER ////////

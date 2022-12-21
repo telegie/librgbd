@@ -1,7 +1,7 @@
 import { Int32Frame, NativeInt32Frame } from "./integer_frame.js";
 
-export const RGBD_DEPTH_CODEC_TYPE_RVL = 0;
-export const RGBD_DEPTH_CODEC_TYPE_TDC1 = 1;
+export const DEPTH_CODEC_TYPE_RVL = 0;
+export const DEPTH_CODEC_TYPE_TDC1 = 1;
 
 export class NativeDepthDecoder {
   constructor(wasmModule, depthCodecType) {
