@@ -1,3 +1,5 @@
+import { NativeByteArray } from "./capi_containers.js";
+
 export class NativeDepthEncoder {
   constructor(wasmModule, ptr) {
     this.wasmModule = wasmModule;
@@ -25,22 +27,17 @@ export class NativeDepthEncoder {
   }
 
   encode(depthValues, keyframe) {
-    console.log("NativeDepthEncoder.encode - 1");
     const depthValuesPtr = this.wasmModule._malloc(depthValues.byteLength);
-    console.log("NativeDepthEncoder.encode - 2");
     this.wasmModule.HEAPU8.set(depthValues, depthValuesPtr);
-    console.log("NativeDepthEncoder.encode - 3");
     const byteArrayPtr = this.wasmModule.ccall("rgbd_depth_encoder_encode",
                                                "number",
                                                ["number", "number", "boolean"],
                                                [this.ptr, depthValuesPtr, keyframe]);
-    console.log("NativeDepthEncoder.encode - 4");
     this.wasmModule._free(depthValuesPtr);
 
     const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);
     const bytes = byteArray.toArray();
     byteArray.close();
-    console.log("NativeDepthEncoder.encode - 5");
     return bytes;
   }
 }

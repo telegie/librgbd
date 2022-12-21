@@ -10,7 +10,7 @@ namespace rgbd
 // The code has been modified to be thread-safe (i.e. removed global variables).
 namespace wilson
 {
-void EncodeVLE(int value, int*& pBuffer, int& word, int& nibblesWritten)
+void EncodeVLE(int64_t value, int*& pBuffer, int& word, int& nibblesWritten)
 {
     do {
         int nibble = value & 0x7; // lower 3 bits
@@ -26,7 +26,7 @@ void EncodeVLE(int value, int*& pBuffer, int& word, int& nibblesWritten)
     } while (value);
 }
 
-int DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten)
+int64_t DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten)
 {
     unsigned int nibble;
     int value = 0, bits = 29;
