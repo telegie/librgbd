@@ -1,21 +1,4 @@
-import { NativeAVPacketHandle } from "./av_packet_handle.js";
-
-
-export class NativeColorEncoderFrame {
-  constructor(wasmModule, ptr) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-  }
-
-  close() {
-    this.wasmModule.ccall('rgbd_color_encoder_frame_dtor', null, ['number'], [this.ptr]);
-  }
-
-  getPacket() {
-    const packetPtr = this.wasmModule.ccall('rgbd_color_encoder_frame_get_packet', null, ['number'], [this.ptr]);
-    return new NativeAVPacketHandle(this.wasmModule, packetPtr, false);
-  }
-}
+import { NativeByteArray } from "./capi_containers.js";
 
 export class NativeColorEncoder {
   constructor(wasmModule, colorCodecType, width, height, targetBitrate, framerate) {
@@ -37,7 +20,7 @@ export class NativeColorEncoder {
     this.wasmModule.HEAPU8.set(yChannel, yChannelPtr);
     this.wasmModule.HEAPU8.set(uChannel, uChannelPtr);
     this.wasmModule.HEAPU8.set(vChannel, vChannelPtr);
-    const colorEncoderFramePtr = this.wasmModule.ccall('rgbd_color_encoder_encode',
+    const byteArrayPtr = this.wasmModule.ccall('rgbd_color_encoder_encode',
                                                        'number',
                                                        ['number', 'number', 'number', 'number', 'boolean'],
                                                        [this.ptr, yChannelPtr, uChannelPtr, vChannelPtr, keyframe]);
@@ -45,7 +28,9 @@ export class NativeColorEncoder {
     this.wasmModule._free(uChannelPtr);
     this.wasmModule._free(vChannelPtr);
 
-    const colorEncoderFrame = new NativeColorEncoderFrame(this.wasmModule, colorEncoderFramePtr);
-    return colorEncoderFrame;
+    const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);
+    const bytes = byteArray.toArray();
+    byteArray.close();
+    return bytes;
   }
 }
