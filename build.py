@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-import os
+import argparse
 import platform
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -65,8 +67,17 @@ def build_x64_linux_binaries():
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rebuild", action="store_true")
+    parser_args = parser.parse_args()
+
     here = Path(__file__).parent.resolve()
-    subprocess.run(["python3", f"{here}/bootstrap.py"], check=True)
+    args = ["python3", f"{here}/bootstrap.py"]
+    args += sys.argv[1:]
+    subprocess.run(args, check=True)
+
+    if parser_args.rebuild:
+        shutil.rmtree(f"{here}/build")
 
     if platform.system() == "Windows":
         build_x64_windows_binaries()
