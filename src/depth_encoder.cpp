@@ -29,7 +29,7 @@ DepthCodecType DepthEncoder::getCodecType() noexcept
     return impl_->getCodecType();
 }
 
-Bytes DepthEncoder::encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept
+Bytes DepthEncoder::encode(const int32_t* depth_values, bool keyframe) noexcept
 {
     return impl_->encode(depth_values, keyframe);
 }

@@ -86,7 +86,7 @@ void DecompressRVL(char* input, T* output, int numPixels)
 
 namespace rvl
 {
-// It has to be int16_t not uint16_t to work with TRVL.
+// Type T has to be signed, not unsigned, to work with TRVL.
 template <class T>
 Bytes compress(const gsl::span<const T> input) noexcept
 {

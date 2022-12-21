@@ -16,12 +16,13 @@ DepthCodecType RVLEncoder::getCodecType() noexcept
     return DepthCodecType::RVL;
 }
 
-Bytes RVLEncoder::encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept
+Bytes RVLEncoder::encode(const int32_t* depth_values, bool keyframe) noexcept
 {
     Bytes bytes;
     append_bytes(bytes, convert_to_bytes(width_));
     append_bytes(bytes, convert_to_bytes(height_));
-    append_bytes(bytes, rvl::compress(depth_values));
+    size_t size{static_cast<size_t>(width_ * height_)};
+    append_bytes(bytes, rvl::compress(gsl::span<const int32_t>{depth_values, size}));
 
     return bytes;
 }

@@ -354,13 +354,10 @@ void rgbd_depth_encoder_dtor(void* ptr)
     delete static_cast<rgbd::DepthEncoder*>(ptr);
 }
 
-void* rgbd_depth_encoder_encode(void* ptr,
-                                const int32_t* depth_values_data,
-                                size_t depth_values_size,
-                                bool keyframe)
+void* rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe)
 {
-    return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(
-        gsl::span<const int32_t>{depth_values_data, depth_values_size}, keyframe)};
+    spdlog::info("rgbd_depth_encoder_encode");
+    return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(depth_values, keyframe)};
 }
 //////// END DEPTH DECODER ////////
 

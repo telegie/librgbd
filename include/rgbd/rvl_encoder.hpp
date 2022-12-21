@@ -9,7 +9,7 @@ class RVLEncoder : public DepthEncoderImpl
 public:
     RVLEncoder(int width, int height) noexcept;
     DepthCodecType getCodecType() noexcept;
-    Bytes encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept;
+    Bytes encode(const int32_t* depth_values, bool keyframe) noexcept;
 
 private:
     const int width_;

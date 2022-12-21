@@ -9,7 +9,7 @@ class DepthEncoderImpl
 public:
     virtual ~DepthEncoderImpl() {}
     virtual DepthCodecType getCodecType() noexcept = 0;
-    virtual Bytes encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept = 0;
+    virtual Bytes encode(const int32_t* depth_values, bool keyframe) noexcept = 0;
 };
 
 class DepthEncoder
@@ -22,7 +22,7 @@ public:
     static unique_ptr<DepthEncoder>
     createTDC1Encoder(int width, int height, int depth_diff_multiplier);
     DepthCodecType getCodecType() noexcept;
-    Bytes encode(gsl::span<const int32_t> depth_values, bool keyframe) noexcept;
+    Bytes encode(const int32_t* depth_values, bool keyframe) noexcept;
 
 private:
     unique_ptr<DepthEncoderImpl> impl_;

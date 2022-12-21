@@ -6,7 +6,7 @@ export const DEPTH_CODEC_TYPE_TDC1 = 1;
 export class NativeDepthDecoder {
   constructor(wasmModule, depthCodecType) {
     this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_depth_decoder_ctor', "number", ["number"], [depthCodecType]);
+    this.ptr = this.wasmModule.ccall("rgbd_depth_decoder_ctor", "number", ["number"], [depthCodecType]);
   }
 
   close() {

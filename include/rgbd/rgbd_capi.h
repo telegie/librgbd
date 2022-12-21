@@ -158,10 +158,7 @@ extern "C"
     RGBD_INTERFACE_EXPORT void*
     rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier);
     RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_encode(void* ptr,
-                                                          const int32_t* depth_values_data,
-                                                          size_t depth_values_size,
-                                                          bool keyframe);
+    RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe);
     //////// END DEPTH DECODER ////////
 
     //////// START DIRECTION TABLE ////////
