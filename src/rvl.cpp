@@ -29,18 +29,15 @@ void EncodeVLE(int64_t value, int*& pBuffer, int& word, int& nibblesWritten)
 
 int64_t DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten)
 {
-//    unsigned int nibble;
     uint64_t nibble;
-    int64_t value = 0;
-//    int bits = 29;
-    int bits = 61;
+    int64_t value{0};
+    int bits{61};
     do {
         if (!nibblesWritten) {
             word = *pBuffer++; // load word
             nibblesWritten = 8;
         }
         nibble = word & 0xf0000000;
-//        value |= (nibble << 1) >> bits;
         value |= (nibble << 33) >> bits;
         word <<= 4;
         --nibblesWritten;

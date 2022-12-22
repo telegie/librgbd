@@ -63,7 +63,6 @@ size_t CompressRVL(T* input, char* output, int64_t numPixels)
 template <class T>
 void DecompressRVL(char* input, T* output, int64_t numPixels)
 {
-    spdlog::info("DecompressRVL - 1, numPixels: {}", numPixels);
     int* pBuffer{reinterpret_cast<int*>(input)};
     int word{0};
     int nibblesWritten{0};
@@ -71,18 +70,14 @@ void DecompressRVL(char* input, T* output, int64_t numPixels)
     T previous{0};
     int64_t numPixelsToDecode{numPixels};
     while (numPixelsToDecode > 0) {
-        // spdlog::info("DecompressRVL - 2, numPixelsToDecode: {}", numPixelsToDecode);
         int64_t zeros{DecodeVLE(pBuffer, word, nibblesWritten)}; // number of zeros
         numPixelsToDecode -= zeros;
         while (zeros) {
             *output++ = 0;
             --zeros;
         }
-        // spdlog::info("DecompressRVL - 3, numPixelsToDecode: {}", numPixelsToDecode);
         int64_t nonzeros{DecodeVLE(pBuffer, word, nibblesWritten)}; // number of nonzeros
-        // spdlog::info("zeros: {}, nonzeros: {}", zeros, nonzeros);
         numPixelsToDecode -= nonzeros;
-        // spdlog::info("DecompressRVL - 4, numPixelsToDecode: {}", numPixelsToDecode);
         while (nonzeros) {
             int64_t positive{DecodeVLE(pBuffer, word, nibblesWritten)}; // nonzero value
             int64_t delta{(positive >> 1) ^ -(positive & 1)};
@@ -95,7 +90,6 @@ void DecompressRVL(char* input, T* output, int64_t numPixels)
             --nonzeros;
         }
     }
-    spdlog::info("DecompressRVL - 5");
 }
 } // namespace wilson
 

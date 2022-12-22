@@ -332,7 +332,6 @@ void* rgbd_depth_decoder_decode(void* ptr,
                                 const uint8_t* depth_bytes_data,
                                 size_t depth_bytes_size)
 {
-    spdlog::info("rgbd_depth_decoder_decode - 1");
     auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(depth_bytes_data), depth_bytes_size})};
     return depth_frame.release();
@@ -357,7 +356,6 @@ void rgbd_depth_encoder_dtor(void* ptr)
 
 void* rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe)
 {
-    spdlog::info("rgbd_depth_encoder_encode");
     return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(depth_values, keyframe)};
 }
 //////// END DEPTH DECODER ////////
