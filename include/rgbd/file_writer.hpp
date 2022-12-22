@@ -91,6 +91,7 @@ public:
                        const glm::vec3& scale);
     void writeTRSFrame(const FileTRSFrame& trs_frame);
     void flush();
+    Bytes getBytes();
 
 private:
     std::mt19937 generator_;

@@ -773,6 +773,15 @@ void FileWriter::flush()
         spdlog::info("Failed to set segment size");
     segment_->OverwriteHead(*io_callback_);
 
-    io_callback_->close();
+    // io_callback_->close();
+}
+
+Bytes FileWriter::getBytes()
+{
+    auto mem_io_callback{reinterpret_cast<MemIOCallback*>(io_callback_.get())};
+    uint64_t size{mem_io_callback->GetDataBufferSize()};
+    Bytes bytes(size);
+    memcpy(bytes.data(), mem_io_callback->GetDataBuffer(), size);
+    return bytes;
 }
 } // namespace rgbd
