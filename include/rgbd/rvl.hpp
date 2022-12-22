@@ -21,72 +21,73 @@ namespace wilson
 void EncodeVLE(int64_t value, int64_t*& pBuffer, int64_t& word, int& nibblesWritten);
 int64_t DecodeVLE(int64_t*& pBuffer, int64_t& word, int& nibblesWritten);
 template <class T>
-int CompressRVL(T* input, char* output, int64_t numPixels)
+size_t CompressRVL(T* input, char* output, int64_t numPixels)
 {
-    int64_t* buffer = (int64_t*)output;
-    int64_t* pBuffer = (int64_t*)output;
-    int64_t word = 0;
-    int nibblesWritten = 0;
-    T* end = input + numPixels;
-    T previous = 0;
+    int64_t* buffer{reinterpret_cast<int64_t*>(output)};
+    int64_t* pBuffer{reinterpret_cast<int64_t*>(output)};
+    int64_t word{0};
+    int nibblesWritten{0};
+    T* end{input + numPixels};
+    T previous{0};
     while (input != end) {
-        int64_t zeros = 0;
-        int64_t nonzeros = 0;
+        int64_t zeros{0};
+        int64_t nonzeros{0};
         while((input != end) && !*input) {
             ++input;
             ++zeros;
         }
         EncodeVLE(zeros, pBuffer, word, nibblesWritten); // number of zeros
-        T* p = input;
+        T* p{input};
         while((p != end) && *p++) {
             ++nonzeros;
         }
         EncodeVLE(nonzeros, pBuffer, word, nibblesWritten); // number of nonzeros
-        for (int i = 0; i < nonzeros; ++i) {
+        for (int i{0}; i < nonzeros; ++i) {
 #pragma warning(push)
 #pragma warning(disable : 28182)
-            T current = *input++;
+            T current{*input++};
 #pragma warning(pop)
-            int64_t delta = current - previous;
-//            int64_t positive = (delta << 1) ^ (delta >> 63);
-            int64_t positive = (delta << 1) ^ (delta >> 31);
+            int64_t delta{current - previous};
+            int64_t positive{(delta << 1) ^ (delta >> 31)};
             EncodeVLE(positive, pBuffer, word, nibblesWritten); // nonzero value
             previous = current;
         }
     }
 
-    if (nibblesWritten) { // last few values
-//        *pBuffer++ = word << 4 * (8 - nibblesWritten);
+    if (nibblesWritten) // last few values
         *pBuffer++ = word << 4 * (16 - nibblesWritten);
-    }
 
-    return int64_t((char*)pBuffer - (char*)buffer); // num bytes
+    return size_t((char*)pBuffer - (char*)buffer); // num bytes
 }
 
 template <class T>
 void DecompressRVL(char* input, T* output, int64_t numPixels)
 {
-    int64_t* pBuffer = (int64_t*)input;
-    int64_t word = 0;
-    int nibblesWritten = 0;
-    T current, previous = 0;
-    int64_t numPixelsToDecode = numPixels;
+    int64_t* pBuffer{reinterpret_cast<int64_t*>(input)};
+    int64_t word{0};
+    int nibblesWritten{0};
+    T current;
+    T previous{0};
+    int64_t numPixelsToDecode{numPixels};
     while (numPixelsToDecode) {
-        int64_t zeros = DecodeVLE(pBuffer, word, nibblesWritten); // number of zeros
+        int64_t zeros{DecodeVLE(pBuffer, word, nibblesWritten)}; // number of zeros
         numPixelsToDecode -= zeros;
-        for (; zeros; zeros--)
+        while (zeros) {
             *output++ = 0;
-        int64_t nonzeros = DecodeVLE(pBuffer, word, nibblesWritten); // number of nonzeros
+            --zeros;
+        }
+        int64_t nonzeros{DecodeVLE(pBuffer, word, nibblesWritten)}; // number of nonzeros
         numPixelsToDecode -= nonzeros;
-        for (; nonzeros; nonzeros--) {
-            int64_t positive = DecodeVLE(pBuffer, word, nibblesWritten); // nonzero value
-            int64_t delta = (positive >> 1) ^ -(positive & 1);
+        while (nonzeros) {
+            int64_t positive{DecodeVLE(pBuffer, word, nibblesWritten)}; // nonzero value
+            int64_t delta{(positive >> 1) ^ -(positive & 1)};
 #pragma warning(push)
 #pragma warning(disable : 4244)
             current = previous + delta;
 #pragma warning(pop)
             *output++ = current;
             previous = current;
+            --nonzeros;
         }
     }
 }
@@ -107,9 +108,9 @@ Bytes compress(const gsl::span<const T> input) noexcept
     // They all become less than 1.5 times longer than they originally were.
     // So multiplying 3 and dividing 2 below.
     Bytes output(gsl::narrow<size_t>(input.size() * 3 / 2 * sizeof(T)));
-    const int size{wilson::CompressRVL(const_cast<T*>(input.data()),
-                                       reinterpret_cast<char*>(output.data()),
-                                       gsl::narrow<int64_t>(input.size()))};
+    size_t size{wilson::CompressRVL(const_cast<T*>(input.data()),
+                                    reinterpret_cast<char*>(output.data()),
+                                    gsl::narrow<int64_t>(input.size()))};
     output.resize(size);
     output.shrink_to_fit();
     return output;

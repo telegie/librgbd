@@ -19,7 +19,6 @@ float random_float()
 int random_int()
 {
     std::uniform_int_distribution distr(std::numeric_limits<int>::min(), std::numeric_limits<int>::max());
-//    std::uniform_int_distribution distr(0, static_cast<int>(std::numeric_limits<short>::max()) * 10);
     return distr(eng);
 }
 
@@ -54,8 +53,6 @@ TEST_CASE("RVL Encoding")
     auto bytes{rvl::compress(gsl::span<const int32_t>{depth_values})};
     auto values{rvl::decompress<int32_t>(bytes, depth_values.size())};
     REQUIRE(depth_values.size() == values.size());
-    for (size_t i{0}; i < depth_values.size(); ++i) {
-        spdlog::info("i: {}, {}", i, depth_values[i]);
+    for (size_t i{0}; i < depth_values.size(); ++i)
         REQUIRE(depth_values[i] == values[i]);
-    }
 }
