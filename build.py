@@ -72,9 +72,7 @@ def main():
     parser_args = parser.parse_args()
 
     here = Path(__file__).parent.resolve()
-    args = ["python3", f"{here}/bootstrap.py"]
-    args += sys.argv[1:]
-    subprocess.run(args, check=True)
+    subprocess.run(["python3", f"{here}/bootstrap.py"] + sys.argv[1:], check=True)
 
     if parser_args.rebuild:
         shutil.rmtree(f"{here}/build")

@@ -6,9 +6,7 @@ from pathlib import Path
 
 def main():
     here = Path(__file__).parent.resolve()
-    args = ["python3", f"{here}/deps/libpng-binaries/build.py"]
-    args += sys.argv[1:]
-    subprocess.run(args, check=True)
+    subprocess.run(["python3", f"{here}/deps/libpng-binaries/build.py"] + sys.argv[1:], check=True)
 
 
 if __name__ == "__main__":

@@ -31,3 +31,6 @@
 [submodule "deps/cli"]
 	path = deps/cli
 	url = https://github.com/daniele77/cli.git
+[submodule "deps/Catch2"]
+	path = deps/Catch2
+	url = https://github.com/catchorg/Catch2.git

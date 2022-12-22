@@ -42,6 +42,11 @@ endif()
 set(RGBD_WEB_DIR ${PROJECT_SOURCE_DIR}/web)
 set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
 
+### CATCH2 BEGIN
+add_subdirectory(deps/Catch2)
+message("Catch2::Catch2: ${Catch2}")
+### CATCH2 END
+
 ### CLI BEGIN ###
 add_subdirectory(deps/cli EXCLUDE_FROM_ALL)
 ### CLI END ###
@@ -352,4 +357,8 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-cli DESTINATION bin)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
+endif()
+
+if(TG_OS_WINDOWS OR TG_OS_MAC)
+  add_subdirectory(tests)
 endif()
