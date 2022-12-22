@@ -344,6 +344,7 @@ extern "C"
                                                                 float scale_y,
                                                                 float scale_z);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_flush(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_get_bytes(void* ptr);
     //////// END FILE WRITER ////////
 
     //////// START FILE WRITER CONFIG ////////

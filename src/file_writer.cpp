@@ -447,7 +447,7 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         // reserve some space for the Meta Seek writen at the end
         seek_head_placeholder_ = std::make_unique<EbmlVoid>();
-        seek_head_placeholder_->SetSize(1024);
+        seek_head_placeholder_->SetSize(256);
         seek_head_placeholder_->Render(*io_callback_);
 
         segment_info_placeholder_ = std::make_unique<EbmlVoid>();
@@ -772,13 +772,18 @@ void FileWriter::flush()
     if (!segment_->ForceSize(segment_size))
         spdlog::info("Failed to set segment size");
     segment_->OverwriteHead(*io_callback_);
+    io_callback_->close();
 
-    // io_callback_->close();
 }
 
 Bytes FileWriter::getBytes()
 {
     auto mem_io_callback{reinterpret_cast<MemIOCallback*>(io_callback_.get())};
+
+    // bool ok{mem_io_callback->IsOk()};
+    // string error_str{mem_io_callback->GetLastErrorStr()};
+    // spdlog::info("ok: {}, error_str: {}", ok, error_str);
+
     uint64_t size{mem_io_callback->GetDataBufferSize()};
     Bytes bytes(size);
     memcpy(bytes.data(), mem_io_callback->GetDataBuffer(), size);

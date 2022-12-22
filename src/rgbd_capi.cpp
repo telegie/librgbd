@@ -966,7 +966,13 @@ void rgbd_file_writer_write_trs_frame(void* ptr,
 
 void rgbd_file_writer_flush(void* ptr)
 {
-    return static_cast<rgbd::FileWriter*>(ptr)->flush();
+    static_cast<rgbd::FileWriter*>(ptr)->flush();
+}
+
+void* rgbd_file_writer_get_bytes(void* ptr)
+{
+    auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
+    return new rgbd::NativeByteArray{file_writer->getBytes()};
 }
 //////// END FILE WRITER ////////
 
