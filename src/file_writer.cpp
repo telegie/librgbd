@@ -134,6 +134,22 @@ FileWriter::FileWriter(const string& file_path,
     init(calibration, config);
 }
 
+FileWriter::FileWriter(const CameraCalibration& calibration, const FileWriterConfig& config)
+    : generator_{get_random_number()}
+    , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
+    , io_callback_{std::make_unique<MemIOCallback>()}
+    , segment_{std::make_unique<KaxSegment>()}
+    , writer_tracks_{}
+    , seek_head_placeholder_{nullptr}
+    , segment_info_placeholder_{nullptr}
+    , initial_time_point_ns_{nullopt}
+    , past_color_block_blob_{nullptr}
+    , past_depth_block_blob_{nullptr}
+    , last_timecode_{0}
+{
+    init(calibration, config);
+}
+
 void FileWriter::init(const CameraCalibration& calibration,
                       const FileWriterConfig& config)
 {

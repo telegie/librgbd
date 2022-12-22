@@ -61,6 +61,8 @@ public:
     FileWriter(const string& file_path,
                const CameraCalibration& calibration,
                const FileWriterConfig& config);
+    FileWriter(const CameraCalibration& calibration,
+               const FileWriterConfig& config);
 private:
     void init(const CameraCalibration& calibration,
               const FileWriterConfig& config);
@@ -93,7 +95,7 @@ public:
 private:
     std::mt19937 generator_;
     std::uniform_int_distribution<uint64_t> distribution_;
-    unique_ptr<StdIOCallback> io_callback_;
+    unique_ptr<IOCallback> io_callback_;
     unique_ptr<libmatroska::KaxSegment> segment_;
     FileWriterTracks writer_tracks_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;

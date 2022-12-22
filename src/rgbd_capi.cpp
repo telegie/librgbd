@@ -857,10 +857,16 @@ int rgbd_file_video_track_get_height(void* ptr)
 //////// START FILE VIDEO TRACK ////////
 
 //////// START FILE WRITER ////////
-void* rgbd_file_writer_ctor(const char* file_path, void* calibration, void* config)
+void* rgbd_file_writer_ctor_to_path(const char* file_path, void* calibration, void* config)
 {
     return new rgbd::FileWriter(file_path,
                                 *static_cast<const rgbd::CameraCalibration*>(calibration),
+                                *static_cast<const rgbd::FileWriterConfig*>(config));
+}
+
+void* rgbd_file_writer_ctor_in_memory(void* calibration, void* config)
+{
+    return new rgbd::FileWriter(*static_cast<const rgbd::CameraCalibration*>(calibration),
                                 *static_cast<const rgbd::FileWriterConfig*>(config));
 }
 

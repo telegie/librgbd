@@ -290,9 +290,11 @@ extern "C"
     //////// START FILE VIDEO TRACK ////////
 
     //////// START FILE WRITER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor(const char* file_path,
-                                                      void* calibration,
-                                                      void* config);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor_to_path(const char* file_path,
+                                                              void* calibration,
+                                                              void* config);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor_in_memory(void* calibration,
+                                                                void* config);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_cover(void* ptr,
                                                             int width,
