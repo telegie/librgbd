@@ -216,6 +216,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         } else if (config.depth_codec_type == DepthCodecType::TDC1) {
             GetChild<KaxCodecID>(*writer_tracks_.depth_track).SetValue("V_TDC1");
         } else {
+            spdlog::error("Invalid depth codec found");
             throw std::runtime_error("Invalid depth codec found");
         }
 

@@ -37,7 +37,7 @@ struct FileWriterConfig
 {
     int framerate{30};
     int samplerate{AUDIO_SAMPLE_RATE};
-    optional<DepthCodecType> depth_codec_type{std::nullopt};
+    DepthCodecType depth_codec_type{DepthCodecType::TDC1};
     float depth_unit{DEFAULT_DEPTH_UNIT}; // 1 mm
 };
 

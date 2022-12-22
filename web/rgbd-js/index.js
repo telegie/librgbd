@@ -7,6 +7,7 @@ export * from './color_encoder.js';
 export * from './depth_decoder.js';
 export * from './depth_encoder.js';
 export * from './file_parser.js';
+export * from './file_writer.js';
 export * from './file.js';
 export * from './integer_frame.js';
 export * from './plane.js';
