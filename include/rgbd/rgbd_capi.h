@@ -149,8 +149,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_depth_decoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_decode(void* ptr,
-                                                          const uint8_t* encoded_depth_frame_data,
-                                                          size_t encoded_depth_frame_size);
+                                                          const uint8_t* depth_bytes_data,
+                                                          size_t depth_bytes_size);
     //////// END DEPTH DECODER ////////
 
     //////// START DEPTH ENCODER ////////

@@ -329,11 +329,12 @@ void rgbd_depth_decoder_dtor(void* ptr)
 }
 
 void* rgbd_depth_decoder_decode(void* ptr,
-                                const uint8_t* encoded_depth_frame_data,
-                                size_t encoded_depth_frame_size)
+                                const uint8_t* depth_bytes_data,
+                                size_t depth_bytes_size)
 {
+    spdlog::info("rgbd_depth_decoder_decode - 1");
     auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(encoded_depth_frame_data), encoded_depth_frame_size})};
+        {reinterpret_cast<const std::byte*>(depth_bytes_data), depth_bytes_size})};
     return depth_frame.release();
 }
 //////// END DEPTH DECODER ////////

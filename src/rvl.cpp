@@ -11,7 +11,7 @@ namespace rgbd
 // And the code has been modified to support signed 32-bit integers as input of RVL.
 namespace wilson
 {
-void EncodeVLE(int64_t value, int64_t*& pBuffer, int64_t& word, int& nibblesWritten)
+void EncodeVLE(int64_t value, int*& pBuffer, int& word, int& nibblesWritten)
 {
     do {
         int nibble = value & 0x7; // lower 3 bits
@@ -19,7 +19,7 @@ void EncodeVLE(int64_t value, int64_t*& pBuffer, int64_t& word, int& nibblesWrit
             nibble |= 0x8; // more to come
         word <<= 4;
         word |= nibble;
-        if (++nibblesWritten == 16) { // output word
+        if (++nibblesWritten == 8) { // output word
             *pBuffer++ = word;
             nibblesWritten = 0;
             word = 0;
@@ -27,22 +27,25 @@ void EncodeVLE(int64_t value, int64_t*& pBuffer, int64_t& word, int& nibblesWrit
     } while (value);
 }
 
-int64_t DecodeVLE(int64_t*& pBuffer, int64_t& word, int& nibblesWritten)
+int64_t DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten)
 {
+//    unsigned int nibble;
     uint64_t nibble;
     int64_t value = 0;
+//    int bits = 29;
     int bits = 61;
     do {
         if (!nibblesWritten) {
             word = *pBuffer++; // load word
-            nibblesWritten = 16;
+            nibblesWritten = 8;
         }
-        nibble = word & 0xf000000000000000;
-        value |= (nibble << 1) >> bits;
+        nibble = word & 0xf0000000;
+//        value |= (nibble << 1) >> bits;
+        value |= (nibble << 33) >> bits;
         word <<= 4;
-        nibblesWritten--;
+        --nibblesWritten;
         bits -= 3;
-    } while (nibble & 0x8000000000000000);
+    } while (nibble & 0x80000000);
     return value;
 }
 } // namespace wilson

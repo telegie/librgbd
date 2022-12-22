@@ -14,17 +14,23 @@ export class NativeDepthDecoder {
   }
 
   decode(depthBytes) {
+    console.log(`NativeDepthDecoder.decode - 1, depthBytes.byteLength: ${depthBytes.byteLength}`);
     const depthBytesPtr = this.wasmModule._malloc(depthBytes.byteLength);
     this.wasmModule.HEAPU8.set(depthBytes, depthBytesPtr);
+    console.log("NativeDepthDecoder.decode - 2");
     const nativeInt32FramePtr = this.wasmModule.ccall("rgbd_depth_decoder_decode",
                                                       "number",
                                                       ["number", "number", "number"],
                                                       [this.ptr, depthBytesPtr, depthBytes.byteLength]);
+    console.log("NativeDepthDecoder.decode - 3");
     this.wasmModule._free(depthBytesPtr);
 
     const nativeInt32Frame = new NativeInt32Frame(this.wasmModule, nativeInt32FramePtr);
+    console.log("NativeDepthDecoder.decode - 4");
     const int32Frame = new Int32Frame(nativeInt32Frame);
+    console.log("NativeDepthDecoder.decode - 5");
     nativeInt32Frame.close();
+    console.log("NativeDepthDecoder.decode - 6");
     return int32Frame;
   }
 }
