@@ -18,19 +18,20 @@ namespace rgbd
 // int32_t inputs.
 namespace wilson
 {
-void EncodeVLE(int64_t value, int*& pBuffer, int& word, int& nibblesWritten);
-int64_t DecodeVLE(int*& pBuffer, int& word, int& nibblesWritten);
+void EncodeVLE(int64_t value, int64_t*& pBuffer, int64_t& word, int& nibblesWritten);
+int64_t DecodeVLE(int64_t*& pBuffer, int64_t& word, int& nibblesWritten);
 template <class T>
 int CompressRVL(T* input, char* output, int64_t numPixels)
 {
-    int* buffer = (int*)output;
-    int* pBuffer = (int*)output;
-    int word = 0;
+    int64_t* buffer = (int64_t*)output;
+    int64_t* pBuffer = (int64_t*)output;
+    int64_t word = 0;
     int nibblesWritten = 0;
     T* end = input + numPixels;
     T previous = 0;
     while (input != end) {
-        int64_t zeros = 0, nonzeros = 0;
+        int64_t zeros = 0;
+        int64_t nonzeros = 0;
         while((input != end) && !*input) {
             ++input;
             ++zeros;
@@ -47,14 +48,17 @@ int CompressRVL(T* input, char* output, int64_t numPixels)
             T current = *input++;
 #pragma warning(pop)
             int64_t delta = current - previous;
+//            int64_t positive = (delta << 1) ^ (delta >> 63);
             int64_t positive = (delta << 1) ^ (delta >> 31);
             EncodeVLE(positive, pBuffer, word, nibblesWritten); // nonzero value
             previous = current;
         }
     }
 
-    if (nibblesWritten) // last few values
-        *pBuffer++ = word << 4 * (8 - nibblesWritten);
+    if (nibblesWritten) { // last few values
+//        *pBuffer++ = word << 4 * (8 - nibblesWritten);
+        *pBuffer++ = word << 4 * (16 - nibblesWritten);
+    }
 
     return int64_t((char*)pBuffer - (char*)buffer); // num bytes
 }
@@ -62,8 +66,8 @@ int CompressRVL(T* input, char* output, int64_t numPixels)
 template <class T>
 void DecompressRVL(char* input, T* output, int64_t numPixels)
 {
-    int* pBuffer = (int*)input;
-    int word = 0;
+    int64_t* pBuffer = (int64_t*)input;
+    int64_t word = 0;
     int nibblesWritten = 0;
     T current, previous = 0;
     int64_t numPixelsToDecode = numPixels;
