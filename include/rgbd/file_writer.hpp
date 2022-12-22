@@ -41,12 +41,30 @@ struct FileWriterConfig
     float depth_unit{DEFAULT_DEPTH_UNIT}; // 1 mm
 };
 
+struct FileWriterTracks
+{
+    libmatroska::KaxTrackEntry* color_track{nullptr};
+    libmatroska::KaxTrackEntry* depth_track{nullptr};
+    libmatroska::KaxTrackEntry* audio_track{nullptr};
+    libmatroska::KaxTrackEntry* acceleration_track{nullptr};
+    libmatroska::KaxTrackEntry* rotation_rate_track{nullptr};
+    libmatroska::KaxTrackEntry* magnetic_field_track{nullptr};
+    libmatroska::KaxTrackEntry* gravity_track{nullptr};
+    libmatroska::KaxTrackEntry* translation_track{nullptr};
+    libmatroska::KaxTrackEntry* rotation_track{nullptr};
+    libmatroska::KaxTrackEntry* scale_track{nullptr};
+};
+
 class FileWriter
 {
 public:
     FileWriter(const string& file_path,
                const CameraCalibration& calibration,
                const FileWriterConfig& config);
+private:
+    void init(const CameraCalibration& calibration,
+              const FileWriterConfig& config);
+public:
     void writeCover(const YuvFrame& yuv_frame);
     void writeCover(int width,
                     int height,
@@ -77,16 +95,7 @@ private:
     std::uniform_int_distribution<uint64_t> distribution_;
     unique_ptr<StdIOCallback> io_callback_;
     unique_ptr<libmatroska::KaxSegment> segment_;
-    libmatroska::KaxTrackEntry* color_track_;
-    libmatroska::KaxTrackEntry* depth_track_;
-    libmatroska::KaxTrackEntry* audio_track_;
-    libmatroska::KaxTrackEntry* acceleration_track_;
-    libmatroska::KaxTrackEntry* rotation_rate_track_;
-    libmatroska::KaxTrackEntry* magnetic_field_track_;
-    libmatroska::KaxTrackEntry* gravity_track_;
-    libmatroska::KaxTrackEntry* translation_track_;
-    libmatroska::KaxTrackEntry* rotation_track_;
-    libmatroska::KaxTrackEntry* scale_track_;
+    FileWriterTracks writer_tracks_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;
     unique_ptr<EbmlVoid> segment_info_placeholder_;
     optional<int64_t> initial_time_point_ns_;

@@ -1,6 +1,5 @@
 export * from './audio_decoder.js';
 export * from './audio_frame.js';
-export * from './av_packet_handle.js';
 export * from './camera_calibration.js';
 export * from './capi_containers.js';
 export * from './color_decoder.js';

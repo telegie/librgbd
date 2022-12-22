@@ -123,22 +123,19 @@ FileWriter::FileWriter(const string& file_path,
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
     , segment_{std::make_unique<KaxSegment>()}
-    , color_track_{nullptr}
-    , depth_track_{nullptr}
-    , audio_track_{nullptr}
-    , acceleration_track_{nullptr}
-    , rotation_rate_track_{nullptr}
-    , magnetic_field_track_{nullptr}
-    , gravity_track_{nullptr}
-    , translation_track_{nullptr}
-    , rotation_track_{nullptr}
-    , scale_track_{nullptr}
+    , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
     , initial_time_point_ns_{nullopt}
     , past_color_block_blob_{nullptr}
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
+{
+    init(calibration, config);
+}
+
+void FileWriter::init(const CameraCalibration& calibration,
+                      const FileWriterConfig& config)
 {
     //
     // init segment_info
@@ -169,19 +166,19 @@ FileWriter::FileWriter(const string& file_path,
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        color_track_ = new KaxTrackEntry;
-        tracks.PushElement(*color_track_); // Track will be freed when the file is closed.
-        color_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.color_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.color_track); // Track will be freed when the file is closed.
+        writer_tracks_.color_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         // Track numbers start at 1
-        GetChild<KaxTrackNumber>(*color_track_).SetValue(COLOR_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*color_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*color_track_).SetValue(track_video);
-        GetChild<KaxTrackName>(*color_track_).SetValueUTF8("COLOR");
-        GetChild<KaxCodecID>(*color_track_).SetValue("V_VP8");
+        GetChild<KaxTrackNumber>(*writer_tracks_.color_track).SetValue(COLOR_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.color_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.color_track).SetValue(track_video);
+        GetChild<KaxTrackName>(*writer_tracks_.color_track).SetValueUTF8("COLOR");
+        GetChild<KaxCodecID>(*writer_tracks_.color_track).SetValue("V_VP8");
 
-        GetChild<KaxTrackDefaultDuration>(*color_track_).SetValue(ONE_SECOND_NS / config.framerate);
-        auto& color_video_track{GetChild<KaxTrackVideo>(*color_track_)};
+        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.color_track).SetValue(ONE_SECOND_NS / config.framerate);
+        auto& color_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.color_track)};
         GetChild<KaxVideoPixelWidth>(color_video_track).SetValue(calibration.getColorWidth());
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
     }
@@ -190,33 +187,33 @@ FileWriter::FileWriter(const string& file_path,
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        depth_track_ = new KaxTrackEntry;
-        tracks.PushElement(*depth_track_); // Track will be freed when the file is closed.
-        depth_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.depth_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.depth_track); // Track will be freed when the file is closed.
+        writer_tracks_.depth_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*depth_track_).SetValue(DEPTH_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*depth_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*depth_track_).SetValue(track_video);
-        GetChild<KaxTrackName>(*depth_track_).SetValueUTF8("DEPTH");
+        GetChild<KaxTrackNumber>(*writer_tracks_.depth_track).SetValue(DEPTH_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.depth_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.depth_track).SetValue(track_video);
+        GetChild<KaxTrackName>(*writer_tracks_.depth_track).SetValueUTF8("DEPTH");
         if (config.depth_codec_type == DepthCodecType::RVL) {
-            GetChild<KaxCodecID>(*depth_track_).SetValue("V_RVL");
+            GetChild<KaxCodecID>(*writer_tracks_.depth_track).SetValue("V_RVL");
         } else if (config.depth_codec_type == DepthCodecType::TDC1) {
-            GetChild<KaxCodecID>(*depth_track_).SetValue("V_TDC1");
+            GetChild<KaxCodecID>(*writer_tracks_.depth_track).SetValue("V_TDC1");
         } else {
             throw std::runtime_error("Invalid depth codec found");
         }
 
-        GetChild<KaxTrackDefaultDuration>(*depth_track_).SetValue(ONE_SECOND_NS / config.framerate);
+        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.depth_track).SetValue(ONE_SECOND_NS / config.framerate);
 
         json codec_private_json{{"depthUnit", config.depth_unit}};
         string codec_private_str{codec_private_json.dump()};
         std::vector<char> codec_private_vector(codec_private_str.begin(), codec_private_str.end());
-        GetChild<KaxCodecPrivate>(*depth_track_)
+        GetChild<KaxCodecPrivate>(*writer_tracks_.depth_track)
             .CopyBuffer(reinterpret_cast<binary*>(codec_private_vector.data()),
                         gsl::narrow<uint32_t>(codec_private_vector.size()));
         spdlog::info("FileWriter codec_private_str: {}", codec_private_str);
 
-        auto& depth_video_track{GetChild<KaxTrackVideo>(*depth_track_)};
+        auto& depth_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.depth_track)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
         GetChild<KaxVideoPixelHeight>(depth_video_track).SetValue(calibration.getDepthHeight());
     }
@@ -225,20 +222,20 @@ FileWriter::FileWriter(const string& file_path,
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        audio_track_ = new KaxTrackEntry;
-        tracks.PushElement(*audio_track_); // Track will be freed when the file is closed.
-        audio_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.audio_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.audio_track); // Track will be freed when the file is closed.
+        writer_tracks_.audio_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*audio_track_).SetValue(AUDIO_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*audio_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*audio_track_).SetValue(track_audio);
-        GetChild<KaxTrackName>(*audio_track_).SetValueUTF8("AUDIO");
-        GetChild<KaxCodecID>(*audio_track_).SetValue("A_OPUS");
+        GetChild<KaxTrackNumber>(*writer_tracks_.audio_track).SetValue(AUDIO_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.audio_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.audio_track).SetValue(track_audio);
+        GetChild<KaxTrackName>(*writer_tracks_.audio_track).SetValueUTF8("AUDIO");
+        GetChild<KaxCodecID>(*writer_tracks_.audio_track).SetValue("A_OPUS");
 
         // GetChild<KaxCodecDelay>(*audio_track).SetValue(6500000); // from a file from ffmpeg-based
         // recorder
         constexpr uint64_t OPUS_SEEK_PREROLL{80000000}; // from ffmpeg matroskaenc.c
-        GetChild<KaxSeekPreRoll>(*audio_track_).SetValue(OPUS_SEEK_PREROLL);
+        GetChild<KaxSeekPreRoll>(*writer_tracks_.audio_track).SetValue(OPUS_SEEK_PREROLL);
 
         // reference: https://wiki.xiph.org/MatroskaOpus
         // CodecPriavte struct from: https://datatracker.ietf.org/doc/html/rfc7845
@@ -270,12 +267,12 @@ FileWriter::FileWriter(const string& file_path,
 
         binary* opus_head{new binary[OPUS_HEAD_SIZE]};
         memcpy(opus_head, opus_head_bytes.data(), OPUS_HEAD_SIZE);
-        GetChild<KaxCodecPrivate>(*audio_track_).SetBuffer(opus_head, OPUS_HEAD_SIZE);
+        GetChild<KaxCodecPrivate>(*writer_tracks_.audio_track).SetBuffer(opus_head, OPUS_HEAD_SIZE);
 
         // KaxTrackDefaultDuration expects "number of nanoseconds (not scaled) per frame" here.
-        GetChild<KaxTrackDefaultDuration>(*audio_track_)
+        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.audio_track)
             .SetValue(ONE_SECOND_NS / config.samplerate);
-        auto& audio_track_details = GetChild<KaxTrackAudio>(*audio_track_);
+        auto& audio_track_details = GetChild<KaxTrackAudio>(*writer_tracks_.audio_track);
         GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(config.samplerate);
         GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(config.samplerate);
         GetChild<KaxAudioChannels>(audio_track_details).SetValue(AUDIO_INPUT_CHANNEL_COUNT);
@@ -286,105 +283,105 @@ FileWriter::FileWriter(const string& file_path,
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        acceleration_track_ = new KaxTrackEntry;
-        tracks.PushElement(*acceleration_track_); // Track will be freed when the file is closed.
-        acceleration_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.acceleration_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.acceleration_track); // Track will be freed when the file is closed.
+        writer_tracks_.acceleration_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*acceleration_track_).SetValue(ACCELERATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*acceleration_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*acceleration_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*acceleration_track_).SetValueUTF8("ACCELERATION");
-        GetChild<KaxCodecID>(*acceleration_track_).SetValue("S_ACCELERATION");
+        GetChild<KaxTrackNumber>(*writer_tracks_.acceleration_track).SetValue(ACCELERATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.acceleration_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.acceleration_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.acceleration_track).SetValueUTF8("ACCELERATION");
+        GetChild<KaxCodecID>(*writer_tracks_.acceleration_track).SetValue("S_ACCELERATION");
     }
     //
     // init rotation_rate_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        rotation_rate_track_ = new KaxTrackEntry;
-        tracks.PushElement(*rotation_rate_track_); // Track will be freed when the file is closed.
-        rotation_rate_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.rotation_rate_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.rotation_rate_track); // Track will be freed when the file is closed.
+        writer_tracks_.rotation_rate_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*rotation_rate_track_).SetValue(ROTATION_RATE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*rotation_rate_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*rotation_rate_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*rotation_rate_track_).SetValueUTF8("ROTATION_RATE");
-        GetChild<KaxCodecID>(*rotation_rate_track_).SetValue("S_ROTATION_RATE");
+        GetChild<KaxTrackNumber>(*writer_tracks_.rotation_rate_track).SetValue(ROTATION_RATE_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.rotation_rate_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.rotation_rate_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.rotation_rate_track).SetValueUTF8("ROTATION_RATE");
+        GetChild<KaxCodecID>(*writer_tracks_.rotation_rate_track).SetValue("S_ROTATION_RATE");
     }
     //
     // init magnetic_field_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        magnetic_field_track_ = new KaxTrackEntry;
-        tracks.PushElement(*magnetic_field_track_); // Track will be freed when the file is closed.
-        magnetic_field_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.magnetic_field_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.magnetic_field_track); // Track will be freed when the file is closed.
+        writer_tracks_.magnetic_field_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*magnetic_field_track_).SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*magnetic_field_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*magnetic_field_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*magnetic_field_track_).SetValueUTF8("MAGNETIC_FIELD");
-        GetChild<KaxCodecID>(*magnetic_field_track_).SetValue("S_MAGNETIC_FIELD");
+        GetChild<KaxTrackNumber>(*writer_tracks_.magnetic_field_track).SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.magnetic_field_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.magnetic_field_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.magnetic_field_track).SetValueUTF8("MAGNETIC_FIELD");
+        GetChild<KaxCodecID>(*writer_tracks_.magnetic_field_track).SetValue("S_MAGNETIC_FIELD");
     }
     //
     // init gravity_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        gravity_track_ = new KaxTrackEntry;
-        tracks.PushElement(*gravity_track_); // Track will be freed when the file is closed.
-        gravity_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.gravity_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.gravity_track); // Track will be freed when the file is closed.
+        writer_tracks_.gravity_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*gravity_track_).SetValue(GRAVITY_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*gravity_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*gravity_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*gravity_track_).SetValueUTF8("GRAVITY");
-        GetChild<KaxCodecID>(*gravity_track_).SetValue("S_GRAVITY");
+        GetChild<KaxTrackNumber>(*writer_tracks_.gravity_track).SetValue(GRAVITY_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.gravity_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.gravity_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.gravity_track).SetValueUTF8("GRAVITY");
+        GetChild<KaxCodecID>(*writer_tracks_.gravity_track).SetValue("S_GRAVITY");
     }
     //
     // init translation_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        translation_track_ = new KaxTrackEntry;
-        tracks.PushElement(*translation_track_); // Track will be freed when the file is closed.
-        translation_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.translation_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.translation_track); // Track will be freed when the file is closed.
+        writer_tracks_.translation_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*translation_track_).SetValue(TRANSLATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*translation_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*translation_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*translation_track_).SetValueUTF8("TRANSLATION");
-        GetChild<KaxCodecID>(*translation_track_).SetValue("S_TRANSLATION");
+        GetChild<KaxTrackNumber>(*writer_tracks_.translation_track).SetValue(TRANSLATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.translation_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.translation_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.translation_track).SetValueUTF8("TRANSLATION");
+        GetChild<KaxCodecID>(*writer_tracks_.translation_track).SetValue("S_TRANSLATION");
     }
     //
     // init rotation_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        rotation_track_ = new KaxTrackEntry;
-        tracks.PushElement(*rotation_track_); // Track will be freed when the file is closed.
-        rotation_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.rotation_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.rotation_track); // Track will be freed when the file is closed.
+        writer_tracks_.rotation_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*rotation_track_).SetValue(ROTATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*rotation_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*rotation_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*rotation_track_).SetValueUTF8("ROTATION");
-        GetChild<KaxCodecID>(*rotation_track_).SetValue("S_ROTATION");
+        GetChild<KaxTrackNumber>(*writer_tracks_.rotation_track).SetValue(ROTATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.rotation_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.rotation_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.rotation_track).SetValueUTF8("ROTATION");
+        GetChild<KaxCodecID>(*writer_tracks_.rotation_track).SetValue("S_ROTATION");
     }
     //
     // init scale_track_
     //
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        scale_track_ = new KaxTrackEntry;
-        tracks.PushElement(*scale_track_); // Track will be freed when the file is closed.
-        scale_track_->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+        writer_tracks_.scale_track = new KaxTrackEntry;
+        tracks.PushElement(*writer_tracks_.scale_track); // Track will be freed when the file is closed.
+        writer_tracks_.scale_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*scale_track_).SetValue(SCALE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*scale_track_).SetValue(distribution_(generator_));
-        GetChild<KaxTrackType>(*scale_track_).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*scale_track_).SetValueUTF8("SCALE");
-        GetChild<KaxCodecID>(*scale_track_).SetValue("S_SCALE");
+        GetChild<KaxTrackNumber>(*writer_tracks_.scale_track).SetValue(SCALE_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.scale_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackType>(*writer_tracks_.scale_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.scale_track).SetValueUTF8("SCALE");
+        GetChild<KaxCodecID>(*writer_tracks_.scale_track).SetValue("S_SCALE");
     }
     //
     // init KaxAttached
@@ -507,7 +504,7 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
                        gsl::narrow<uint32_t>(color_bytes.size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
-    color_block_blob->AddFrameAuto(*color_track_,
+    color_block_blob->AddFrameAuto(*writer_tracks_.color_track,
                                    video_timecode,
                                    *color_data_buffer,
                                    LACING_AUTO,
@@ -519,7 +516,7 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
                        gsl::narrow<uint32_t>(depth_bytes.size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
-    depth_block_blob->AddFrameAuto(*depth_track_,
+    depth_block_blob->AddFrameAuto(*writer_tracks_.depth_track,
                                    video_timecode,
                                    *depth_data_buffer,
                                    LACING_AUTO,
@@ -560,7 +557,7 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
                        gsl::narrow<uint32_t>(audio_bytes.size())}};
     audio_cluster->AddBlockBlob(block_blob);
     block_blob->SetParent(*audio_cluster);
-    block_blob->AddFrameAuto(*audio_track_, audio_cluster_timecode, *data_buffer);
+    block_blob->AddFrameAuto(*writer_tracks_.audio_track, audio_cluster_timecode, *data_buffer);
 
     audio_cluster->Render(*io_callback_, cues);
     audio_cluster->ReleaseFrames();
@@ -602,7 +599,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     imu_cluster->AddBlockBlob(acceleration_block_blob);
     acceleration_block_blob->SetParent(*imu_cluster);
     acceleration_block_blob->AddFrameAuto(
-        *acceleration_track_, imu_timecode, *acceleration_data_buffer);
+        *writer_tracks_.acceleration_track, imu_timecode, *acceleration_data_buffer);
 
     vector<byte> rotation_rate_bytes(convert_vec3_to_bytes(rotation_rate));
 
@@ -613,7 +610,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     imu_cluster->AddBlockBlob(rotation_rate_block_blob);
     rotation_rate_block_blob->SetParent(*imu_cluster);
     rotation_rate_block_blob->AddFrameAuto(
-        *rotation_rate_track_, imu_timecode, *rotation_rate_data_buffer);
+        *writer_tracks_.rotation_rate_track, imu_timecode, *rotation_rate_data_buffer);
 
     vector<byte> magnetic_field_bytes(convert_vec3_to_bytes(magnetic_field));
 
@@ -624,7 +621,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     imu_cluster->AddBlockBlob(magnetic_field_block_blob);
     magnetic_field_block_blob->SetParent(*imu_cluster);
     magnetic_field_block_blob->AddFrameAuto(
-        *magnetic_field_track_, imu_timecode, *magnetic_field_data_buffer);
+        *writer_tracks_.magnetic_field_track, imu_timecode, *magnetic_field_data_buffer);
 
     vector<byte> gravity_bytes(convert_vec3_to_bytes(gravity));
 
@@ -633,7 +630,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
                                             gsl::narrow<uint32_t>(gravity_bytes.size())}};
     imu_cluster->AddBlockBlob(gravity_block_blob);
     gravity_block_blob->SetParent(*imu_cluster);
-    gravity_block_blob->AddFrameAuto(*gravity_track_, imu_timecode, *gravity_data_buffer);
+    gravity_block_blob->AddFrameAuto(*writer_tracks_.gravity_track, imu_timecode, *gravity_data_buffer);
 
     imu_cluster->Render(*io_callback_, cues);
     imu_cluster->ReleaseFrames();
@@ -678,7 +675,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->AddBlockBlob(translation_block_blob);
     translation_block_blob->SetParent(*trs_cluster);
     translation_block_blob->AddFrameAuto(
-        *translation_track_, trs_timecode, *translation_data_buffer);
+        *writer_tracks_.translation_track, trs_timecode, *translation_data_buffer);
 
     vector<byte> rotation_bytes(convert_quat_to_bytes(rotation));
 
@@ -689,7 +686,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->AddBlockBlob(rotation_block_blob);
     rotation_block_blob->SetParent(*trs_cluster);
     rotation_block_blob->AddFrameAuto(
-        *rotation_track_, trs_timecode, *rotation_data_buffer);
+        *writer_tracks_.rotation_track, trs_timecode, *rotation_data_buffer);
 
     vector<byte> scale_bytes(convert_vec3_to_bytes(scale));
 
@@ -700,7 +697,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->AddBlockBlob(scale_block_blob);
     scale_block_blob->SetParent(*trs_cluster);
     scale_block_blob->AddFrameAuto(
-        *scale_track_, trs_timecode, *scale_data_buffer);
+        *writer_tracks_.scale_track, trs_timecode, *scale_data_buffer);
 
     trs_cluster->Render(*io_callback_, cues);
     trs_cluster->ReleaseFrames();
