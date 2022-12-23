@@ -879,18 +879,10 @@ void rgbd_file_writer_write_cover(void* ptr,
                                   int width,
                                   int height,
                                   const uint8_t* y_channel,
-                                  size_t y_channel_size,
                                   const uint8_t* u_channel,
-                                  size_t u_channel_size,
-                                  const uint8_t* v_channel,
-                                  size_t v_channel_size)
+                                  const uint8_t* v_channel)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->writeCover(
-        width,
-        height,
-        gsl::span<const uint8_t>{y_channel, y_channel_size},
-        gsl::span<const uint8_t>{u_channel, u_channel_size},
-        gsl::span<const uint8_t>{v_channel, v_channel_size});
+    static_cast<rgbd::FileWriter*>(ptr)->writeCover(width, height, y_channel, u_channel, v_channel);
 }
 
 void rgbd_file_writer_write_video_frame(void* ptr,

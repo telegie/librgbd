@@ -70,9 +70,9 @@ public:
     void writeCover(const YuvFrame& yuv_frame);
     void writeCover(int width,
                     int height,
-                    gsl::span<const uint8_t> y_channel,
-                    gsl::span<const uint8_t> u_channel,
-                    gsl::span<const uint8_t> v_channel);
+                    const uint8_t* y_channel,
+                    const uint8_t* u_channel,
+                    const uint8_t* v_channel);
     void writeVideoFrame(int64_t time_point_us,
                          bool keyframe,
                          gsl::span<const byte> color_bytes,

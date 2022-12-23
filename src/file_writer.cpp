@@ -19,9 +19,9 @@ auto get_random_number()
 void convert_yuv_to_rgb(int y_row,
                         int y_col,
                         int y_width,
-                        gsl::span<const uint8_t> y_channel,
-                        gsl::span<const uint8_t> u_channel,
-                        gsl::span<const uint8_t> v_channel,
+                        const uint8_t* y_channel,
+                        const uint8_t* u_channel,
+                        const uint8_t* v_channel,
                         uint8_t& r,
                         uint8_t& g,
                         uint8_t& b)
@@ -59,9 +59,9 @@ void set_rgb_channels(uint8_t r,
 
 Bytes get_cover_png_bytes(int width,
                           int height,
-                          gsl::span<const uint8_t> y_channel,
-                          gsl::span<const uint8_t> u_channel,
-                          gsl::span<const uint8_t> v_channel)
+                          const uint8_t* y_channel,
+                          const uint8_t* u_channel,
+                          const uint8_t* v_channel)
 {
     constexpr int COVER_SIZE{600};
     std::vector<uint8_t> r_channel(COVER_SIZE * COVER_SIZE, 0);
@@ -228,7 +228,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxCodecPrivate>(*writer_tracks_.depth_track)
             .CopyBuffer(reinterpret_cast<binary*>(codec_private_vector.data()),
                         gsl::narrow<uint32_t>(codec_private_vector.size()));
-        spdlog::info("FileWriter codec_private_str: {}", codec_private_str);
+        // spdlog::info("FileWriter codec_private_str: {}", codec_private_str);
 
         auto& depth_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.depth_track)};
         GetChild<KaxVideoPixelWidth>(depth_video_track).SetValue(calibration.getDepthWidth());
@@ -467,16 +467,16 @@ void FileWriter::writeCover(const YuvFrame& yuv_frame)
 {
     writeCover(yuv_frame.width(),
                yuv_frame.height(),
-               yuv_frame.y_channel(),
-               yuv_frame.u_channel(),
-               yuv_frame.v_channel());
+               yuv_frame.y_channel().data(),
+               yuv_frame.u_channel().data(),
+               yuv_frame.v_channel().data());
 }
 
 void FileWriter::writeCover(int width,
                             int height,
-                            gsl::span<const uint8_t> y_channel,
-                            gsl::span<const uint8_t> u_channel,
-                            gsl::span<const uint8_t> v_channel)
+                            const uint8_t* y_channel,
+                            const uint8_t* u_channel,
+                            const uint8_t* v_channel)
 {
     //
     // add cover art

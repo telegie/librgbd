@@ -52,4 +52,20 @@ export class NativeFileWriter {
   close() {
     this.wasmModule.ccall("rgbd_file_writer_dtor", null, ["number"], [this.ptr]);
   }
+
+  writeCover(yuvFrame) {
+    const yChannelPtr = this.wasmModule._malloc(yuvFrame.yChannel.byteLength);
+    const uChannelPtr = this.wasmModule._malloc(yuvFrame.uChannel.byteLength);
+    const vChannelPtr = this.wasmModule._malloc(yuvFrame.vChannel.byteLength);
+    this.wasmModule.HEAPU8.set(yuvFrame.yChannel, yChannelPtr);
+    this.wasmModule.HEAPU8.set(yuvFrame.uChannel, uChannelPtr);
+    this.wasmModule.HEAPU8.set(yuvFrame.vChannel, vChannelPtr);
+    this.wasmModule.ccall("rgbd_file_writer_write_cover",
+                          "number",
+                          ["number", "number", "number", "number", "number", "number"],
+                          [this.ptr, yuvFrame.width, yuvFrame.height, yChannelPtr, uChannelPtr, vChannelPtr]);
+    this.wasmModule._free(yChannelPtr);
+    this.wasmModule._free(uChannelPtr);
+    this.wasmModule._free(vChannelPtr);
+  }
 }
