@@ -313,7 +313,9 @@ elseif(RGBD_OS_WASM)
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WASM)
 
-  set(RgbdLibraryWasmOptions "SHELL:-s USE_LIBPNG=1")
+  set(RgbdLibraryWasmOptions
+    "SHELL:-s USE_LIBPNG=1"
+  )
   set(RgbdLibraryWasmLinkOptions "-Wl,--whole-archive")
   list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions} ${RgbdLibraryWasmLinkOptions})
   list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
