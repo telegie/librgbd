@@ -42,6 +42,18 @@ endif()
 set(RGBD_WEB_DIR ${PROJECT_SOURCE_DIR}/web)
 set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
 
+# Multi-thread support for all in wasm.
+# TODO: The correct way would be adding these options to each subdirectory and targets.
+# Consider doing that instead of doing in a global way like now.
+if(RGBD_OS_WASM)
+  add_compile_options(
+    # "SHELL:-s USE_PTHREADS=1"
+    # "SHELL:-s SIDE_MODULE=1"
+    # "SHELL:-s MAIN_MODULE=1"
+    # "-fPIC"
+  )
+endif()
+
 ### CATCH2 BEGIN
 add_subdirectory(deps/Catch2)
 ### CATCH2 END
@@ -131,7 +143,7 @@ elseif(RGBD_ARCH_X64)
   set(OPUS_MAC_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-mac)
 endif()
 set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
-set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
+set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/output/wasm32-emscripten)
 ### OPUS END ###
 
 ### SPDLOG BEGIN ###
@@ -315,7 +327,10 @@ elseif(RGBD_OS_WASM)
   set(RgbdLibraryWasmOptions
     "SHELL:-s USE_LIBPNG=1"
   )
-  set(RgbdLibraryWasmLinkOptions "-Wl,--whole-archive")
+  set(RgbdLibraryWasmLinkOptions
+    "-Wl,--whole-archive"
+    # "SHELL:-s VERBOSE=1"
+  )
   list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions} ${RgbdLibraryWasmLinkOptions})
   list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
 endif()
