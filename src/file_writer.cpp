@@ -506,8 +506,9 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     if (!initial_time_point_ns_)
         initial_time_point_ns_ = time_point_ns;
 
-    if (time_point_ns < initial_time_point_ns_ ) {
+    if (time_point_ns < initial_time_point_ns_) {
         spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
+	return;
     }
 
     auto& cues{GetChild<KaxCues>(*segment_)};
@@ -557,8 +558,9 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
     if (!initial_time_point_ns_)
         initial_time_point_ns_ = time_point_ns;
 
-    if (time_point_ns < initial_time_point_ns_ ) {
+    if (time_point_ns < initial_time_point_ns_) {
         spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
+	return;
     }
 
     auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
@@ -605,8 +607,9 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     if (!initial_time_point_ns_)
         initial_time_point_ns_ = time_point_ns;
 
-    if (time_point_ns < initial_time_point_ns_ ) {
+    if (time_point_ns < initial_time_point_ns_) {
         spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
+	return;
     }
 
     auto imu_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
@@ -685,8 +688,9 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     if (!initial_time_point_ns_)
         initial_time_point_ns_ = time_point_ns;
 
-    if (time_point_ns < initial_time_point_ns_ ) {
+    if (time_point_ns < initial_time_point_ns_) {
         spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
+	return;
     }
 
     auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
