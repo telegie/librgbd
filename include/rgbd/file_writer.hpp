@@ -101,7 +101,6 @@ private:
     FileWriterTracks writer_tracks_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;
     unique_ptr<EbmlVoid> segment_info_placeholder_;
-    optional<int64_t> initial_time_point_ns_;
     libmatroska::KaxBlockBlob* past_color_block_blob_;
     libmatroska::KaxBlockBlob* past_depth_block_blob_;
     int64_t last_timecode_;

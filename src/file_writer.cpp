@@ -126,7 +126,6 @@ FileWriter::FileWriter(const string& file_path,
     , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
-    , initial_time_point_ns_{nullopt}
     , past_color_block_blob_{nullptr}
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
@@ -142,7 +141,6 @@ FileWriter::FileWriter(const CameraCalibration& calibration, const FileWriterCon
     , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
     , segment_info_placeholder_{nullptr}
-    , initial_time_point_ns_{nullopt}
     , past_color_block_blob_{nullptr}
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
@@ -503,16 +501,13 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
                                  gsl::span<const byte> depth_bytes)
 {
     int64_t time_point_ns{time_point_us * 1000};
-    if (!initial_time_point_ns_)
-        initial_time_point_ns_ = time_point_ns;
-
-    if (time_point_ns < initial_time_point_ns_) {
-        spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
-	return;
+    if (time_point_ns < 0) {
+        spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be negative.", time_point_ns);
+	    return;
     }
 
     auto& cues{GetChild<KaxCues>(*segment_)};
-    auto video_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+    auto video_timecode{gsl::narrow<uint64_t>(time_point_ns)};
 
     auto video_cluster{new KaxCluster};
     segment_->PushElement(*video_cluster);
@@ -555,15 +550,12 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
 void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> audio_bytes)
 {
     int64_t time_point_ns{time_point_us * 1000};
-    if (!initial_time_point_ns_)
-        initial_time_point_ns_ = time_point_ns;
-
-    if (time_point_ns < initial_time_point_ns_) {
-        spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
-	return;
+    if (time_point_ns < 0) {
+        spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should be positive.", time_point_ns);
+	    return;
     }
 
-    auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+    auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns)};
 
     auto& cues{GetChild<KaxCues>(*segment_)};
     auto audio_cluster_timecode{audio_frame_timecode};
@@ -604,15 +596,12 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
                                const glm::vec3& gravity)
 {
     int64_t time_point_ns{time_point_us * 1000};
-    if (!initial_time_point_ns_)
-        initial_time_point_ns_ = time_point_ns;
-
-    if (time_point_ns < initial_time_point_ns_) {
-        spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
-	return;
+    if (time_point_ns < 0) {
+        spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be negative ({}).", time_point_ns);
+	    return;
     }
 
-    auto imu_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+    auto imu_timecode{gsl::narrow<uint64_t>(time_point_ns)};
 
     auto& cues{GetChild<KaxCues>(*segment_)};
 
@@ -685,15 +674,12 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
                                const glm::vec3& scale)
 {
     int64_t time_point_ns{time_point_us * 1000};
-    if (!initial_time_point_ns_)
-        initial_time_point_ns_ = time_point_ns;
-
-    if (time_point_ns < initial_time_point_ns_) {
-        spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be smaller than initial_time_point_ns_ ({}).", time_point_ns, *initial_time_point_ns_);
-	return;
+    if (time_point_ns < 0) {
+        spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.", time_point_ns);
+	    return;
     }
 
-    auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns - *initial_time_point_ns_)};
+    auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns)};
 
     auto& cues{GetChild<KaxCues>(*segment_)};
 
