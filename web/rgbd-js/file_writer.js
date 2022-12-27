@@ -31,6 +31,13 @@ export class NativeFileWriterConfig {
                           [this.ptr, depthCodecType]);
   }
 
+  getDepthUnit() {
+    return this.wasmModule.ccall("rgbd_file_writer_config_get_depth_unit",
+                                 "number",
+                                 ["number"],
+                                 [this.ptr]);
+  }
+
   setDepthUnit(depthUnit) {
     this.wasmModule.ccall("rgbd_file_writer_config_set_depth_unit",
                           null,

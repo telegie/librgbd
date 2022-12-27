@@ -1008,6 +1008,11 @@ void rgbd_file_writer_config_set_depth_codec_type(void* ptr, rgbdDepthCodecType 
         static_cast<rgbd::DepthCodecType>(depth_codec_type);
 }
 
+float rgbd_file_writer_config_get_depth_unit(void* ptr)
+{
+    return static_cast<rgbd::FileWriterConfig*>(ptr)->depth_unit;
+}
+
 void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)
 {
     static_cast<rgbd::FileWriterConfig*>(ptr)->depth_unit = depth_unit;
