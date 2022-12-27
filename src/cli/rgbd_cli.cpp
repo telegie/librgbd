@@ -70,8 +70,9 @@ void split_file(const std::string& file_path)
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
 
+    int64_t minimum_global_timecode{video_frames[0]->global_timecode()};
     for (auto& video_frame : video_frames) {
-        int64_t global_timecode{video_frame->global_timecode()};
+        int64_t global_timecode{video_frame->global_timecode() - minimum_global_timecode};
         constexpr int TWO_SECONDS{2000000};
         int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
 
@@ -106,7 +107,7 @@ void split_file(const std::string& file_path)
         auto color_bytes{color_encoder->encode(*color_frame, first)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
-        file_writer->writeVideoFrame(video_frame->global_timecode(),
+        file_writer->writeVideoFrame(global_timecode,
                                      first,
                                      color_bytes,
                                      depth_bytes);
