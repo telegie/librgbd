@@ -42,15 +42,6 @@ endif()
 set(RGBD_WEB_DIR ${PROJECT_SOURCE_DIR}/web)
 set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
 
-# Multi-thread support for all in wasm.
-# TODO: The correct way would be adding these options to each subdirectory and targets.
-# Consider doing that instead of doing in a global way like now.
-if(RGBD_OS_WASM)
-  add_compile_options(
-    "SHELL:-s USE_PTHREADS=1"
-  )
-endif()
-
 ### CATCH2 BEGIN
 add_subdirectory(deps/Catch2)
 ### CATCH2 END
