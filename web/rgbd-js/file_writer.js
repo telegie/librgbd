@@ -1,3 +1,5 @@
+import { NativeByteArray } from "./capi_containers.js";
+
 export class NativeFileWriterConfig {
   constructor(wasmModule) {
     this.wasmModule = wasmModule;
@@ -61,11 +63,41 @@ export class NativeFileWriter {
     this.wasmModule.HEAPU8.set(yuvFrame.uChannel, uChannelPtr);
     this.wasmModule.HEAPU8.set(yuvFrame.vChannel, vChannelPtr);
     this.wasmModule.ccall("rgbd_file_writer_write_cover",
-                          "number",
+                          null,
                           ["number", "number", "number", "number", "number", "number"],
                           [this.ptr, yuvFrame.width, yuvFrame.height, yChannelPtr, uChannelPtr, vChannelPtr]);
     this.wasmModule._free(yChannelPtr);
     this.wasmModule._free(uChannelPtr);
     this.wasmModule._free(vChannelPtr);
+  }
+
+  writeVideoFrame(timePointUs, keyframe, colorBytes, depthBytes) {
+    const colorBytesPtr = this.wasmModule._malloc(colorBytes.byteLength);
+    const depthBytesPtr = this.wasmModule._malloc(depthBytes.byteLength);
+    this.wasmModule.HEAPU8.set(colorBytes, colorBytesPtr);
+    this.wasmModule.HEAPU8.set(depthBytes, depthBytesPtr);
+    this.wasmModule.ccall("rgbd_file_writer_write_video_frame",
+                          null,
+                          ["number", "number", "boolean",
+                           "number", "number",
+                           "number", "number"],
+                          [this.ptr, timePointUs, keyframe,
+                           colorBytesPtr, colorBytes.byteLength,
+                           depthBytesPtr, depthBytes.byteLength]);
+    this.wasmModule._free(colorBytesPtr);
+    this.wasmModule._free(depthBytesPtr);
+  }
+
+  flush() {
+    this.wasmModule.ccall("rgbd_file_writer_flush", null, ["number"], [this.ptr]);
+  }
+
+  getBytes() {
+    const byteArrayPtr = this.wasmModule.ccall("rgbd_file_writer_get_bytes", "number", ["number"], [this.ptr]);
+
+    const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);
+    const bytes = byteArray.toArray();
+    byteArray.close();
+    return bytes;
   }
 }
