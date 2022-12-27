@@ -76,7 +76,7 @@ export class NativeFileWriter {
     const depthBytesPtr = this.wasmModule._malloc(depthBytes.byteLength);
     this.wasmModule.HEAPU8.set(colorBytes, colorBytesPtr);
     this.wasmModule.HEAPU8.set(depthBytes, depthBytesPtr);
-    this.wasmModule.ccall("rgbd_file_writer_write_video_frame",
+    this.wasmModule.ccall("rgbd_file_writer_write_video_frame_wasm",
                           null,
                           ["number", "number", "boolean",
                            "number", "number",

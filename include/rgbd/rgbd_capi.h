@@ -310,6 +310,14 @@ extern "C"
                                        size_t color_byte_size,
                                        const uint8_t* depth_bytes,
                                        size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void
+    rgbd_file_writer_write_video_frame_wasm(void* ptr,
+                                            int time_point_us,
+                                            bool keyframe,
+                                            const uint8_t* color_bytes,
+                                            int color_byte_size,
+                                            const uint8_t* depth_bytes,
+                                            int depth_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_audio_frame(void* ptr,
                                                                   int64_t time_point_us,
                                                                   const uint8_t* audio_bytes,
