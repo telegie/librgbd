@@ -47,10 +47,7 @@ set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
 # Consider doing that instead of doing in a global way like now.
 if(RGBD_OS_WASM)
   add_compile_options(
-    # "SHELL:-s USE_PTHREADS=1"
-    # "SHELL:-s SIDE_MODULE=1"
-    # "SHELL:-s MAIN_MODULE=1"
-    # "-fPIC"
+    "SHELL:-s USE_PTHREADS=1"
   )
 endif()
 
@@ -76,7 +73,11 @@ elseif(RGBD_ARCH_X64)
 endif()
 set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/arm64-ios)
-set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/output/wasm32-emscripten)
+set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten)
+# Using the below multi-threaded version speeds up VP8 decoding a lot but
+# in iOS, causes maximum class stack size exceededing errors.
+# In Mac Safari, the speed up only lasts the first few seconds. 
+# set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten-mt)
 ### FFMPEG END ###
 
 ### LIBMATROSKA BEGIN ###
@@ -127,12 +128,12 @@ set(ZLIB_LINUX_DIR ${ZLIB_BINARIES_DIR}/output/x64-linux)
 ### LIBVPX BEGIN ###
 set(LIBVPX_BINARIES_DIR ${FFMPEG_BINARIES_DIR}/libvpx-binaries)
 if(RGBD_ARCH_ARM64)
-  set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/arm64-mac)
+  set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/arm64-mac)
 elseif(RGBD_ARCH_X64)
-  set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-mac)
+  set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-mac)
 endif()
 set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-linux)
-set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/output/wasm32-emscripten)
+set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten)
 ### LIBVPX END ###
 
 ### OPUS BEGIN ###
@@ -143,7 +144,7 @@ elseif(RGBD_ARCH_X64)
   set(OPUS_MAC_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-mac)
 endif()
 set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
-set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/output/wasm32-emscripten)
+set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
 ### OPUS END ###
 
 ### SPDLOG BEGIN ###
