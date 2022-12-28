@@ -111,12 +111,26 @@ export class NativeFileWriter {
                           ['number', 'number',
                            'number', 'number', 'number',
                            'number', 'number', 'number',
+                           'number', 'number', 'number',
                            'number', 'number', 'number'],
                           [this.ptr, timePointUs,
                            acceleration.x, acceleration.y, acceleration.z,
                            rotationRate.x, rotationRate.y, rotationRate.z,
                            magneticField.x, magneticField.y, magneticField.z,
                            gravity.x, gravity.y, gravity.z]);
+  }
+
+  writeTRSFrame(timePointUs, translation, rotation, scale) {
+    this.wasmModule.ccall('rgbd_file_writer_write_trs_frame_wasm',
+                          null,
+                          ['number', 'number',
+                           'number', 'number', 'number',
+                           'number', 'number', 'number', 'number',
+                           'number', 'number', 'number'],
+                          [this.ptr, timePointUs,
+                           translation.x, translation.y, translation.z,
+                           rotation.w, rotation.x, rotation.y, rotation.z,
+                           scale.x, scale.y, scale.z]);
   }
 
   flush() {

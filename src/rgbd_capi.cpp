@@ -1000,6 +1000,25 @@ void rgbd_file_writer_write_trs_frame(void* ptr,
     file_writer->writeTRSFrame(time_point_us, translation, rotation, scale);
 }
 
+void rgbd_file_writer_write_trs_frame_wasm(void* ptr,
+                                           int time_point_us,
+                                           float translation_x,
+                                           float translation_y,
+                                           float translation_z,
+                                           float rotation_w,
+                                           float rotation_x,
+                                           float rotation_y,
+                                           float rotation_z,
+                                           float scale_x,
+                                           float scale_y,
+                                           float scale_z)
+{
+    rgbd_file_writer_write_trs_frame(ptr, time_point_us,
+                                     translation_x, translation_y, translation_z,
+                                     rotation_w, rotation_x, rotation_y, rotation_z,
+                                     scale_x, scale_y, scale_z);
+}
+
 void rgbd_file_writer_flush(void* ptr)
 {
     static_cast<rgbd::FileWriter*>(ptr)->flush();
