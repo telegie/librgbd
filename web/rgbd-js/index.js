@@ -1,4 +1,5 @@
 export * from './audio_decoder.js';
+export * from './audio_encoder.js';
 export * from './audio_frame.js';
 export * from './camera_calibration.js';
 export * from './capi_containers.js';

@@ -1,4 +1,4 @@
-import { NativeCameraCalibration, NativeKinectCameraCalibration } from "../camera_calibration";
+import { NativeCameraCalibration, NativeKinectCameraCalibration } from '../camera_calibration';
 
 export declare const RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT: number;
 export declare const RGBD_CAMERA_DEVICE_TYPE_IOS: number;

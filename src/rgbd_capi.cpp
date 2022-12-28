@@ -907,9 +907,9 @@ void rgbd_file_writer_write_video_frame_wasm(void* ptr,
                                              int time_point_us,
                                              bool keyframe,
                                              const uint8_t* color_bytes,
-                                             int color_byte_size,
+                                             size_t color_byte_size,
                                              const uint8_t* depth_bytes,
-                                             int depth_byte_size)
+                                             size_t depth_byte_size)
 {
     rgbd_file_writer_write_video_frame(
         ptr, time_point_us, keyframe, color_bytes, color_byte_size, depth_bytes, depth_byte_size);
@@ -920,10 +920,19 @@ void rgbd_file_writer_write_audio_frame(void* ptr,
                                         const uint8_t* audio_bytes,
                                         size_t audio_byte_size)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->writeAudioFrame(
-        time_point_us,
-        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(audio_bytes),
-                                   audio_byte_size});
+    auto audio_bytes_ptr{reinterpret_cast<const std::byte*> (audio_bytes)};
+    const gsl::span<const std::byte> audio_bytes_span{
+        reinterpret_cast<const std::byte*>(audio_bytes), audio_byte_size};
+    static_cast<rgbd::FileWriter*>(ptr)->writeAudioFrame(time_point_us, audio_bytes_span);
+}
+
+
+void rgbd_file_writer_write_audio_frame_wasm(void* ptr,
+                                             int time_point_us,
+                                             const uint8_t* audio_bytes,
+                                             size_t audio_byte_size)
+{
+    rgbd_file_writer_write_audio_frame(ptr, time_point_us, audio_bytes, audio_byte_size);
 }
 
 void rgbd_file_writer_write_imu_frame(void* ptr,

@@ -1,6 +1,6 @@
-import { NativeCameraCalibration } from "./camera_calibration";
-import { Quaternion } from "./quaternion";
-import { Vector3 } from "./vector3";
+import { NativeCameraCalibration } from './camera_calibration';
+import { Quaternion } from './quaternion';
+import { Vector3 } from './vector3';
 
 export declare class FileInfo {
   timecodeScaleNs: number;
