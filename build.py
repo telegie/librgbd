@@ -36,7 +36,6 @@ def build_arm64_mac_binaries():
                    check=True)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
-    subprocess.run(["ninja", "test"], cwd=build_path, check=True)
 
 
 def build_x64_mac_binaries():
@@ -52,7 +51,6 @@ def build_x64_mac_binaries():
                    check=True)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
-    subprocess.run(["ninja", "test"], cwd=build_path, check=True)
 
 
 def build_x64_linux_binaries():
@@ -66,7 +64,6 @@ def build_x64_linux_binaries():
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-linux"])
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
-    subprocess.run(["ninja", "test"], cwd=build_path, check=True)
 
 
 def main():

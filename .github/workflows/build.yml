@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: python3 build.py
 
+      - name: Test
+        run: python3 test.py
+
   bulid-linux:
     runs-on: ubuntu-22.04
     steps:
@@ -45,3 +48,6 @@ jobs:
 
       - name: Build
         run: python3 build.py
+
+      - name: Test
+        run: python3 test.py
