@@ -95,14 +95,28 @@ export class NativeFileWriter {
     this.wasmModule._free(depthBytesPtr);
   }
 
-  writeAudioFrame(timePointsUs, audioBytes) {
+  writeAudioFrame(timePointUs, audioBytes) {
     const audioBytesPtr = this.wasmModule._malloc(audioBytes.byteLength);
     this.wasmModule.HEAPU8.set(audioBytes, audioBytesPtr);
     this.wasmModule.ccall('rgbd_file_writer_write_audio_frame_wasm',
                           null,
                           ['number', 'number', 'number', 'number'],
-                          [this.ptr, timePointsUs, audioBytesPtr, audioBytes.byteLength]);
+                          [this.ptr, timePointUs, audioBytesPtr, audioBytes.byteLength]);
     this.wasmModule._free(audioBytesPtr);
+  }
+
+  writeIMUFrame(timePointUs, acceleration, rotationRate, magneticField, gravity) {
+    this.wasmModule.ccall('rgbd_file_writer_write_imu_frame_wasm',
+                          null,
+                          ['number', 'number',
+                           'number', 'number', 'number',
+                           'number', 'number', 'number',
+                           'number', 'number', 'number'],
+                          [this.ptr, timePointUs,
+                           acceleration.x, acceleration.y, acceleration.z,
+                           rotationRate.x, rotationRate.y, rotationRate.z,
+                           magneticField.x, magneticField.y, magneticField.z,
+                           gravity.x, gravity.y, gravity.z]);
   }
 
   flush() {

@@ -958,6 +958,28 @@ void rgbd_file_writer_write_imu_frame(void* ptr,
     file_writer->writeIMUFrame(time_point_us, acceleration, rotation_rate, magnetic_field, gravity);
 }
 
+void rgbd_file_writer_write_imu_frame_wasm(void* ptr,
+                                           int time_point_us,
+                                           float acceleration_x,
+                                           float acceleration_y,
+                                           float acceleration_z,
+                                           float rotation_rate_x,
+                                           float rotation_rate_y,
+                                           float rotation_rate_z,
+                                           float magnetic_field_x,
+                                           float magnetic_field_y,
+                                           float magnetic_field_z,
+                                           float gravity_x,
+                                           float gravity_y,
+                                           float gravity_z)
+{
+    rgbd_file_writer_write_imu_frame(ptr, time_point_us,
+                                     acceleration_x, acceleration_y, acceleration_z,
+                                     rotation_rate_x, rotation_rate_y, rotation_rate_z,
+                                     magnetic_field_x, magnetic_field_y, magnetic_field_z,
+                                     gravity_x, gravity_y, gravity_z);
+}
+
 void rgbd_file_writer_write_trs_frame(void* ptr,
                                       int64_t time_point_us,
                                       float translation_x,
