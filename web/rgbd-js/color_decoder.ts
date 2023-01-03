@@ -3,7 +3,10 @@ import { NativeYuvFrame, YuvFrame } from './yuv_frame.js';
 export const COLOR_CODEC_TYPE_VP8 = 0;
 
 export class NativeColorDecoder {
-  constructor(wasmModule, colorCodecType) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, colorCodecType: number) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_color_decoder_ctor', 'number', ['number'], [colorCodecType]);
   }
@@ -12,7 +15,7 @@ export class NativeColorDecoder {
     this.wasmModule.ccall('rgbd_color_decoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  decode(colorBytes) {
+  decode(colorBytes: Uint8Array): YuvFrame {
     const colorBytesPtr = this.wasmModule._malloc(colorBytes.byteLength);
     this.wasmModule.HEAPU8.set(colorBytes, colorBytesPtr);
     const yuvFramePtr = this.wasmModule.ccall('rgbd_color_decoder_decode',

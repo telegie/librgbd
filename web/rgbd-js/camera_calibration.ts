@@ -5,7 +5,14 @@ export const RGBD_CAMERA_DEVICE_TYPE_IOS = 1;
 export const RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED = 2;
 
 export class CameraCalibration {
-  constructor(nativeCameraCalibration) {
+  wasmModule: any;
+  cameraDeviceType: number;
+  colorWidth: number;
+  colorHeight: number;
+  depthWidth: number;
+  depthHeight: number;
+
+  constructor(nativeCameraCalibration: NativeCameraCalibration) {
     this.wasmModule = nativeCameraCalibration.wasmModule;
     this.cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
     this.colorWidth = nativeCameraCalibration.getColorWidth();
@@ -14,26 +21,44 @@ export class CameraCalibration {
     this.depthHeight = nativeCameraCalibration.getDepthHeight();
   }
 
-  static create(nativeCameraCalibration) {
+  static create(nativeCameraCalibration: NativeCameraCalibration) {
     const cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
     switch(cameraDeviceType) {
       case RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT:
-        return new KinectCameraCalibration(nativeCameraCalibration);
+        return new KinectCameraCalibration(nativeCameraCalibration as NativeKinectCameraCalibration);
       case RGBD_CAMERA_DEVICE_TYPE_IOS:
-        return new IosCameraCalibration(nativeCameraCalibration);
+        return new IosCameraCalibration(nativeCameraCalibration as NativeIosCameraCalibration);
       case RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED:
-        return new UndistortedCameraCalibration(nativeCameraCalibration);
+        return new UndistortedCameraCalibration(nativeCameraCalibration as NativeUndistortedCameraCalibration);
     }
     throw Error('Failed to infer device type in CameraCalibration.create');
   }
 
-  createNativeInstance() {
+  createNativeInstance(): NativeCameraCalibration {
     throw Error('CameraCalibration.createNativeInstance not implemented.');
   }
 }
 
 export class KinectCameraCalibration extends CameraCalibration {
-  constructor(nativeKinectCameraCalibration) {
+  resolutionWidth: number;
+  resolutionHeight: number;
+  cx: number;
+  cy: number;
+  fx: number;
+  fy: number;
+  k1: number;
+  k2: number;
+  k3: number;
+  k4: number;
+  k5: number;
+  k6: number;
+  codx: number;
+  cody: number;
+  p1: number;
+  p2: number;
+  maxRadiusForProjection: number;
+
+  constructor(nativeKinectCameraCalibration: NativeKinectCameraCalibration) {
     super(nativeKinectCameraCalibration);
     this.colorWidth = nativeKinectCameraCalibration.getColorWidth();
     this.colorHeight = nativeKinectCameraCalibration.getColorHeight();
@@ -78,7 +103,17 @@ export class KinectCameraCalibration extends CameraCalibration {
 }
 
 export class IosCameraCalibration extends CameraCalibration {
-  constructor(nativeIosCameraCalibration) {
+  fx: number;
+  fy: number;
+  ox: number;
+  oy: number;
+  referenceDimensionWidth: number;
+  referenceDimensionHeight: number;
+  lensDistortionCenterX: number;
+  lensDistortionCenterY: number;
+  lensDistortionLookupTable: Float32Array;
+
+  constructor(nativeIosCameraCalibration: NativeIosCameraCalibration) {
     super(nativeIosCameraCalibration);
     this.fx = nativeIosCameraCalibration.getFx();
     this.fy = nativeIosCameraCalibration.getFy();
@@ -91,7 +126,7 @@ export class IosCameraCalibration extends CameraCalibration {
     this.lensDistortionLookupTable = nativeIosCameraCalibration.getLensDistortionLookupTable();
   }
 
-  createNativeInstance() {
+  createNativeInstance(): NativeIosCameraCalibration {
     const lookupTablePtr = this.wasmModule._malloc(this.lensDistortionLookupTable.byteLength);
     // Have to do >> 2 to the pointer since the set() function interprets its second parameter
     // as an index, not a pointer.
@@ -118,7 +153,12 @@ export class IosCameraCalibration extends CameraCalibration {
 }
 
 export class UndistortedCameraCalibration extends CameraCalibration {
-  constructor(nativeUndistortedCameraCalibration) {
+  fx: number;
+  fy: number;
+  cx: number;
+  cy: number;
+
+  constructor(nativeUndistortedCameraCalibration: NativeUndistortedCameraCalibration) {
     super(nativeUndistortedCameraCalibration);
     this.fx = nativeUndistortedCameraCalibration.getFx();
     this.fy = nativeUndistortedCameraCalibration.getFy();
@@ -126,7 +166,7 @@ export class UndistortedCameraCalibration extends CameraCalibration {
     this.cy = nativeUndistortedCameraCalibration.getCy();
   }
 
-  createNativeInstance() {
+  createNativeInstance(): NativeUndistortedCameraCalibration {
     const nativePtr = this.wasmModule.ccall('rgbd_undistorted_camera_calibration_ctor',
                                             'number',
                                             ['number', 'number', 'number', 'number',
@@ -142,11 +182,15 @@ export class UndistortedCameraCalibration extends CameraCalibration {
 }
 
 export class NativeCameraCalibration {
+  wasmModule: any;
+  ptr: number;
+  owner: boolean;
+
   // Do not directly use this init.
   // An instance created directly using this won't contain the class type
   // information of the C++ instance.
   // Use create() instead.
-  constructor(wasmModule, ptr, owner) {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
       this.wasmModule = wasmModule;
       this.ptr = ptr;
       this.owner = owner;
@@ -159,7 +203,7 @@ export class NativeCameraCalibration {
 
   // Use this instead of the raw init to create an instance
   // containing the class information matching its corresponding C++ instance.
-  static create(wasmModule, ptr, owner) {
+  static create(wasmModule: any, ptr: number, owner: boolean) {
     const cameraDeviceType = wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [ptr]);
 
     switch (cameraDeviceType) {
@@ -173,139 +217,139 @@ export class NativeCameraCalibration {
     throw Error('not supported camera device type found')
   }
 
-  getCameraDeviceType() {
+  getCameraDeviceType(): number {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [this.ptr]);
   }
 
-  getColorWidth() {
+  getColorWidth(): number {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_color_width', 'number', ['number'], [this.ptr]);
   }
 
-  getColorHeight() {
+  getColorHeight(): number {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_color_height', 'number', ['number'], [this.ptr]);
   }
 
-  getDepthWidth() {
+  getDepthWidth(): number {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_depth_width', 'number', ['number'], [this.ptr]);
   }
 
-  getDepthHeight() {
+  getDepthHeight(): number {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_depth_height', 'number', ['number'], [this.ptr]);
   }
 }
 
 export class NativeKinectCameraCalibration extends NativeCameraCalibration {
-  constructor(wasmModule, ptr, owner) {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
 
-  getResolutionWidth() {
+  getResolutionWidth(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_resolution_width', 'number', ['number'], [this.ptr]);
   }
 
-  getResolutionHeight() {
+  getResolutionHeight(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_resolution_height', 'number', ['number'], [this.ptr]);
   }
 
-  getCx() {
+  getCx(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_cx', 'number', ['number'], [this.ptr]);
   }
 
-  getCy() {
+  getCy(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_cy', 'number', ['number'], [this.ptr]);
   }
 
-  getFx() {
+  getFx(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_fx', 'number', ['number'], [this.ptr]);
   }
 
-  getFy() {
+  getFy(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_fy', 'number', ['number'], [this.ptr]);
   }
 
-  getK1() {
+  getK1(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k1', 'number', ['number'], [this.ptr]);
   }
 
-  getK2() {
+  getK2(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k2', 'number', ['number'], [this.ptr]);
   }
 
-  getK3() {
+  getK3(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k3', 'number', ['number'], [this.ptr]);
   }
 
-  getK4() {
+  getK4(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k4', 'number', ['number'], [this.ptr]);
   }
 
-  getK5() {
+  getK5(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k5', 'number', ['number'], [this.ptr]);
   }
 
-  getK6() {
+  getK6(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_k6', 'number', ['number'], [this.ptr]);
   }
 
-  getCodx() {
+  getCodx(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_codx', 'number', ['number'], [this.ptr]);
   }
 
-  getCody() {
+  getCody(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_cody', 'number', ['number'], [this.ptr]);
   }
 
-  getP1() {
+  getP1(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_p1', 'number', ['number'], [this.ptr]);
   }
 
-  getP2() {
+  getP2(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_p2', 'number', ['number'], [this.ptr]);
   }
 
-  getMaxRadiusForProjection() {
+  getMaxRadiusForProjection(): number {
     return this.wasmModule.ccall('rgbd_kinect_camera_calibration_get_max_radius_for_projection', 'number', ['number'], [this.ptr]);
   }
 }
 
 export class NativeIosCameraCalibration extends NativeCameraCalibration {
-  constructor(wasmModule, ptr, owner) {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
 
-  getFx() {
+  getFx(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_fx', 'number', ['number'], [this.ptr]);
   }
 
-  getFy() {
+  getFy(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_fy', 'number', ['number'], [this.ptr]);
   }
 
-  getOx() {
+  getOx(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_ox', 'number', ['number'], [this.ptr]);
   }
 
-  getOy() {
+  getOy(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_oy', 'number', ['number'], [this.ptr]);
   }
 
-  getReferenceDimensionWidth() {
+  getReferenceDimensionWidth(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_reference_dimension_width', 'number', ['number'], [this.ptr]);
   }
 
-  getReferenceDimensionHeight() {
+  getReferenceDimensionHeight(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_reference_dimension_height', 'number', ['number'], [this.ptr]);
   }
 
-  getLensDistortionCenterX() {
+  getLensDistortionCenterX(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_lens_distortion_center_x', 'number', ['number'], [this.ptr]);
   }
 
-  getLensDistortionCenterY() {
+  getLensDistortionCenterY(): number {
     return this.wasmModule.ccall('rgbd_ios_camera_calibration_get_lens_distortion_center_y', 'number', ['number'], [this.ptr]);
   }
 
-  getLensDistortionLookupTable() {
+  getLensDistortionLookupTable(): Float32Array {
     const nativeFloatArrayPtr = this.wasmModule.ccall('rgbd_ios_camera_calibration_get_lens_distortion_lookup_table', 'number', ['number'], [this.ptr]);
     const nativeFloatArray = new NativeFloatArray(this.wasmModule, nativeFloatArrayPtr);
     const floatArray = nativeFloatArray.toArray();
@@ -316,23 +360,23 @@ export class NativeIosCameraCalibration extends NativeCameraCalibration {
 }
 
 export class NativeUndistortedCameraCalibration extends NativeCameraCalibration {
-  constructor(wasmModule, ptr, owner) {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
 
-  getFx() {
+  getFx(): number {
     return this.wasmModule.ccall('rgbd_undistorted_camera_calibration_get_fx', 'number', ['number'], [this.ptr]);
   }
 
-  getFy() {
+  getFy(): number {
     return this.wasmModule.ccall('rgbd_undistorted_camera_calibration_get_fy', 'number', ['number'], [this.ptr]);
   }
 
-  getCx() {
+  getCx(): number {
     return this.wasmModule.ccall('rgbd_undistorted_camera_calibration_get_cx', 'number', ['number'], [this.ptr]);
   }
 
-  getCy() {
+  getCy(): number {
     return this.wasmModule.ccall('rgbd_undistorted_camera_calibration_get_cy', 'number', ['number'], [this.ptr]);
   }
 }

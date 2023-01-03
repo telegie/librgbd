@@ -1,8 +1,9 @@
 import { NativeByteArray } from './capi_containers.js';
 
 export class AudioEncoderFrame {
-  constructor(nativeFrame) {
-    let packetBytesList = [];
+  packetBytesList: Uint8Array[];
+  constructor(nativeFrame: NativeAudioEncoderFrame) {
+    let packetBytesList: Uint8Array[] = [];
     const packetBytesListCount = nativeFrame.getPacketBytesListCount();
     for (let i = 0; i < packetBytesListCount; ++i) {
       const packetBytes = nativeFrame.getPacketBytes(i);
@@ -13,7 +14,10 @@ export class AudioEncoderFrame {
 }
 
 class NativeAudioEncoderFrame {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr;
   }
@@ -22,14 +26,14 @@ class NativeAudioEncoderFrame {
     this.wasmModule.ccall('rgbd_audio_encoder_frame_dtor', null, ['number'], [this.ptr]);
   }
 
-  getPacketBytesListCount() {
+  getPacketBytesListCount(): number {
     return this.wasmModule.ccall('rgbd_audio_encoder_frame_get_packet_bytes_list_count',
                                  'number',
                                  ['number'],
                                  [this.ptr]);
   }
 
-  getPacketBytes(index) {
+  getPacketBytes(index: number): Uint8Array {
     const byteArrayPtr = this.wasmModule.ccall('rgbd_audio_encoder_frame_get_packet_bytes',
                                                'number',
                                                ['number', 'number'],
@@ -42,7 +46,10 @@ class NativeAudioEncoderFrame {
 }
 
 export class NativeAudioEncoder {
-  constructor(wasmModule) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_audio_encoder_ctor', 'number', [], []);
   }
@@ -51,7 +58,7 @@ export class NativeAudioEncoder {
     this.wasmModule.ccall('rgbd_audio_encoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  encode(pcmSamples) {
+  encode(pcmSamples: Float32Array) {
     const pcmSamplesPtr = this.wasmModule._malloc(pcmSamples.byteLength);
     this.wasmModule.HEAPU8.set(pcmSamples, pcmSamplesPtr);
     const framePtr = this.wasmModule.ccall('rgbd_audio_encoder_encode',

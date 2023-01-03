@@ -2,7 +2,11 @@ import { NativeFile } from './file.js';
 import { PointerByReference } from './pointer_by_reference.js';
 
 export class NativeFileParser {
-  constructor(wasmModule, data) {
+  wasmModule: any;
+  ptr: number;
+  dataPtr: number;
+
+  constructor(wasmModule: any, data: Uint8Array) {
     this.wasmModule = wasmModule;
     const parserPtrRef = new PointerByReference(wasmModule);
     const dataPtr = wasmModule._malloc(data.byteLength);
@@ -25,7 +29,7 @@ export class NativeFileParser {
     this.wasmModule._free(this.dataPtr);
   }
 
-  parse(withFrames, withDirections) {
+  parse(withFrames: boolean, withDirections: boolean): NativeFile {
     const filePtr = this.wasmModule.ccall('rgbd_file_parser_parse',
                                           'number',
                                           ['number', 'boolean', 'boolean'],

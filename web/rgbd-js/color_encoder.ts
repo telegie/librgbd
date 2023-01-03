@@ -1,7 +1,15 @@
 import { NativeByteArray } from './capi_containers.js';
 
 export class NativeColorEncoder {
-  constructor(wasmModule, colorCodecType, width, height, targetBitrate, framerate) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any,
+              colorCodecType: number,
+              width: number,
+              height: number,
+              targetBitrate: number,
+              framerate: number) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_color_encoder_ctor',
                                      'number',
@@ -13,7 +21,7 @@ export class NativeColorEncoder {
     this.wasmModule.ccall('rgbd_color_encoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  encode(yChannel, uChannel, vChannel, keyframe) {
+  encode(yChannel: Uint8Array, uChannel: Uint8Array, vChannel: Uint8Array, keyframe: boolean): Uint8Array {
     const yChannelPtr = this.wasmModule._malloc(yChannel.byteLength);
     const uChannelPtr = this.wasmModule._malloc(uChannel.byteLength);
     const vChannelPtr = this.wasmModule._malloc(vChannel.byteLength);

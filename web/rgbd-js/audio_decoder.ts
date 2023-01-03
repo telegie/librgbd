@@ -1,7 +1,10 @@
 import { NativeFloatArray } from './capi_containers.js';
 
 export class NativeAudioDecoder {
-  constructor(wasmModule) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_audio_decoder_ctor', 'number', [], []);
   }
@@ -10,7 +13,7 @@ export class NativeAudioDecoder {
     this.wasmModule.ccall('rgbd_audio_decoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  decode(bytes) {
+  decode(bytes: Uint8Array): Float32Array {
     const bytesPtr = this.wasmModule._malloc(bytes.byteLength);
     this.wasmModule.HEAPU8.set(bytes, bytesPtr);
     const nativeFloatArrayPtr = this.wasmModule.ccall('rgbd_audio_decoder_decode',

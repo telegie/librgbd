@@ -1,7 +1,14 @@
 import { NativeByteArray } from './capi_containers.js';
+import { CameraCalibration } from './camera_calibration';
+import { YuvFrame } from './yuv_frame.js';
+import { Vector3 } from './vector3.js';
+import { Quaternion } from './quaternion.js';
 
 export class NativeFileWriterConfig {
-  constructor(wasmModule) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_file_writer_config_ctor', 'number', [], []);
   }
@@ -10,35 +17,35 @@ export class NativeFileWriterConfig {
     this.wasmModule.ccall('rgbd_file_writer_config_dtor', null, ['number'], [this.ptr]);
   }
 
-  setFramerate(framerate) {
+  setFramerate(framerate: number) {
     this.wasmModule.ccall('rgbd_file_writer_config_set_framerate',
                           null,
                           ['number', 'number'],
                           [this.ptr, framerate]);
   }
 
-  setSamplerate(samplerate) {
+  setSamplerate(samplerate: number) {
     this.wasmModule.ccall('rgbd_file_writer_config_set_samplerate',
                           null,
                           ['number', 'number'],
                           [this.ptr, samplerate]);
   }
 
-  setDepthCodecType(depthCodecType) {
+  setDepthCodecType(depthCodecType: number) {
     this.wasmModule.ccall('rgbd_file_writer_config_set_depth_codec_type',
                           null,
                           ['number', 'number'],
                           [this.ptr, depthCodecType]);
   }
 
-  getDepthUnit() {
+  getDepthUnit(): number {
     return this.wasmModule.ccall('rgbd_file_writer_config_get_depth_unit',
                                  'number',
                                  ['number'],
                                  [this.ptr]);
   }
 
-  setDepthUnit(depthUnit) {
+  setDepthUnit(depthUnit: number) {
     this.wasmModule.ccall('rgbd_file_writer_config_set_depth_unit',
                           null,
                           ['number', 'number'],
@@ -47,7 +54,10 @@ export class NativeFileWriterConfig {
 }
 
 export class NativeFileWriter {
-  constructor(wasmModule, calibration, nativeWriterConfig) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, calibration: CameraCalibration, nativeWriterConfig: NativeFileWriterConfig) {
     this.wasmModule = wasmModule;
 
     const nativeCalibration = calibration.createNativeInstance();
@@ -62,7 +72,7 @@ export class NativeFileWriter {
     this.wasmModule.ccall('rgbd_file_writer_dtor', null, ['number'], [this.ptr]);
   }
 
-  writeCover(yuvFrame) {
+  writeCover(yuvFrame: YuvFrame) {
     const yChannelPtr = this.wasmModule._malloc(yuvFrame.yChannel.byteLength);
     const uChannelPtr = this.wasmModule._malloc(yuvFrame.uChannel.byteLength);
     const vChannelPtr = this.wasmModule._malloc(yuvFrame.vChannel.byteLength);
@@ -78,7 +88,7 @@ export class NativeFileWriter {
     this.wasmModule._free(vChannelPtr);
   }
 
-  writeVideoFrame(timePointUs, keyframe, colorBytes, depthBytes) {
+  writeVideoFrame(timePointUs: number, keyframe: boolean, colorBytes: Uint8Array, depthBytes: Uint8Array) {
     const colorBytesPtr = this.wasmModule._malloc(colorBytes.byteLength);
     const depthBytesPtr = this.wasmModule._malloc(depthBytes.byteLength);
     this.wasmModule.HEAPU8.set(colorBytes, colorBytesPtr);
@@ -95,7 +105,7 @@ export class NativeFileWriter {
     this.wasmModule._free(depthBytesPtr);
   }
 
-  writeAudioFrame(timePointUs, audioBytes) {
+  writeAudioFrame(timePointUs: number, audioBytes: Uint8Array) {
     const audioBytesPtr = this.wasmModule._malloc(audioBytes.byteLength);
     this.wasmModule.HEAPU8.set(audioBytes, audioBytesPtr);
     this.wasmModule.ccall('rgbd_file_writer_write_audio_frame_wasm',
@@ -105,7 +115,7 @@ export class NativeFileWriter {
     this.wasmModule._free(audioBytesPtr);
   }
 
-  writeIMUFrame(timePointUs, acceleration, rotationRate, magneticField, gravity) {
+  writeIMUFrame(timePointUs: number, acceleration: Vector3, rotationRate: Vector3, magneticField: Vector3, gravity: Vector3) {
     this.wasmModule.ccall('rgbd_file_writer_write_imu_frame_wasm',
                           null,
                           ['number', 'number',
@@ -120,7 +130,7 @@ export class NativeFileWriter {
                            gravity.x, gravity.y, gravity.z]);
   }
 
-  writeTRSFrame(timePointUs, translation, rotation, scale) {
+  writeTRSFrame(timePointUs: number, translation: Vector3, rotation: Quaternion, scale: Vector3) {
     this.wasmModule.ccall('rgbd_file_writer_write_trs_frame_wasm',
                           null,
                           ['number', 'number',
@@ -137,7 +147,7 @@ export class NativeFileWriter {
     this.wasmModule.ccall('rgbd_file_writer_flush', null, ['number'], [this.ptr]);
   }
 
-  getBytes() {
+  getBytes(): Uint8Array {
     const byteArrayPtr = this.wasmModule.ccall('rgbd_file_writer_get_bytes', 'number', ['number'], [this.ptr]);
 
     const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);

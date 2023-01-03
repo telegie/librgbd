@@ -1,5 +1,8 @@
 export class NativeByteArray {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr;
   }
@@ -8,7 +11,7 @@ export class NativeByteArray {
     this.wasmModule.ccall('rgbd_native_byte_array_dtor', null, ['number'], [this.ptr]);
   }
 
-  toArray() {
+  toArray(): Uint8Array {
     const dataPtr = this.wasmModule.ccall('rgbd_native_byte_array_get_data', 'number', ['number'], [this.ptr]);
     const size = this.wasmModule.ccall('rgbd_native_byte_array_get_size', 'number', ['number'], [this.ptr]);
     const array = new Uint8Array(this.wasmModule.HEAPU8.buffer, dataPtr, size);
@@ -23,7 +26,10 @@ export class NativeByteArray {
 }
 
 export class NativeFloatArray {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr;
   }
@@ -32,7 +38,7 @@ export class NativeFloatArray {
     this.wasmModule.ccall('rgbd_native_float_array_dtor', null, ['number'], [this.ptr]);
   }
 
-  toArray() {
+  toArray(): Float32Array {
     const dataPtr = this.wasmModule.ccall('rgbd_native_float_array_get_data', 'number', ['number'], [this.ptr]);
     const size = this.wasmModule.ccall('rgbd_native_float_array_get_size', 'number', ['number'], [this.ptr]);
     const array = new Float32Array(this.wasmModule.HEAPF32.buffer, dataPtr, size);
@@ -42,7 +48,10 @@ export class NativeFloatArray {
 }
 
 export class NativeInt32Array {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr;
   }
@@ -51,7 +60,7 @@ export class NativeInt32Array {
     this.wasmModule.ccall('rgbd_native_int32_array_dtor', null, ['number'], [this.ptr]);
   }
 
-  toArray() {
+  toArray(): Int32Array {
     const dataPtr = this.wasmModule.ccall('rgbd_native_int32_array_get_data', 'number', ['number'], [this.ptr]);
     const size = this.wasmModule.ccall('rgbd_native_int32_array_get_size', 'number', ['number'], [this.ptr]);
     const array = new Int32Array(this.wasmModule.HEAP32.buffer, dataPtr, size);
@@ -61,7 +70,10 @@ export class NativeInt32Array {
 }
 
 export class NativeUInt8Array {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr;
   }
@@ -70,7 +82,7 @@ export class NativeUInt8Array {
     this.wasmModule.ccall('rgbd_native_uint8_array_dtor', null, ['number'], [this.ptr]);
   }
 
-  toArray() {
+  toArray(): Uint8Array {
     const dataPtr = this.wasmModule.ccall('rgbd_native_uint8_array_get_data', 'number', ['number'], [this.ptr]);
     const size = this.wasmModule.ccall('rgbd_native_uint8_array_get_size', 'number', ['number'], [this.ptr]);
     const array = new Uint8Array(this.wasmModule.HEAPU8.buffer, dataPtr, size);
@@ -80,7 +92,10 @@ export class NativeUInt8Array {
 }
 
 export class NativeString {
-  constructor(wasmModule, ptr) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, ptr: number) {
     this.wasmModule = wasmModule;
     this.ptr = ptr
   }
@@ -89,7 +104,7 @@ export class NativeString {
     this.wasmModule.ccall('rgbd_native_string_dtor', null, ['number'], [this.ptr]);
   }
 
-  toString() {
+  toString(): string {
     const cStrPtr = this.wasmModule.ccall('rgbd_native_string_get_c_str', 'number', ['number'], [this.ptr]);
     return this.wasmModule.UTF8ToString(cStrPtr);
   }

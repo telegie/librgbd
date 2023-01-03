@@ -4,7 +4,10 @@ export const DEPTH_CODEC_TYPE_RVL = 0;
 export const DEPTH_CODEC_TYPE_TDC1 = 1;
 
 export class NativeDepthDecoder {
-  constructor(wasmModule, depthCodecType) {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any, depthCodecType: number) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_depth_decoder_ctor', 'number', ['number'], [depthCodecType]);
   }
@@ -13,7 +16,7 @@ export class NativeDepthDecoder {
     this.wasmModule.ccall('rgbd_depth_decoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  decode(depthBytes) {
+  decode(depthBytes: Uint8Array): Int32Frame {
     const depthBytesPtr = this.wasmModule._malloc(depthBytes.byteLength);
     this.wasmModule.HEAPU8.set(depthBytes, depthBytesPtr);
     const nativeInt32FramePtr = this.wasmModule.ccall('rgbd_depth_decoder_decode',
