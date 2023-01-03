@@ -1,4 +1,4 @@
-import { NativeByteArray } from './capi_containers.js';
+import { NativeByteArray } from './capi_containers';
 
 export class AudioEncoderFrame {
   packetBytesList: Uint8Array[];

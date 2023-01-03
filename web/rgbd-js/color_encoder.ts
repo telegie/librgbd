@@ -1,4 +1,4 @@
-import { NativeByteArray } from './capi_containers.js';
+import { NativeByteArray } from './capi_containers';
 
 export class NativeColorEncoder {
   wasmModule: any;

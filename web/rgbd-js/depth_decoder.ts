@@ -1,4 +1,4 @@
-import { Int32Frame, NativeInt32Frame } from './integer_frame.js';
+import { Int32Frame, NativeInt32Frame } from './integer_frame';
 
 export const DEPTH_CODEC_TYPE_RVL = 0;
 export const DEPTH_CODEC_TYPE_TDC1 = 1;

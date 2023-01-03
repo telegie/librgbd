@@ -1,5 +1,5 @@
-import { NativeFile } from './file.js';
-import { PointerByReference } from './pointer_by_reference.js';
+import { NativeFile } from './file';
+import { PointerByReference } from './pointer_by_reference';
 
 export class NativeFileParser {
   wasmModule: any;

@@ -1,4 +1,4 @@
-import { NativeYuvFrame, YuvFrame } from './yuv_frame.js';
+import { NativeYuvFrame, YuvFrame } from './yuv_frame';
 
 export const COLOR_CODEC_TYPE_VP8 = 0;
 

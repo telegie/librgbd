@@ -1,4 +1,4 @@
-import { NativeFloatArray } from './capi_containers.js';
+import { NativeFloatArray } from './capi_containers';
 
 export const RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT = 0;
 export const RGBD_CAMERA_DEVICE_TYPE_IOS = 1;

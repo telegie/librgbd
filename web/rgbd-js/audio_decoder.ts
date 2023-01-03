@@ -1,4 +1,4 @@
-import { NativeFloatArray } from './capi_containers.js';
+import { NativeFloatArray } from './capi_containers';
 
 export class NativeAudioDecoder {
   wasmModule: any;

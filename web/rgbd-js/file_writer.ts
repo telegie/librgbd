@@ -1,8 +1,8 @@
-import { NativeByteArray } from './capi_containers.js';
+import { NativeByteArray } from './capi_containers';
 import { CameraCalibration } from './camera_calibration';
-import { YuvFrame } from './yuv_frame.js';
-import { Vector3 } from './vector3.js';
-import { Quaternion } from './quaternion.js';
+import { YuvFrame } from './yuv_frame';
+import { Vector3 } from './vector3';
+import { Quaternion } from './quaternion';
 
 export class NativeFileWriterConfig {
   wasmModule: any;
