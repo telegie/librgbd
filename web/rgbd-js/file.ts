@@ -83,14 +83,14 @@ export class FileAttachments {
 }
 
 export class FileVideoFrame {
-  globalTimecode: number;
+  timePointUs: number;
   keyframe: boolean;
   colorBytes: Uint8Array;
   depthBytes: Uint8Array;
   floor: Plane | null;
 
   constructor(nativeFileVideoFrame: NativeFileVideoFrame) {
-    this.globalTimecode = nativeFileVideoFrame.getGlobalTimecode();
+    this.timePointUs = nativeFileVideoFrame.getTimePointUs();
     this.keyframe = nativeFileVideoFrame.getKeyframe();
     this.colorBytes = nativeFileVideoFrame.getColorBytes();
     this.depthBytes = nativeFileVideoFrame.getDepthBytes();
@@ -99,24 +99,24 @@ export class FileVideoFrame {
 }
 
 export class FileAudioFrame {
-  globalTimecode: number;
+  timePointUs: number;
   bytes: Uint8Array;
 
   constructor(nativeFileAudioFrame: NativeFileAudioFrame) {
-    this.globalTimecode = nativeFileAudioFrame.getGlobalTimecode();
+    this.timePointUs = nativeFileAudioFrame.getTimePointUs();
     this.bytes = nativeFileAudioFrame.getBytes();
   }
 }
 
 export class FileIMUFrame {
-  globalTimecode: number;
+  timePointUs: number;
   acceleration: Vector3;
   rotationRate: Vector3;
   magneticField: Vector3;
   gravity: Vector3;
 
   constructor(nativeFileIMUFrame: NativeFileIMUFrame) {
-    this.globalTimecode = nativeFileIMUFrame.getGlobalTimecode();
+    this.timePointUs = nativeFileIMUFrame.getTimePointUs();
     this.acceleration = nativeFileIMUFrame.getAcceleration();
     this.rotationRate = nativeFileIMUFrame.getRotationRate();
     this.magneticField = nativeFileIMUFrame.getMagneticField();
@@ -125,13 +125,13 @@ export class FileIMUFrame {
 }
 
 export class FileTRSFrame {
-  globalTimecode: number;
+  timePointUs: number;
   translation: Vector3;
   rotation: Quaternion;
   scale: Vector3;
 
   constructor(nativeFileTRSFrame: NativeFileTRSFrame) {
-    this.globalTimecode = nativeFileTRSFrame.getGlobalTimecode();
+    this.timePointUs = nativeFileTRSFrame.getTimePointUs();
     this.translation = nativeFileTRSFrame.getTranslation();
     this.rotation = nativeFileTRSFrame.getRotation();
     this.scale = nativeFileTRSFrame.getScale();
@@ -384,8 +384,8 @@ export class NativeFileVideoFrame {
       this.wasmModule.ccall('rgbd_file_video_frame_dtor', null, ['number'], [this.ptr]);
   }
 
-  getGlobalTimecode(): number {
-    return this.wasmModule.ccall('rgbd_file_video_frame_get_global_timecode', 'number', ['number'], [this.ptr]);
+  getTimePointUs(): number {
+    return this.wasmModule.ccall('rgbd_file_video_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getKeyframe(): boolean {
@@ -440,8 +440,8 @@ export class NativeFileAudioFrame {
       this.wasmModule.ccall('rgbd_file_audio_frame_dtor', null, ['number'], [this.ptr]);
   }
 
-  getGlobalTimecode(): number {
-    return this.wasmModule.ccall('rgbd_file_audio_frame_get_global_timecode', 'number', ['number'], [this.ptr]);
+  getTimePointUs(): number {
+    return this.wasmModule.ccall('rgbd_file_audio_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getBytes(): Uint8Array {
@@ -470,8 +470,8 @@ export class NativeFileIMUFrame {
       this.wasmModule.ccall('rgbd_file_imu_frame_dtor', null, ['number'], [this.ptr]);
   }
 
-  getGlobalTimecode(): number {
-    return this.wasmModule.ccall('rgbd_file_imu_frame_get_global_timecode', 'number', ['number'], [this.ptr]);
+  getTimePointUs(): number {
+    return this.wasmModule.ccall('rgbd_file_imu_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getAcceleration(): Vector3 {
@@ -519,8 +519,8 @@ export class NativeFileTRSFrame {
       this.wasmModule.ccall('rgbd_file_trs_frame_dtor', null, ['number'], [this.ptr]);
   }
 
-  getGlobalTimecode(): number {
-    return this.wasmModule.ccall('rgbd_file_trs_frame_get_global_timecode', 'number', ['number'], [this.ptr]);
+  getTimePointUs(): number {
+    return this.wasmModule.ccall('rgbd_file_trs_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getTranslation(): Vector3 {
