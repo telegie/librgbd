@@ -1,5 +1,13 @@
 import { NativeByteArray } from './capi_containers';
 
+export function AUDIO_INPUT_SAMPLES_PER_FRAME(wasmModule: any) {
+  return wasmModule.ccall('RGBD_AUDIO_INPUT_SAMPLES_PER_FRAME', null, [], []);
+}
+
+export function AUDIO_SAMPLE_RATE(wasmModule: any) {
+  return wasmModule.ccall('RGBD_AUDIO_SAMPLE_RATE', null, [], []);
+}
+
 export class AudioEncoderFrame {
   packetBytesList: Uint8Array[];
   constructor(nativeFrame: NativeAudioEncoderFrame) {
@@ -60,7 +68,10 @@ export class NativeAudioEncoder {
 
   encode(pcmSamples: Float32Array) {
     const pcmSamplesPtr = this.wasmModule._malloc(pcmSamples.byteLength);
-    this.wasmModule.HEAPU8.set(pcmSamples, pcmSamplesPtr);
+    // Have to do >> 2 to the pointer since the set() function interprets its second parameter
+    // as an index, not a pointer.
+    // https://github.com/emscripten-core/emscripten/issues/4003
+    this.wasmModule.HEAPF32.set(pcmSamples, pcmSamplesPtr >> 2);
     const framePtr = this.wasmModule.ccall('rgbd_audio_encoder_encode',
                                            'number',
                                            ['number', 'number', 'number'],
