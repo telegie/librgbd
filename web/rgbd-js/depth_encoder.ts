@@ -31,7 +31,10 @@ export class NativeDepthEncoder {
 
   encode(depthValues: Int32Array, keyframe: boolean) {
     const depthValuesPtr = this.wasmModule._malloc(depthValues.byteLength);
-    this.wasmModule.HEAPU8.set(depthValues, depthValuesPtr);
+    // Have to do >> 2 to the pointer since the set() function interprets its second parameter
+    // as an index, not a pointer.
+    // https://github.com/emscripten-core/emscripten/issues/4003
+    this.wasmModule.HEAP32.set(depthValues, depthValuesPtr >> 2);
     const byteArrayPtr = this.wasmModule.ccall('rgbd_depth_encoder_encode',
                                                'number',
                                                ['number', 'number', 'boolean'],
