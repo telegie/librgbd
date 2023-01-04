@@ -70,11 +70,11 @@ void split_file(const std::string& file_path)
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
 
-    int64_t minimum_global_timecode{video_frames[0]->global_timecode()};
+    int64_t minimum_time_point_us{video_frames[0]->time_point_us()};
     for (auto& video_frame : video_frames) {
-        int64_t global_timecode{video_frame->global_timecode() - minimum_global_timecode};
+        int64_t time_point_us{video_frame->time_point_us() - minimum_time_point_us};
         constexpr int TWO_SECONDS{2000000};
-        int chunk_index{gsl::narrow<int>(global_timecode / TWO_SECONDS)};
+        int chunk_index{gsl::narrow<int>(time_point_us / TWO_SECONDS)};
 
         auto color_frame{color_decoder.decode(video_frame->color_bytes())};
         auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
@@ -107,7 +107,7 @@ void split_file(const std::string& file_path)
         auto color_bytes{color_encoder->encode(*color_frame, first)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
-        file_writer->writeVideoFrame(global_timecode,
+        file_writer->writeVideoFrame(time_point_us,
                                      first,
                                      color_bytes,
                                      depth_bytes);
@@ -142,15 +142,15 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
     int previous_keyframe_index{-1};
     for (auto& video_frame : video_frames) {
-        int64_t original_global_timecode{video_frame->global_timecode()};
-        if (original_global_timecode < from_us)
+        int64_t original_time_point_us{video_frame->time_point_us()};
+        if (original_time_point_us < from_us)
             continue;
-        if (original_global_timecode > to_us)
+        if (original_time_point_us > to_us)
             break;
 
-        int64_t trimmed_global_timecode{video_frame->global_timecode() - from_us};
+        int64_t trimmed_time_point_us{video_frame->time_point_us() - from_us};
         constexpr int TWO_SECONDS{2000000};
-        int keyframe_index{gsl::narrow<int>(trimmed_global_timecode / TWO_SECONDS)};
+        int keyframe_index{gsl::narrow<int>(trimmed_time_point_us / TWO_SECONDS)};
 
         auto color_frame{color_decoder.decode(video_frame->color_bytes())};
         auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
@@ -169,7 +169,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), keyframe)};
 
-        file_writer.writeVideoFrame(trimmed_global_timecode,
+        file_writer.writeVideoFrame(trimmed_time_point_us,
                                     keyframe,
                                     color_bytes,
                                     depth_bytes);
@@ -257,7 +257,7 @@ void standardize_calibration(const std::string& file_path)
     int imu_frame_index{0};
     int trs_frame_index{0};
     for (auto& video_frame : video_frames) {
-        auto video_global_timecode{video_frame->global_timecode()};
+        auto video_time_point_us{video_frame->time_point_us()};
         auto color_frame{color_decoder.decode(video_frame->color_bytes())};
         auto depth_frame{depth_decoder.decode(video_frame->depth_bytes())};
 
@@ -314,28 +314,28 @@ void standardize_calibration(const std::string& file_path)
         auto color_bytes{color_encoder.encode(mapped_color_frame, keyframe)};
         auto depth_bytes{depth_encoder->encode(mapped_depth_values.data(), keyframe)};
 
-        file_writer.writeVideoFrame(video_global_timecode,
+        file_writer.writeVideoFrame(video_time_point_us,
                                     keyframe,
                                     color_bytes,
                                     depth_bytes);
 
         while (audio_frame_index < file->audio_frames().size()) {
             auto& audio_frame{file->audio_frames()[audio_frame_index]};
-            if (audio_frame->global_timecode() > video_global_timecode)
+            if (audio_frame->time_point_us() > video_time_point_us)
                 break;
             file_writer.writeAudioFrame(*audio_frame);
             ++audio_frame_index;
         }
         while (imu_frame_index < file->imu_frames().size()) {
             auto& imu_frame{file->imu_frames()[imu_frame_index]};
-            if (imu_frame->global_timecode() > video_global_timecode)
+            if (imu_frame->time_point_us() > video_time_point_us)
                 break;
             file_writer.writeIMUFrame(*imu_frame);
             ++imu_frame_index;
         }
         while (trs_frame_index < file->trs_frames().size()) {
             auto& trs_frame{file->trs_frames()[trs_frame_index]};
-            if (trs_frame->global_timecode() > video_global_timecode)
+            if (trs_frame->time_point_us() > video_time_point_us)
                 break;
             file_writer.writeTRSFrame(*trs_frame);
             ++trs_frame_index;

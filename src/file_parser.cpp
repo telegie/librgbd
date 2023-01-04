@@ -500,7 +500,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     Bytes color_bytes;
     Bytes depth_bytes;
     optional<Plane> floor{nullopt};
-    FileAudioFrame* audio_frame{nullptr};
+    Bytes audio_bytes;
     optional<glm::vec3> acceleration{nullopt};
     optional<glm::vec3> rotation_rate{nullopt};
     optional<glm::vec3> magnetic_field{nullopt};
@@ -535,8 +535,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                     }
                 }
             } else if (track_number == file_tracks_->audio_track.track_number) {
-                audio_frame = new FileAudioFrame{block_global_timecode,
-                                                 copy_data_buffer_to_bytes(data_buffer)};
+                audio_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->acceleration_track_number) {
@@ -563,16 +562,19 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         }
     }
 
+    int64_t time_point_ns{gsl::narrow<int64_t>(global_timecode * file_info_->timecode_scale_ns)};
+    int64_t time_point_us{time_point_ns / 1000};
+
     // emplace only when the cluster is for video, not audio.
     if (color_bytes.size() > 0) {
         if (!keyframe)
             throw std::runtime_error("Failed to find keyframe info.");
         return new FileVideoFrame{
-            global_timecode, *keyframe, color_bytes, depth_bytes, floor};
+            time_point_us, *keyframe, color_bytes, depth_bytes, floor};
     }
 
-    if (audio_frame) {
-        return audio_frame;
+    if (audio_bytes.size() > 0) {
+        return new FileAudioFrame{time_point_us, audio_bytes};
     }
 
     if (acceleration) {
@@ -584,7 +586,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
             throw std::runtime_error{"Failed to find gravity"};
 
         return new FileIMUFrame{
-            global_timecode, *acceleration, *rotation_rate, *magnetic_field, *gravity};
+            time_point_us, *acceleration, *rotation_rate, *magnetic_field, *gravity};
     }
 
     if (translation) {
@@ -593,7 +595,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         if (!scale)
             throw std::runtime_error("Failed to find scale");
 
-        return new FileTRSFrame{global_timecode, *translation, *rotation, *scale};
+        return new FileTRSFrame{time_point_us, *translation, *rotation, *scale};
     }
 
     throw std::runtime_error{"No frame from FileParser::parseCluster"};

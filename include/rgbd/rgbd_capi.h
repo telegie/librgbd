@@ -196,7 +196,7 @@ extern "C"
 
     //////// START FILE AUDIO FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_audio_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_audio_frame_get_bytes(void* ptr);
     //////// END FILE AUDIO FRAME ////////
 
@@ -217,7 +217,7 @@ extern "C"
 
     //////// START FILE IMU FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_imu_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_imu_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_x(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_y(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_z(void* ptr);
@@ -255,7 +255,7 @@ extern "C"
 
     //////// START FILE TRS FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_trs_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_trs_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_x(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_y(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_z(void* ptr);
@@ -270,7 +270,7 @@ extern "C"
 
     //////// START FILE VIDEO FRAME ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_global_timecode(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_get_keyframe(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_color_bytes(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_depth_bytes(void* ptr);

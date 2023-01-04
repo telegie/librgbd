@@ -6,10 +6,6 @@ using namespace LIBMATROSKA_NAMESPACE;
 
 namespace rgbd
 {
-constexpr int64_t ONE_SECOND_NS{1000 * 1000 * 1000}; // in ns
-constexpr int64_t ONE_MICROSECOND_NS{1000};          // in ns
-constexpr int MATROSKA_TIMESCALE_NS{ONE_MICROSECOND_NS};
-
 auto get_random_number()
 {
     std::random_device random_device;
@@ -586,7 +582,7 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byt
 
 void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
 {
-    writeAudioFrame(audio_frame.global_timecode(), audio_frame.bytes());
+    writeAudioFrame(audio_frame.time_point_us(), audio_frame.bytes());
 }
 
 void FileWriter::writeIMUFrame(int64_t time_point_us,
@@ -661,7 +657,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
 
 void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
 {
-    writeIMUFrame(imu_frame.global_timecode(),
+    writeIMUFrame(imu_frame.time_point_us(),
                   imu_frame.acceleration(),
                   imu_frame.rotation_rate(),
                   imu_frame.magnetic_field(),
@@ -730,7 +726,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
 
 void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
 {
-    writeTRSFrame(trs_frame.global_timecode(),
+    writeTRSFrame(trs_frame.time_point_us(),
                   trs_frame.translation(),
                   trs_frame.rotation(),
                   trs_frame.scale());

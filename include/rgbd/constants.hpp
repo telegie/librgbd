@@ -92,4 +92,12 @@ constexpr int DEFAULT_AUDIO_RING_BUFFER_SECONDS_RECIPROCAL{5};
 // Divided with sizeof(float) as the ring buffer holds floats, not bytes.
 constexpr int DEFAULT_AUDIO_RING_BUFFER_SIZE{AUDIO_SAMPLE_RATE * AUDIO_INPUT_CHANNEL_COUNT /
                                              DEFAULT_AUDIO_RING_BUFFER_SECONDS_RECIPROCAL};
+
+
+/////////////////////////////////////////////////////////////
+/////////////////////// FILE CONSTANTS //////////////////////
+/////////////////////////////////////////////////////////////
+constexpr int64_t ONE_SECOND_NS{1000 * 1000 * 1000}; // in ns
+constexpr int64_t ONE_MICROSECOND_NS{1000};          // in ns
+constexpr int MATROSKA_TIMESCALE_NS{ONE_MICROSECOND_NS};
 } // namespace rgbd

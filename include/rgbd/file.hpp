@@ -103,12 +103,12 @@ public:
 class FileVideoFrame : public FileFrame
 {
 public:
-    FileVideoFrame(int64_t global_timecode,
+    FileVideoFrame(int64_t time_point_us,
                    bool keyframe,
                    const Bytes& color_bytes,
                    const Bytes& depth_bytes,
                    const optional<Plane>& floor)
-        : global_timecode_{global_timecode}
+        : time_point_us_{time_point_us}
         , keyframe_{keyframe}
         , color_bytes_{color_bytes}
         , depth_bytes_{depth_bytes}
@@ -119,9 +119,9 @@ public:
     {
         return FileFrameType::Video;
     }
-    int64_t global_timecode() const noexcept
+    int64_t time_point_us() const noexcept
     {
-        return global_timecode_;
+        return time_point_us_;
     }
     bool keyframe() const noexcept
     {
@@ -141,7 +141,7 @@ public:
     }
 
 private:
-    int64_t global_timecode_;
+    int64_t time_point_us_;
     bool keyframe_;
     Bytes color_bytes_;
     Bytes depth_bytes_;
@@ -151,9 +151,9 @@ private:
 class FileAudioFrame : public FileFrame
 {
 public:
-    FileAudioFrame(int64_t global_timecode,
-                     const Bytes& bytes)
-        : global_timecode_{global_timecode}
+    FileAudioFrame(int64_t time_point_us,
+                   const Bytes& bytes)
+        : time_point_us_{time_point_us}
         , bytes_{bytes}
     {
     }
@@ -161,9 +161,9 @@ public:
     {
         return FileFrameType::Audio;
     }
-    int64_t global_timecode() const noexcept
+    int64_t time_point_us() const noexcept
     {
-        return global_timecode_;
+        return time_point_us_;
     }
     const Bytes& bytes() const noexcept
     {
@@ -171,19 +171,19 @@ public:
     }
 
 private:
-    int64_t global_timecode_;
+    int64_t time_point_us_;
     Bytes bytes_;
 };
 
 class FileIMUFrame : public FileFrame
 {
 public:
-    FileIMUFrame(int64_t global_timecode,
+    FileIMUFrame(int64_t time_point_us,
                  glm::vec3 acceleration,
                  glm::vec3 rotation_rate,
                  glm::vec3 magnetic_field,
                  glm::vec3 gravity)
-        : global_timecode_{global_timecode}
+        : time_point_us_{time_point_us}
         , acceleration_{acceleration}
         , rotation_rate_{rotation_rate}
         , magnetic_field_{magnetic_field}
@@ -194,9 +194,9 @@ public:
     {
         return FileFrameType::IMU;
     }
-    int64_t global_timecode() const noexcept
+    int64_t time_point_us() const noexcept
     {
-        return global_timecode_;
+        return time_point_us_;
     }
     const glm::vec3& acceleration() const noexcept
     {
@@ -216,7 +216,7 @@ public:
     }
 
 private:
-    int64_t global_timecode_;
+    int64_t time_point_us_;
     glm::vec3 acceleration_;
     glm::vec3 rotation_rate_;
     glm::vec3 magnetic_field_;
@@ -226,11 +226,11 @@ private:
 class FileTRSFrame : public FileFrame
 {
 public:
-    FileTRSFrame(int64_t global_timecode,
+    FileTRSFrame(int64_t time_point_us,
                  const glm::vec3& translation,
                  const glm::quat& rotation,
                  const glm::vec3& scale)
-        : global_timecode_{global_timecode}
+        : time_point_us_{time_point_us}
         , translation_{translation}
         , rotation_{rotation}
         , scale_{scale}
@@ -240,9 +240,9 @@ public:
     {
         return FileFrameType::TRS;
     }
-    int64_t global_timecode() const noexcept
+    int64_t time_point_us() const noexcept
     {
-        return global_timecode_;
+        return time_point_us_;
     }
     const glm::vec3& translation() const noexcept
     {
@@ -258,7 +258,7 @@ public:
     }
 
 private:
-    int64_t global_timecode_;
+    int64_t time_point_us_;
     glm::vec3 translation_;
     glm::quat rotation_;
     glm::vec3 scale_;
@@ -335,5 +335,4 @@ private:
     vector<unique_ptr<FileTRSFrame>> trs_frames_;
     optional<DirectionTable> direction_table_;
 };
-
 } // namespace rgbd

@@ -496,9 +496,9 @@ void rgbd_file_audio_frame_dtor(void* ptr)
     delete static_cast<rgbd::FileAudioFrame*>(ptr);
 }
 
-int64_t rgbd_file_audio_frame_get_global_timecode(void* ptr)
+int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileAudioFrame*>(ptr)->global_timecode();
+    return static_cast<rgbd::FileAudioFrame*>(ptr)->time_point_us();
 }
 
 void* rgbd_file_audio_frame_get_bytes(void* ptr)
@@ -550,9 +550,9 @@ void rgbd_file_imu_frame_dtor(void* ptr)
     delete static_cast<rgbd::FileIMUFrame*>(ptr);
 }
 
-int64_t rgbd_file_imu_frame_get_global_timecode(void* ptr)
+int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->global_timecode();
+    return static_cast<rgbd::FileIMUFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_imu_frame_get_acceleration_x(void* ptr)
@@ -705,9 +705,9 @@ void rgbd_file_trs_frame_dtor(void* ptr)
     delete static_cast<rgbd::FileTRSFrame*>(ptr);
 }
 
-int64_t rgbd_file_trs_frame_get_global_timecode(void* ptr)
+int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->global_timecode();
+    return static_cast<rgbd::FileTRSFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_trs_frame_get_translation_x(void* ptr)
@@ -767,9 +767,9 @@ void rgbd_file_video_frame_dtor(void* ptr)
     delete static_cast<rgbd::FileVideoFrame*>(ptr);
 }
 
-int64_t rgbd_file_video_frame_get_global_timecode(void* ptr)
+int64_t rgbd_file_video_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->global_timecode();
+    return static_cast<rgbd::FileVideoFrame*>(ptr)->time_point_us();
 }
 
 bool rgbd_file_video_frame_get_keyframe(void* ptr)
