@@ -535,6 +535,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                     }
                 }
             } else if (track_number == file_tracks_->audio_track.track_number) {
+                global_timecode = block_global_timecode;
                 audio_bytes = copy_data_buffer_to_bytes(data_buffer);
             } else if (track_number == file_tracks_->floor_track_number) {
                 floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
