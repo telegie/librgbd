@@ -81,8 +81,11 @@ def main():
         build_x64_windows_binaries()
         return
     elif platform.system() == "Darwin":
-        build_arm64_mac_binaries()
-        build_x64_mac_binaries()
+        if platform.machine() == "arm64":
+            build_arm64_mac_binaries()
+            build_x64_mac_binaries()
+        elif platform.machine() == "x86_64":
+            build_x64_mac_binaries()
         return
     elif platform.system() == "Linux":
         build_x64_linux_binaries()
