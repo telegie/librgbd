@@ -15,7 +15,7 @@ def build_x64_windows_binaries():
                     "-S", here,
                     "-B", build_path,
                     "-A" "x64",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-windows"],
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-windows"],
                    check=True)
     subprocess.run(["msbuild",
                     f"{build_path}/INSTALL.vcxproj",
@@ -32,7 +32,7 @@ def build_arm64_mac_binaries():
                     "-B", build_path,
                     "-G", "Ninja",
                     "-D", "CMAKE_OSX_ARCHITECTURES=arm64",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/arm64-mac"],
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/arm64-mac"],
                    check=True)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
@@ -47,7 +47,7 @@ def build_x64_mac_binaries():
                     "-B", build_path,
                     "-G", "Ninja",
                     "-D", "CMAKE_OSX_ARCHITECTURES=x86_64",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-mac"],
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-mac"],
                    check=True)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
@@ -61,7 +61,7 @@ def build_x64_linux_binaries():
                     "-S", here,
                     "-B", build_path,
                     "-G", "Ninja",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/install/x64-linux"])
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux"])
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
 
@@ -73,9 +73,9 @@ def main():
 
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/bootstrap.py"] + sys.argv[1:], check=True)
-
-    if parser_args.rebuild:
-        shutil.rmtree(f"{here}/build")
+    build_path = Path(f"{here}/build")
+    if parser_args.rebuild and build_path.exists():
+        shutil.rmtree(build_path)
 
     if platform.system() == "Windows":
         build_x64_windows_binaries()
