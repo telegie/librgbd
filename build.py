@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import os
 import platform
 import shutil
 import subprocess
@@ -10,16 +11,19 @@ from pathlib import Path
 def build_x64_windows_binaries():
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/x64-windows"
+    if not os.path.exists(build_path):
+        os.makedirs(build_path)
 
     subprocess.run(["cmake",
                     "-S", here,
-                    "-B", build_path,
                     "-A" "x64",
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-windows"],
+                   cwd=build_path,
                    check=True)
     subprocess.run(["msbuild",
-                    f"{build_path}/INSTALL.vcxproj",
+                    "INSTALL.vcxproj",
                     "/p:Configuration=RelWithDebInfo"],
+                   cwd=build_path,
                    check=True)
 
 
