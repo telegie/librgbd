@@ -1,0 +1,105 @@
+name: Build Python
+on:
+  push:
+    branches:
+      - main
+jobs:
+  bulid-windows:
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10"]
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        working-directory: python
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      # bootstrap.py calls msbuild
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Bootstrap
+        working-directory: python
+        run: poetry run python bootstrap.py
+
+      - name: Test
+        working-directory: python
+        run: poetry run python test_encoder.py
+
+  bulid-mac:
+    runs-on: macos-12
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10" ]
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        working-directory: python
+        run: |
+          brew install ninja
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Bootstrap
+        working-directory: python
+        run: poetry run python bootstrap.py
+
+      - name: Test
+        working-directory: python
+        run: poetry run python test_encoder.py
+
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10" ]
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        working-directory: python
+        run: |
+          sudo apt-get -y install ninja-build
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
+
+      - name: Bootstrap
+        working-directory: python
+        run: poetry run python bootstrap.py
+
+      - name: Test
+        working-directory: python
+        run: poetry run python test_encoder.py
