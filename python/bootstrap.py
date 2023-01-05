@@ -12,7 +12,7 @@ def compile_with_cffi():
     root = Path(__file__).parent.parent.resolve()
     ffi = FFI()
     if platform.system() == "Windows":
-        librgbd_path = f"{root}/install/x64-windows"
+        librgbd_path = f"{root}/output/x64-windows"
         librgbd_include_dir = f"{librgbd_path}/include"
         library_str = "rgbd"
         librgbd_library_dir = f"{librgbd_path}/bin"
@@ -24,9 +24,9 @@ def compile_with_cffi():
                        library_dirs=[str(librgbd_library_dir)])
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            librgbd_path = f"{root}/install/arm64-mac"
+            librgbd_path = f"{root}/output/arm64-mac"
         elif platform.machine() == "x86_64":
-            librgbd_path = f"{root}/install/x64-mac"
+            librgbd_path = f"{root}/output/x64-mac"
         else:
             raise f"Unknown platform.machine(): {platform.machine()}"
 
@@ -43,7 +43,7 @@ def compile_with_cffi():
                        library_dirs=[str(librgbd_library_dir)],
                        extra_link_args=[extra_link_args_str])
     elif platform.system() == "Linux":
-        librgbd_path = f"{root}/install/x64-linux"
+        librgbd_path = f"{root}/output/x64-linux"
         librgbd_include_dir = f"{librgbd_path}/include"
         library_str = "rgbd"
         librgbd_library_dir = f"{librgbd_path}/bin"
@@ -89,7 +89,7 @@ def copy_binaries():
     root = Path(__file__).parent.parent.resolve()
 
     if platform.system() == "Windows":
-        librgbd_dll_dirs = [f"{root}/install/x64-windows/bin"]
+        librgbd_dll_dirs = [f"{root}/output/x64-windows/bin"]
         librgbd_dll_filenames = ["rgbd.dll"]
 
         ffmpeg_binaries_dir = f"{root}/deps/ffmpeg-binaries"
@@ -110,9 +110,9 @@ def copy_binaries():
             shutil.copy(f"{dll_dir}\\{dll_filename}", destination)
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            librgbd_bin_dir = f"{root}/install/arm64-mac/bin"
+            librgbd_bin_dir = f"{root}/output/arm64-mac/bin"
         elif platform.machine() == "x86_64":
-            librgbd_bin_dir = f"{root}/install/x64-mac/bin"
+            librgbd_bin_dir = f"{root}/output/x64-mac/bin"
         else:
             raise f"Unknown platform.machine(): {platform.machine()}"
         destination = f"{here}/pyrgbd/librgbd.dylib"
@@ -122,7 +122,7 @@ def copy_binaries():
             os.remove(destination)
         shutil.copy(f"{librgbd_bin_dir}/librgbd.dylib", destination)
     elif platform.system() == "Linux":
-        librgbd_bin_dir = f"{root}/install/x64-linux/bin"
+        librgbd_bin_dir = f"{root}/output/x64-linux/bin"
         destination = f"{here}/pyrgbd/librgbd.so"
         # Should remove the existing one before copying.
         # Simply copying does not overwrite properly.
