@@ -141,3 +141,6 @@ pyrgbd/Release
 # build and install folders from building librgbd
 /build
 /install
+
+# whl files from from cibuildwheel
+/wheelhouse

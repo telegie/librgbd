@@ -1,67 +1,45 @@
-from cffi import FFI
-from pathlib import Path
 import os
 import platform
 import shutil
 import subprocess
 import sys
+from cffi import FFI
+from pathlib import Path
 
 
 def compile_with_cffi():
     here = Path(__file__).parent.resolve()
     root = Path(__file__).parent.parent.resolve()
+
     ffi = FFI()
     if platform.system() == "Windows":
-        librgbd_path = f"{root}/output/x64-windows"
-        librgbd_include_dir = f"{librgbd_path}/include"
-        library_str = "rgbd"
-        librgbd_library_dir = f"{librgbd_path}/bin"
-
-        ffi.set_source('_librgbd',
-                       r'#include <rgbd/rgbd_capi.h>',
-                       include_dirs=[str(librgbd_include_dir)],
-                       libraries=[library_str],
-                       library_dirs=[str(librgbd_library_dir)])
+        librgbd_platform_output = f"{root}/output/x64-windows"
+        extra_link_args_str = ""
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            librgbd_path = f"{root}/output/arm64-mac"
+            librgbd_platform_output = f"{root}/output/arm64-mac"
         elif platform.machine() == "x86_64":
-            librgbd_path = f"{root}/output/x64-mac"
+            librgbd_platform_output = f"{root}/output/x64-mac"
         else:
             raise f"Unknown platform.machine(): {platform.machine()}"
-
-        librgbd_include_dir = f"{librgbd_path}/include"
-        library_str = "rgbd"
-        librgbd_library_dir = f"{librgbd_path}/bin"
-        # Add same directory in rpath to find the dylib in the same directory.
         extra_link_args_str = f"-Wl,-rpath,{here}/pyrgbd"
-
-        ffi.set_source('_librgbd',
-                       r'#include <rgbd/rgbd_capi.h>',
-                       include_dirs=[str(librgbd_include_dir)],
-                       libraries=[library_str],
-                       library_dirs=[str(librgbd_library_dir)],
-                       extra_link_args=[extra_link_args_str])
     elif platform.system() == "Linux":
-        librgbd_path = f"{root}/output/x64-linux"
-        librgbd_include_dir = f"{librgbd_path}/include"
-        library_str = "rgbd"
-        librgbd_library_dir = f"{librgbd_path}/bin"
+        librgbd_platform_output = f"{root}/output/x64-linux"
         extra_link_args_str = f"-Wl,-rpath,{here}/pyrgbd"
-
-        ffi.set_source('_librgbd',
-                       r'#include <rgbd/rgbd_capi.h>',
-                       include_dirs=[str(librgbd_include_dir)],
-                       libraries=[library_str],
-                       library_dirs=[str(librgbd_library_dir)],
-                       extra_link_args=[extra_link_args_str])
     else:
         raise f"Unknown platform.system(): {platform.system()}"
 
+    librgbd_include = f"{librgbd_platform_output}/include"
+    ffi.set_source('_librgbd',
+                   r'#include <rgbd/rgbd_capi.h>',
+                   include_dirs=[librgbd_include],
+                   libraries=["rgbd"],
+                   library_dirs=[f"{librgbd_platform_output}/bin"],
+                   extra_link_args=[extra_link_args_str])
 
     cdef_lines = []
     inside_cplusplus = False
-    with open(os.path.join(librgbd_include_dir, "rgbd/rgbd_capi.h")) as f:
+    with open(os.path.join(librgbd_include, "rgbd/rgbd_capi.h")) as f:
         lines = f.readlines()
         for line in lines:
             # Ignore lines only for when __cplusplus is defined.
@@ -138,11 +116,9 @@ def main():
     args = ["python3", f"{root}/build.py"]
     args += sys.argv[1:]
     subprocess.run(args, check=True)
-    print("build_librgbd done")
     compile_with_cffi()
-    print("compile_with_cffi done")
     copy_binaries()
-    print("copy_binaries done")
+    print("pyrgbd bootstrapped!")
 
 
 if __name__ == "__main__":
