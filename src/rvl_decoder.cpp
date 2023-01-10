@@ -1,7 +1,7 @@
 #include "rvl_decoder.hpp"
-#include "rvl.hpp"
 
 #include "byte_utils.hpp"
+#include "rvl.hpp"
 
 namespace rgbd
 {

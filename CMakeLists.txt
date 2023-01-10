@@ -160,7 +160,7 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   set_target_properties(libzstd_shared PROPERTIES FOLDER "Dependencies")
 endif()
 ### ZSTD END ###
-set(RgbdSources
+set(RGBD_SOURCES
   include/rgbd/audio_decoder.hpp
   include/rgbd/audio_encoder.hpp
   include/rgbd/audio_frame.hpp
@@ -229,14 +229,14 @@ set(RgbdSources
   src/video_frame.cpp
   src/yuv_frame.cpp
 )
-set(RgbdIncludeDirectories
+set(RGBD_INCLUDES
   ${PROJECT_SOURCE_DIR}/include
   ${PROJECT_BINARY_DIR}/deps/libebml
   ${PROJECT_BINARY_DIR}/deps/libmatroska
   ${GLM_DIR}
   ${GSL_INCLUDE_DIR}
 )
-set(RgbdLibraryDependencies
+set(RGBD_DEPENDENCIES
   matroska
   nlohmann_json::nlohmann_json
   spdlog::spdlog
@@ -251,11 +251,11 @@ set(RgbdCompileDefinitions
 )
 
 if(RGBD_OS_WINDOWS)
-  list(APPEND RgbdIncludeDirectories
+  list(APPEND RGBD_INCLUDES
     ${FFMPEG_WIN64_DIR}/include
     ${LIBPNG_WIN64_DIR}/include
   )
-  list(APPEND RgbdLibraryDependencies
+  list(APPEND RGBD_DEPENDENCIES
     ${FFMPEG_WIN64_DIR}/bin/avcodec.lib
     ${FFMPEG_WIN64_DIR}/bin/avformat.lib
     ${FFMPEG_WIN64_DIR}/bin/avutil.lib
@@ -268,11 +268,11 @@ if(RGBD_OS_WINDOWS)
     set(RGBD_FFMPEG_BIN ${FFMPEG_WIN64_DIR}/bin PARENT_SCOPE)
   endif()
 elseif(RGBD_OS_MAC)
-  list(APPEND RgbdIncludeDirectories
+  list(APPEND RGBD_INCLUDES
     ${FFMPEG_MAC_DIR}/include
     ${LIBPNG_MAC_DIR}/include
   )
-  list(APPEND RgbdLibraryDependencies
+  list(APPEND RGBD_DEPENDENCIES
     ${FFMPEG_MAC_DIR}/lib/libavcodec.a
     ${FFMPEG_MAC_DIR}/lib/libavformat.a
     ${FFMPEG_MAC_DIR}/lib/libavutil.a
@@ -285,13 +285,13 @@ elseif(RGBD_OS_MAC)
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_MAC)
 elseif(RGBD_OS_LINUX)
-  list(APPEND RgbdIncludeDirectories
+  list(APPEND RGBD_INCLUDES
     ${FFMPEG_LINUX_DIR}/include
     ${LIBPNG_LINUX_DIR}/include
   )
   # The order here matters. libvpx and libopus should be listed
   # after the ffmpeg ones.
-  list(APPEND RgbdLibraryDependencies
+  list(APPEND RGBD_DEPENDENCIES
     ${FFMPEG_LINUX_DIR}/lib/libavcodec.a
     ${FFMPEG_LINUX_DIR}/lib/libavformat.a
     ${FFMPEG_LINUX_DIR}/lib/libavutil.a
@@ -302,16 +302,16 @@ elseif(RGBD_OS_LINUX)
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)
-  list(APPEND RgbdIncludeDirectories
+  list(APPEND RGBD_INCLUDES
     ${FFMPEG_IOS_DIR}/include
     ${LIBPNG_IOS_DIR}/include
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_IOS)
 elseif(RGBD_OS_WASM)
-  list(APPEND RgbdIncludeDirectories
+  list(APPEND RGBD_INCLUDES
     ${FFMPEG_WASM_DIR}/include
   )
-  list(APPEND RgbdLibraryDependencies
+  list(APPEND RGBD_DEPENDENCIES
     ${FFMPEG_WASM_DIR}/lib/libavcodec.a
     ${FFMPEG_WASM_DIR}/lib/libavformat.a
     ${FFMPEG_WASM_DIR}/lib/libavutil.a
@@ -332,26 +332,27 @@ elseif(RGBD_OS_WASM)
   list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
 endif()
 
-add_library(rgbd-static STATIC ${RgbdSources})
+add_library(rgbd-static STATIC ${RGBD_SOURCES})
 target_include_directories(rgbd-static PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
-target_include_directories(rgbd-static PUBLIC ${RgbdIncludeDirectories})
-target_link_libraries(rgbd-static PUBLIC ${RgbdLibraryDependencies})
+target_include_directories(rgbd-static PUBLIC ${RGBD_INCLUDES})
+target_link_libraries(rgbd-static PUBLIC ${RGBD_DEPENDENCIES})
 set_target_properties(rgbd-static PROPERTIES CXX_STANDARD 17)
-set_target_properties(rgbd-static PROPERTIES OUTPUT_NAME rgbd)
+# set_target_properties(rgbd-static PROPERTIES OUTPUT_NAME rgbd)
 target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
 target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
 
-if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
+# if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
+if(RGBD_OS_MAC OR RGBD_OS_LINUX)
   if(RGBD_OS_LINUX)
     # Position-independent code is needed to create a shared library.
     list(APPEND RgbdCompileOptions -fPIC)
     list(APPEND RgbdLinkOptions "-Wl,-Bsymbolic")
   endif()
-  add_library(rgbd-shared SHARED ${RgbdSources})
+  add_library(rgbd-shared SHARED ${RGBD_SOURCES})
   target_include_directories(rgbd-shared PRIVATE ${PROJECT_SOURCE_DIR}/include/rgbd)
-  target_include_directories(rgbd-shared PUBLIC ${RgbdIncludeDirectories})
-  target_link_libraries(rgbd-shared PUBLIC ${RgbdLibraryDependencies})
+  target_include_directories(rgbd-shared PUBLIC ${RGBD_INCLUDES})
+  target_link_libraries(rgbd-shared PUBLIC ${RGBD_DEPENDENCIES})
   set_target_properties(rgbd-shared PROPERTIES CXX_STANDARD 17)
   set_target_properties(rgbd-shared PROPERTIES OUTPUT_NAME rgbd)
   target_link_options(rgbd-shared PUBLIC ${RgbdLinkOptions})
@@ -361,11 +362,12 @@ endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
+  add_subdirectory(examples/minimum_example)
   add_subdirectory(src/cli)
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
-  install(TARGETS rgbd-shared DESTINATION bin)
+  # install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
   install(TARGETS rgbd-cli DESTINATION bin)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
