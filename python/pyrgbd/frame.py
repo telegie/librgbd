@@ -1,4 +1,4 @@
-from ._librgbd import ffi, lib
+from ._librgbd_ffi import lib
 from .capi_containers import NativeUInt8Array, NativeInt32Array
 import numpy as np
 from typing import TypeVar

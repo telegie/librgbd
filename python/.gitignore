@@ -144,3 +144,6 @@ pyrgbd/Release
 
 # whl files from from cibuildwheel
 /wheelhouse
+
+# Ignore folder pyrgbd/_librgbd since this is bunch of copied files from librgbd.
+/pyrgbd/_librgbd
