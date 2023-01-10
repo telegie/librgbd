@@ -6,13 +6,25 @@ import sys
 from pathlib import Path
 
 
-def copy_librgbd_files():
+def copy_librgbd():
     here = Path(__file__).resolve().parent
-    src = f"{here.parent}/output"
-    dst = f"{here}/pyrgbd/_librgbd"
-    if os.path.exists(dst):
-        shutil.rmtree(dst)
-    shutil.copytree(src, dst)
+    librgbd_root = here.parent
+
+    if platform.system() == "Windows":
+        src = f"{librgbd_root}/output/x64-windows/bin/rgbd.dll"
+    elif platform.system() == "Darwin":
+        if platform.machine() == "arm64":
+            src = f"{librgbd_root}/output/arm64-mac/bin/librgbd.dylib"
+        elif platform.machine() == "x86_64":
+            src = f"{librgbd_root}/output/x64-mac/bin/librgbd.dylib"
+        else:
+            raise f"Unknown platform.machine(): {platform.machine()}"
+    elif platform.system() == "Linux":
+        src = f"{librgbd_root}/output/x64-linux/bin/librgbd.so"
+    else:
+        raise f"Unknown platform.system(): {platform.system()}"
+
+    shutil.copy(src, f"{here}/pyrgbd")
 
     # TODO: Copy these FFmpeg files into the Windows package.
     # if platform.system() == "Windows":
@@ -41,8 +53,8 @@ def main():
     here = Path(__file__).parent.resolve()
     librgbd_root = Path(__file__).parent.parent.resolve()
     subprocess.run(["python3", f"{librgbd_root}/build.py"] + sys.argv[1:], check=True)
-    copy_librgbd_files()
-    subprocess.run(["python3", f"{here}/pyrgbd/_librgbd_ffi.py"] + sys.argv[1:], check=True)
+    copy_librgbd()
+    subprocess.run(["python3", f"{here}/pyrgbd/_build_librgbd_ffi.py"] + sys.argv[1:], check=True)
 
 
 if __name__ == "__main__":

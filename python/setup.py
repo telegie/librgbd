@@ -6,6 +6,11 @@ from setuptools import setup, find_packages
 here = Path(__file__).resolve().parent
 long_description = io.open(f"{here}/README.md", encoding="utf-8").read()
 
+# TODO: Make this work with other platforms and other python versions.
+PYRGBD_PACKAGE_DATA = [
+    f"{here}/pyrgbd/_librgbd_ffi.cpython-310-darwin.so",
+    f"{here}/pyrgbd/_librgbd/arm64-mac/bin/librgbd.dylib"
+]
 
 setup(
     name="pyrgbd",
@@ -17,28 +22,14 @@ setup(
     author="Hanseul Jun",
     author_email="hanseul@telegie.com",
     license="MIT",
-    # packages=["pyrgbd"],
     packages=find_packages(),
-    # install_requires=["cffi", "numpy", "opencv-python", "pyglm"],
-    install_requires=["cffi"],
+    install_requires=["cffi", "numpy", "opencv-python", "pyglm"],
     setup_requires=["cffi"],
     # For files to be copied by package_data, they should exist inside the corresponding package's directory.
-    # package_data={
-    #     "pyrgbd": ["_librgbd.cpython-39-darwin.so",
-    #                "_librgbd.cpython-310-darwin.so",
-    #                f"{librgbd_root}/output/arm64-mac/bin/librgbd.dylib",
-    #                f"{librgbd_root}/output/x64-mac/bin/librgbd.dylib",
-    #                "_librgbd.cpython-39-x86_64-linux-gnu.so",
-    #                "_librgbd.cpython-310-x86_64-linux-gnu.so",
-    #                f"{librgbd_root}/output/x64-linux/bin/librgbd.so"]
-    # },
     package_data={
-        "pyrgbd": [
-            f"{here}/pyrgbd/_librgbd/arm64-mac/bin/librgbd.dylib",
-            f"{here}/pyrgbd/_librgbd/arm64-mac/include/rgbd/rgbd_capi.h",
-        ]
+        "pyrgbd": PYRGBD_PACKAGE_DATA
     },
     cffi_modules=[
-        "./pyrgbd/_librgbd_ffi.py:ffi"
+        "./pyrgbd/_build_librgbd_ffi.py:ffi"
     ]
 )
