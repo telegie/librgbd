@@ -6,7 +6,6 @@
 
 #include <glm/glm.hpp>
 #include "byte_utils.hpp"
-#include "constants.hpp"
 
 namespace rgbd
 {

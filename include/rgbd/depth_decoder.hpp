@@ -1,6 +1,5 @@
 #pragma once
 
-#include "constants.hpp"
 #include "integer_frame.hpp"
 
 namespace rgbd

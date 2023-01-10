@@ -1,6 +1,6 @@
 #pragma once
 
-#include <rgbd/byte_utils.hpp>
+#include "byte_utils.hpp"
 #include "camera_calibration.hpp"
 
 namespace rgbd

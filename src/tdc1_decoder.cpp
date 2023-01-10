@@ -5,6 +5,7 @@
 #include "tdc1_decoder.hpp"
 
 #include "byte_utils.hpp"
+#include "rvl.hpp"
 
 namespace rgbd
 {

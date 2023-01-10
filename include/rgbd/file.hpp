@@ -1,9 +1,6 @@
 #pragma once
 
 #include <glm/gtc/quaternion.hpp>
-#include "camera_calibration.hpp"
-#include "plane.hpp"
-#include "direction_table.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4245 4267 4828 6387 26495 26812)
@@ -25,6 +22,9 @@
 #include <matroska/KaxSegment.h>
 #include <matroska/KaxTracks.h>
 #pragma warning(pop)
+
+#include "direction_table.hpp"
+#include "plane.hpp"
 
 namespace rgbd
 {

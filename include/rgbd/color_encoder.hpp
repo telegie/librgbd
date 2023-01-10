@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ffmpeg_utils.hpp"
 #include "yuv_frame.hpp"
 
 namespace rgbd

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "depth_decoder.hpp"
-#include "rvl.hpp"
 
 namespace rgbd
 {

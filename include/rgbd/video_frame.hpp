@@ -1,8 +1,8 @@
 #pragma once
 
-#include <rgbd/yuv_frame.hpp>
-#include <rgbd/integer_frame.hpp>
+#include "integer_frame.hpp"
 #include "plane.hpp"
+#include "yuv_frame.hpp"
 
 namespace rgbd
 {
