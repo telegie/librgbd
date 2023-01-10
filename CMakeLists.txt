@@ -9,6 +9,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 set(CMAKE_POLICY_DEFAULT_CMP0063 NEW)
 
+if(MSVC)
+  add_compile_options(/MP)
+endif()
+
 # Variables for later use in conditions.
 set(RGBD_OS_WINDOWS FALSE)
 set(RGBD_OS_MAC FALSE)
