@@ -14,7 +14,7 @@ def main():
         video_id = rgbd.decode_base64url_to_long(base64url_video_id)
         video_url = f"https://posts.telegie.com/v1/{video_id}/{video_id}.mkv"
         response = requests.get(video_url)
-        with open(video_file_path, "wb") as file:
+        with open(video_file_path, "wb+") as file:
             file.write(response.content)
 
     # with rgbd.NativeFileParser(video_file_path) as native_file_parser:

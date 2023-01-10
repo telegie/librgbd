@@ -14,8 +14,9 @@ try:
 except ImportError:
     bdist_wheel = None
 
+here = Path(__file__).parent.resolve()
 root = Path(__file__).parent.parent.resolve()
-long_description = io.open("README.md", encoding="utf-8").read()
+long_description = io.open(f"{here}/README.md", encoding="utf-8").read()
 
 setup(
     name="pyrgbd",
