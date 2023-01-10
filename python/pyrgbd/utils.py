@@ -1,9 +1,8 @@
-from ._librgbd import ffi, lib
+from ._librgbd_ffi import ffi, lib
 import base64
 import io
 import cv2
 import numpy as np
-from .frame import NativeYuvFrame, NativeInt32Frame, YuvFrame
 
 
 # This is for testing only.

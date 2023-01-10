@@ -1,4 +1,4 @@
-from ._librgbd import ffi, lib
+from ._librgbd_ffi import lib
 from .calibration import NativeCameraCalibration
 from .frame import YuvFrame
 from .utils import cast_np_array_to_pointer

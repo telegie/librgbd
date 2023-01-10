@@ -1,4 +1,4 @@
-from ._librgbd import ffi, lib
+from ._librgbd_ffi import lib
 import numpy as np
 from .capi_containers import NativeByteArray
 

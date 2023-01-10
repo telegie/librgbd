@@ -1,4 +1,4 @@
-from ._librgbd import ffi, lib
+from ._librgbd_ffi import lib
 from .frame import NativeInt32Frame, Int32Frame
 from .capi_containers import NativeByteArray
 import numpy as np
