@@ -1,4 +1,5 @@
 import io
+import platform
 from pathlib import Path
 from setuptools import setup, find_packages
 
@@ -6,15 +7,38 @@ from setuptools import setup, find_packages
 here = Path(__file__).resolve().parent
 long_description = io.open(f"{here}/README.md", encoding="utf-8").read()
 
-# TODO: Make this work with other platforms and other python versions.
-PYRGBD_PACKAGE_DATA = [
-    f"{here}/pyrgbd/librgbd.dylib",
-    f"{here}/pyrgbd/_librgbd_ffi.cpython-39-darwin.so",
-    f"{here}/pyrgbd/_librgbd_ffi.cpython-310-darwin.so",
-    f"{here}/pyrgbd/librgbd.so",
-    f"{here}/pyrgbd/_librgbd_ffi.cpython-39-x86_64-linux-gnu.so",
-    f"{here}/pyrgbd/_librgbd_ffi.cpython-310-x86_64-linux-gnu.so",
-]
+# TODO: Improve how this handles python versions.
+if platform.system() == "Windows":
+    # TODO: Add Windows ffi so files.
+    PYRGBD_PACKAGE_DATA = [
+        f"{here}/pyrgbd/librgbd.dll",
+        f"{here}/pyrgbd/libwinpthread-1.dll",
+        f"{here}/pyrgbd/zlib1.dll",
+        f"{here}/pyrgbd/avcodec-58.dll",
+        f"{here}/pyrgbd/avutil-56.dll",
+    ]
+elif platform.system() == "Darwin":
+    PYRGBD_PACKAGE_DATA = [
+        f"{here}/pyrgbd/librgbd.dylib",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-36-darwin.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-37-darwin.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-38-darwin.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-39-darwin.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-310-darwin.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-311-darwin.so",
+    ]
+elif platform.system() == "Linux":
+    PYRGBD_PACKAGE_DATA = [
+        f"{here}/pyrgbd/librgbd.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-36-x86_64-linux-gnu.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-37-x86_64-linux-gnu.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-38-x86_64-linux-gnu.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-39-x86_64-linux-gnu.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-310-x86_64-linux-gnu.so",
+        f"{here}/pyrgbd/_librgbd_ffi.cpython-311-x86_64-linux-gnu.so",
+    ]
+else:
+    raise f"Unknown platform.system(): {platform.system()}"
 
 setup(
     name="pyrgbd",
