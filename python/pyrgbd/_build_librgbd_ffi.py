@@ -7,16 +7,18 @@ ffi = FFI()
 here = Path(__file__).resolve().parent
 librgbd_root = here.parent.parent
 
+
+
 if platform.system() == "Windows":
-    extra_link_args_str = ""
+    extra_link_args = None
 elif platform.system() == "Darwin":
     # TODO: These rpath to absolute library paths won't work
     # when the package is installed to another computer
     # without the binary file at the absolute rpath.
-    extra_link_args_str = f"-Wl,-rpath,{here}"
+    extra_link_args = [f"-Wl,-rpath,{here}"]
 elif platform.system() == "Linux":
     include_dir = f"{librgbd_root}/include"
-    extra_link_args_str = f"-Wl,-rpath,{here}"
+    extra_link_args = [f"-Wl,-rpath,{here}"]
 else:
     raise f"Unknown platform.system(): {platform.system()}"
 
@@ -25,7 +27,7 @@ ffi.set_source('_librgbd_ffi',
                include_dirs=[f"{librgbd_root}/include"],
                libraries=["rgbd"],
                library_dirs=[f"{here}"],
-               extra_link_args=[extra_link_args_str])
+               extra_link_args=extra_link_args)
 
 
 # Use rgbd_capi.h except for the lines that cffi cannot handle.
