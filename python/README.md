@@ -18,6 +18,10 @@ This library can read files exported from the Telegie and is based on librgbd.
 - poetry install
 - python bootstrap.py
 
+
+## Install
+- pip install .
+
 ## Deploy
 - python -m build --wheel
 - twine check dist/*

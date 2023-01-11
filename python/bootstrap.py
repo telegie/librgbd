@@ -32,8 +32,8 @@ def copy_librgbd():
 def copy_windows_dependencies():
     here = Path(__file__).resolve().parent
     librgbd_root = here.parent
-    librgbd_dll_dirs = [f"{librgbd_root}/output/x64-windows/bin"]
-    librgbd_dll_filenames = ["rgbd.dll"]
+    librgbd_dll_dirs = []
+    librgbd_dll_filenames = []
 
     ffmpeg_binaries_dir = f"{librgbd_root}/deps/ffmpeg-binaries"
     librgbd_dll_dirs.append(f"{ffmpeg_binaries_dir}/bin")
