@@ -8,8 +8,12 @@ long_description = io.open(f"{here}/README.md", encoding="utf-8").read()
 
 # TODO: Make this work with other platforms and other python versions.
 PYRGBD_PACKAGE_DATA = [
+    f"{here}/pyrgbd/librgbd.dylib",
+    f"{here}/pyrgbd/_librgbd_ffi.cpython-39-darwin.so",
     f"{here}/pyrgbd/_librgbd_ffi.cpython-310-darwin.so",
-    f"{here}/pyrgbd/_librgbd/arm64-mac/bin/librgbd.dylib"
+    f"{here}/pyrgbd/librgbd.so",
+    f"{here}/pyrgbd/_librgbd_ffi.cpython-39-x86_64-linux-gnu.so",
+    f"{here}/pyrgbd/_librgbd_ffi.cpython-310-x86_64-linux-gnu.so",
 ]
 
 setup(
