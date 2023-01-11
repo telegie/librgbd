@@ -342,8 +342,7 @@ target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
 target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})
 
-# if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
-if(RGBD_OS_MAC OR RGBD_OS_LINUX)
+if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   if(RGBD_OS_LINUX)
     # Position-independent code is needed to create a shared library.
     list(APPEND RgbdCompileOptions -fPIC)
@@ -367,7 +366,7 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
-  # install(TARGETS rgbd-shared DESTINATION bin)
+  install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
   install(TARGETS rgbd-cli DESTINATION bin)
   install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
