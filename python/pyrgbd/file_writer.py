@@ -1,5 +1,6 @@
 from ._librgbd_ffi import lib
-from .calibration import NativeCameraCalibration
+from .camera_calibration import NativeCameraCalibration
+from .depth_decoder import DepthCodecType
 from .utils import cast_np_array_to_pointer
 from .yuv_frame import YuvFrame
 import numpy as np
@@ -25,8 +26,8 @@ class NativeFileWriterConfig:
     def set_samplerate(self, samplerate: int):
         lib.rgbd_file_writer_config_set_samplerate(self.ptr, samplerate)
 
-    def set_depth_codec_type(self, depth_codec_type):
-        lib.rgbd_file_writer_config_set_depth_codec_type(self.ptr, depth_codec_type)
+    def set_depth_codec_type(self, depth_codec_type: DepthCodecType):
+        lib.rgbd_file_writer_config_set_depth_codec_type(self.ptr, int(depth_codec_type))
 
     def set_depth_unit(self, depth_unit: float):
         lib.rgbd_file_writer_config_set_depth_unit(self.ptr, depth_unit)

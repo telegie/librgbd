@@ -24,7 +24,7 @@ def main():
 
     # Decode color frames.
     color_arrays = []
-    with rgbd.NativeColorDecoder() as color_decoder:
+    with rgbd.NativeColorDecoder(rgbd.ColorCodecType.VP8) as color_decoder:
         for video_frame in file.video_frames:
             yuv_frame = color_decoder.decode(video_frame.color_bytes)
             color_array = rgbd.convert_yuv420_to_rgb(yuv_frame.y_channel, yuv_frame.u_channel, yuv_frame.v_channel)
@@ -32,7 +32,7 @@ def main():
 
     # Decode depth frames.
     depth_frames = []
-    with rgbd.NativeDepthDecoder(rgbd.lib.RGBD_DEPTH_CODEC_TYPE_TDC1) as depth_decoder:
+    with rgbd.NativeDepthDecoder(rgbd.DepthCodecType.TDC1) as depth_decoder:
         for video_frame in file.video_frames:
             depth_frame = depth_decoder.decode(video_frame.depth_bytes)
             depth_frames.append(depth_frame)

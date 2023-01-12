@@ -24,7 +24,7 @@ def main():
     #         with native_file.get_attachments() as native_attachments:
     #             with native_attachments.get_camera_calibration() as native_calibration:
     #                 write_config = rgbd.NativeFileWriterConfig()
-    #                 write_config.set_depth_codec_type(rgbd.lib.RGBD_DEPTH_CODEC_TYPE_TDC1)
+    #                 write_config.set_depth_codec_type(rgbd.DepthCodecType.TDC1)
     #                 file_writer = rgbd.NativeFileWriter("tmp/written_file.mkv",
     #                                                     native_calibration,
     #                                                     write_config)
@@ -35,7 +35,7 @@ def main():
 
     with file.attachments.camera_calibration.create_native_instance() as native_calibration:
         write_config = rgbd.NativeFileWriterConfig()
-        write_config.set_depth_codec_type(rgbd.lib.RGBD_DEPTH_CODEC_TYPE_TDC1)
+        write_config.set_depth_codec_type(rgbd.DepthCodecType.TDC1)
         file_writer = rgbd.NativeFileWriter("tmp/written_file.mkv",
                                             native_calibration,
                                             write_config)
@@ -48,14 +48,14 @@ def main():
     #                                                        depth_track.width, depth_track.height,
     #                                                        0.5, -1.0, 0.5, 0.5) as native_calibration:
     #     write_config = rgbd.NativeFileWriterConfig()
-    #     write_config.set_depth_codec_type(rgbd.lib.RGBD_DEPTH_CODEC_TYPE_TDC1)
+    #     write_config.set_depth_codec_type(rgbd.DepthCodecType.TDC1)
     #     file_writer = rgbd.NativeFileWriter("tmp/written_file.mkv",
     #                                         native_calibration,
     #                                         write_config)
 
     yuv_frames = []
     color_arrays = []
-    with rgbd.NativeColorDecoder() as native_color_decoder:
+    with rgbd.NativeColorDecoder(rgbd.ColorCodecType.VP8) as native_color_decoder:
         for video_frame in file.video_frames:
             yuv_frame = native_color_decoder.decode(video_frame.color_bytes)
             color_array = rgbd.convert_yuv420_to_rgb(yuv_frame.y_channel, yuv_frame.u_channel, yuv_frame.v_channel)
@@ -63,7 +63,7 @@ def main():
             color_arrays.append(color_array)
 
     depth_frames = []
-    with rgbd.NativeDepthDecoder(rgbd.lib.RGBD_DEPTH_CODEC_TYPE_TDC1) as depth_decoder:
+    with rgbd.NativeDepthDecoder(rgbd.DepthCodecType.TDC1) as depth_decoder:
         for video_frame in file.video_frames:
             depth_frame = depth_decoder.decode(video_frame.depth_bytes)
             depth_frames.append(depth_frame)

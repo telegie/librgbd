@@ -1,11 +1,11 @@
-from enum import Enum
+from enum import IntEnum
 from typing import cast
 from ._librgbd_ffi import lib
 from .capi_containers import NativeFloatArray
 from .utils import cast_np_array_to_pointer
 
 
-class CameraDeviceType(Enum):
+class CameraDeviceType(IntEnum):
     AZURE_KINECT = lib.RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT
     IOS = lib.RGBD_CAMERA_DEVICE_TYPE_IOS
     UNDISTORTED = lib.RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED

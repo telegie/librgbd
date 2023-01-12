@@ -2,7 +2,7 @@ import numpy as np
 import glm
 from ._librgbd_ffi import lib
 from .capi_containers import NativeByteArray
-from .calibration import NativeCameraCalibration, CameraCalibration
+from .camera_calibration import NativeCameraCalibration, CameraCalibration
 from .direction_table import NativeDirectionTable, DirectionTable
 
 
