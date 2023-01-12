@@ -1,7 +1,14 @@
+from enum import Enum
+from typing import cast
 from ._librgbd_ffi import lib
 from .capi_containers import NativeFloatArray
-from typing import cast
 from .utils import cast_np_array_to_pointer
+
+
+class CameraDeviceType(Enum):
+    AZURE_KINECT = lib.RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT
+    IOS = lib.RGBD_CAMERA_DEVICE_TYPE_IOS
+    UNDISTORTED = lib.RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED
 
 
 class NativeCameraCalibration:
@@ -22,17 +29,17 @@ class NativeCameraCalibration:
     @staticmethod
     def create(ptr, owner: bool):
         camera_device_type = lib.rgbd_camera_calibration_get_camera_device_type(ptr)
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT:
+        if camera_device_type == CameraDeviceType.AZURE_KINECT:
             return NativeKinectCameraCalibration(ptr, owner)
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_IOS:
+        if camera_device_type == CameraDeviceType.IOS:
             return NativeIosCameraCalibration(ptr, owner)
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED:
+        if camera_device_type == CameraDeviceType.UNDISTORTED:
             return NativeUndistortedCameraCalibration(ptr, owner)
 
         raise RuntimeError("Not supported camera device type found.")
 
     def get_camera_device_type(self):
-        return lib.rgbd_camera_calibration_get_camera_device_type(self.ptr)
+        return CameraDeviceType(lib.rgbd_camera_calibration_get_camera_device_type(self.ptr))
 
     def get_color_width(self):
         return lib.rgbd_camera_calibration_get_color_width(self.ptr)
@@ -169,13 +176,13 @@ class CameraCalibration:
     @staticmethod
     def create(native_camera_calibration: NativeCameraCalibration):
         camera_device_type = native_camera_calibration.get_camera_device_type()
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT:
+        if camera_device_type == CameraDeviceType.AZURE_KINECT:
             native_kinect_camera_calibration = cast(NativeKinectCameraCalibration, native_camera_calibration)
             return KinectCameraCalibration(native_kinect_camera_calibration)
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_IOS:
+        if camera_device_type == CameraDeviceType.IOS:
             native_ios_camera_calibration = cast(NativeIosCameraCalibration, native_camera_calibration)
             return IosCameraCalibration(native_ios_camera_calibration)
-        if camera_device_type == lib.RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED:
+        if camera_device_type == CameraDeviceType.UNDISTORTED:
             native_undistorted_camera_calibration = cast(NativeUndistortedCameraCalibration, native_camera_calibration)
             return UndistortedCameraCalibration(native_undistorted_camera_calibration)
 
