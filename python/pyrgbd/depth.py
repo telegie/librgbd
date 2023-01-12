@@ -1,5 +1,5 @@
 from ._librgbd_ffi import lib
-from .frame import NativeInt32Frame, Int32Frame
+from .integer_frame import NativeInt32Frame, Int32Frame
 from .capi_containers import NativeByteArray
 import numpy as np
 from .utils import cast_np_array_to_pointer

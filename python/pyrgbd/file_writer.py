@@ -1,7 +1,7 @@
 from ._librgbd_ffi import lib
 from .calibration import NativeCameraCalibration
-from .frame import YuvFrame
 from .utils import cast_np_array_to_pointer
+from .yuv_frame import YuvFrame
 import numpy as np
 import glm
 

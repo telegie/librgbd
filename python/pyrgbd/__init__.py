@@ -6,5 +6,6 @@ from .depth import *
 from .file import *
 from .file_parser import *
 from .file_writer import *
-from .frame import *
+from .integer_frame import *
 from .utils import *
+from .yuv_frame import *

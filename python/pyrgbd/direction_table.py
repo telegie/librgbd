@@ -1,6 +1,6 @@
-from ._librgbd_ffi import lib
 import glm
 import numpy as np
+from ._librgbd_ffi import lib
 
 
 class NativeDirectionTable:
