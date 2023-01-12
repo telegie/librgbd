@@ -28,7 +28,7 @@ class NativeCameraCalibration:
 
     @staticmethod
     def create(ptr, owner: bool):
-        camera_device_type = lib.rgbd_camera_calibration_get_camera_device_type(ptr)
+        camera_device_type = CameraDeviceType(lib.rgbd_camera_calibration_get_camera_device_type(ptr))
         if camera_device_type == CameraDeviceType.AZURE_KINECT:
             return NativeKinectCameraCalibration(ptr, owner)
         if camera_device_type == CameraDeviceType.IOS:
