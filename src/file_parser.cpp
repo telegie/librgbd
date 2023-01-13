@@ -556,7 +556,9 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
             } else if (track_number == file_tracks_->scale_track_number) {
                 scale = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else {
-                throw std::runtime_error{"Invalid track number from simple_block"};
+                // There might be some obsolete tracks in a file,
+                // so don't throw an error but just ignore.
+                spdlog::warn("Invalid track number from simple_block");
             }
         } else {
             throw std::runtime_error{"Invalid element from KaxCluster"};
