@@ -1,7 +1,7 @@
 #include "rgbd_capi.h"
 
-#include "capi_containers.hpp"
 #include "audio_decoder.hpp"
+#include "capi_containers.hpp"
 #include "color_decoder.hpp"
 #include "file.hpp"
 #include "file_parser.hpp"
@@ -12,127 +12,129 @@
 #include "tdc1_decoder.hpp"
 #include "undistorted_camera_calibration.hpp"
 
+using namespace rgbd;
+
 //////// START CONSTANTS ////////
 int RGBD_MAJOR_VERSION()
 {
-    return rgbd::MAJOR_VERSION;
+    return MAJOR_VERSION;
 }
 
 int RGBD_MINOR_VERSION()
 {
-    return rgbd::MINOR_VERSION;
+    return MINOR_VERSION;
 }
 
 int RGBD_PATCH_VERSION()
 {
-    return rgbd::PATCH_VERSION;
+    return PATCH_VERSION;
 }
 
 float RGBD_DEFAULT_DEPTH_UNIT()
 {
-    return rgbd::DEFAULT_DEPTH_UNIT;
+    return DEFAULT_DEPTH_UNIT;
 }
 
 int RGBD_AUDIO_SAMPLE_RATE()
 {
-    return rgbd::AUDIO_SAMPLE_RATE;
+    return AUDIO_SAMPLE_RATE;
 }
 
 int RGBD_AUDIO_INPUT_CHANNEL_COUNT()
 {
-    return rgbd::AUDIO_INPUT_CHANNEL_COUNT;
+    return AUDIO_INPUT_CHANNEL_COUNT;
 }
 
 int RGBD_AUDIO_INPUT_SAMPLES_PER_FRAME()
 {
-    return rgbd::AUDIO_INPUT_SAMPLES_PER_FRAME;
+    return AUDIO_INPUT_SAMPLES_PER_FRAME;
 }
 
 int RGBD_AUDIO_OUTPUT_CHANNEL_COUNT()
 {
-    return rgbd::AUDIO_OUTPUT_CHANNEL_COUNT;
+    return AUDIO_OUTPUT_CHANNEL_COUNT;
 }
 
 int RGBD_AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL()
 {
-    return rgbd::AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL;
+    return AUDIO_OUTPUT_INTERVAL_SECONDS_RECIPROCAL;
 }
 
 int RGBD_AUDIO_OUTPUT_SAMPLES_PER_FRAME()
 {
-    return rgbd::AUDIO_OUTPUT_SAMPLES_PER_FRAME;
+    return AUDIO_OUTPUT_SAMPLES_PER_FRAME;
 }
 //////// END CONSTANTS ////////
 
 //////// START CAPI CONTAINER CLASSES ////////
 void rgbd_native_byte_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeByteArray*>(ptr);
+    delete static_cast<NativeByteArray*>(ptr);
 }
 
 uint8_t* rgbd_native_byte_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::NativeByteArray*>(ptr)->data();
+    return static_cast<NativeByteArray*>(ptr)->data();
 }
 
 size_t rgbd_native_byte_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::NativeByteArray*>(ptr)->size();
+    return static_cast<NativeByteArray*>(ptr)->size();
 }
 
 void rgbd_native_float_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeFloatArray*>(ptr);
+    delete static_cast<NativeFloatArray*>(ptr);
 }
 
 float* rgbd_native_float_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::NativeFloatArray*>(ptr)->data();
+    return static_cast<NativeFloatArray*>(ptr)->data();
 }
 
 size_t rgbd_native_float_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::NativeFloatArray*>(ptr)->size();
+    return static_cast<NativeFloatArray*>(ptr)->size();
 }
 
 void rgbd_native_int32_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeInt32Array*>(ptr);
+    delete static_cast<NativeInt32Array*>(ptr);
 }
 
 int32_t* rgbd_native_int32_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::NativeInt32Array*>(ptr)->data();
+    return static_cast<NativeInt32Array*>(ptr)->data();
 }
 
 size_t rgbd_native_int32_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::NativeInt32Array*>(ptr)->size();
+    return static_cast<NativeInt32Array*>(ptr)->size();
 }
 
 void rgbd_native_uint8_array_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeUInt8Array*>(ptr);
+    delete static_cast<NativeUInt8Array*>(ptr);
 }
 
 uint8_t* rgbd_native_uint8_array_get_data(void* ptr)
 {
-    return static_cast<rgbd::NativeUInt8Array*>(ptr)->data();
+    return static_cast<NativeUInt8Array*>(ptr)->data();
 }
 
 size_t rgbd_native_uint8_array_get_size(void* ptr)
 {
-    return static_cast<rgbd::NativeUInt8Array*>(ptr)->size();
+    return static_cast<NativeUInt8Array*>(ptr)->size();
 }
 
 void rgbd_native_string_dtor(void* ptr)
 {
-    delete static_cast<rgbd::NativeString*>(ptr);
+    delete static_cast<NativeString*>(ptr);
 }
 
 const char* rgbd_native_string_get_c_str(void* ptr)
 {
-    return static_cast<rgbd::NativeString*>(ptr)->c_str();
+    return static_cast<NativeString*>(ptr)->c_str();
 }
 //////// END CAPI CONTAINER CLASSES ////////
 
@@ -156,45 +158,45 @@ void* rgbd_pointer_by_reference_get_value(void** ref)
 //////// START AUDIO DECODER ////////
 void* rgbd_audio_decoder_ctor()
 {
-    return new rgbd::AudioDecoder;
+    return new AudioDecoder;
 }
 
 void rgbd_audio_decoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::AudioDecoder*>(ptr);
+    delete static_cast<AudioDecoder*>(ptr);
 }
 
 void* rgbd_audio_decoder_decode(void* ptr,
                                 const uint8_t* opus_frame_data,
                                 size_t opus_frame_size)
 {
-    auto pmc_values{static_cast<rgbd::AudioDecoder*>(ptr)->decode(
+    auto pmc_values{static_cast<AudioDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
-    return new rgbd::NativeFloatArray{std::move(pmc_values)};
+    return new NativeFloatArray{std::move(pmc_values)};
 }
 //////// END AUDIO DECODER ////////
 
 //////// START AUDIO ENCODER ////////
 void* rgbd_audio_encoder_ctor()
 {
-    return new rgbd::AudioEncoder;
+    return new AudioEncoder;
 }
 
 void rgbd_audio_encoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::AudioEncoder*>(ptr);
+    delete static_cast<AudioEncoder*>(ptr);
 }
 
 void* rgbd_audio_encoder_encode(void* ptr, const float* pcm_samples, size_t pcm_samples_size)
 {
-    auto encoder{static_cast<rgbd::AudioEncoder*>(ptr)};
-    auto frame{encoder->encode(gsl::span<const float>{pcm_samples, pcm_samples_size})};
+    auto encoder{static_cast<AudioEncoder*>(ptr)};
+    auto frame{encoder->encode(span<const float>{pcm_samples, pcm_samples_size})};
     return frame.release();
 }
 
 void* rgbd_audio_encoder_flush(void* ptr)
 {
-    auto encoder{static_cast<rgbd::AudioEncoder*>(ptr)};
+    auto encoder{static_cast<AudioEncoder*>(ptr)};
     auto frame{encoder->flush()};
     return frame.release();
 }
@@ -203,91 +205,91 @@ void* rgbd_audio_encoder_flush(void* ptr)
 //////// START AUDIO ENCODER FRAME ////////
 void rgbd_audio_encoder_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::AudioEncoderFrame*>(ptr);
+    delete static_cast<AudioEncoderFrame*>(ptr);
 }
 
 size_t rgbd_audio_encoder_frame_get_packet_bytes_list_count(void* ptr)
 {
-    auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
+    auto frame{static_cast<AudioEncoderFrame*>(ptr)};
     return frame->packet_bytes_list.size();
 }
 
 void* rgbd_audio_encoder_frame_get_packet_bytes(void* ptr, size_t index)
 {
-    auto frame{static_cast<rgbd::AudioEncoderFrame*>(ptr)};
-    return new rgbd::NativeByteArray{frame->packet_bytes_list[index]};
+    auto frame{static_cast<AudioEncoderFrame*>(ptr)};
+    return new NativeByteArray{frame->packet_bytes_list[index]};
 }
 //////// END AUDIO ENCODER FRAME ////////
 
 //////// START AV PACKET HANDLE ////////
 void rgbd_av_packet_handle_dtor(void* ptr)
 {
-    delete static_cast<rgbd::AVPacketHandle*>(ptr);
+    delete static_cast<AVPacketHandle*>(ptr);
 }
 
 void* rgbd_av_packet_handle_get_data_bytes(void* ptr)
 {
-    auto packet{static_cast<rgbd::AVPacketHandle*>(ptr)};
-    return new rgbd::NativeByteArray{packet->getDataBytes()};
+    auto packet{static_cast<AVPacketHandle*>(ptr)};
+    return new NativeByteArray{packet->getDataBytes()};
 }
 //////// END AV PACKET HANDLE ////////
 
 //////// START CAMERA CALIBRATION ////////
 void rgbd_camera_calibration_dtor(void* ptr)
 {
-    delete static_cast<const rgbd::CameraCalibration*>(ptr);
+    delete static_cast<const CameraCalibration*>(ptr);
 }
 
 rgbdCameraDeviceType rgbd_camera_calibration_get_camera_device_type(void* ptr)
 {
-    auto camera_device_type{static_cast<rgbd::CameraCalibration*>(ptr)->getCameraDeviceType()};
+    auto camera_device_type{static_cast<CameraCalibration*>(ptr)->getCameraDeviceType()};
     return static_cast<rgbdCameraDeviceType>(camera_device_type);
 }
 
 int rgbd_camera_calibration_get_color_width(void* ptr)
 {
-    return static_cast<rgbd::CameraCalibration*>(ptr)->getColorWidth();
+    return static_cast<CameraCalibration*>(ptr)->getColorWidth();
 }
 
 int rgbd_camera_calibration_get_color_height(void* ptr)
 {
-    return static_cast<rgbd::CameraCalibration*>(ptr)->getColorHeight();
+    return static_cast<CameraCalibration*>(ptr)->getColorHeight();
 }
 
 int rgbd_camera_calibration_get_depth_width(void* ptr)
 {
-    return static_cast<rgbd::CameraCalibration*>(ptr)->getDepthWidth();
+    return static_cast<CameraCalibration*>(ptr)->getDepthWidth();
 }
 
 int rgbd_camera_calibration_get_depth_height(void* ptr)
 {
-    return static_cast<rgbd::CameraCalibration*>(ptr)->getDepthHeight();
+    return static_cast<CameraCalibration*>(ptr)->getDepthHeight();
 }
 
 void* rgbd_camera_calibration_get_direction(void* ptr, float uv_u, float uv_v)
 {
-    auto camera_calibration{static_cast<rgbd::CameraCalibration*>(ptr)};
+    auto camera_calibration{static_cast<CameraCalibration*>(ptr)};
     auto direction{camera_calibration->getDirection(glm::vec2{uv_u, uv_v})};
-    std::vector<float> values{direction.x, direction.y, direction.z};
-    return new rgbd::NativeFloatArray(std::move(values));
+    vector<float> values{direction.x, direction.y, direction.z};
+    return new NativeFloatArray(std::move(values));
 }
 //////// END CAMERA CALIBRATION ////////
 
 //////// START COLOR DECODER ////////
 void* rgbd_color_decoder_ctor(rgbdColorCodecType type)
 {
-    return new rgbd::ColorDecoder{static_cast<rgbd::ColorCodecType>(type)};
+    return new ColorDecoder{static_cast<ColorCodecType>(type)};
 }
 
 void rgbd_color_decoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::ColorDecoder*>(ptr);
+    delete static_cast<ColorDecoder*>(ptr);
 }
 
 void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t vp8_frame_size)
 {
-    auto yuv_frame{static_cast<rgbd::ColorDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(vp8_frame_data), vp8_frame_size})};
+    auto yuv_frame{static_cast<ColorDecoder*>(ptr)->decode(
+        {reinterpret_cast<const byte*>(vp8_frame_data), vp8_frame_size})};
     return yuv_frame.release();
 }
 //////// END COLOR DECODER ////////
@@ -296,13 +298,13 @@ void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t
 void* rgbd_color_encoder_ctor(
     rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
 {
-    return new rgbd::ColorEncoder{
-        static_cast<rgbd::ColorCodecType>(type), width, height, target_bitrate, framerate};
+    return new ColorEncoder{
+        static_cast<ColorCodecType>(type), width, height, target_bitrate, framerate};
 }
 
 void rgbd_color_encoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::ColorEncoder*>(ptr);
+    delete static_cast<ColorEncoder*>(ptr);
 }
 
 void* rgbd_color_encoder_encode(void* ptr,
@@ -311,29 +313,29 @@ void* rgbd_color_encoder_encode(void* ptr,
                                 const uint8_t* v_channel,
                                 bool keyframe)
 {
-    auto encoder{static_cast<rgbd::ColorEncoder*>(ptr)};
+    auto encoder{static_cast<ColorEncoder*>(ptr)};
     auto bytes{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
-    return new rgbd::NativeByteArray{std::move(bytes)};
+    return new NativeByteArray{std::move(bytes)};
 }
 //////// START COLOR ENCODER ////////
 
 //////// START DEPTH DECODER ////////
 void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type)
 {
-    return new rgbd::DepthDecoder{static_cast<rgbd::DepthCodecType>(depth_codec_type)};
+    return new DepthDecoder{static_cast<DepthCodecType>(depth_codec_type)};
 }
 
 void rgbd_depth_decoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::DepthDecoder*>(ptr);
+    delete static_cast<DepthDecoder*>(ptr);
 }
 
 void* rgbd_depth_decoder_decode(void* ptr,
                                 const uint8_t* depth_bytes_data,
                                 size_t depth_bytes_size)
 {
-    auto depth_frame{static_cast<rgbd::DepthDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(depth_bytes_data), depth_bytes_size})};
+    auto depth_frame{static_cast<DepthDecoder*>(ptr)->decode(
+        {reinterpret_cast<const byte*>(depth_bytes_data), depth_bytes_size})};
     return depth_frame.release();
 }
 //////// END DEPTH DECODER ////////
@@ -341,205 +343,205 @@ void* rgbd_depth_decoder_decode(void* ptr,
 //////// START DEPTH ENCODER ////////
 void* rgbd_depth_encoder_create_rvl_encoder(int width, int height)
 {
-    return rgbd::DepthEncoder::createRVLEncoder(width, height).release();
+    return DepthEncoder::createRVLEncoder(width, height).release();
 }
 
 void* rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier)
 {
-    return rgbd::DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier).release();
+    return DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier).release();
 }
 
 void rgbd_depth_encoder_dtor(void* ptr)
 {
-    delete static_cast<rgbd::DepthEncoder*>(ptr);
+    delete static_cast<DepthEncoder*>(ptr);
 }
 
 void* rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe)
 {
-    return new rgbd::NativeByteArray{static_cast<rgbd::DepthEncoder*>(ptr)->encode(depth_values, keyframe)};
+    return new NativeByteArray{static_cast<DepthEncoder*>(ptr)->encode(depth_values, keyframe)};
 }
 //////// END DEPTH DECODER ////////
 
 //////// START DIRECTION TABLE ////////
 void rgbd_direction_table_dtor(void* ptr)
 {
-    delete static_cast<rgbd::DirectionTable*>(ptr);
+    delete static_cast<DirectionTable*>(ptr);
 }
 
 int rgbd_direction_table_get_width(void* ptr)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->width();
+    return static_cast<DirectionTable*>(ptr)->width();
 }
 
 int rgbd_direction_table_get_height(void* ptr)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->height();
+    return static_cast<DirectionTable*>(ptr)->height();
 }
 
 size_t rgbd_direction_table_get_direction_count(void* ptr)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->directions().size();
+    return static_cast<DirectionTable*>(ptr)->directions().size();
 }
 
 float rgbd_direction_table_get_direction_x(void* ptr, size_t index)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].x;
+    return static_cast<DirectionTable*>(ptr)->directions()[index].x;
 }
 
 float rgbd_direction_table_get_direction_y(void* ptr, size_t index)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].y;
+    return static_cast<DirectionTable*>(ptr)->directions()[index].y;
 }
 
 float rgbd_direction_table_get_direction_z(void* ptr, size_t index)
 {
-    return static_cast<rgbd::DirectionTable*>(ptr)->directions()[index].z;
+    return static_cast<DirectionTable*>(ptr)->directions()[index].z;
 }
 //////// END DIRECTION TABLE ////////
 
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)
 {
-    delete static_cast<rgbd::File*>(ptr);
+    delete static_cast<File*>(ptr);
 }
 
 void* rgbd_file_get_info(void* ptr)
 {
-    return &(static_cast<rgbd::File*>(ptr)->info());
+    return &(static_cast<File*>(ptr)->info());
 }
 
 void* rgbd_file_get_tracks(void* ptr)
 {
-    return &(static_cast<rgbd::File*>(ptr)->tracks());
+    return &(static_cast<File*>(ptr)->tracks());
 }
 
 void* rgbd_file_get_attachments(void* ptr)
 {
-    return &(static_cast<rgbd::File*>(ptr)->attachments());
+    return &(static_cast<File*>(ptr)->attachments());
 }
 
 size_t rgbd_file_get_video_frame_count(void* ptr)
 {
-    return static_cast<rgbd::File*>(ptr)->video_frames().size();
+    return static_cast<File*>(ptr)->video_frames().size();
 }
 
 void* rgbd_file_get_video_frame(void* ptr, size_t index)
 {
-    return static_cast<rgbd::File*>(ptr)->video_frames()[index].get();
+    return static_cast<File*>(ptr)->video_frames()[index].get();
 }
 
 size_t rgbd_file_get_audio_frame_count(void* ptr)
 {
-    return static_cast<rgbd::File*>(ptr)->audio_frames().size();
+    return static_cast<File*>(ptr)->audio_frames().size();
 }
 
 void* rgbd_file_get_audio_frame(void* ptr, size_t index)
 {
-    return static_cast<rgbd::File*>(ptr)->audio_frames()[index].get();
+    return static_cast<File*>(ptr)->audio_frames()[index].get();
 }
 
 size_t rgbd_file_get_imu_frame_count(void* ptr)
 {
-    return static_cast<rgbd::File*>(ptr)->imu_frames().size();
+    return static_cast<File*>(ptr)->imu_frames().size();
 }
 
 void* rgbd_file_get_imu_frame(void* ptr, size_t index)
 {
-    return static_cast<rgbd::File*>(ptr)->imu_frames()[index].get();
+    return static_cast<File*>(ptr)->imu_frames()[index].get();
 }
 
 size_t rgbd_file_get_trs_frame_count(void* ptr)
 {
-    return static_cast<rgbd::File*>(ptr)->trs_frames().size();
+    return static_cast<File*>(ptr)->trs_frames().size();
 }
 
 void* rgbd_file_get_trs_frame(void* ptr, size_t index)
 {
-    return static_cast<rgbd::File*>(ptr)->trs_frames()[index].get();
+    return static_cast<File*>(ptr)->trs_frames()[index].get();
 }
 
 bool rgbd_file_has_direction_table(void* ptr)
 {
-    return static_cast<rgbd::File*>(ptr)->direction_table().has_value();
+    return static_cast<File*>(ptr)->direction_table().has_value();
 }
 
 void* rgbd_file_get_direction_table(void* ptr)
 {
-    return &(static_cast<rgbd::File*>(ptr)->direction_table().value());
+    return &(static_cast<File*>(ptr)->direction_table().value());
 }
 //////// END FILE ////////
 
 //////// START FILE ATTACHMENTS ////////
 void rgbd_file_attachments_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileAttachments*>(ptr);
+    delete static_cast<FileAttachments*>(ptr);
 }
 
 void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 {
-    auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
+    auto file_attachments{static_cast<FileAttachments*>(ptr)};
     return file_attachments->camera_calibration.get();
 }
 
 void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 {
-    auto file_attachments{static_cast<rgbd::FileAttachments*>(ptr)};
+    auto file_attachments{static_cast<FileAttachments*>(ptr)};
     if (!file_attachments->cover_png_bytes)
         return nullptr;
-    return new rgbd::NativeByteArray{*file_attachments->cover_png_bytes};
+    return new NativeByteArray{*file_attachments->cover_png_bytes};
 }
 //////// END FILE ATTACHMENTS ////////
 
 //////// START FILE AUDIO FRAME ////////
 void rgbd_file_audio_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileAudioFrame*>(ptr);
+    delete static_cast<FileAudioFrame*>(ptr);
 }
 
 int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileAudioFrame*>(ptr)->time_point_us();
+    return static_cast<FileAudioFrame*>(ptr)->time_point_us();
 }
 
 void* rgbd_file_audio_frame_get_bytes(void* ptr)
 {
-    return new rgbd::NativeByteArray{static_cast<rgbd::FileAudioFrame*>(ptr)->bytes()};
+    return new NativeByteArray{static_cast<FileAudioFrame*>(ptr)->bytes()};
 }
 //////// END FILE AUDIO FRAME ////////
 
 //////// START FILE AUDIO TRACK ////////
 void rgbd_file_audio_track_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileAudioTrack*>(ptr);
+    delete static_cast<FileAudioTrack*>(ptr);
 }
 
 int rgbd_file_audio_track_get_track_number(void* ptr)
 {
-    return static_cast<rgbd::FileAudioTrack*>(ptr)->track_number;
+    return static_cast<FileAudioTrack*>(ptr)->track_number;
 }
 
 double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 {
-    return static_cast<rgbd::FileAudioTrack*>(ptr)->sampling_frequency;
+    return static_cast<FileAudioTrack*>(ptr)->sampling_frequency;
 }
 //////// END FILE AUDIO TRACK ////////
 
 //////// START FILE DEPTH VIDEO TRACK ////////
 float rgbd_file_depth_video_track_get_depth_unit(void* ptr)
 {
-    return static_cast<rgbd::FileDepthVideoTrack*>(ptr)->depth_unit;
+    return static_cast<FileDepthVideoTrack*>(ptr)->depth_unit;
 }
 //////// END FILE DEPTH VIDEO TRACK ////////
 
 //////// START FILE FRAME ////////
 void rgbd_file_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileFrame*>(ptr);
+    delete static_cast<FileFrame*>(ptr);
 }
 
 rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 {
-    auto type{static_cast<rgbd::FileFrame*>(ptr)->getType()};
+    auto type{static_cast<FileFrame*>(ptr)->getType()};
     return static_cast<rgbdFileFrameType>(type);
 }
 //////// END FILE FRAME ////////
@@ -547,96 +549,96 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 //////// START FILE IMU FRAME ////////
 void rgbd_file_imu_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileIMUFrame*>(ptr);
+    delete static_cast<FileIMUFrame*>(ptr);
 }
 
 int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->time_point_us();
+    return static_cast<FileIMUFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_imu_frame_get_acceleration_x(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().x;
+    return static_cast<FileIMUFrame*>(ptr)->acceleration().x;
 }
 
 float rgbd_file_imu_frame_get_acceleration_y(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().y;
+    return static_cast<FileIMUFrame*>(ptr)->acceleration().y;
 }
 
 float rgbd_file_imu_frame_get_acceleration_z(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->acceleration().z;
+    return static_cast<FileIMUFrame*>(ptr)->acceleration().z;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_x(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().x;
+    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().x;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_y(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().y;
+    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().y;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_z(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->rotation_rate().z;
+    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().z;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_x(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().x;
+    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().x;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_y(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().y;
+    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().y;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_z(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->magnetic_field().z;
+    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().z;
 }
 float rgbd_file_imu_frame_get_gravity_x(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().x;
+    return static_cast<FileIMUFrame*>(ptr)->gravity().x;
 }
 
 float rgbd_file_imu_frame_get_gravity_y(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().y;
+    return static_cast<FileIMUFrame*>(ptr)->gravity().y;
 }
 
 float rgbd_file_imu_frame_get_gravity_z(void* ptr)
 {
-    return static_cast<rgbd::FileIMUFrame*>(ptr)->gravity().z;
+    return static_cast<FileIMUFrame*>(ptr)->gravity().z;
 }
 //////// END FILE IMU FRAME ////////
 
 //////// START FILE INFO ////////
 void rgbd_file_info_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileInfo*>(ptr);
+    delete static_cast<FileInfo*>(ptr);
 }
 
 uint64_t rgbd_file_info_get_timecode_scale_ns(void* ptr)
 {
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
+    auto file_info{static_cast<FileInfo*>(ptr)};
     return file_info->timecode_scale_ns;
 }
 
 double rgbd_file_info_get_duration_us(void* ptr)
 {
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
+    auto file_info{static_cast<FileInfo*>(ptr)};
     return file_info->duration_us;
 }
 
 void* rgbd_file_info_get_writing_app(void* ptr)
 {
-    auto file_info{static_cast<rgbd::FileInfo*>(ptr)};
-    return new rgbd::NativeString{file_info->writing_app};
+    auto file_info{static_cast<FileInfo*>(ptr)};
+    return new NativeString{file_info->writing_app};
 }
 //////// END FILE INFO ////////
 
@@ -644,7 +646,7 @@ void* rgbd_file_info_get_writing_app(void* ptr)
 int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size)
 {
     try {
-        *parser_ptr_ref = new rgbd::FileParser{data_ptr, data_size};
+        *parser_ptr_ref = new FileParser{data_ptr, data_size};
         return 0;
     } catch (std::runtime_error e) {
         spdlog::error("error from rgbd_file_parser_ctor_from_data: {}", e.what());
@@ -655,7 +657,7 @@ int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_
 void* rgbd_file_parser_ctor_from_path(const char* file_path)
 {
     try {
-        return new rgbd::FileParser{file_path};
+        return new FileParser{file_path};
     } catch (std::runtime_error e) {
         spdlog::error("error from rgbd_file_parser_ctor: {}", e.what());
         return nullptr;
@@ -664,12 +666,12 @@ void* rgbd_file_parser_ctor_from_path(const char* file_path)
 
 void rgbd_file_parser_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileParser*>(ptr);
+    delete static_cast<FileParser*>(ptr);
 }
 
 void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions)
 {
-    auto file_parser{static_cast<rgbd::FileParser*>(ptr)};
+    auto file_parser{static_cast<FileParser*>(ptr)};
     return file_parser->parse(with_frames, with_directions).release();
 }
 //////// END FILE PARSER ////////
@@ -677,24 +679,24 @@ void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions)
 //////// START FILE TRACKS ////////
 void rgbd_file_tracks_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileTracks*>(ptr);
+    delete static_cast<FileTracks*>(ptr);
 }
 
 void* rgbd_file_tracks_get_color_track(void* ptr)
 {
-    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    auto file_tracks{static_cast<FileTracks*>(ptr)};
     return &file_tracks->color_track;
 }
 
 void* rgbd_file_tracks_get_depth_track(void* ptr)
 {
-    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    auto file_tracks{static_cast<FileTracks*>(ptr)};
     return &file_tracks->depth_track;
 }
 
 void* rgbd_file_tracks_get_audio_track(void* ptr)
 {
-    auto file_tracks{static_cast<rgbd::FileTracks*>(ptr)};
+    auto file_tracks{static_cast<FileTracks*>(ptr)};
     return &(file_tracks->audio_track);
 }
 //////// START FILE TRACKS ////////
@@ -702,99 +704,99 @@ void* rgbd_file_tracks_get_audio_track(void* ptr)
 //////// START FILE TRS FRAME ////////
 void rgbd_file_trs_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileTRSFrame*>(ptr);
+    delete static_cast<FileTRSFrame*>(ptr);
 }
 
 int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->time_point_us();
+    return static_cast<FileTRSFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_trs_frame_get_translation_x(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().x;
+    return static_cast<FileTRSFrame*>(ptr)->translation().x;
 }
 
 float rgbd_file_trs_frame_get_translation_y(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().y;
+    return static_cast<FileTRSFrame*>(ptr)->translation().y;
 }
 
 float rgbd_file_trs_frame_get_translation_z(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->translation().z;
+    return static_cast<FileTRSFrame*>(ptr)->translation().z;
 }
 
 float rgbd_file_trs_frame_get_rotation_w(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().w;
+    return static_cast<FileTRSFrame*>(ptr)->rotation().w;
 }
 
 float rgbd_file_trs_frame_get_rotation_x(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().x;
+    return static_cast<FileTRSFrame*>(ptr)->rotation().x;
 }
 
 float rgbd_file_trs_frame_get_rotation_y(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().y;
+    return static_cast<FileTRSFrame*>(ptr)->rotation().y;
 }
 
 float rgbd_file_trs_frame_get_rotation_z(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->rotation().z;
+    return static_cast<FileTRSFrame*>(ptr)->rotation().z;
 }
 
 float rgbd_file_trs_frame_get_scale_x(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().x;
+    return static_cast<FileTRSFrame*>(ptr)->scale().x;
 }
 
 float rgbd_file_trs_frame_get_scale_y(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().y;
+    return static_cast<FileTRSFrame*>(ptr)->scale().y;
 }
 
 float rgbd_file_trs_frame_get_scale_z(void* ptr)
 {
-    return static_cast<rgbd::FileTRSFrame*>(ptr)->scale().z;
+    return static_cast<FileTRSFrame*>(ptr)->scale().z;
 }
 //////// END FILE TRS FRAME ////////
 
 //////// START FILE VIDEO FRAME ////////
 void rgbd_file_video_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileVideoFrame*>(ptr);
+    delete static_cast<FileVideoFrame*>(ptr);
 }
 
 int64_t rgbd_file_video_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->time_point_us();
+    return static_cast<FileVideoFrame*>(ptr)->time_point_us();
 }
 
 bool rgbd_file_video_frame_get_keyframe(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->keyframe();
+    return static_cast<FileVideoFrame*>(ptr)->keyframe();
 }
 
 void* rgbd_file_video_frame_get_color_bytes(void* ptr)
 {
-    return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->color_bytes()};
+    return new NativeByteArray{static_cast<FileVideoFrame*>(ptr)->color_bytes()};
 }
 
 void* rgbd_file_video_frame_get_depth_bytes(void* ptr)
 {
-    return new rgbd::NativeByteArray{static_cast<rgbd::FileVideoFrame*>(ptr)->depth_bytes()};
+    return new NativeByteArray{static_cast<FileVideoFrame*>(ptr)->depth_bytes()};
 }
 
 bool rgbd_file_video_frame_has_floor(void* ptr)
 {
-    return static_cast<rgbd::FileVideoFrame*>(ptr)->floor().has_value();
+    return static_cast<FileVideoFrame*>(ptr)->floor().has_value();
 }
 
 float rgbd_file_video_frame_get_floor_normal_x(void* ptr)
 {
-    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
     if (!floor)
         return 0.0f;
     return floor->normal().x;
@@ -802,7 +804,7 @@ float rgbd_file_video_frame_get_floor_normal_x(void* ptr)
 
 float rgbd_file_video_frame_get_floor_normal_y(void* ptr)
 {
-    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
     if (!floor)
         return 0.0f;
     return floor->normal().y;
@@ -810,7 +812,7 @@ float rgbd_file_video_frame_get_floor_normal_y(void* ptr)
 
 float rgbd_file_video_frame_get_floor_normal_z(void* ptr)
 {
-    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
     if (!floor)
         return 0.0f;
     return floor->normal().z;
@@ -818,7 +820,7 @@ float rgbd_file_video_frame_get_floor_normal_z(void* ptr)
 
 float rgbd_file_video_frame_get_floor_constant(void* ptr)
 {
-    auto floor{static_cast<rgbd::FileVideoFrame*>(ptr)->floor()};
+    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
     if (!floor)
         return 0.0f;
     return floor->constant();
@@ -828,30 +830,30 @@ float rgbd_file_video_frame_get_floor_constant(void* ptr)
 //////// START FILE VIDEO TRACK ////////
 void rgbd_file_video_track_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileVideoTrack*>(ptr);
+    delete static_cast<FileVideoTrack*>(ptr);
 }
 
 int rgbd_file_video_track_get_track_number(void* ptr)
 {
-    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
     return file_video_track->track_number;
 }
 
 void* rgbd_file_video_track_get_codec(void* ptr)
 {
-    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
-    return new rgbd::NativeString{file_video_track->codec};
+    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
+    return new NativeString{file_video_track->codec};
 }
 
 int rgbd_file_video_track_get_width(void* ptr)
 {
-    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
     return file_video_track->width;
 }
 
 int rgbd_file_video_track_get_height(void* ptr)
 {
-    auto file_video_track{static_cast<rgbd::FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
     return file_video_track->height;
 }
 //////// START FILE VIDEO TRACK ////////
@@ -859,20 +861,20 @@ int rgbd_file_video_track_get_height(void* ptr)
 //////// START FILE WRITER ////////
 void* rgbd_file_writer_ctor_to_path(const char* file_path, void* calibration, void* config)
 {
-    return new rgbd::FileWriter(file_path,
-                                *static_cast<const rgbd::CameraCalibration*>(calibration),
-                                *static_cast<const rgbd::FileWriterConfig*>(config));
+    return new FileWriter(file_path,
+                                *static_cast<const CameraCalibration*>(calibration),
+                                *static_cast<const FileWriterConfig*>(config));
 }
 
 void* rgbd_file_writer_ctor_in_memory(void* calibration, void* config)
 {
-    return new rgbd::FileWriter(*static_cast<const rgbd::CameraCalibration*>(calibration),
-                                *static_cast<const rgbd::FileWriterConfig*>(config));
+    return new FileWriter(*static_cast<const CameraCalibration*>(calibration),
+                                *static_cast<const FileWriterConfig*>(config));
 }
 
 void rgbd_file_writer_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileWriter*>(ptr);
+    delete static_cast<FileWriter*>(ptr);
 }
 
 void rgbd_file_writer_write_cover(void* ptr,
@@ -882,7 +884,7 @@ void rgbd_file_writer_write_cover(void* ptr,
                                   const uint8_t* u_channel,
                                   const uint8_t* v_channel)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->writeCover(width, height, y_channel, u_channel, v_channel);
+    static_cast<FileWriter*>(ptr)->writeCover(width, height, y_channel, u_channel, v_channel);
 }
 
 void rgbd_file_writer_write_video_frame(void* ptr,
@@ -893,12 +895,12 @@ void rgbd_file_writer_write_video_frame(void* ptr,
                                         const uint8_t* depth_bytes,
                                         size_t depth_byte_size)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->writeVideoFrame(
+    static_cast<FileWriter*>(ptr)->writeVideoFrame(
         time_point_us,
         keyframe,
-        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(color_bytes),
+        span<const byte>{reinterpret_cast<const byte*>(color_bytes),
                                    color_byte_size},
-        gsl::span<const std::byte>{reinterpret_cast<const std::byte*>(depth_bytes),
+        span<const byte>{reinterpret_cast<const byte*>(depth_bytes),
                                    depth_byte_size});
 }
 
@@ -920,10 +922,10 @@ void rgbd_file_writer_write_audio_frame(void* ptr,
                                         const uint8_t* audio_bytes,
                                         size_t audio_byte_size)
 {
-    auto audio_bytes_ptr{reinterpret_cast<const std::byte*> (audio_bytes)};
-    const gsl::span<const std::byte> audio_bytes_span{
-        reinterpret_cast<const std::byte*>(audio_bytes), audio_byte_size};
-    static_cast<rgbd::FileWriter*>(ptr)->writeAudioFrame(time_point_us, audio_bytes_span);
+    auto audio_bytes_ptr{reinterpret_cast<const byte*> (audio_bytes)};
+    const span<const byte> audio_bytes_span{
+        reinterpret_cast<const byte*>(audio_bytes), audio_byte_size};
+    static_cast<FileWriter*>(ptr)->writeAudioFrame(time_point_us, audio_bytes_span);
 }
 
 
@@ -950,7 +952,7 @@ void rgbd_file_writer_write_imu_frame(void* ptr,
                                       float gravity_y,
                                       float gravity_z)
 {
-    auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
+    auto file_writer{static_cast<FileWriter*>(ptr)};
     glm::vec3 acceleration{acceleration_x, acceleration_y, acceleration_z};
     glm::vec3 rotation_rate{rotation_rate_x, rotation_rate_y, rotation_rate_z};
     glm::vec3 magnetic_field{magnetic_field_x, magnetic_field_y, magnetic_field_z};
@@ -993,7 +995,7 @@ void rgbd_file_writer_write_trs_frame(void* ptr,
                                       float scale_y,
                                       float scale_z)
 {
-    auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
+    auto file_writer{static_cast<FileWriter*>(ptr)};
     glm::vec3 translation{translation_x, translation_y, translation_z};
     glm::quat rotation{rotation_w, rotation_x, rotation_y, rotation_z};
     glm::vec3 scale{scale_x, scale_y, scale_z};
@@ -1021,51 +1023,51 @@ void rgbd_file_writer_write_trs_frame_wasm(void* ptr,
 
 void rgbd_file_writer_flush(void* ptr)
 {
-    static_cast<rgbd::FileWriter*>(ptr)->flush();
+    static_cast<FileWriter*>(ptr)->flush();
 }
 
 void* rgbd_file_writer_get_bytes(void* ptr)
 {
-    auto file_writer{static_cast<rgbd::FileWriter*>(ptr)};
-    return new rgbd::NativeByteArray{file_writer->getBytes()};
+    auto file_writer{static_cast<FileWriter*>(ptr)};
+    return new NativeByteArray{file_writer->getBytes()};
 }
 //////// END FILE WRITER ////////
 
 //////// START FILE WRITER CONFIG ////////
 void* rgbd_file_writer_config_ctor()
 {
-    return new rgbd::FileWriterConfig;
+    return new FileWriterConfig;
 }
 
 void rgbd_file_writer_config_dtor(void* ptr)
 {
-    delete static_cast<rgbd::FileWriterConfig*>(ptr);
+    delete static_cast<FileWriterConfig*>(ptr);
 }
 
 void rgbd_file_writer_config_set_framerate(void* ptr, int framerate)
 {
-    static_cast<rgbd::FileWriterConfig*>(ptr)->framerate = framerate;
+    static_cast<FileWriterConfig*>(ptr)->framerate = framerate;
 }
 
 void rgbd_file_writer_config_set_samplerate(void* ptr, int samplerate)
 {
-    static_cast<rgbd::FileWriterConfig*>(ptr)->samplerate = samplerate;
+    static_cast<FileWriterConfig*>(ptr)->samplerate = samplerate;
 }
 
 void rgbd_file_writer_config_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
 {
-    static_cast<rgbd::FileWriterConfig*>(ptr)->depth_codec_type =
-        static_cast<rgbd::DepthCodecType>(depth_codec_type);
+    static_cast<FileWriterConfig*>(ptr)->depth_codec_type =
+        static_cast<DepthCodecType>(depth_codec_type);
 }
 
 float rgbd_file_writer_config_get_depth_unit(void* ptr)
 {
-    return static_cast<rgbd::FileWriterConfig*>(ptr)->depth_unit;
+    return static_cast<FileWriterConfig*>(ptr)->depth_unit;
 }
 
 void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)
 {
-    static_cast<rgbd::FileWriterConfig*>(ptr)->depth_unit = depth_unit;
+    static_cast<FileWriterConfig*>(ptr)->depth_unit = depth_unit;
 }
 //////// END FILE WRITER CONFIG ////////
 
@@ -1092,7 +1094,7 @@ void* rgbd_kinect_camera_calibration_ctor(int color_width,
                                           float p2,
                                           float max_radius_for_projection)
 {
-    return new rgbd::KinectCameraCalibration{color_width,
+    return new KinectCameraCalibration{color_width,
                                              color_height,
                                              depth_width,
                                              depth_height,
@@ -1117,109 +1119,109 @@ void* rgbd_kinect_camera_calibration_ctor(int color_width,
 
 int rgbd_kinect_camera_calibration_get_resolution_width(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->resolution_width();
+    return static_cast<KinectCameraCalibration*>(ptr)->resolution_width();
 }
 
 int rgbd_kinect_camera_calibration_get_resolution_height(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->resolution_height();
+    return static_cast<KinectCameraCalibration*>(ptr)->resolution_height();
 }
 
 float rgbd_kinect_camera_calibration_get_cx(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cx();
+    return static_cast<KinectCameraCalibration*>(ptr)->cx();
 }
 
 float rgbd_kinect_camera_calibration_get_cy(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cy();
+    return static_cast<KinectCameraCalibration*>(ptr)->cy();
 }
 
 float rgbd_kinect_camera_calibration_get_fx(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->fx();
+    return static_cast<KinectCameraCalibration*>(ptr)->fx();
 }
 
 float rgbd_kinect_camera_calibration_get_fy(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->fy();
+    return static_cast<KinectCameraCalibration*>(ptr)->fy();
 }
 
 float rgbd_kinect_camera_calibration_get_k1(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k1();
+    return static_cast<KinectCameraCalibration*>(ptr)->k1();
 }
 
 float rgbd_kinect_camera_calibration_get_k2(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k2();
+    return static_cast<KinectCameraCalibration*>(ptr)->k2();
 }
 
 float rgbd_kinect_camera_calibration_get_k3(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k3();
+    return static_cast<KinectCameraCalibration*>(ptr)->k3();
 }
 
 float rgbd_kinect_camera_calibration_get_k4(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k4();
+    return static_cast<KinectCameraCalibration*>(ptr)->k4();
 }
 
 float rgbd_kinect_camera_calibration_get_k5(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k5();
+    return static_cast<KinectCameraCalibration*>(ptr)->k5();
 }
 
 float rgbd_kinect_camera_calibration_get_k6(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->k6();
+    return static_cast<KinectCameraCalibration*>(ptr)->k6();
 }
 
 float rgbd_kinect_camera_calibration_get_codx(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->codx();
+    return static_cast<KinectCameraCalibration*>(ptr)->codx();
 }
 
 float rgbd_kinect_camera_calibration_get_cody(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->cody();
+    return static_cast<KinectCameraCalibration*>(ptr)->cody();
 }
 
 float rgbd_kinect_camera_calibration_get_p1(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->p1();
+    return static_cast<KinectCameraCalibration*>(ptr)->p1();
 }
 
 float rgbd_kinect_camera_calibration_get_p2(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->p2();
+    return static_cast<KinectCameraCalibration*>(ptr)->p2();
 }
 
 float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr)
 {
-    return static_cast<rgbd::KinectCameraCalibration*>(ptr)->max_radius_for_projection();
+    return static_cast<KinectCameraCalibration*>(ptr)->max_radius_for_projection();
 }
 //////// END KINECT CAMERA CALIBRATION ////////
 
 //////// START INT32 FRAME ////////
 void rgbd_int32_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::Int32Frame*>(ptr);
+    delete static_cast<Int32Frame*>(ptr);
 }
 
 int rgbd_int32_frame_get_width(void* ptr)
 {
-    return static_cast<rgbd::Int32Frame*>(ptr)->width();
+    return static_cast<Int32Frame*>(ptr)->width();
 }
 
 int rgbd_int32_frame_get_height(void* ptr)
 {
-    return static_cast<rgbd::Int32Frame*>(ptr)->height();
+    return static_cast<Int32Frame*>(ptr)->height();
 }
 
 void* rgbd_int32_frame_get_values(void* ptr)
 {
-    return new rgbd::NativeInt32Array{static_cast<rgbd::Int32Frame*>(ptr)->values()};
+    return new NativeInt32Array{static_cast<Int32Frame*>(ptr)->values()};
 }
 //////// END INT32 FRAME ////////
 
@@ -1241,7 +1243,7 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
                                        const float* inverse_lens_distortion_lookup_table,
                                        size_t inverse_lens_distortion_lookup_table_size)
 {
-    return new rgbd::IosCameraCalibration{
+    return new IosCameraCalibration{
         color_width,
         color_height,
         depth_width,
@@ -1260,56 +1262,56 @@ void* rgbd_ios_camera_calibration_ctor(int color_width,
 
 float rgbd_ios_camera_calibration_get_fx(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fx();
+    return static_cast<const IosCameraCalibration*>(ptr)->fx();
 }
 
 float rgbd_ios_camera_calibration_get_fy(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->fy();
+    return static_cast<const IosCameraCalibration*>(ptr)->fy();
 }
 
 float rgbd_ios_camera_calibration_get_ox(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->ox();
+    return static_cast<const IosCameraCalibration*>(ptr)->ox();
 }
 
 float rgbd_ios_camera_calibration_get_oy(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->oy();
+    return static_cast<const IosCameraCalibration*>(ptr)->oy();
 }
 
 float rgbd_ios_camera_calibration_get_reference_dimension_width(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_width();
+    return static_cast<const IosCameraCalibration*>(ptr)->reference_dimension_width();
 }
 
 float rgbd_ios_camera_calibration_get_reference_dimension_height(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->reference_dimension_height();
+    return static_cast<const IosCameraCalibration*>(ptr)->reference_dimension_height();
 }
 
 float rgbd_ios_camera_calibration_get_lens_distortion_center_x(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_x();
+    return static_cast<const IosCameraCalibration*>(ptr)->lens_distortion_center_x();
 }
 
 float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr)
 {
-    return static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_center_y();
+    return static_cast<const IosCameraCalibration*>(ptr)->lens_distortion_center_y();
 }
 
 void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 {
     auto floats{
-        static_cast<const rgbd::IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
-    return new rgbd::NativeFloatArray{std::move(floats)};
+        static_cast<const IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
+    return new NativeFloatArray{std::move(floats)};
 }
 
 void* rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void* ptr)
 {
     auto floats{
-        static_cast<const rgbd::IosCameraCalibration*>(ptr)->inverse_lens_distortion_lookup_table()};
-    return new rgbd::NativeFloatArray{std::move(floats)};
+        static_cast<const IosCameraCalibration*>(ptr)->inverse_lens_distortion_lookup_table()};
+    return new NativeFloatArray{std::move(floats)};
 }
 //////// END IOS CAMERA CALIBRATION ////////
 
@@ -1323,59 +1325,59 @@ void* rgbd_undistorted_camera_calibration_ctor(int color_width,
                                                float cx,
                                                float cy)
 {
-    return new rgbd::UndistortedCameraCalibration{
+    return new UndistortedCameraCalibration{
         color_width, color_height, depth_width, depth_height, fx, fy, cx, cy};
 }
 
 float rgbd_undistorted_camera_calibration_get_fx(void* ptr)
 {
-    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->fx();
+    return static_cast<const UndistortedCameraCalibration*>(ptr)->fx();
 }
 
 float rgbd_undistorted_camera_calibration_get_fy(void* ptr)
 {
-    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->fy();
+    return static_cast<const UndistortedCameraCalibration*>(ptr)->fy();
 }
 
 float rgbd_undistorted_camera_calibration_get_cx(void* ptr)
 {
-    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->cx();
+    return static_cast<const UndistortedCameraCalibration*>(ptr)->cx();
 }
 
 float rgbd_undistorted_camera_calibration_get_cy(void* ptr)
 {
-    return static_cast<const rgbd::UndistortedCameraCalibration*>(ptr)->cy();
+    return static_cast<const UndistortedCameraCalibration*>(ptr)->cy();
 }
 //////// END UNDISTORTED CAMERA CALIBRATION ////////
 
 //////// START YUV FRAME ////////
 void rgbd_yuv_frame_dtor(void* ptr)
 {
-    delete static_cast<rgbd::YuvFrame*>(ptr);
+    delete static_cast<YuvFrame*>(ptr);
 }
 
 void* rgbd_yuv_frame_get_y_channel(void* ptr)
 {
-    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->y_channel()};
+    return new NativeUInt8Array{static_cast<YuvFrame*>(ptr)->y_channel()};
 }
 
 void* rgbd_yuv_frame_get_u_channel(void* ptr)
 {
-    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->u_channel()};
+    return new NativeUInt8Array{static_cast<YuvFrame*>(ptr)->u_channel()};
 }
 
 void* rgbd_yuv_frame_get_v_channel(void* ptr)
 {
-    return new rgbd::NativeUInt8Array{static_cast<rgbd::YuvFrame*>(ptr)->v_channel()};
+    return new NativeUInt8Array{static_cast<YuvFrame*>(ptr)->v_channel()};
 }
 
 int rgbd_yuv_frame_get_width(void* ptr)
 {
-    return static_cast<rgbd::YuvFrame*>(ptr)->width();
+    return static_cast<YuvFrame*>(ptr)->width();
 }
 
 int rgbd_yuv_frame_get_height(void* ptr)
 {
-    return static_cast<rgbd::YuvFrame*>(ptr)->height();
+    return static_cast<YuvFrame*>(ptr)->height();
 }
 //////// END YUV FRAME ////////
