@@ -73,7 +73,7 @@ def build_x64_linux_binaries():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rebuild", action="store_true")
-    parser_args = parser.parse_args()
+    parser_args, _ = parser.parse_known_args()
 
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/bootstrap.py"] + sys.argv[1:], check=True)
