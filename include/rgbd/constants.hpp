@@ -1,12 +1,13 @@
 #pragma once
 
-#include <gsl/gsl>
 #include <list>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+#include <gsl/gsl>
 #pragma warning(push)
 #pragma warning(disable : 26819 26495 28020)
 #include <nlohmann/json.hpp>
@@ -36,7 +37,6 @@ using std::vector;
 using std::weak_ptr;
 
 using gsl::span;
-
 using nlohmann::json;
 
 using Bytes = vector<std::byte>;

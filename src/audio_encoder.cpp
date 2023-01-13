@@ -38,7 +38,7 @@ AudioEncoder::AudioEncoder()
         throw std::runtime_error("av_frame_get_buffer failed");
 };
 
-unique_ptr<AudioEncoderFrame> AudioEncoder::encode(gsl::span<const float> pcm_samples)
+unique_ptr<AudioEncoderFrame> AudioEncoder::encode(span<const float> pcm_samples)
 {
     // frame_->nb_samples gets set to 960 for opus in 48 kHz.
     if (pcm_samples.size() != AUDIO_INPUT_SAMPLES_PER_FRAME)

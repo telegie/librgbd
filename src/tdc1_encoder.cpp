@@ -30,7 +30,8 @@ Bytes TDC1Encoder::encode(const int32_t* depth_values, const bool keyframe) noex
             previous_depth_values_[i] = depth_values[i];
         }
 
-        append_bytes(bytes, rvl::compress(gsl::span<const int32_t>{depth_values, previous_depth_values_.size()}));
+        append_bytes(
+            bytes, rvl::compress(span<const int32_t>{depth_values, previous_depth_values_.size()}));
         return bytes;
     }
 

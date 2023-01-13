@@ -493,8 +493,8 @@ void FileWriter::writeCover(int width,
 
 void FileWriter::writeVideoFrame(int64_t time_point_us,
                                  bool keyframe,
-                                 gsl::span<const byte> color_bytes,
-                                 gsl::span<const byte> depth_bytes)
+                                 span<const byte> color_bytes,
+                                 span<const byte> depth_bytes)
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {
@@ -543,7 +543,7 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
     last_timecode_ = video_timecode;
 }
 
-void FileWriter::writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> audio_bytes)
+void FileWriter::writeAudioFrame(int64_t time_point_us, span<const byte> audio_bytes)
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {

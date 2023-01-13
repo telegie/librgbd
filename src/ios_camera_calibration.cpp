@@ -16,8 +16,8 @@ IosCameraCalibration::IosCameraCalibration(int color_width,
                                            float reference_dimension_height,
                                            float lens_distortion_center_x,
                                            float lens_distortion_center_y,
-                                           gsl::span<const float> lens_distortion_lookup_table,
-                                           gsl::span<const float> inverse_lens_distortion_lookup_table)
+                                           span<const float> lens_distortion_lookup_table,
+                                           span<const float> inverse_lens_distortion_lookup_table)
     : color_width_{color_width}
     , color_height_{color_height}
     , depth_width_{depth_width}

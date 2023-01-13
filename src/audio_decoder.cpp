@@ -57,15 +57,15 @@ AudioDecoder::AudioDecoder()
 }
 
 // Decode frames in vp8_frame_data.
-vector<float> AudioDecoder::decode(gsl::span<const std::byte> opus_frame)
+vector<float> AudioDecoder::decode(span<const byte> opus_frame)
 {
-    std::vector<float> pcm_samples;
+    vector<float> pcm_samples;
     /* use the parser to split the data into frames */
     size_t data_size{opus_frame.size()};
     // Adding buffer padding is important!
     // Removing this will result in crashes in some cases.
     // When the crash happens, it happens in av_parser_parse2().
-    std::unique_ptr<uint8_t> padded_data(new uint8_t[data_size + AV_INPUT_BUFFER_PADDING_SIZE]);
+    unique_ptr<uint8_t> padded_data(new uint8_t[data_size + AV_INPUT_BUFFER_PADDING_SIZE]);
     memcpy(padded_data.get(), opus_frame.data(), data_size);
     memset(padded_data.get() + data_size, 0, AV_INPUT_BUFFER_PADDING_SIZE);
     uint8_t* data{padded_data.get()};
