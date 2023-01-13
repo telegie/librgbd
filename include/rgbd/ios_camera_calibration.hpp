@@ -20,8 +20,8 @@ public:
                          float reference_dimension_height,
                          float lens_distortion_center_x,
                          float lens_distortion_center_y,
-                         gsl::span<const float> lens_distortion_lookup_table,
-                         gsl::span<const float> inverse_lens_distortion_lookup_table);
+                         span<const float> lens_distortion_lookup_table,
+                         span<const float> inverse_lens_distortion_lookup_table);
     static IosCameraCalibration fromBytes(const Bytes& bytes, int& cursor);
     static IosCameraCalibration fromJson(const json& json);
     Bytes toBytes() const noexcept;

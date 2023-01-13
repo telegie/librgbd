@@ -8,13 +8,13 @@
 
 namespace rgbd
 {
-bool is_tdc1_keyframe(gsl::span<const std::byte> bytes);
+bool is_tdc1_keyframe(span<const byte> bytes);
 
 class TDC1Decoder : public DepthDecoderImpl
 {
 public:
     TDC1Decoder() noexcept;
-    unique_ptr<Int32Frame> decode(gsl::span<const std::byte> bytes) noexcept;
+    unique_ptr<Int32Frame> decode(span<const byte> bytes) noexcept;
 
 private:
     // Using int32_t to be compatible with the differences that can have

@@ -75,9 +75,9 @@ public:
                     const uint8_t* v_channel);
     void writeVideoFrame(int64_t time_point_us,
                          bool keyframe,
-                         gsl::span<const byte> color_bytes,
-                         gsl::span<const byte> depth_bytes);
-    void writeAudioFrame(int64_t time_point_us, gsl::span<const std::byte> frame_data_bytes);
+                         span<const byte> color_bytes,
+                         span<const byte> depth_bytes);
+    void writeAudioFrame(int64_t time_point_us, span<const byte> frame_data_bytes);
     void writeAudioFrame(const FileAudioFrame& audio_frame);
     void writeIMUFrame(int64_t time_point_us,
                        const glm::vec3& acceleration,

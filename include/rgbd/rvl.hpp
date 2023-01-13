@@ -97,7 +97,7 @@ namespace rvl
 {
 // Type T has to be signed, not unsigned, to work with TRVL.
 template <class T>
-Bytes compress(const gsl::span<const T> input) noexcept
+Bytes compress(const span<const T> input) noexcept
 {
     // Theoretically, if all input are non-zero and has a number that makes them
     // the longest in VLE encoding, it would be 24 bits for int16_t values
@@ -117,11 +117,11 @@ Bytes compress(const gsl::span<const T> input) noexcept
 }
 
 template <class T>
-vector<T> decompress(const gsl::span<const std::byte> input, const int64_t num_pixels) noexcept
+vector<T> decompress(const span<const byte> input, const int64_t num_pixels) noexcept
 {
     vector<T> output(num_pixels);
     wilson::DecompressRVL(
-        reinterpret_cast<char*>(const_cast<std::byte*>(input.data())), output.data(), num_pixels);
+        reinterpret_cast<char*>(const_cast<byte*>(input.data())), output.data(), num_pixels);
     return output;
 }
 } // namespace rvl

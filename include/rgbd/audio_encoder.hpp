@@ -13,7 +13,7 @@ class AudioEncoder
 {
 public:
     AudioEncoder();
-    unique_ptr<AudioEncoderFrame> encode(gsl::span<const float> pcm_samples);
+    unique_ptr<AudioEncoderFrame> encode(span<const float> pcm_samples);
     unique_ptr<AudioEncoderFrame> flush();
     AVCodecContextHandle& codec_context()
     {

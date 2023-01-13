@@ -4,7 +4,7 @@
 
 namespace rgbd
 {
-// NativeByteArray is for converting tg::Bytes (std::vector<std::byte>)
+// NativeByteArray is for converting Bytes (i.e., vector<byte>)
 // into something Swift can hold.
 // Mainly, it is for moving a tg::Bytes in stack memory to heap memory by
 // e.g., auto native_byte_array = new NativeByteArray(std::move(bytes));

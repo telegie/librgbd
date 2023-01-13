@@ -35,6 +35,8 @@ using std::unique_ptr;
 using std::vector;
 using std::weak_ptr;
 
+using gsl::span;
+
 using nlohmann::json;
 
 using Bytes = vector<std::byte>;
