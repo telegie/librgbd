@@ -14,9 +14,10 @@ This library can read files exported from the Telegie and is based on librgbd.
 
 ## Setup
 - git submodule update --init --recursive
+- python3 bootstrap.py
 - poetry shell
 - poetry install
-- python bootstrap.py
+- python pyrgbd/_build_librgbd_ffi.py
 
 ## Install
 - pip install .

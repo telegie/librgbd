@@ -60,7 +60,6 @@ def main():
     copy_librgbd()
     if platform.system() == "Windows":
         copy_windows_dependencies()
-    subprocess.run(["python3", f"{here}/pyrgbd/_build_librgbd_ffi.py"] + sys.argv[1:], check=True)
 
 
 if __name__ == "__main__":
