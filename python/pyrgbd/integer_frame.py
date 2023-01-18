@@ -1,3 +1,4 @@
+import numpy as np
 from ._librgbd_ffi import lib
 from .capi_containers import NativeInt32Array
 
@@ -26,7 +27,14 @@ class NativeInt32Frame:
 
 
 class Int32Frame:
-    def __init__(self, native_int32_frame: NativeInt32Frame):
-        self.width = native_int32_frame.get_width()
-        self.height = native_int32_frame.get_height()
-        self.values = native_int32_frame.get_values().to_np_array().reshape((self.height, self.width))
+    def __init__(self, width: int, height: int, values: np.array):
+        self.width = width
+        self.height = height
+        self.values = values
+
+    @classmethod
+    def from_native(self, native_int32_frame: NativeInt32Frame):
+        width = native_int32_frame.get_width()
+        height = native_int32_frame.get_height()
+        values = native_int32_frame.get_values().to_np_array().reshape((height, width))
+        return Int32Frame(width, height, values)

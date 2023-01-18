@@ -98,7 +98,7 @@ class FileWriterHelper:
         if self.calibration == None:
             raise Exception("No CameraCalibration found from FileWriterHelper")
 
-        with self.calibration.create_native_instance() as native_calibration:
+        with self.calibration.to_native() as native_calibration:
             write_config = NativeFileWriterConfig()
             write_config.set_depth_codec_type(self.depth_codec_type)
             if self.depth_unit is not None:

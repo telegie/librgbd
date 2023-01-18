@@ -19,7 +19,7 @@ def main():
 
     with rgbd.NativeFileParser(video_file_path) as native_file_parser:
         with native_file_parser.parse(True, True) as native_file:
-            file = rgbd.File(native_file)
+            file = rgbd.File.from_native(native_file)
 
     file_writer_helper = rgbd.FileWriterHelper()
     file_writer_helper.set_calibration(file.attachments.camera_calibration)

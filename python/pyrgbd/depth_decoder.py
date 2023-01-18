@@ -28,5 +28,5 @@ class NativeDepthDecoder:
                                                                cast_np_array_to_pointer(depth_frame_bytes),
                                                                depth_frame_bytes.size)
         with NativeInt32Frame(native_depth_frame_ptr) as native_depth_frame:
-            depth_frame = Int32Frame(native_depth_frame)
+            depth_frame = Int32Frame.from_native(native_depth_frame)
         return depth_frame

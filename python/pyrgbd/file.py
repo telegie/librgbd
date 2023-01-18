@@ -4,6 +4,7 @@ from ._librgbd_ffi import lib
 from .capi_containers import NativeByteArray
 from .camera_calibration import NativeCameraCalibration, CameraCalibration
 from .direction_table import NativeDirectionTable, DirectionTable
+from typing import Optional
 
 
 class NativeFileInfo:
@@ -316,141 +317,231 @@ class NativeFile:
 
 
 class FileInfo:
-    def __init__(self, native_file_info: NativeFileInfo):
-        self.duration_us = native_file_info.get_duration_us()
+    def __init__(self, duration_us: float):
+        self.duration_us = duration_us
+
+    @classmethod
+    def from_native(cls, native_file_info: NativeFileInfo):
+        duration_us = native_file_info.get_duration_us()
+        return FileInfo(duration_us)
 
 
 class FileVideoTrack:
-    def __init__(self, native_file_video_track: NativeFileVideoTrack):
-        self.track_number = native_file_video_track.get_track_number()
-        self.width = native_file_video_track.get_width()
-        self.height = native_file_video_track.get_height()
+    def __init__(self, track_number: int, width: int, height: int):
+        self.track_number = track_number
+        self.width = width
+        self.height = height
+
+    @classmethod
+    def from_native(cls, native_file_video_track: NativeFileVideoTrack):
+        track_number = native_file_video_track.get_track_number()
+        width = native_file_video_track.get_width()
+        height = native_file_video_track.get_height()
+        return FileVideoTrack(track_number, width, height)
 
 
 class FileDepthVideoTrack(FileVideoTrack):
-    def __init__(self, native_file_depth_video_track: NativeFileDepthVideoTrack):
-        super().__init__(native_file_depth_video_track)
-        self.depth_unit = native_file_depth_video_track.get_depth_unit()
+    def __init__(self, track_number: int, width: int, height: int, depth_unit: float):
+        super().__init__(track_number, width, height)
+        self.depth_unit = depth_unit
+
+    @classmethod
+    def from_native(cls, native_file_depth_video_track: NativeFileDepthVideoTrack):
+        track_number = native_file_depth_video_track.get_track_number()
+        width = native_file_depth_video_track.get_width()
+        height = native_file_depth_video_track.get_height()
+        depth_unit = native_file_depth_video_track.get_depth_unit()
+        return FileDepthVideoTrack(track_number, width, height, depth_unit)
 
 
 class FileAttachments:
-    def __init__(self, native_file_attachments: NativeFileAttachments):
+    def __init__(self, camera_calibration: CameraCalibration):
+        self.camera_calibration = camera_calibration
+
+    @classmethod
+    def from_native(cls, native_file_attachments: NativeFileAttachments):
         with native_file_attachments.get_camera_calibration() as native_camera_calibration:
-            self.camera_calibration = CameraCalibration.create(native_camera_calibration)
+            camera_calibration = CameraCalibration.from_native(native_camera_calibration)
+        return FileAttachments(camera_calibration)
 
 
 class FileTracks:
-    def __init__(self, native_file_tracks: NativeFileTracks):
+    def __init__(self, color_track: FileVideoTrack, depth_track: FileVideoTrack):
+        self.color_track = color_track
+        self.depth_track = depth_track
+
+    @classmethod
+    def from_native(cls, native_file_tracks: NativeFileTracks):
         with native_file_tracks.get_color_track() as native_color_track:
-            self.color_track = FileVideoTrack(native_color_track)
+            color_track = FileVideoTrack.from_native(native_color_track)
         with native_file_tracks.get_depth_track() as native_depth_track:
-            self.depth_track = FileDepthVideoTrack(native_depth_track)
+            depth_track = FileDepthVideoTrack.from_native(native_depth_track)
+        return FileTracks(color_track, depth_track)
 
 
 class FileVideoFrame:
-    def __init__(self, native_file_video_frame: NativeFileVideoFrame):
-        self.time_point_us = native_file_video_frame.get_time_point_us()
-        self.keyframe = native_file_video_frame.get_keyframe()
+    def __init__(self, time_point_us: int, keyframe: bool,
+                 color_bytes: np.array, depth_bytes: np.array,
+                 floor_normal_x: float, floor_normal_y: float,
+                 floor_normal_z: float, floor_constant: float):
+        self.time_point_us = time_point_us
+        self.keyframe = keyframe
+        self.color_bytes = color_bytes
+        self.depth_bytes = depth_bytes
+        self.floor_normal_x = floor_normal_x
+        self.floor_normal_y = floor_normal_y
+        self.floor_normal_z = floor_normal_z
+        self.floor_constant = floor_constant
+
+    @classmethod
+    def from_native(cls, native_file_video_frame: NativeFileVideoFrame):
+        time_point_us = native_file_video_frame.get_time_point_us()
+        keyframe = native_file_video_frame.get_keyframe()
         with native_file_video_frame.get_color_bytes() as color_bytes:
-            self.color_bytes = color_bytes.to_np_array()
+            color_bytes = color_bytes.to_np_array()
         with native_file_video_frame.get_depth_bytes() as depth_bytes:
-            self.depth_bytes = depth_bytes.to_np_array()
-        self.floor_normal_x = native_file_video_frame.get_floor_normal_x()
-        self.floor_normal_y = native_file_video_frame.get_floor_normal_y()
-        self.floor_normal_z = native_file_video_frame.get_floor_normal_z()
-        self.floor_constant = native_file_video_frame.get_floor_constant()
+            depth_bytes = depth_bytes.to_np_array()
+        floor_normal_x = native_file_video_frame.get_floor_normal_x()
+        floor_normal_y = native_file_video_frame.get_floor_normal_y()
+        floor_normal_z = native_file_video_frame.get_floor_normal_z()
+        floor_constant = native_file_video_frame.get_floor_constant()
+        return FileVideoFrame(time_point_us, keyframe,
+                              color_bytes, depth_bytes,
+                              floor_normal_x, floor_normal_y,
+                              floor_normal_z, floor_constant)
 
 
 class FileAudioFrame:
-    def __init__(self, native_file_audio_frame: NativeFileAudioFrame):
-        self.time_point_us = native_file_audio_frame.get_time_point_us()
+    def __init__(self, time_point_us: int, bytes: np.array):
+        self.time_point_us = time_point_us
+        self.bytes = bytes
+
+    @classmethod
+    def from_native(cls, native_file_audio_frame: NativeFileAudioFrame):
+        time_point_us = native_file_audio_frame.get_time_point_us()
         with native_file_audio_frame.get_bytes() as audio_bytes:
-            self.bytes = audio_bytes.to_np_array()
+            bytes = audio_bytes.to_np_array()
+        return FileAudioFrame(time_point_us, bytes)
 
 
 class FileIMUFrame:
-    def __init__(self, native_file_imu_frame: NativeFileIMUFrame):
-        self.time_point_us = native_file_imu_frame.get_time_point_us()
+    def __init__(self, time_point_us: int,
+                 acceleration: glm.vec3, rotation_rate: glm.vec3,
+                 magnetic_field: glm.vec3, gravity: glm.vec3):
+        self.time_point_us = time_point_us
+        self.acceleration = acceleration
+        self.rotation_rate = rotation_rate
+        self.magnetic_field = magnetic_field
+        self.gravity = gravity
+
+    @classmethod
+    def from_native(cls, native_file_imu_frame: NativeFileIMUFrame):
+        time_point_us = native_file_imu_frame.get_time_point_us()
 
         acceleration_x = native_file_imu_frame.get_acceleration_x()
         acceleration_y = native_file_imu_frame.get_acceleration_y()
         acceleration_z = native_file_imu_frame.get_acceleration_z()
-        self.acceleration = glm.vec3(acceleration_x, acceleration_y, acceleration_z)
+        acceleration = glm.vec3(acceleration_x, acceleration_y, acceleration_z)
 
         rotation_rate_x = native_file_imu_frame.get_rotation_rate_x()
         rotation_rate_y = native_file_imu_frame.get_rotation_rate_y()
         rotation_rate_z = native_file_imu_frame.get_rotation_rate_z()
-        self.rotation_rate = glm.vec3(rotation_rate_x, rotation_rate_y, rotation_rate_z)
+        rotation_rate = glm.vec3(rotation_rate_x, rotation_rate_y, rotation_rate_z)
 
         magnetic_field_x = native_file_imu_frame.get_magnetic_field_x()
         magnetic_field_y = native_file_imu_frame.get_magnetic_field_y()
         magnetic_field_z = native_file_imu_frame.get_magnetic_field_z()
-        self.magnetic_field = glm.vec3(magnetic_field_x, magnetic_field_y, magnetic_field_z)
+        magnetic_field = glm.vec3(magnetic_field_x, magnetic_field_y, magnetic_field_z)
 
         gravity_x = native_file_imu_frame.get_gravity_x()
         gravity_y = native_file_imu_frame.get_gravity_y()
         gravity_z = native_file_imu_frame.get_gravity_z()
-        self.gravity = glm.vec3(gravity_x, gravity_y, gravity_z)
+        gravity = glm.vec3(gravity_x, gravity_y, gravity_z)
+
+        return FileIMUFrame(time_point_us, acceleration, rotation_rate, magnetic_field, gravity)
 
 
 class FileTRSFrame:
-    def __init__(self, native_file_trs_frame: NativeFileTRSFrame):
-        self.time_point_us = native_file_trs_frame.get_time_point_us()
+    def __init__(self, time_point_us: int, translation: glm.vec3, rotation: glm.quat, scale: glm.vec3):
+        self.time_point_us = time_point_us
+        self.translation = translation
+        self.rotation = rotation
+        self.scale = scale
+
+    @classmethod
+    def from_native(cls, native_file_trs_frame: NativeFileTRSFrame):
+        time_point_us = native_file_trs_frame.get_time_point_us()
 
         translation_x = native_file_trs_frame.get_translation_x()
         translation_y = native_file_trs_frame.get_translation_y()
         translation_z = native_file_trs_frame.get_translation_z()
-        self.translation = glm.vec(translation_x, translation_y, translation_z)
+        translation = glm.vec(translation_x, translation_y, translation_z)
 
         rotation_w = native_file_trs_frame.get_rotation_w()
         rotation_x = native_file_trs_frame.get_rotation_x()
         rotation_y = native_file_trs_frame.get_rotation_y()
         rotation_z = native_file_trs_frame.get_rotation_z()
-        self.rotation = glm.quat(rotation_w, rotation_x, rotation_y, rotation_z)
+        rotation = glm.quat(rotation_w, rotation_x, rotation_y, rotation_z)
 
         scale_x = native_file_trs_frame.get_scale_x()
         scale_y = native_file_trs_frame.get_scale_y()
         scale_z = native_file_trs_frame.get_scale_z()
-        self.scale = glm.vec(scale_x, scale_y, scale_z)
+        scale = glm.vec(scale_x, scale_y, scale_z)
+        return FileTRSFrame(time_point_us, translation, rotation, scale)
 
 
 class File:
-    def __init__(self, native_file: NativeFile):
-        with native_file.get_info() as native_info:
-            self.info = FileInfo(native_info)
-        with native_file.get_tracks() as native_tracks:
-            self.tracks = FileTracks(native_tracks)
-        with native_file.get_attachments() as native_attachments:
-            self.attachments = FileAttachments(native_attachments)
+    def __init__(self, info: FileInfo, tracks: FileTracks, attachments: FileAttachments,
+                 video_frames: list[FileVideoFrame], audio_frames: list[FileAudioFrame],
+                 imu_frames: list[FileIMUFrame], trs_frames: list[FileTRSFrame],
+                 direction_table: Optional[DirectionTable]):
+        self.info = info
+        self.tracks = tracks
+        self.attachments = attachments
+        self.video_frames = video_frames
+        self.audio_frames = audio_frames
+        self.imu_frames = imu_frames
+        self.trs_frames = trs_frames
+        self.direction_table = direction_table
 
-        self.video_frames = []
+    @classmethod
+    def from_native(cls, native_file: NativeFile):
+        with native_file.get_info() as native_info:
+            info = FileInfo.from_native(native_info)
+        with native_file.get_tracks() as native_tracks:
+            tracks = FileTracks.from_native(native_tracks)
+        with native_file.get_attachments() as native_attachments:
+            attachments = FileAttachments.from_native(native_attachments)
+
+        video_frames = []
         video_frame_count = native_file.get_video_frame_count()
         for index in range(video_frame_count):
             with native_file.get_video_frame(index) as native_file_video_frame:
-                self.video_frames.append(FileVideoFrame(native_file_video_frame))
+                video_frames.append(FileVideoFrame.from_native(native_file_video_frame))
 
-        self.audio_frames = []
+        audio_frames = []
         audio_frame_count = native_file.get_audio_frame_count()
         for index in range(audio_frame_count):
             with native_file.get_audio_frame(index) as native_file_audio_frame:
-                self.audio_frames.append(FileAudioFrame(native_file_audio_frame))
+                audio_frames.append(FileAudioFrame.from_native(native_file_audio_frame))
 
-        self.imu_frames = []
+        imu_frames = []
         imu_frame_count = native_file.get_imu_frame_count()
         for index in range(imu_frame_count):
             with native_file.get_imu_frame(index) as native_file_imu_frame:
-                self.imu_frames.append(FileIMUFrame(native_file_imu_frame))
+                imu_frames.append(FileIMUFrame.from_native(native_file_imu_frame))
 
-        self.trs_frames = []
+        trs_frames = []
         trs_frame_count = native_file.get_trs_frame_count()
         for index in range(trs_frame_count):
             with native_file.get_trs_frame(index) as native_file_trs_frame:
-                self.trs_frames.append(FileTRSFrame(native_file_trs_frame))
+                trs_frames.append(FileTRSFrame.from_native(native_file_trs_frame))
 
         if native_file.has_direction_table():
-            self.direction_table = DirectionTable(native_file.get_direction_table())
+            direction_table = DirectionTable.from_native(native_file.get_direction_table())
         else:
-            self.direction_table = None
+            direction_table = None
+        return File(info, tracks, attachments, video_frames, audio_frames, imu_frames, trs_frames, direction_table)
 
 
 def get_calibration_directions(native_file: NativeFile) -> np.ndarray:

@@ -36,14 +36,21 @@ class NativeDirectionTable:
 
 
 class DirectionTable:
-    def __init__(self, native_direction_table: NativeDirectionTable):
-        self.width = native_direction_table.get_width()
-        self.height = native_direction_table.get_height()
+    def __init__(self, width: int, height: int, directions: list[glm.vec3]):
+        self.width = width
+        self.height = height
+        self.directions = directions
+
+    @classmethod
+    def from_native(cls, native_direction_table: NativeDirectionTable):
+        width = native_direction_table.get_width()
+        height = native_direction_table.get_height()
         direction_count = native_direction_table.get_direction_count()
         directions = []
         for i in range(direction_count):
             directions.append(native_direction_table.get_direction(i))
-        self.directions = directions
+        directions = directions
+        return DirectionTable(width, height, directions)
 
     def to_np_array(self) -> np.array:
         directions = list(map(lambda v: v.to_list(), self.directions))
