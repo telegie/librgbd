@@ -77,12 +77,10 @@ def main():
             color_bytes = color_encoder.encode(yuv_frame, keyframe)
             depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
 
-            file_writer_helper.add_color_byte_frame(video_frame.time_point_us,
-                                                    keyframe,
-                                                    color_bytes)
-            file_writer_helper.add_depth_byte_frame(video_frame.time_point_us,
-                                                    keyframe,
-                                                    depth_bytes)
+            file_writer_helper.add_video_frame(rgbd.FileVideoFrame(video_frame.time_point_us,
+                                                                   keyframe,
+                                                                   color_bytes,
+                                                                   depth_bytes))
 
     for audio_frame in file.audio_frames:
         file_writer_helper.add_audio_frame(audio_frame)

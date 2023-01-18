@@ -6,21 +6,13 @@ from .yuv_frame import YuvFrame
 from .utils import cast_np_array_to_pointer
 
 
-class VideoByteFrame:
-    def __init__(self, time_point_us, keyframe, bytes):
-        self.time_point_us = time_point_us
-        self.keyframe = keyframe
-        self.bytes = bytes
-
-
 class FileWriterHelper:
     def __init__(self):
         self.calibration = None
         self.depth_codec_type = DepthCodecType.TDC1
         self.depth_unit = None
         self.cover = None
-        self.color_byte_frames = []
-        self.depth_byte_frames = []
+        self.video_frames = []
         self.audio_frames = []
         self.imu_frames = []
         self.trs_frames = []
@@ -37,11 +29,8 @@ class FileWriterHelper:
     def set_cover(self, cover: YuvFrame):
         self.cover = cover
 
-    def add_color_byte_frame(self, time_point_us, keyframe, color_bytes):
-        self.color_byte_frames.append(VideoByteFrame(time_point_us, keyframe, color_bytes))
-
-    def add_depth_byte_frame(self, time_point_us, keyframe, depth_bytes):
-        self.depth_byte_frames.append(VideoByteFrame(time_point_us, keyframe, depth_bytes))
+    def add_video_frame(self, video_frame: FileVideoFrame):
+        self.video_frames.append(video_frame)
 
     def add_audio_frame(self, audio_frame: FileAudioFrame):
         self.audio_frames.append(audio_frame)
@@ -53,38 +42,15 @@ class FileWriterHelper:
         self.trs_frames.append(trs_frame)
 
     def write(self, output_file_path):
-        if len(self.color_byte_frames) != len(self.depth_byte_frames):
-            raise Exception("len(color_byte_frames) != len(depth_byte_frames) from FileWriterHelper")
-
-        self.color_byte_frames.sort(key=lambda x: x.time_point_us)
-        self.depth_byte_frames.sort(key=lambda x: x.time_point_us)
+        self.video_frames.sort(key=lambda x: x.time_point_us)
         self.audio_frames.sort(key=lambda x: x.time_point_us)
         self.imu_frames.sort(key=lambda x: x.time_point_us)
         self.trs_frames.sort(key=lambda x: x.time_point_us)
 
-        # Fill in missing time_point_us or keyframe values of color_byte_frames.
-        for video_frame_index in range(len(self.color_byte_frames)):
-            color_byte_frame = self.color_byte_frames[video_frame_index]
-            depth_byte_frame = self.depth_byte_frames[video_frame_index]
-
-            if color_byte_frame.time_point_us is None:
-                raise Exception("color_byte_frame.time_point_us is None")
-            if depth_byte_frame.time_point_us is None:
-                raise Exception("depth_byte_frame.time_point_us is None")
-            if color_byte_frame.time_point_us != depth_byte_frame.time_point_us:
-                raise Exception("color_byte_frame.time_point_us != depth_byte_frame.time_point_us from FileWriterHelper")
-
-            if color_byte_frame.keyframe is None:
-                raise Exception("color_byte_frame.keyframe is None")
-            if depth_byte_frame.keyframe is None:
-                raise Exception("depth_byte_frame.keyframe is None")
-            if color_byte_frame.keyframe != depth_byte_frame.keyframe:
-                raise Exception("color_byte_frame.keyframe != depth_byte_frame.keyframe from FileWriterHelper")
-
         # Find minimum_time_point_us.
         initial_time_points = []
-        if len(self.color_byte_frames) > 0:
-            initial_time_points.append(self.color_byte_frames[0].time_point_us)
+        if len(self.video_frames) > 0:
+            initial_time_points.append(self.video_frames[0].time_point_us)
         if len(self.audio_frames) > 0:
             initial_time_points.append(self.audio_frames[0].time_point_us)
         if len(self.imu_frames) > 0:
@@ -112,11 +78,8 @@ class FileWriterHelper:
         audio_frame_index = 0
         imu_frame_index = 0
         trs_frame_index = 0
-        for video_frame_index in range(len(self.color_byte_frames)):
-            color_byte_frame = self.color_byte_frames[video_frame_index]
-            depth_byte_frame = self.depth_byte_frames[video_frame_index]
-
-            video_time_point_us = color_byte_frame.time_point_us
+        for video_frame in self.video_frames:
+            video_time_point_us = video_frame.time_point_us
 
             # Write audio frames fitting in front of the video frame.
             while audio_frame_index < len(self.audio_frames):
@@ -124,8 +87,7 @@ class FileWriterHelper:
                 if audio_frame.time_point_us > video_time_point_us:
                     break
                 file_writer.write_audio_frame(audio_frame.time_point_us - minimum_time_point_us,
-                                              cast_np_array_to_pointer(audio_frame.bytes),
-                                              audio_frame.bytes.size)
+                                              audio_frame.bytes)
                 audio_frame_index = audio_frame_index + 1
 
             # Write IMU frames fitting in front of the video frame.
@@ -151,10 +113,10 @@ class FileWriterHelper:
                                             trs_frame.scale)
                 trs_frame_index = trs_frame_index + 1
 
-            file_writer.write_video_frame(video_time_point_us - minimum_time_point_us,
-                                          color_byte_frame.keyframe,
-                                          color_byte_frame.bytes,
-                                          depth_byte_frame.bytes)
+            file_writer.write_video_frame(video_frame.time_point_us - minimum_time_point_us,
+                                          video_frame.keyframe,
+                                          video_frame.color_bytes,
+                                          video_frame.depth_bytes)
 
         file_writer.flush()
         print(f"Wrote file to {output_file_path}")

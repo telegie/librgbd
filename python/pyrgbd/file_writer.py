@@ -60,8 +60,9 @@ class NativeFileWriter:
                                                cast_np_array_to_pointer(color_bytes), color_bytes.size,
                                                cast_np_array_to_pointer(depth_bytes), depth_bytes.size)
 
-    def write_audio_frame(self, time_point_us: int, audio_bytes, audio_byte_size: int):
-        lib.rgbd_file_writer_write_audio_frame(self.ptr, time_point_us, audio_bytes, audio_byte_size)
+    def write_audio_frame(self, time_point_us: int, audio_bytes: np.ndarray):
+        lib.rgbd_file_writer_write_audio_frame(self.ptr, time_point_us,
+                                               cast_np_array_to_pointer(audio_bytes), audio_bytes.size)
 
     def write_imu_frame(self, time_point_us: int,
                         acceleration: glm.vec3, rotation_rate: glm.vec3,

@@ -382,8 +382,8 @@ class FileTracks:
 class FileVideoFrame:
     def __init__(self, time_point_us: int, keyframe: bool,
                  color_bytes: np.array, depth_bytes: np.array,
-                 floor_normal_x: float, floor_normal_y: float,
-                 floor_normal_z: float, floor_constant: float):
+                 floor_normal_x: float = None, floor_normal_y: float = None,
+                 floor_normal_z: float = None, floor_constant: float = None):
         self.time_point_us = time_point_us
         self.keyframe = keyframe
         self.color_bytes = color_bytes
