@@ -17,6 +17,7 @@ class FileWriterHelper:
     def __init__(self):
         self.calibration = None
         self.depth_codec_type = DepthCodecType.TDC1
+        self.depth_unit = None
         self.cover = None
         self.color_byte_frames = []
         self.depth_byte_frames = []
@@ -29,6 +30,9 @@ class FileWriterHelper:
 
     def set_depth_codec_type(self, depth_codec_type: DepthCodecType):
         self.depth_codec_type = depth_codec_type
+
+    def set_depth_unit(self, depth_unit: float):
+        self.depth_unit = depth_unit
 
     def set_cover(self, cover: YuvFrame):
         self.cover = cover
@@ -97,6 +101,8 @@ class FileWriterHelper:
         with self.calibration.create_native_instance() as native_calibration:
             write_config = NativeFileWriterConfig()
             write_config.set_depth_codec_type(self.depth_codec_type)
+            if self.depth_unit is not None:
+                write_config.set_depth_unit(self.depth_unit)
             file_writer = NativeFileWriter(output_file_path,
                                            native_calibration,
                                            write_config)
