@@ -46,7 +46,7 @@ class FileWriterHelper:
         self.imu_frames.append(imu_frame)
 
     def add_trs_frame(self, trs_frame: FileTRSFrame):
-        self.trs_frames.append(imu_frame)
+        self.trs_frames.append(trs_frame)
 
     def write(self, output_file_path):
         if len(self.color_byte_frames) != len(self.depth_byte_frames):
@@ -63,27 +63,19 @@ class FileWriterHelper:
             color_byte_frame = self.color_byte_frames[video_frame_index]
             depth_byte_frame = self.depth_byte_frames[video_frame_index]
 
-            if color_byte_frame.time_point_us != None and depth_byte_frame.time_point_us != None:
-                # Equality check if both have values.
-                if color_byte_frame.time_point_us != depth_byte_frame.time_point_us:
-                    raise Exception("color_byte_frame.time_point_us != depth_byte_frame.time_point_us from FileWriterHelper")
-            elif color_byte_frame.time_point_us == None and depth_byte_frame.time_point_us == None:
-                # Can't fill in if both are None
-                raise Exception("color_byte_frame.time_point_us == None and depth_byte_frame.time_point_us from FileWriterHelper")
+            if color_byte_frame.time_point_us is None:
+                raise Exception("color_byte_frame.time_point_us is None")
+            if depth_byte_frame.time_point_us is None:
+                raise Exception("depth_byte_frame.time_point_us is None")
+            if color_byte_frame.time_point_us != depth_byte_frame.time_point_us:
+                raise Exception("color_byte_frame.time_point_us != depth_byte_frame.time_point_us from FileWriterHelper")
 
-            if color_byte_frame.time_point_us == None:
-                # Fill in time_point_us of color_byte_frame for later use.
-                color_byte_frame.time_point_us = depth_byte_frame.time_point_us
-
-            # Repeat with keyframe
-            if color_byte_frame.keyframe != None and depth_byte_frame.keyframe != None:
-                if color_byte_frame.keyframe != depth_byte_frame.keyframe:
-                    raise Exception("color_byte_frame.keyframe != depth_byte_frame.keyframe from FileWriterHelper")
-            elif color_byte_frame.keyframe == None and depth_byte_frame.keyframe == None:
-                raise Exception("color_byte_frame.keyframe == None and depth_byte_frame.keyframe from FileWriterHelper")
-
-            if color_byte_frame.keyframe == None:
-                color_byte_frame.keyframe = depth_byte_frame.keyframe
+            if color_byte_frame.keyframe is None:
+                raise Exception("color_byte_frame.keyframe is None")
+            if depth_byte_frame.keyframe is None:
+                raise Exception("depth_byte_frame.keyframe is None")
+            if color_byte_frame.keyframe != depth_byte_frame.keyframe:
+                raise Exception("color_byte_frame.keyframe != depth_byte_frame.keyframe from FileWriterHelper")
 
         # Find minimum_time_point_us.
         initial_time_points = []
