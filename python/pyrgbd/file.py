@@ -213,6 +213,55 @@ class NativeFileIMUFrame:
         return lib.rgbd_file_imu_frame_get_gravity_z(self.ptr)
 
 
+class NativeFileTRSFrame:
+    def __init__(self, ptr, owner: bool):
+        self.ptr = ptr
+        self.owner = owner
+
+    def close(self):
+        if self.owner:
+            lib.rgbd_file_trs_frame_dtor(self.ptr)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def get_time_point_us(self) -> int:
+        return lib.rgbd_file_trs_frame_get_time_point_us(self.ptr)
+
+    def get_translation_x(self) -> float:
+        return lib.rgbd_file_trs_frame_get_translation_x(self.ptr)
+
+    def get_translation_y(self) -> float:
+        return lib.rgbd_file_trs_frame_get_translation_y(self.ptr)
+
+    def get_translation_z(self) -> float:
+        return lib.rgbd_file_trs_frame_get_translation_z(self.ptr)
+
+    def get_rotation_w(self) -> float:
+        return lib.rgbd_file_trs_frame_get_rotation_w(self.ptr)
+
+    def get_rotation_x(self) -> float:
+        return lib.rgbd_file_trs_frame_get_rotation_x(self.ptr)
+
+    def get_rotation_y(self) -> float:
+        return lib.rgbd_file_trs_frame_get_rotation_y(self.ptr)
+
+    def get_rotation_z(self) -> float:
+        return lib.rgbd_file_trs_frame_get_rotation_z(self.ptr)
+
+    def get_scale_x(self) -> float:
+        return lib.rgbd_file_trs_frame_get_scale_x(self.ptr)
+
+    def get_scale_y(self) -> float:
+        return lib.rgbd_file_trs_frame_get_scale_y(self.ptr)
+
+    def get_scale_z(self) -> float:
+        return lib.rgbd_file_trs_frame_get_scale_z(self.ptr)
+
+
 class NativeFile:
     def __init__(self, ptr):
         self.ptr = ptr
@@ -252,6 +301,12 @@ class NativeFile:
 
     def get_imu_frame(self, index: int) -> NativeFileIMUFrame:
         return NativeFileIMUFrame(lib.rgbd_file_get_imu_frame(self.ptr, index), False)
+
+    def get_trs_frame_count(self) -> int:
+        return lib.rgbd_file_get_trs_frame_count(self.ptr)
+
+    def get_trs_frame(self, index: int) -> NativeFileTRSFrame:
+        return NativeFileTRSFrame(lib.rgbd_file_get_trs_frame(self.ptr, index), False)
 
     def has_direction_table(self) -> bool:
         return lib.rgbd_file_has_direction_table(self.ptr)
@@ -338,6 +393,27 @@ class FileIMUFrame:
         self.gravity = glm.vec3(gravity_x, gravity_y, gravity_z)
 
 
+class FileTRSFrame:
+    def __init__(self, native_file_trs_frame: NativeFileTRSFrame):
+        self.time_point_us = native_file_trs_frame.get_time_point_us()
+
+        translation_x = native_file_trs_frame.get_translation_x()
+        translation_y = native_file_trs_frame.get_translation_y()
+        translation_z = native_file_trs_frame.get_translation_z()
+        self.translation = glm.vec(translation_x, translation_y, translation_z)
+
+        rotation_w = native_file_trs_frame.get_rotation_w()
+        rotation_x = native_file_trs_frame.get_rotation_x()
+        rotation_y = native_file_trs_frame.get_rotation_y()
+        rotation_z = native_file_trs_frame.get_rotation_z()
+        self.rotation = glm.quat(rotation_w, rotation_x, rotation_y, rotation_z)
+
+        scale_x = native_file_trs_frame.get_scale_x()
+        scale_y = native_file_trs_frame.get_scale_y()
+        scale_z = native_file_trs_frame.get_scale_z()
+        self.scale = glm.vec(scale_x, scale_y, scale_z)
+
+
 class File:
     def __init__(self, native_file: NativeFile):
         with native_file.get_info() as native_info:
@@ -364,6 +440,12 @@ class File:
         for index in range(imu_frame_count):
             with native_file.get_imu_frame(index) as native_file_imu_frame:
                 self.imu_frames.append(FileIMUFrame(native_file_imu_frame))
+
+        self.trs_frames = []
+        trs_frame_count = native_file.get_trs_frame_count()
+        for index in range(trs_frame_count):
+            with native_file.get_trs_frame(index) as native_file_trs_frame:
+                self.trs_frames.append(FileTRSFrame(native_file_trs_frame))
 
         if native_file.has_direction_table():
             self.direction_table = DirectionTable(native_file.get_direction_table())
