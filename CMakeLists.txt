@@ -127,7 +127,7 @@ if(RGBD_ARCH_ARM64)
 elseif(RGBD_ARCH_X64)
   set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-mac)
 endif()
-set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.10.0/x64-linux)
+set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-linux)
 set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten)
 ### LIBVPX END ###
 
@@ -299,6 +299,7 @@ elseif(RGBD_OS_LINUX)
     ${OPUS_LINUX_DIR}/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
     ${ZLIB_LINUX_DIR}/lib/libz.a 
+    -llzma
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)
