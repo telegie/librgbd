@@ -19,7 +19,7 @@ This library can read files exported from the Telegie and is based on librgbd.
 - poetry install
 
 ## Install
-- pip install .
+- pip install -e .
 
 ## Deploy
 - python -m build --wheel
