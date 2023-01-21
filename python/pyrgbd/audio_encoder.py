@@ -1,6 +1,6 @@
-from ._librgbd_ffi import lib
 import numpy as np
 from .capi_containers import NativeByteArray
+from ._librgbd_ffi import lib
 
 
 class NativeAudioEncoderFrame:

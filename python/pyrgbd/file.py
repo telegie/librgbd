@@ -5,6 +5,8 @@ from .capi_containers import NativeByteArray
 from .camera_calibration import NativeCameraCalibration, CameraCalibration
 from .direction_table import NativeDirectionTable, DirectionTable
 from typing import Optional
+from .color_decoder import ColorCodecType
+from .depth_decoder import DepthCodecType
 
 
 class NativeFileInfo:
@@ -51,7 +53,15 @@ class NativeFileVideoTrack:
         return lib.rgbd_file_video_track_get_height(self.ptr)
 
 
+class NativeFileColorVideoTrack(NativeFileVideoTrack):
+    def get_codec(self) -> ColorCodecType:
+        return ColorCodecType(lib.rgbd_file_color_video_track_get_codec(self.ptr))
+
+
 class NativeFileDepthVideoTrack(NativeFileVideoTrack):
+    def get_codec(self) -> DepthCodecType:
+        return DepthCodecType(lib.rgbd_file_depth_video_track_get_codec(self.ptr))
+
     def get_depth_unit(self) -> float:
         return lib.rgbd_file_depth_video_track_get_depth_unit(self.ptr)
 
@@ -71,8 +81,8 @@ class NativeFileTracks:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def get_color_track(self) -> NativeFileVideoTrack:
-        return NativeFileVideoTrack(lib.rgbd_file_tracks_get_color_track(self.ptr), False)
+    def get_color_track(self) -> NativeFileColorVideoTrack:
+        return NativeFileColorVideoTrack(lib.rgbd_file_tracks_get_color_track(self.ptr), False)
 
     def get_depth_track(self) -> NativeFileDepthVideoTrack:
         return NativeFileDepthVideoTrack(lib.rgbd_file_tracks_get_depth_track(self.ptr), False)
@@ -340,9 +350,24 @@ class FileVideoTrack:
         return FileVideoTrack(track_number, width, height)
 
 
-class FileDepthVideoTrack(FileVideoTrack):
-    def __init__(self, track_number: int, width: int, height: int, depth_unit: float):
+class FileColorVideoTrack(FileVideoTrack):
+    def __init__(self, track_number: int, width: int, height: int, codec: ColorCodecType):
         super().__init__(track_number, width, height)
+        self.codec = codec
+
+    @classmethod
+    def from_native(cls, native_file_color_video_track: NativeFileColorVideoTrack):
+        track_number = native_file_color_video_track.get_track_number()
+        width = native_file_color_video_track.get_width()
+        height = native_file_color_video_track.get_height()
+        codec = native_file_color_video_track.get_codec()
+        return FileDepthVideoTrack(track_number, width, height, codec)
+
+
+class FileDepthVideoTrack(FileVideoTrack):
+    def __init__(self, track_number: int, width: int, height: int, codec: DepthCodecType, depth_unit: float):
+        super().__init__(track_number, width, height)
+        self.codec = codec
         self.depth_unit = depth_unit
 
     @classmethod
@@ -350,8 +375,9 @@ class FileDepthVideoTrack(FileVideoTrack):
         track_number = native_file_depth_video_track.get_track_number()
         width = native_file_depth_video_track.get_width()
         height = native_file_depth_video_track.get_height()
+        codec = native_file_depth_video_track.get_codec()
         depth_unit = native_file_depth_video_track.get_depth_unit()
-        return FileDepthVideoTrack(track_number, width, height, depth_unit)
+        return FileDepthVideoTrack(track_number, width, height, codec, depth_unit)
 
 
 class FileAttachments:
@@ -366,14 +392,14 @@ class FileAttachments:
 
 
 class FileTracks:
-    def __init__(self, color_track: FileVideoTrack, depth_track: FileVideoTrack):
+    def __init__(self, color_track: FileColorVideoTrack, depth_track: FileVideoTrack):
         self.color_track = color_track
         self.depth_track = depth_track
 
     @classmethod
     def from_native(cls, native_file_tracks: NativeFileTracks):
         with native_file_tracks.get_color_track() as native_color_track:
-            color_track = FileVideoTrack.from_native(native_color_track)
+            color_track = FileColorVideoTrack.from_native(native_color_track)
         with native_file_tracks.get_depth_track() as native_depth_track:
             depth_track = FileDepthVideoTrack.from_native(native_depth_track)
         return FileTracks(color_track, depth_track)

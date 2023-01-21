@@ -38,19 +38,19 @@ class NativeCameraCalibration:
 
         raise RuntimeError("Not supported camera device type found.")
 
-    def get_camera_device_type(self):
+    def get_camera_device_type(self) -> CameraDeviceType:
         return CameraDeviceType(lib.rgbd_camera_calibration_get_camera_device_type(self.ptr))
 
-    def get_color_width(self):
+    def get_color_width(self) -> int:
         return lib.rgbd_camera_calibration_get_color_width(self.ptr)
 
-    def get_color_height(self):
+    def get_color_height(self) -> int:
         return lib.rgbd_camera_calibration_get_color_height(self.ptr)
 
-    def get_depth_width(self):
+    def get_depth_width(self) -> int:
         return lib.rgbd_camera_calibration_get_depth_width(self.ptr)
 
-    def get_depth_height(self):
+    def get_depth_height(self) -> int:
         return lib.rgbd_camera_calibration_get_depth_height(self.ptr)
 
     def get_direction(self, uv_u: float, uv_v: float) -> NativeFloatArray:

@@ -1,7 +1,6 @@
 import pyrgbd as rgbd
 import requests
 import os.path
-import glm
 
 
 def main():
