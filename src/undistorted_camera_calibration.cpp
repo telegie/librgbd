@@ -78,13 +78,17 @@ int UndistortedCameraCalibration::getDepthHeight() const noexcept
 
 glm::vec3 UndistortedCameraCalibration::getDirection(const glm::vec2& uv) const noexcept
 {
-    return glm::vec3{(uv.x - cx_) / fx_, (uv.y - cy_) / fy_, -1.0f};
+    // Flipping y since in the 2D uv cooridnate system, positive v is towards down,
+    // the y is up in the 3D xyz coordinate system of Telegie.
+    return glm::vec3{(uv.x - cx_) / fx_, -(uv.y - cy_) / fy_, -1.0f};
 }
 
 glm::vec2 UndistortedCameraCalibration::getUv(const glm::vec3& direction) const noexcept
 {
     float x{direction.x / -direction.z};
-    float y{direction.y / -direction.z};
+    // Flipping y since in the 2D uv cooridnate system, positive v is towards down,
+    // the y is up in the 3D xyz coordinate system of Telegie.
+    float y{-direction.y / -direction.z};
     // float z{-1.0f}
 
     return glm::vec2{fx_ * x + cx_, fy_ * y + cy_};
