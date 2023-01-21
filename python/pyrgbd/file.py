@@ -361,7 +361,7 @@ class FileColorVideoTrack(FileVideoTrack):
         width = native_file_color_video_track.get_width()
         height = native_file_color_video_track.get_height()
         codec = native_file_color_video_track.get_codec()
-        return FileDepthVideoTrack(track_number, width, height, codec)
+        return FileColorVideoTrack(track_number, width, height, codec)
 
 
 class FileDepthVideoTrack(FileVideoTrack):

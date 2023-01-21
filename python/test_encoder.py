@@ -20,6 +20,9 @@ def main():
         with native_file_parser.parse(True, True) as native_file:
             file = rgbd.File.from_native(native_file)
 
+    print(f"color codec: {file.tracks.color_track.codec}")
+    print(f"depth codec: {file.tracks.depth_track.codec}")
+
     file_writer_helper = rgbd.FileWriterHelper()
     file_writer_helper.set_calibration(file.attachments.camera_calibration)
 
