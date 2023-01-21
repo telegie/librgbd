@@ -19,7 +19,7 @@ def main():
     # Extract information from the downloaded file.
     with rgbd.NativeFileParser(video_file_path) as native_file_parser:
         with native_file_parser.parse(True, True) as native_file:
-            file = rgbd.File(native_file)
+            file = rgbd.File.from_native(native_file)
             directions = rgbd.get_calibration_directions(native_file)
 
     # Decode color frames.

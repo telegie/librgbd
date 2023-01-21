@@ -14,12 +14,12 @@ This library can read files exported from the Telegie and is based on librgbd.
 
 ## Setup
 - git submodule update --init --recursive
+- python3 bootstrap.py
 - poetry shell
 - poetry install
-- python bootstrap.py
 
 ## Install
-- pip install .
+- pip install -e .
 
 ## Deploy
 - python -m build --wheel

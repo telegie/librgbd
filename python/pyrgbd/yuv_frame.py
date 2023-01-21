@@ -1,7 +1,6 @@
 from ._librgbd_ffi import lib
 from .capi_containers import NativeUInt8Array
 import numpy as np
-from typing import TypeVar
 
 
 class NativeYuvFrame:
@@ -33,9 +32,6 @@ class NativeYuvFrame:
         return lib.rgbd_yuv_frame_get_height(self.ptr)
 
 
-YuvFrameT = TypeVar('YuvFrameT', bound='YuvFrame')
-
-
 class YuvFrame:
     def __init__(self, width: int, height: int,
                  y_channel: np.ndarray, u_channel: np.ndarray, v_channel: np.ndarray):
@@ -45,8 +41,8 @@ class YuvFrame:
         self.u_channel = u_channel
         self.v_channel = v_channel
 
-    @staticmethod
-    def from_native(native_yuv_frame: NativeYuvFrame) -> YuvFrameT:
+    @classmethod
+    def from_native(cls, native_yuv_frame: NativeYuvFrame):
         width = native_yuv_frame.get_width()
         height = native_yuv_frame.get_height()
 

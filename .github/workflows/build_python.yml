@@ -15,25 +15,25 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        working-directory: python
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
-
       # bootstrap.py calls msbuild
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Bootstrap
         working-directory: python
-        run: poetry run python bootstrap.py
+        run: python3 bootstrap.py
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Build
+        working-directory: python
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install
 
       - name: Test
         working-directory: python
@@ -50,22 +50,25 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install dependencies
+        run: |
+          brew install ninja
+
+      - name: Bootstrap
+        working-directory: python
+        run: python3 bootstrap.py
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Build
         working-directory: python
         run: |
-          brew install ninja
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-
-      - name: Bootstrap
-        working-directory: python
-        run: poetry run python bootstrap.py
 
       - name: Test
         working-directory: python
@@ -83,22 +86,26 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Install dependencies
+        run: |
+          sudo apt-get -y install ninja-build
+
+      - name: Bootstrap
+        working-directory: python
+        run: python3 bootstrap.py
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install dependencies
+      - name: Build
         working-directory: python
         run: |
-          sudo apt-get -y install ninja-build
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-
-      - name: Bootstrap
-        working-directory: python
-        run: poetry run python bootstrap.py
+          poetry run python pyrgbd/_build_librgbd_ffi.py
 
       - name: Test
         working-directory: python

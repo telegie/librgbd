@@ -8,6 +8,7 @@ from .depth_encoder import *
 from .file import *
 from .file_parser import *
 from .file_writer import *
+from .file_writer_helper import *
 from .integer_frame import *
 from .utils import *
 from .yuv_frame import *
