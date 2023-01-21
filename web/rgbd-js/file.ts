@@ -3,6 +3,8 @@ import { NativeByteArray, NativeString } from './capi_containers';
 import { Plane } from './plane';
 import { Vector3 } from './vector3';
 import { Quaternion } from './quaternion';
+import { DepthCodecType } from './depth_decoder';
+import { ColorCodecType } from './color_decoder';
 
 export class FileInfo {
   timecodeScaleNs: number;
@@ -18,23 +20,32 @@ export class FileInfo {
 
 export class FileVideoTrack {
   trackNumber: number;
-  codec: string;
   width: number;
   height: number;
 
   constructor(nativeFileVideoTrack: NativeFileVideoTrack) {
     this.trackNumber = nativeFileVideoTrack.getTrackNumber();
-    this.codec = nativeFileVideoTrack.getCodec();
     this.width = nativeFileVideoTrack.getWidth();
     this.height = nativeFileVideoTrack.getHeight();
   }
 }
 
+export class FileColorVideoTrack extends FileVideoTrack {
+  codec: ColorCodecType;
+
+  constructor(nativeFileColorVideoTrack: NativeFileColorVideoTrack) {
+    super(nativeFileColorVideoTrack)
+    this.codec = nativeFileColorVideoTrack.getCodec();
+  }
+}
+
 export class FileDepthVideoTrack extends FileVideoTrack {
+  codec: DepthCodecType;
   depthUnit: number;
 
   constructor(nativeFileDepthVideoTrack: NativeFileDepthVideoTrack) {
     super(nativeFileDepthVideoTrack)
+    this.codec = nativeFileDepthVideoTrack.getCodec();
     this.depthUnit = nativeFileDepthVideoTrack.getDepthUnit();
   }
 }
@@ -50,13 +61,13 @@ export class FileAudioTrack {
 }
 
 export class FileTracks {
-  colorTrack: FileVideoTrack;
+  colorTrack: FileColorVideoTrack;
   depthTrack: FileDepthVideoTrack;
   audioTrack: FileAudioTrack;
 
   constructor(nativeFileTracks: NativeFileTracks) {
     const nativeColorTrack = nativeFileTracks.getColorTrack()
-    this.colorTrack = new FileVideoTrack(nativeColorTrack);
+    this.colorTrack = new FileColorVideoTrack(nativeColorTrack);
     nativeColorTrack.close();
 
     const nativeDepthTrack = nativeFileTracks.getDepthTrack();
@@ -251,14 +262,6 @@ export class NativeFileVideoTrack {
     return this.wasmModule.ccall('rgbd_file_video_track_get_track_number', 'number', ['number'], [this.ptr]);
   }
 
-  getCodec(): string {
-    const nativeStrPtr = this.wasmModule.ccall('rgbd_file_video_track_get_codec', 'number', ['number'], [this.ptr]);
-    const nativeStr = new NativeString(this.wasmModule, nativeStrPtr);
-    const codec = nativeStr.toString();
-    nativeStr.close();
-    return codec;
-  }
-
   getWidth(): number {
     return this.wasmModule.ccall('rgbd_file_video_track_get_width', 'number', ['number'], [this.ptr]);
   }
@@ -268,9 +271,31 @@ export class NativeFileVideoTrack {
   }
 }
 
+export class NativeFileColorVideoTrack extends NativeFileVideoTrack {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
+    super(wasmModule, ptr, owner);
+  }
+
+  getCodec(): ColorCodecType {
+    const codec: number = this.wasmModule.ccall('rgbd_file_color_video_track_get_codec', 'number', ['number'], [this.ptr]);
+    if (codec === ColorCodecType.VP8)
+      return ColorCodecType.VP8;
+    throw new Error(`Invalid color codec found: ${codec}`);
+  }
+}
+
 export class NativeFileDepthVideoTrack extends NativeFileVideoTrack {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
+  }
+
+  getCodec(): DepthCodecType {
+    const codec: number = this.wasmModule.ccall('rgbd_file_depth_video_track_get_codec', 'number', ['number'], [this.ptr]);
+    if (codec === DepthCodecType.RVL)
+      return DepthCodecType.RVL;
+    if (codec === DepthCodecType.TDC1)
+      return DepthCodecType.TDC1;
+    throw new Error(`Invalid depth codec found: ${codec}`);
   }
 
   getDepthUnit(): number {
@@ -319,9 +344,9 @@ export class NativeFileTracks {
       this.wasmModule.ccall('rgbd_file_tracks_dtor', null, ['number'], [this.ptr]);
   }
 
-  getColorTrack(): NativeFileVideoTrack {
+  getColorTrack(): NativeFileColorVideoTrack {
     const trackPtr = this.wasmModule.ccall('rgbd_file_tracks_get_color_track', 'number', ['number'], [this.ptr]);
-    return new NativeFileVideoTrack(this.wasmModule, trackPtr, false);
+    return new NativeFileColorVideoTrack(this.wasmModule, trackPtr, false);
   }
 
   getDepthTrack(): NativeFileDepthVideoTrack {

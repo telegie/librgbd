@@ -526,7 +526,21 @@ double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 }
 //////// END FILE AUDIO TRACK ////////
 
+//////// START FILE COLOR VIDEO TRACK ////////
+rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr)
+{
+    auto file_video_track{static_cast<FileColorVideoTrack*>(ptr)};
+    return static_cast<rgbdColorCodecType>(file_video_track->codec);
+}
+//////// END FILE COLOR VIDEO TRACK ////////
+
 //////// START FILE DEPTH VIDEO TRACK ////////
+rgbdDepthCodecType rgbd_file_depth_video_track_get_codec(void* ptr)
+{
+    auto file_video_track{static_cast<FileDepthVideoTrack*>(ptr)};
+    return static_cast<rgbdDepthCodecType>(file_video_track->codec);
+}
+
 float rgbd_file_depth_video_track_get_depth_unit(void* ptr)
 {
     return static_cast<FileDepthVideoTrack*>(ptr)->depth_unit;
@@ -837,12 +851,6 @@ int rgbd_file_video_track_get_track_number(void* ptr)
 {
     auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
     return file_video_track->track_number;
-}
-
-void* rgbd_file_video_track_get_codec(void* ptr)
-{
-    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
-    return new NativeString{file_video_track->codec};
 }
 
 int rgbd_file_video_track_get_width(void* ptr)

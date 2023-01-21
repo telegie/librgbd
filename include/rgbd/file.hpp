@@ -46,14 +46,19 @@ struct FileInfo
 struct FileVideoTrack
 {
     int track_number;
-    string codec;
     uint64_t default_duration_ns;
     int width;
     int height;
 };
 
+struct FileColorVideoTrack : public FileVideoTrack
+{
+    ColorCodecType codec;
+};
+
 struct FileDepthVideoTrack : public FileVideoTrack
 {
+    DepthCodecType codec;
     float depth_unit;
 };
 
@@ -65,7 +70,7 @@ struct FileAudioTrack
 
 struct FileTracks
 {
-    FileVideoTrack color_track;
+    FileColorVideoTrack color_track;
     FileDepthVideoTrack depth_track;
     FileAudioTrack audio_track;
     optional<int> floor_track_number;

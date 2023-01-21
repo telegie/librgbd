@@ -319,7 +319,7 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& seg
 
 optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
 {
-    optional<FileVideoTrack> color_track{nullopt};
+    optional<FileColorVideoTrack> color_track{nullopt};
     optional<FileDepthVideoTrack> depth_track{nullopt};
     optional<FileAudioTrack> audio_track{nullopt};
     optional<int> floor_track_number{nullopt};
@@ -348,9 +348,15 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
-                color_track = FileVideoTrack{};
+                color_track = FileColorVideoTrack{};
                 color_track->track_number = gsl::narrow<int>(track_number);
-                color_track->codec = codec_id;
+                if (codec_id == "V_VP8") {
+                    color_track->codec = ColorCodecType::VP8;
+                } else {
+                    string message{fmt::format("Invalid color codec: {}", codec_id)};
+                    spdlog::error(message);
+                    throw std::runtime_error(message);
+                }
                 color_track->default_duration_ns = default_duration;
                 color_track->width = gsl::narrow<int>(width);
                 color_track->height = gsl::narrow<int>(height);
@@ -376,7 +382,15 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
 
                 depth_track = FileDepthVideoTrack{};
                 depth_track->track_number = gsl::narrow<int>(track_number);
-                depth_track->codec = codec_id;
+                if (codec_id == "V_RVL") {
+                    depth_track->codec = DepthCodecType::RVL;
+                } else if (codec_id == "V_TDC1") {
+                    depth_track->codec = DepthCodecType::TDC1;
+                } else {
+                    string message{fmt::format("Invalid depth codec: {}", codec_id)};
+                    spdlog::error(message);
+                    throw std::runtime_error(message);
+                }
                 depth_track->default_duration_ns = default_duration;
                 depth_track->width = gsl::narrow<int>(width);
                 depth_track->height = gsl::narrow<int>(height);
@@ -529,7 +543,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
                 // flagging all frames as keyframes.
                 // Depth frames were correctly marked whether they were keyframe or not,
                 // so using this information to obtain correct information.
-                if (file_tracks_->depth_track.codec == "V_TDC1") {
+                if (file_tracks_->depth_track.codec == DepthCodecType::TDC1) {
                     if (!is_tdc1_keyframe(depth_bytes)) {
                         keyframe = false;
                     }

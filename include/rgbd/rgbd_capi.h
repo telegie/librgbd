@@ -206,7 +206,12 @@ extern "C"
     RGBD_INTERFACE_EXPORT double rgbd_file_audio_track_get_sampling_frequency(void* ptr);
     //////// END FILE AUDIO TRACK ////////
 
+    //////// START FILE COLOR VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr);
+    //////// END FILE COLOR VIDEO TRACK ////////
+
     //////// START FILE DEPTH VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT rgbdDepthCodecType rgbd_file_depth_video_track_get_codec(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_depth_video_track_get_depth_unit(void* ptr);
     //////// END FILE DEPTH VIDEO TRACK ////////
 
@@ -284,7 +289,6 @@ extern "C"
     //////// START FILE VIDEO TRACK ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_video_track_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_track_number(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_video_track_get_codec(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_width(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_height(void* ptr);
     //////// START FILE VIDEO TRACK ////////

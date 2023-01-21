@@ -1,12 +1,14 @@
 import { NativeYuvFrame, YuvFrame } from './yuv_frame';
 
-export const COLOR_CODEC_TYPE_VP8 = 0;
+export enum ColorCodecType {
+  VP8 = 0
+}
 
 export class NativeColorDecoder {
   wasmModule: any;
   ptr: number;
 
-  constructor(wasmModule: any, colorCodecType: number) {
+  constructor(wasmModule: any, colorCodecType: ColorCodecType) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_color_decoder_ctor', 'number', ['number'], [colorCodecType]);
   }
