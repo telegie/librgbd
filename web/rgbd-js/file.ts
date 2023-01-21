@@ -277,10 +277,7 @@ export class NativeFileColorVideoTrack extends NativeFileVideoTrack {
   }
 
   getCodec(): ColorCodecType {
-    const codec: number = this.wasmModule.ccall('rgbd_file_color_video_track_get_codec', 'number', ['number'], [this.ptr]);
-    if (codec === ColorCodecType.VP8)
-      return ColorCodecType.VP8;
-    throw new Error(`Invalid color codec found: ${codec}`);
+    return this.wasmModule.ccall('rgbd_file_color_video_track_get_codec', 'number', ['number'], [this.ptr]);
   }
 }
 
@@ -290,12 +287,7 @@ export class NativeFileDepthVideoTrack extends NativeFileVideoTrack {
   }
 
   getCodec(): DepthCodecType {
-    const codec: number = this.wasmModule.ccall('rgbd_file_depth_video_track_get_codec', 'number', ['number'], [this.ptr]);
-    if (codec === DepthCodecType.RVL)
-      return DepthCodecType.RVL;
-    if (codec === DepthCodecType.TDC1)
-      return DepthCodecType.TDC1;
-    throw new Error(`Invalid depth codec found: ${codec}`);
+    return this.wasmModule.ccall('rgbd_file_depth_video_track_get_codec', 'number', ['number'], [this.ptr]);
   }
 
   getDepthUnit(): number {

@@ -1,12 +1,14 @@
 import { NativeFloatArray } from './capi_containers';
 
-export const RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT = 0;
-export const RGBD_CAMERA_DEVICE_TYPE_IOS = 1;
-export const RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED = 2;
+export enum CameraDeviceType {
+  AZURE_KINECT = 0,
+  IOS = 1,
+  UNDISTORTED = 2
+}
 
 export class CameraCalibration {
   wasmModule: any;
-  cameraDeviceType: number;
+  cameraDeviceType: CameraDeviceType;
   colorWidth: number;
   colorHeight: number;
   depthWidth: number;
@@ -24,11 +26,11 @@ export class CameraCalibration {
   static create(nativeCameraCalibration: NativeCameraCalibration) {
     const cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
     switch(cameraDeviceType) {
-      case RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT:
+      case CameraDeviceType.AZURE_KINECT:
         return new KinectCameraCalibration(nativeCameraCalibration as NativeKinectCameraCalibration);
-      case RGBD_CAMERA_DEVICE_TYPE_IOS:
+      case CameraDeviceType.IOS:
         return new IosCameraCalibration(nativeCameraCalibration as NativeIosCameraCalibration);
-      case RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED:
+      case CameraDeviceType.UNDISTORTED:
         return new UndistortedCameraCalibration(nativeCameraCalibration as NativeUndistortedCameraCalibration);
     }
     throw Error('Failed to infer device type in CameraCalibration.create');
@@ -207,17 +209,17 @@ export class NativeCameraCalibration {
     const cameraDeviceType = wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [ptr]);
 
     switch (cameraDeviceType) {
-      case RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT:
+      case CameraDeviceType.AZURE_KINECT:
         return new NativeKinectCameraCalibration(wasmModule, ptr, owner)
-      case RGBD_CAMERA_DEVICE_TYPE_IOS:
+      case CameraDeviceType.IOS:
         return new NativeIosCameraCalibration(wasmModule, ptr, owner)
-      case RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED:
+      case CameraDeviceType.UNDISTORTED:
         return new NativeUndistortedCameraCalibration(wasmModule, ptr, owner)
     }
     throw Error('not supported camera device type found')
   }
 
-  getCameraDeviceType(): number {
+  getCameraDeviceType(): CameraDeviceType {
     return this.wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [this.ptr]);
   }
 
