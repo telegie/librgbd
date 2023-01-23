@@ -10,14 +10,18 @@ export function AUDIO_SAMPLE_RATE(wasmModule: any) {
 
 export class AudioEncoderFrame {
   packetBytesList: Uint8Array[];
-  constructor(nativeFrame: NativeAudioEncoderFrame) {
+  constructor(packetBytesList: Uint8Array[]) {
+    this.packetBytesList = packetBytesList;
+  }
+
+  static fromNative(nativeFrame: NativeAudioEncoderFrame) {
     let packetBytesList: Uint8Array[] = [];
     const packetBytesListCount = nativeFrame.getPacketBytesListCount();
     for (let i = 0; i < packetBytesListCount; ++i) {
       const packetBytes = nativeFrame.getPacketBytes(i);
       packetBytesList.push(packetBytes);
     }
-    this.packetBytesList = packetBytesList;
+    return new AudioEncoderFrame(packetBytesList);
   }
 }
 
@@ -79,7 +83,7 @@ export class NativeAudioEncoder {
     this.wasmModule._free(pcmSamplesPtr);
 
     const nativeFrame = new NativeAudioEncoderFrame(this.wasmModule, framePtr);
-    const frame = new AudioEncoderFrame(nativeFrame);
+    const frame = AudioEncoderFrame.fromNative(nativeFrame);
     nativeFrame.close();
     return frame;
   }
@@ -91,7 +95,7 @@ export class NativeAudioEncoder {
                                            [this.ptr]);
 
     const nativeFrame = new NativeAudioEncoderFrame(this.wasmModule, framePtr);
-    const frame = new AudioEncoderFrame(nativeFrame);
+    const frame = AudioEncoderFrame.fromNative(nativeFrame);
     nativeFrame.close();
     return frame;
   }

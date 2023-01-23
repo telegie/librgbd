@@ -14,30 +14,35 @@ export class CameraCalibration {
   depthWidth: number;
   depthHeight: number;
 
-  constructor(nativeCameraCalibration: NativeCameraCalibration) {
-    this.wasmModule = nativeCameraCalibration.wasmModule;
-    this.cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
-    this.colorWidth = nativeCameraCalibration.getColorWidth();
-    this.colorHeight = nativeCameraCalibration.getColorHeight();
-    this.depthWidth = nativeCameraCalibration.getDepthWidth();
-    this.depthHeight = nativeCameraCalibration.getDepthHeight();
+  constructor(wasmModule: any,
+              cameraDeviceType: CameraDeviceType,
+              colorWidth: number,
+              colorHeight: number,
+              depthWidth: number,
+              depthHeight: number) {
+    this.wasmModule = wasmModule;
+    this.cameraDeviceType = cameraDeviceType;
+    this.colorWidth = colorWidth;
+    this.colorHeight = colorHeight;
+    this.depthWidth = depthWidth;
+    this.depthHeight = depthHeight;
   }
 
-  static create(nativeCameraCalibration: NativeCameraCalibration) {
+  static fromNative(nativeCameraCalibration: NativeCameraCalibration) {
     const cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
     switch(cameraDeviceType) {
       case CameraDeviceType.AZURE_KINECT:
-        return new KinectCameraCalibration(nativeCameraCalibration as NativeKinectCameraCalibration);
+        return KinectCameraCalibration.fromNative(nativeCameraCalibration as NativeKinectCameraCalibration);
       case CameraDeviceType.IOS:
-        return new IosCameraCalibration(nativeCameraCalibration as NativeIosCameraCalibration);
+        return IosCameraCalibration.fromNative(nativeCameraCalibration as NativeIosCameraCalibration);
       case CameraDeviceType.UNDISTORTED:
         return new UndistortedCameraCalibration(nativeCameraCalibration as NativeUndistortedCameraCalibration);
     }
-    throw Error('Failed to infer device type in CameraCalibration.create');
+    throw Error('Failed to infer device type in fromNative.create');
   }
 
-  createNativeInstance(): NativeCameraCalibration {
-    throw Error('CameraCalibration.createNativeInstance not implemented.');
+  toNative(): NativeCameraCalibration {
+    throw Error('CameraCalibration.toNative not implemented.');
   }
 }
 
@@ -60,32 +65,73 @@ export class KinectCameraCalibration extends CameraCalibration {
   p2: number;
   maxRadiusForProjection: number;
 
-  constructor(nativeKinectCameraCalibration: NativeKinectCameraCalibration) {
-    super(nativeKinectCameraCalibration);
-    this.colorWidth = nativeKinectCameraCalibration.getColorWidth();
-    this.colorHeight = nativeKinectCameraCalibration.getColorHeight();
-    this.depthWidth = nativeKinectCameraCalibration.getDepthWidth();
-    this.depthHeight = nativeKinectCameraCalibration.getDepthHeight();
-    this.resolutionWidth = nativeKinectCameraCalibration.getResolutionWidth();
-    this.resolutionHeight = nativeKinectCameraCalibration.getResolutionHeight();
-    this.cx = nativeKinectCameraCalibration.getCx();
-    this.cy = nativeKinectCameraCalibration.getCy();
-    this.fx = nativeKinectCameraCalibration.getFx();
-    this.fy = nativeKinectCameraCalibration.getFy();
-    this.k1 = nativeKinectCameraCalibration.getK1();
-    this.k2 = nativeKinectCameraCalibration.getK2();
-    this.k3 = nativeKinectCameraCalibration.getK3();
-    this.k4 = nativeKinectCameraCalibration.getK4();
-    this.k5 = nativeKinectCameraCalibration.getK5();
-    this.k6 = nativeKinectCameraCalibration.getK6();
-    this.codx = nativeKinectCameraCalibration.getCodx();
-    this.cody = nativeKinectCameraCalibration.getCody();
-    this.p1 = nativeKinectCameraCalibration.getP1();
-    this.p2 = nativeKinectCameraCalibration.getP2();
-    this.maxRadiusForProjection = nativeKinectCameraCalibration.getMaxRadiusForProjection();
+  constructor(wasmModule: any,
+              cameraDeviceType: CameraDeviceType,
+              colorWidth: number, colorHeight: number,
+              depthWidth: number, depthHeight: number,
+              resolutionWidth: number, resolutionHeight: number,
+              cx: number, cy: number, fx: number, fy: number,
+              k1: number, k2: number, k3: number, k4: number, k5: number, k6: number,
+              codx: number, cody: number,
+              p1: number, p2: number,
+              maxRadiusForProjection: number) {
+    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    this.resolutionWidth = resolutionWidth;
+    this.resolutionHeight = resolutionHeight;
+    this.cx = cx;
+    this.cy = cy;
+    this.fx = fx;
+    this.fy = fy;
+    this.k1 = k1;
+    this.k2 = k2;
+    this.k3 = k3;
+    this.k4 = k4;
+    this.k5 = k5;
+    this.k6 = k6;
+    this.codx = codx;
+    this.cody = cody;
+    this.p1 = p1;
+    this.p2 = p2;
+    this.maxRadiusForProjection = maxRadiusForProjection;
   }
 
-  createNativeInstance() {
+  static fromNative(nativeKinectCameraCalibration: NativeKinectCameraCalibration) {
+    const cameraDeviceType = nativeKinectCameraCalibration.getCameraDeviceType();
+    const colorWidth = nativeKinectCameraCalibration.getColorWidth();
+    const colorHeight = nativeKinectCameraCalibration.getColorHeight();
+    const depthWidth = nativeKinectCameraCalibration.getDepthWidth();
+    const depthHeight = nativeKinectCameraCalibration.getDepthHeight();
+    const resolutionWidth = nativeKinectCameraCalibration.getResolutionWidth();
+    const resolutionHeight = nativeKinectCameraCalibration.getResolutionHeight();
+    const cx = nativeKinectCameraCalibration.getCx();
+    const cy = nativeKinectCameraCalibration.getCy();
+    const fx = nativeKinectCameraCalibration.getFx();
+    const fy = nativeKinectCameraCalibration.getFy();
+    const k1 = nativeKinectCameraCalibration.getK1();
+    const k2 = nativeKinectCameraCalibration.getK2();
+    const k3 = nativeKinectCameraCalibration.getK3();
+    const k4 = nativeKinectCameraCalibration.getK4();
+    const k5 = nativeKinectCameraCalibration.getK5();
+    const k6 = nativeKinectCameraCalibration.getK6();
+    const codx = nativeKinectCameraCalibration.getCodx();
+    const cody = nativeKinectCameraCalibration.getCody();
+    const p1 = nativeKinectCameraCalibration.getP1();
+    const p2 = nativeKinectCameraCalibration.getP2();
+    const maxRadiusForProjection = nativeKinectCameraCalibration.getMaxRadiusForProjection();
+
+    return new KinectCameraCalibration(nativeKinectCameraCalibration.wasmModule,
+                                       cameraDeviceType,
+                                       colorWidth, colorHeight,
+                                       depthWidth, depthHeight,
+                                       resolutionWidth, resolutionHeight,
+                                       cx, cy, fx, fy,
+                                       k1, k2, k3, k4, k5, k6,
+                                       codx, cody,
+                                       p1, p2,
+                                       maxRadiusForProjection);
+  }
+
+  toNative() {
     const nativePtr = this.wasmModule.ccall('rgbd_kinect_camera_calibration_ctor',
                                             'number',
                                             ['number', 'number', 'number', 'number',
@@ -115,20 +161,52 @@ export class IosCameraCalibration extends CameraCalibration {
   lensDistortionCenterY: number;
   lensDistortionLookupTable: Float32Array;
 
-  constructor(nativeIosCameraCalibration: NativeIosCameraCalibration) {
-    super(nativeIosCameraCalibration);
-    this.fx = nativeIosCameraCalibration.getFx();
-    this.fy = nativeIosCameraCalibration.getFy();
-    this.ox = nativeIosCameraCalibration.getOx();
-    this.oy = nativeIosCameraCalibration.getOy();
-    this.referenceDimensionWidth = nativeIosCameraCalibration.getReferenceDimensionWidth();
-    this.referenceDimensionHeight = nativeIosCameraCalibration.getReferenceDimensionHeight();
-    this.lensDistortionCenterX = nativeIosCameraCalibration.getLensDistortionCenterX();
-    this.lensDistortionCenterY = nativeIosCameraCalibration.getLensDistortionCenterY();
-    this.lensDistortionLookupTable = nativeIosCameraCalibration.getLensDistortionLookupTable();
+  constructor(wasmModule: any,
+              cameraDeviceType: CameraDeviceType,
+              colorWidth: number, colorHeight: number,
+              depthWidth: number, depthHeight: number,
+              fx: number, fy: number, ox: number, oy: number,
+              referenceDimensionWidth: number, referenceDimensionHeight: number,
+              lensDistortionCenterX: number, lensDistortionCenterY: number,
+              lensDistortionLookupTable: Float32Array) {
+    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    this.fx = fx;
+    this.fy = fy;
+    this.ox = ox;
+    this.oy = oy;
+    this.referenceDimensionWidth = referenceDimensionWidth;
+    this.referenceDimensionHeight = referenceDimensionHeight;
+    this.lensDistortionCenterX = lensDistortionCenterX;
+    this.lensDistortionCenterY = lensDistortionCenterY;
+    this.lensDistortionLookupTable = lensDistortionLookupTable;
   }
 
-  createNativeInstance(): NativeIosCameraCalibration {
+  static fromNative(nativeIosCameraCalibration: NativeIosCameraCalibration) {
+    const cameraDeviceType = nativeIosCameraCalibration.getCameraDeviceType();
+    const colorWidth = nativeIosCameraCalibration.getColorWidth();
+    const colorHeight = nativeIosCameraCalibration.getColorHeight();
+    const depthWidth = nativeIosCameraCalibration.getDepthWidth();
+    const depthHeight = nativeIosCameraCalibration.getDepthHeight();
+    const fx = nativeIosCameraCalibration.getFx();
+    const fy = nativeIosCameraCalibration.getFy();
+    const ox = nativeIosCameraCalibration.getOx();
+    const oy = nativeIosCameraCalibration.getOy();
+    const referenceDimensionWidth = nativeIosCameraCalibration.getReferenceDimensionWidth();
+    const referenceDimensionHeight = nativeIosCameraCalibration.getReferenceDimensionHeight();
+    const lensDistortionCenterX = nativeIosCameraCalibration.getLensDistortionCenterX();
+    const lensDistortionCenterY = nativeIosCameraCalibration.getLensDistortionCenterY();
+    const lensDistortionLookupTable = nativeIosCameraCalibration.getLensDistortionLookupTable();
+    return new IosCameraCalibration(nativeIosCameraCalibration.wasmModule,
+                                    cameraDeviceType,
+                                    colorWidth, colorHeight,
+                                    depthWidth, depthHeight,
+                                    fx, fy, ox, oy,
+                                    referenceDimensionWidth, referenceDimensionHeight,
+                                    lensDistortionCenterX, lensDistortionCenterY,
+                                    lensDistortionLookupTable);
+  }
+
+  toNative(): NativeIosCameraCalibration {
     const lookupTablePtr = this.wasmModule._malloc(this.lensDistortionLookupTable.byteLength);
     // Have to do >> 2 to the pointer since the set() function interprets its second parameter
     // as an index, not a pointer.
@@ -168,7 +246,15 @@ export class UndistortedCameraCalibration extends CameraCalibration {
     this.cy = nativeUndistortedCameraCalibration.getCy();
   }
 
-  createNativeInstance(): NativeUndistortedCameraCalibration {
+  static fromNative(nativeUndistortedCameraCalibration: NativeUndistortedCameraCalibration) {
+    const cameraDeviceType = nativeUndistortedCameraCalibration.getCameraDeviceType();
+    const colorWidth = nativeUndistortedCameraCalibration.getColorWidth();
+    const colorHeight = nativeUndistortedCameraCalibration.getColorHeight();
+    const depthWidth = nativeUndistortedCameraCalibration.getDepthWidth();
+    const depthHeight = nativeUndistortedCameraCalibration.getDepthHeight();
+  }
+
+  toNative(): NativeUndistortedCameraCalibration {
     const nativePtr = this.wasmModule.ccall('rgbd_undistorted_camera_calibration_ctor',
                                             'number',
                                             ['number', 'number', 'number', 'number',
