@@ -15,7 +15,7 @@
 	url = https://github.com/nlohmann/json.git
 [submodule "deps/libebml"]
 	path = deps/libebml
-	url = https://github.com/telegie/libebml.git
+	url = https://github.com/Matroska-Org/libebml.git
 [submodule "deps/libmatroska"]
 	path = deps/libmatroska
 	url = https://github.com/Matroska-Org/libmatroska.git
