@@ -11,10 +11,19 @@ export class FileInfo {
   durationUs: number;
   writingApp: string;
 
-  constructor(nativeInfo: NativeFileInfo) {
-    this.timecodeScaleNs = nativeInfo.getTimecodeScaleNs();
-    this.durationUs = nativeInfo.getDurationUs();
-    this.writingApp = nativeInfo.getWritingApp();
+  constructor(timecodeScaleNs: number,
+              durationUs: number,
+              writingApp: string) {
+    this.timecodeScaleNs = timecodeScaleNs;
+    this.durationUs = durationUs;
+    this.writingApp = writingApp;
+  }
+
+  static fromNative(nativeInfo: NativeFileInfo) {
+    const timecodeScaleNs = nativeInfo.getTimecodeScaleNs();
+    const durationUs = nativeInfo.getDurationUs();
+    const writingApp = nativeInfo.getWritingApp();
+    return new FileInfo(timecodeScaleNs, durationUs, writingApp);
   }
 }
 
@@ -23,19 +32,39 @@ export class FileVideoTrack {
   width: number;
   height: number;
 
-  constructor(nativeFileVideoTrack: NativeFileVideoTrack) {
-    this.trackNumber = nativeFileVideoTrack.getTrackNumber();
-    this.width = nativeFileVideoTrack.getWidth();
-    this.height = nativeFileVideoTrack.getHeight();
+  constructor(trackNumber: number,
+              width: number,
+              height: number) {
+    this.trackNumber = trackNumber;
+    this.width = width;
+    this.height = height;
+  }
+
+  static fromNative(nativeFileVideoTrack: NativeFileVideoTrack) {
+    const trackNumber = nativeFileVideoTrack.getTrackNumber();
+    const width = nativeFileVideoTrack.getWidth();
+    const height = nativeFileVideoTrack.getHeight();
+    return new FileVideoTrack(trackNumber, width, height);
   }
 }
 
 export class FileColorVideoTrack extends FileVideoTrack {
   codec: ColorCodecType;
 
-  constructor(nativeFileColorVideoTrack: NativeFileColorVideoTrack) {
-    super(nativeFileColorVideoTrack)
-    this.codec = nativeFileColorVideoTrack.getCodec();
+  constructor(trackNumber: number,
+              width: number,
+              height: number,
+              codec: ColorCodecType) {
+    super(trackNumber, width, height);
+    this.codec = codec;
+  }
+
+  static fromNative(nativeFileColorVideoTrack: NativeFileColorVideoTrack) {
+    const trackNumber = nativeFileColorVideoTrack.getTrackNumber();
+    const width = nativeFileColorVideoTrack.getWidth();
+    const height = nativeFileColorVideoTrack.getHeight();
+    const codec = nativeFileColorVideoTrack.getCodec();
+    return new FileColorVideoTrack(trackNumber, width, height, codec);
   }
 }
 
@@ -43,10 +72,23 @@ export class FileDepthVideoTrack extends FileVideoTrack {
   codec: DepthCodecType;
   depthUnit: number;
 
-  constructor(nativeFileDepthVideoTrack: NativeFileDepthVideoTrack) {
-    super(nativeFileDepthVideoTrack)
-    this.codec = nativeFileDepthVideoTrack.getCodec();
-    this.depthUnit = nativeFileDepthVideoTrack.getDepthUnit();
+  constructor(trackNumber: number,
+              width: number,
+              height: number,
+              codec: DepthCodecType,
+              depthUnit: number ) {
+    super(trackNumber, width, height);
+    this.codec = codec;
+    this.depthUnit = depthUnit;
+  }
+
+  static fromNative(nativeFileDepthVideoTrack: NativeFileDepthVideoTrack) {
+    const trackNumber = nativeFileDepthVideoTrack.getTrackNumber();
+    const width = nativeFileDepthVideoTrack.getWidth();
+    const height = nativeFileDepthVideoTrack.getHeight();
+    const codec = nativeFileDepthVideoTrack.getCodec();
+    const depthUnit = nativeFileDepthVideoTrack.getDepthUnit();
+    return new FileDepthVideoTrack(trackNumber, width, height, codec, depthUnit);
   }
 }
 
@@ -54,9 +96,16 @@ export class FileAudioTrack {
   trackNumber: number;
   samplingFrequency: number;
 
-  constructor(nativeFileAudioTrack: NativeFileAudioTrack) {
-    this.trackNumber = nativeFileAudioTrack.getTrackNumber();
-    this.samplingFrequency = nativeFileAudioTrack.getSamplingFrequency();
+  constructor(trackNumber: number,
+              samplingFrequency: number) {
+    this.trackNumber = trackNumber;
+    this.samplingFrequency = samplingFrequency;
+  }
+
+  static fromNative(nativeFileAudioTrack: NativeFileAudioTrack) {
+    const trackNumber = nativeFileAudioTrack.getTrackNumber();
+    const samplingFrequency = nativeFileAudioTrack.getSamplingFrequency();
+    return new FileAudioTrack(trackNumber, samplingFrequency);
   }
 }
 
@@ -65,18 +114,28 @@ export class FileTracks {
   depthTrack: FileDepthVideoTrack;
   audioTrack: FileAudioTrack;
 
-  constructor(nativeFileTracks: NativeFileTracks) {
+  constructor(colorTrack: FileColorVideoTrack,
+              depthTrack: FileDepthVideoTrack,
+              audioTrack: FileAudioTrack) {
+    this.colorTrack = colorTrack;
+    this.depthTrack = depthTrack;
+    this.audioTrack = audioTrack;
+  }
+
+  static fromNative(nativeFileTracks: NativeFileTracks) {
     const nativeColorTrack = nativeFileTracks.getColorTrack()
-    this.colorTrack = new FileColorVideoTrack(nativeColorTrack);
+    const colorTrack = FileColorVideoTrack.fromNative(nativeColorTrack);
     nativeColorTrack.close();
 
     const nativeDepthTrack = nativeFileTracks.getDepthTrack();
-    this.depthTrack = new FileDepthVideoTrack(nativeDepthTrack);
+    const depthTrack = FileDepthVideoTrack.fromNative(nativeDepthTrack);
     nativeDepthTrack.close();
 
     const nativeAudioTrack = nativeFileTracks.getAudioTrack();
-    this.audioTrack = new FileAudioTrack(nativeAudioTrack);
+    const audioTrack = FileAudioTrack.fromNative(nativeAudioTrack);
     nativeAudioTrack.close();
+
+    return new FileTracks(colorTrack, depthTrack, audioTrack);
   }
 }
 
@@ -84,12 +143,19 @@ export class FileAttachments {
   calibration: CameraCalibration;
   coverPngBytes: Uint8Array | null;
 
-  constructor(nativeFileAttachments: NativeFileAttachments) {
+  constructor(calibration: CameraCalibration,
+              coverPngBytes: Uint8Array | null) {
+    this.calibration = calibration;
+    this.coverPngBytes = coverPngBytes;
+  }
+
+  static fromNative(nativeFileAttachments: NativeFileAttachments) {
     const nativeCalibration = nativeFileAttachments.getCameraCalibration();
-    this.calibration = CameraCalibration.create(nativeCalibration);
+    const calibration = CameraCalibration.fromNative(nativeCalibration);
     nativeCalibration.close();
 
-    this.coverPngBytes = nativeFileAttachments.getCoverPNGBytes();
+    const coverPngBytes = nativeFileAttachments.getCoverPNGBytes();
+    return new FileAttachments(calibration, coverPngBytes);
   }
 }
 
@@ -100,12 +166,25 @@ export class FileVideoFrame {
   depthBytes: Uint8Array;
   floor: Plane | null;
 
-  constructor(nativeFileVideoFrame: NativeFileVideoFrame) {
-    this.timePointUs = nativeFileVideoFrame.getTimePointUs();
-    this.keyframe = nativeFileVideoFrame.getKeyframe();
-    this.colorBytes = nativeFileVideoFrame.getColorBytes();
-    this.depthBytes = nativeFileVideoFrame.getDepthBytes();
-    this.floor = nativeFileVideoFrame.getFloor();
+  constructor(timePointUs: number,
+              keyframe: boolean,
+              colorBytes: Uint8Array,
+              depthBytes: Uint8Array,
+              floor: Plane | null) {
+    this.timePointUs = timePointUs;
+    this.keyframe = keyframe;
+    this.colorBytes = colorBytes;
+    this.depthBytes = depthBytes;
+    this.floor = floor;
+  }
+
+  static fromNative(nativeFileVideoFrame: NativeFileVideoFrame) {
+    const timePointUs = nativeFileVideoFrame.getTimePointUs();
+    const keyframe = nativeFileVideoFrame.getKeyframe();
+    const colorBytes = nativeFileVideoFrame.getColorBytes();
+    const depthBytes = nativeFileVideoFrame.getDepthBytes();
+    const floor = nativeFileVideoFrame.getFloor();
+    return new FileVideoFrame(timePointUs, keyframe, colorBytes, depthBytes, floor);
   }
 }
 
@@ -113,9 +192,15 @@ export class FileAudioFrame {
   timePointUs: number;
   bytes: Uint8Array;
 
-  constructor(nativeFileAudioFrame: NativeFileAudioFrame) {
-    this.timePointUs = nativeFileAudioFrame.getTimePointUs();
-    this.bytes = nativeFileAudioFrame.getBytes();
+  constructor(timePointUs: number, bytes: Uint8Array) {
+    this.timePointUs = timePointUs;
+    this.bytes = bytes;
+  }
+
+  static fromNative(nativeFileAudioFrame: NativeFileAudioFrame) {
+    const timePointUs = nativeFileAudioFrame.getTimePointUs();
+    const bytes = nativeFileAudioFrame.getBytes();
+    return new FileAudioFrame(timePointUs, bytes);
   }
 }
 
@@ -126,12 +211,29 @@ export class FileIMUFrame {
   magneticField: Vector3;
   gravity: Vector3;
 
-  constructor(nativeFileIMUFrame: NativeFileIMUFrame) {
-    this.timePointUs = nativeFileIMUFrame.getTimePointUs();
-    this.acceleration = nativeFileIMUFrame.getAcceleration();
-    this.rotationRate = nativeFileIMUFrame.getRotationRate();
-    this.magneticField = nativeFileIMUFrame.getMagneticField();
-    this.gravity = nativeFileIMUFrame.getGravity();
+  constructor(timePointUs: number,
+              acceleration: Vector3,
+              rotationRate: Vector3,
+              magneticField: Vector3,
+              gravity: Vector3) {
+    this.timePointUs = timePointUs;
+    this.acceleration = acceleration;
+    this.rotationRate = rotationRate;
+    this.magneticField = magneticField;
+    this.gravity = gravity;
+  }
+
+  static fromNative(nativeFileIMUFrame: NativeFileIMUFrame) {
+    const timePointUs = nativeFileIMUFrame.getTimePointUs();
+    const acceleration = nativeFileIMUFrame.getAcceleration();
+    const rotationRate = nativeFileIMUFrame.getRotationRate();
+    const magneticField = nativeFileIMUFrame.getMagneticField();
+    const gravity = nativeFileIMUFrame.getGravity();
+    return new FileIMUFrame(timePointUs,
+                            acceleration,
+                            rotationRate,
+                            magneticField,
+                            gravity)
   }
 }
 
@@ -141,11 +243,22 @@ export class FileTRSFrame {
   rotation: Quaternion;
   scale: Vector3;
 
-  constructor(nativeFileTRSFrame: NativeFileTRSFrame) {
-    this.timePointUs = nativeFileTRSFrame.getTimePointUs();
-    this.translation = nativeFileTRSFrame.getTranslation();
-    this.rotation = nativeFileTRSFrame.getRotation();
-    this.scale = nativeFileTRSFrame.getScale();
+  constructor(timePointUs: number,
+              translation: Vector3,
+              rotation: Quaternion,
+              scale: Vector3) {
+    this.timePointUs = timePointUs;
+    this.translation = translation;
+    this.rotation = rotation;
+    this.scale = scale;
+  }
+
+  static fromNative(nativeFileTRSFrame: NativeFileTRSFrame) {
+    const timePointUs = nativeFileTRSFrame.getTimePointUs();
+    const translation = nativeFileTRSFrame.getTranslation();
+    const rotation = nativeFileTRSFrame.getRotation();
+    const scale = nativeFileTRSFrame.getScale();
+    return new FileTRSFrame(timePointUs, translation, rotation, scale);
   }
 }
 
@@ -158,54 +271,69 @@ export class File {
   imuFrames: FileIMUFrame[];
   trsFrames: FileTRSFrame[];
 
-  constructor(nativeFile: NativeFile) {
+  constructor(info: FileInfo,
+              tracks: FileTracks,
+              attachments: FileAttachments,
+              videoFrames: FileVideoFrame[],
+              audioFrames: FileAudioFrame[],
+              imuFrames: FileIMUFrame[],
+              trsFrames: FileTRSFrame[]) {
+    this.info = info;
+    this.tracks = tracks;
+    this.attachments = attachments;
+    this.videoFrames = videoFrames;
+    this.audioFrames = audioFrames;
+    this.imuFrames = imuFrames;
+    this.trsFrames = trsFrames;
+  }
+
+  static fromNative(nativeFile: NativeFile) {
     const nativeInfo = nativeFile.getInfo();
-    this.info = new FileInfo(nativeInfo);
+    const info = FileInfo.fromNative(nativeInfo);
     nativeInfo.close();
 
     const nativeTracks = nativeFile.getTracks();
-    this.tracks = new FileTracks(nativeTracks);
+    const tracks = FileTracks.fromNative(nativeTracks);
     nativeTracks.close();
 
     const nativeAttachments = nativeFile.getAttachments();
-    this.attachments = new FileAttachments(nativeAttachments);
+    const attachments = FileAttachments.fromNative(nativeAttachments);
     nativeAttachments.close();
 
     let videoFrames: FileVideoFrame[] = [];
     const videoFrameCount = nativeFile.getVideoFrameCount();
     for (let i = 0; i < videoFrameCount; i++) {
       const nativeVideoFrame = nativeFile.getVideoFrame(i);
-      videoFrames.push(new FileVideoFrame(nativeVideoFrame));
+      videoFrames.push(FileVideoFrame.fromNative(nativeVideoFrame));
       nativeVideoFrame.close();
     }
-    this.videoFrames = videoFrames;
 
     let audioFrames: FileAudioFrame[] = [];
     const audioFrameCount = nativeFile.getAudioFrameCount();
     for (let i = 0; i < audioFrameCount; i++) {
       const nativeAudioFrame = nativeFile.getAudioFrame(i);
-      audioFrames.push(new FileAudioFrame(nativeAudioFrame));
+      audioFrames.push(FileAudioFrame.fromNative(nativeAudioFrame));
       nativeAudioFrame.close();
     }
-    this.audioFrames = audioFrames;
 
     let imuFrames: FileIMUFrame[] = [];
     const imuFrameCount = nativeFile.getIMUFrameCount();
     for (let i = 0; i < imuFrameCount; i++) {
       const nativeIMUFrame = nativeFile.getIMUFrame(i);
-      imuFrames.push(new FileIMUFrame(nativeIMUFrame));
+      imuFrames.push(FileIMUFrame.fromNative(nativeIMUFrame));
       nativeIMUFrame.close();
     }
-    this.imuFrames = imuFrames;
 
     let trsFrames: FileTRSFrame[] = [];
     const trsFrameCount = nativeFile.getTRSFrameCount();
     for (let i = 0; i < trsFrameCount; i++) {
       const nativeTRSFrame = nativeFile.getTRSFrame(i);
-      trsFrames.push(new FileTRSFrame(nativeTRSFrame));
+      trsFrames.push(FileTRSFrame.fromNative(nativeTRSFrame));
       nativeTRSFrame.close();
     }
-    this.trsFrames = trsFrames;
+    
+    return new File(info, tracks, attachments,
+      videoFrames, audioFrames, imuFrames, trsFrames);
   }
 }
 

@@ -36,7 +36,7 @@ export class CameraCalibration {
       case CameraDeviceType.IOS:
         return IosCameraCalibration.fromNative(nativeCameraCalibration as NativeIosCameraCalibration);
       case CameraDeviceType.UNDISTORTED:
-        return new UndistortedCameraCalibration(nativeCameraCalibration as NativeUndistortedCameraCalibration);
+        return UndistortedCameraCalibration.fromNative(nativeCameraCalibration as NativeUndistortedCameraCalibration);
     }
     throw Error('Failed to infer device type in fromNative.create');
   }
@@ -238,12 +238,16 @@ export class UndistortedCameraCalibration extends CameraCalibration {
   cx: number;
   cy: number;
 
-  constructor(nativeUndistortedCameraCalibration: NativeUndistortedCameraCalibration) {
-    super(nativeUndistortedCameraCalibration);
-    this.fx = nativeUndistortedCameraCalibration.getFx();
-    this.fy = nativeUndistortedCameraCalibration.getFy();
-    this.cx = nativeUndistortedCameraCalibration.getCx();
-    this.cy = nativeUndistortedCameraCalibration.getCy();
+  constructor(wasmModule: any,
+              cameraDeviceType: CameraDeviceType,
+              colorWidth: number, colorHeight: number,
+              depthWidth: number, depthHeight: number,
+              fx: number, fy: number, cx: number, cy: number) {
+    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    this.fx = fx;
+    this.fy = fy;
+    this.cx = cx;
+    this.cy = cy;
   }
 
   static fromNative(nativeUndistortedCameraCalibration: NativeUndistortedCameraCalibration) {
@@ -252,6 +256,15 @@ export class UndistortedCameraCalibration extends CameraCalibration {
     const colorHeight = nativeUndistortedCameraCalibration.getColorHeight();
     const depthWidth = nativeUndistortedCameraCalibration.getDepthWidth();
     const depthHeight = nativeUndistortedCameraCalibration.getDepthHeight();
+    const fx = nativeUndistortedCameraCalibration.getFx();
+    const fy = nativeUndistortedCameraCalibration.getFy();
+    const cx = nativeUndistortedCameraCalibration.getCx();
+    const cy = nativeUndistortedCameraCalibration.getCy();
+    return new UndistortedCameraCalibration(nativeUndistortedCameraCalibration.wasmModule,
+                                            cameraDeviceType,
+                                            colorWidth, colorHeight,
+                                            depthWidth, depthHeight,
+                                            fx, fy, cx, cy);
   }
 
   toNative(): NativeUndistortedCameraCalibration {

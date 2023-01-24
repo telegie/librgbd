@@ -5,10 +5,19 @@ export class Int32Frame {
   height: number;
   values: Int32Array;
 
-  constructor(nativeInt32Frame: NativeInt32Frame) {
-    this.width = nativeInt32Frame.getWidth();
-    this.height = nativeInt32Frame.getHeight();
-    this.values = nativeInt32Frame.getValues();
+  constructor(width: number,
+              height: number,
+              values: Int32Array) {
+    this.width = width;
+    this.height = height;
+    this.values = values;
+  }
+
+  static fromNative(nativeInt32Frame: NativeInt32Frame) {
+    const width = nativeInt32Frame.getWidth();
+    const height = nativeInt32Frame.getHeight();
+    const values = nativeInt32Frame.getValues();
+    return new Int32Frame(width, height, values);
   }
 }
 

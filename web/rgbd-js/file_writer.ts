@@ -60,7 +60,7 @@ export class NativeFileWriter {
   constructor(wasmModule: any, calibration: CameraCalibration, nativeWriterConfig: NativeFileWriterConfig) {
     this.wasmModule = wasmModule;
 
-    const nativeCalibration = calibration.createNativeInstance();
+    const nativeCalibration = calibration.toNative();
     this.ptr = this.wasmModule.ccall('rgbd_file_writer_ctor_in_memory',
                                      'number',
                                      ['number', 'number'],

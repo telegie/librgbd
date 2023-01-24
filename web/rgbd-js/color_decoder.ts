@@ -27,7 +27,7 @@ export class NativeColorDecoder {
     this.wasmModule._free(colorBytesPtr);
 
     const nativeYuvFrame = new NativeYuvFrame(this.wasmModule, yuvFramePtr);
-    const yuvFrame = new YuvFrame(nativeYuvFrame);
+    const yuvFrame = YuvFrame.fromNative(nativeYuvFrame);
     nativeYuvFrame.close();
     return yuvFrame;
   }

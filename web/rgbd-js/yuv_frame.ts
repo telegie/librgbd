@@ -7,12 +7,25 @@ export class YuvFrame {
   width: number;
   height: number;
 
-  constructor(nativeYuvFrame: NativeYuvFrame) {
-    this.yChannel = nativeYuvFrame.getYChannel();
-    this.uChannel = nativeYuvFrame.getUChannel();
-    this.vChannel = nativeYuvFrame.getVChannel();
-    this.width = nativeYuvFrame.getWidth();
-    this.height = nativeYuvFrame.getHeight();
+  constructor(yChannel: Uint8Array,
+              uChannel: Uint8Array,
+              vChannel: Uint8Array,
+              width: number,
+              height: number) {
+    this.yChannel = yChannel;
+    this.uChannel = uChannel;
+    this.vChannel = vChannel;
+    this.width = width;
+    this.height = height;
+  }
+
+  static fromNative(nativeYuvFrame: NativeYuvFrame) {
+    const yChannel = nativeYuvFrame.getYChannel();
+    const uChannel = nativeYuvFrame.getUChannel();
+    const vChannel = nativeYuvFrame.getVChannel();
+    const width = nativeYuvFrame.getWidth();
+    const height = nativeYuvFrame.getHeight();
+    return new YuvFrame(yChannel, uChannel, vChannel, width, height);
   }
 }
 

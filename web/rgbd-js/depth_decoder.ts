@@ -28,7 +28,7 @@ export class NativeDepthDecoder {
     this.wasmModule._free(depthBytesPtr);
 
     const nativeInt32Frame = new NativeInt32Frame(this.wasmModule, nativeInt32FramePtr);
-    const int32Frame = new Int32Frame(nativeInt32Frame);
+    const int32Frame = Int32Frame.fromNative(nativeInt32Frame);
     nativeInt32Frame.close();
     return int32Frame;
   }
