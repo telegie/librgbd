@@ -166,12 +166,14 @@ class NativeUndistortedCameraCalibration(NativeCameraCalibration):
 
 
 class CameraCalibration:
-    def __init__(self, native_camera_calibration: NativeCameraCalibration):
-        self.camera_device_type = native_camera_calibration.get_camera_device_type()
-        self.color_width = native_camera_calibration.get_color_width()
-        self.color_height = native_camera_calibration.get_color_height()
-        self.depth_width = native_camera_calibration.get_depth_width()
-        self.depth_height = native_camera_calibration.get_depth_height()
+    def __init__(self, camera_device_type: CameraDeviceType,
+                 color_width: int, color_height: int,
+                 depth_width: int, depth_height: int):
+        self.camera_device_type = camera_device_type
+        self.color_width = color_width
+        self.color_height = color_height
+        self.depth_width = depth_width
+        self.depth_height = depth_height
 
     @classmethod
     def from_native(cls, native_camera_calibration: NativeCameraCalibration):
@@ -194,7 +196,14 @@ class CameraCalibration:
 
 class KinectCameraCalibration(CameraCalibration):
     def __init__(self, native_kinect_camera_calibration: NativeKinectCameraCalibration):
-        super().__init__(native_kinect_camera_calibration)
+        camera_device_type = native_kinect_camera_calibration.get_camera_device_type()
+        color_width = native_kinect_camera_calibration.get_color_width()
+        color_height = native_kinect_camera_calibration.get_color_height()
+        depth_width = native_kinect_camera_calibration.get_depth_width()
+        depth_height = native_kinect_camera_calibration.get_depth_height()
+        super().__init__(camera_device_type,
+                         color_width, color_height,
+                         depth_width, depth_height)
         self.resolution_width = native_kinect_camera_calibration.get_resolution_width()
         self.resolution_height = native_kinect_camera_calibration.get_resolution_height()
         self.cx = native_kinect_camera_calibration.get_cx()
@@ -240,7 +249,14 @@ class KinectCameraCalibration(CameraCalibration):
 
 class IosCameraCalibration(CameraCalibration):
     def __init__(self, native_ios_camera_calibration: NativeIosCameraCalibration):
-        super().__init__(native_ios_camera_calibration)
+        camera_device_type = native_ios_camera_calibration.get_camera_device_type()
+        color_width = native_ios_camera_calibration.get_color_width()
+        color_height = native_ios_camera_calibration.get_color_height()
+        depth_width = native_ios_camera_calibration.get_depth_width()
+        depth_height = native_ios_camera_calibration.get_depth_height()
+        super().__init__(camera_device_type,
+                         color_width, color_height,
+                         depth_width, depth_height)
         self.fx = native_ios_camera_calibration.get_fx()
         self.fy = native_ios_camera_calibration.get_fy()
         self.ox = native_ios_camera_calibration.get_ox()
@@ -276,7 +292,14 @@ class IosCameraCalibration(CameraCalibration):
 
 class UndistortedCameraCalibration(CameraCalibration):
     def __init__(self, native_undistorted_camera_calibration: NativeUndistortedCameraCalibration):
-        super().__init__(native_undistorted_camera_calibration)
+        camera_device_type = native_undistorted_camera_calibration.get_camera_device_type()
+        color_width = native_undistorted_camera_calibration.get_color_width()
+        color_height = native_undistorted_camera_calibration.get_color_height()
+        depth_width = native_undistorted_camera_calibration.get_depth_width()
+        depth_height = native_undistorted_camera_calibration.get_depth_height()
+        super().__init__(camera_device_type,
+                         color_width, color_height,
+                         depth_width, depth_height)
         self.fx = native_undistorted_camera_calibration.get_fx()
         self.fy = native_undistorted_camera_calibration.get_fy()
         self.cx = native_undistorted_camera_calibration.get_cx()
