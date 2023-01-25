@@ -58,11 +58,9 @@ class YuvFrame:
         return YuvFrame(width, height, y_channel, u_channel, v_channel)
 
     def to_native(self) -> NativeYuvFrame:
-        print("??")
         ptr = lib.rgbd_yuv_frame_ctor(self.width,
                                       self.height,
                                       cast_np_array_to_pointer(self.y_channel),
                                       cast_np_array_to_pointer(self.u_channel),
                                       cast_np_array_to_pointer(self.v_channel))
-        print("!!")
         return NativeYuvFrame(ptr)

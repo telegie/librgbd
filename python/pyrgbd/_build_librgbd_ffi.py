@@ -13,7 +13,7 @@ elif platform.system() == "Darwin":
     # TODO: These rpath to absolute library paths won't work
     # when the package is installed to another computer
     # without the binary file at the absolute rpath.
-    extra_link_args = [f"-Wl,-rpath,@loader_path"]
+    extra_link_args = [f"-Wl,-rpath,@loader_path,-no_fixup_chains"]
     # extra_link_args = None
 elif platform.system() == "Linux":
     include_dir = f"{librgbd_root}/include"

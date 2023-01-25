@@ -1,7 +1,6 @@
 import numpy as np
-from .capi_containers import NativeByteArray
 from ._librgbd_ffi import lib
-
+from .capi_containers import NativeByteArray
 
 class NativeAudioEncoderFrame:
     def __init__(self, ptr):

@@ -285,6 +285,7 @@ elseif(RGBD_OS_MAC)
     -lz
     -liconv
   )
+  list(APPEND RgbdLinkOptions "-Wl,-no_compact_unwind")
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_MAC)
 elseif(RGBD_OS_LINUX)
   list(APPEND RGBD_INCLUDES
@@ -329,7 +330,6 @@ elseif(RGBD_OS_WASM)
   )
   set(RgbdLibraryWasmLinkOptions
     "-Wl,--whole-archive"
-    # "SHELL:-s VERBOSE=1"
   )
   list(APPEND RgbdLinkOptions ${RgbdLibraryWasmOptions} ${RgbdLibraryWasmLinkOptions})
   list(APPEND RgbdCompileOptions ${RgbdLibraryWasmOptions})
@@ -340,7 +340,6 @@ target_include_directories(rgbd-static PRIVATE ${PROJECT_SOURCE_DIR}/include/rgb
 target_include_directories(rgbd-static PUBLIC ${RGBD_INCLUDES})
 target_link_libraries(rgbd-static PUBLIC ${RGBD_DEPENDENCIES})
 set_target_properties(rgbd-static PROPERTIES CXX_STANDARD 17)
-# set_target_properties(rgbd-static PROPERTIES OUTPUT_NAME rgbd)
 target_link_options(rgbd-static PUBLIC ${RgbdLinkOptions})
 target_compile_options(rgbd-static PUBLIC ${RgbdCompileOptions})
 target_compile_definitions(rgbd-static PUBLIC ${RgbdCompileDefinitions})

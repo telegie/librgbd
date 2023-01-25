@@ -1,6 +1,7 @@
 import numpy as np
 from ._librgbd_ffi import lib
 from .capi_containers import NativeInt32Array
+from .utils import cast_np_array_to_pointer
 
 
 class NativeInt32Frame:
@@ -38,3 +39,9 @@ class Int32Frame:
         height = native_int32_frame.get_height()
         values = native_int32_frame.get_values().to_np_array().reshape((height, width))
         return Int32Frame(width, height, values)
+
+    def to_native(self):
+        ptr = lib.rgbd_int32_frame_ctor(self.width,
+                                        self.height,
+                                        cast_np_array_to_pointer(self.values))
+        return NativeInt32Frame(ptr)

@@ -129,26 +129,23 @@ extern "C"
     //////// START COLOR DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_color_decoder_ctor(rgbdColorCodecType type);
     RGBD_INTERFACE_EXPORT void rgbd_color_decoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_color_decoder_decode(void* ptr,
-                                                          const uint8_t* vp8_frame_data,
-                                                          size_t vp8_frame_size);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t vp8_frame_size);
     //////// END COLOR DECODER ////////
 
     //////// START COLOR ENCODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(
         rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_encode(void* ptr,
-                                                          void* yuv_frame_ptr,
-                                                          bool keyframe);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_color_encoder_encode(void* ptr, void* yuv_frame_ptr, bool keyframe);
     //////// START COLOR ENCODER ////////
 
     //////// START DEPTH DECODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_ctor(rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_depth_decoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_depth_decoder_decode(void* ptr,
-                                                          const uint8_t* depth_bytes_data,
-                                                          size_t depth_bytes_size);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_depth_decoder_decode(void* ptr, const uint8_t* depth_bytes_data, size_t depth_bytes_size);
     //////// END DEPTH DECODER ////////
 
     //////// START DEPTH ENCODER ////////
@@ -156,7 +153,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void*
     rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier);
     RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe);
     //////// END DEPTH DECODER ////////
 
     //////// START DIRECTION TABLE ////////
@@ -243,12 +241,14 @@ extern "C"
     //////// END FILE INFO ////////
 
     //////// START FILE PARSER ////////
-    RGBD_INTERFACE_EXPORT int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size);
+    RGBD_INTERFACE_EXPORT int
+    rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions);
     //////// END FILE PARSER ////////
- 
+
     //////// START FILE TRACKS ////////
     RGBD_INTERFACE_EXPORT void rgbd_file_tracks_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_color_track(void* ptr);
@@ -292,11 +292,9 @@ extern "C"
     //////// START FILE VIDEO TRACK ////////
 
     //////// START FILE WRITER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor_to_path(const char* file_path,
-                                                              void* calibration,
-                                                              void* config);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor_in_memory(void* calibration,
-                                                                void* config);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_file_writer_ctor_to_path(const char* file_path, void* calibration, void* config);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_ctor_in_memory(void* calibration, void* config);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_cover(void* ptr,
                                                             int width,
@@ -304,22 +302,20 @@ extern "C"
                                                             const uint8_t* y_channel,
                                                             const uint8_t* u_channel,
                                                             const uint8_t* v_channel);
-    RGBD_INTERFACE_EXPORT void
-    rgbd_file_writer_write_video_frame(void* ptr,
-                                       int64_t time_point_us,
-                                       bool keyframe,
-                                       const uint8_t* color_bytes,
-                                       size_t color_byte_size,
-                                       const uint8_t* depth_bytes,
-                                       size_t depth_byte_size);
-    RGBD_INTERFACE_EXPORT void
-    rgbd_file_writer_write_video_frame_wasm(void* ptr,
-                                            int time_point_us,
-                                            bool keyframe,
-                                            const uint8_t* color_bytes,
-                                            size_t color_byte_size,
-                                            const uint8_t* depth_bytes,
-                                            size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_video_frame(void* ptr,
+                                                                  int64_t time_point_us,
+                                                                  bool keyframe,
+                                                                  const uint8_t* color_bytes,
+                                                                  size_t color_byte_size,
+                                                                  const uint8_t* depth_bytes,
+                                                                  size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_video_frame_wasm(void* ptr,
+                                                                       int time_point_us,
+                                                                       bool keyframe,
+                                                                       const uint8_t* color_bytes,
+                                                                       size_t color_byte_size,
+                                                                       const uint8_t* depth_bytes,
+                                                                       size_t depth_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_write_audio_frame(void* ptr,
                                                                   int64_t time_point_us,
                                                                   const uint8_t* audio_bytes,
@@ -396,7 +392,8 @@ extern "C"
     //////// END FILE WRITER CONFIG ////////
 
     //////// START FRAME MAPPER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_ctor(void* src_calibration, void* dst_calibration);
+    RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_ctor(void* src_calibration,
+                                                       void* dst_calibration);
     RGBD_INTERFACE_EXPORT void rgbd_frame_mapper_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_map_color_frame(void* ptr, void* color_frame);
     RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_map_depth_frame(void* ptr, void* depth_frame);
@@ -446,6 +443,8 @@ extern "C"
     //////// END KINECT CAMERA CALIBRATION ////////
 
     //////// START INT32 FRAME ////////
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_int32_frame_ctor(int width, int height, const int32_t* depth_values);
     RGBD_INTERFACE_EXPORT void rgbd_int32_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_width(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_height(void* ptr);
