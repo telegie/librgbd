@@ -298,13 +298,11 @@ void rgbd_color_encoder_dtor(void* ptr)
 }
 
 void* rgbd_color_encoder_encode(void* ptr,
-                                const uint8_t* y_channel,
-                                const uint8_t* u_channel,
-                                const uint8_t* v_channel,
+                                void* yuv_frame_ptr,
                                 bool keyframe)
 {
     auto encoder{static_cast<ColorEncoder*>(ptr)};
-    auto bytes{encoder->encode(y_channel, u_channel, v_channel, keyframe)};
+    auto bytes{encoder->encode(*static_cast<YuvFrame*>(yuv_frame_ptr), keyframe)};
     return new NativeByteArray{std::move(bytes)};
 }
 //////// START COLOR ENCODER ////////

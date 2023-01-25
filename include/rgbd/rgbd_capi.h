@@ -139,9 +139,7 @@ extern "C"
         rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_encode(void* ptr,
-                                                          const uint8_t* y_channel,
-                                                          const uint8_t* u_channel,
-                                                          const uint8_t* v_channel,
+                                                          void* yuv_frame_ptr,
                                                           bool keyframe);
     //////// START COLOR ENCODER ////////
 

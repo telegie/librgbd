@@ -25,8 +25,7 @@ class NativeColorEncoder:
         self.close()
 
     def encode(self, yuv_frame: YuvFrame, keyframe) -> np.array:
-        return NativeByteArray(lib.rgbd_color_encoder_encode(self.ptr,
-                                                             cast_np_array_to_pointer(yuv_frame.y_channel),
-                                                             cast_np_array_to_pointer(yuv_frame.u_channel),
-                                                             cast_np_array_to_pointer(yuv_frame.v_channel),
-                                                             keyframe)).to_np_array()
+        with yuv_frame.to_native() as native_yuv_frame:
+            return NativeByteArray(lib.rgbd_color_encoder_encode(self.ptr,
+                                                                 native_yuv_frame.ptr,
+                                                                 keyframe)).to_np_array()

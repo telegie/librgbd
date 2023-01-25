@@ -1,5 +1,6 @@
 from ._librgbd_ffi import lib
 from .capi_containers import NativeUInt8Array
+from .utils import cast_np_array_to_pointer
 import numpy as np
 
 
@@ -55,3 +56,13 @@ class YuvFrame:
         v_channel = native_yuv_frame.get_v_channel().to_np_array()
         v_channel = v_channel.reshape((height // 2, width // 2))
         return YuvFrame(width, height, y_channel, u_channel, v_channel)
+
+    def to_native(self) -> NativeYuvFrame:
+        print("??")
+        ptr = lib.rgbd_yuv_frame_ctor(self.width,
+                                      self.height,
+                                      cast_np_array_to_pointer(self.y_channel),
+                                      cast_np_array_to_pointer(self.u_channel),
+                                      cast_np_array_to_pointer(self.v_channel))
+        print("!!")
+        return NativeYuvFrame(ptr)
