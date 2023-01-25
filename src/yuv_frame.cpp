@@ -32,6 +32,25 @@ vector<uint8_t> convert_channel_plane_to_bytes(const uint8_t* buffer,
 
 YuvFrame::YuvFrame(const int width,
                    const int height,
+                   const uint8_t* y_channel,
+                   const uint8_t* u_channel,
+                   const uint8_t* v_channel)
+    : width_{width}
+    , height_{height}
+    , y_channel_{}
+    , u_channel_{}
+    , v_channel_{}
+
+{
+    int y_size{width * height};
+    int uv_size{y_size / 4};
+    y_channel_.insert(y_channel_.end(), &y_channel[0], &y_channel[y_size]);
+    u_channel_.insert(u_channel_.end(), &u_channel[0], &u_channel[uv_size]);
+    v_channel_.insert(v_channel_.end(), &v_channel[0], &v_channel[uv_size]);
+}
+
+YuvFrame::YuvFrame(const int width,
+                   const int height,
                    vector<uint8_t>&& y_channel,
                    vector<uint8_t>&& u_channel,
                    vector<uint8_t>&& v_channel) noexcept

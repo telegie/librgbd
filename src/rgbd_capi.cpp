@@ -1377,6 +1377,15 @@ float rgbd_undistorted_camera_calibration_get_cy(void* ptr)
 //////// END UNDISTORTED CAMERA CALIBRATION ////////
 
 //////// START YUV FRAME ////////
+void* rgbd_yuv_frame_ctor(int width,
+                          int height,
+                          const uint8_t* y_channel,
+                          const uint8_t* u_channel,
+                          const uint8_t* v_channel)
+{
+    return new YuvFrame{width, height, y_channel, u_channel, v_channel};
+}
+
 void rgbd_yuv_frame_dtor(void* ptr)
 {
     delete static_cast<YuvFrame*>(ptr);

@@ -504,6 +504,11 @@ extern "C"
     //////// END UNDISTORTED CAMERA CALIBRATION ////////
 
     //////// START YUV FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_ctor(int width,
+                                                    int height,
+                                                    const uint8_t* y_channel,
+                                                    const uint8_t* u_channel,
+                                                    const uint8_t* v_channel);
     RGBD_INTERFACE_EXPORT void rgbd_yuv_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_y_channel(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_u_channel(void* ptr);

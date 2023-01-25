@@ -16,6 +16,11 @@ class YuvFrame
 public:
     YuvFrame(const int width,
              const int height,
+             const uint8_t* y_channel,
+             const uint8_t* u_channel,
+             const uint8_t* v_channel);
+    YuvFrame(const int width,
+             const int height,
              vector<uint8_t>&& y_channel,
              vector<uint8_t>&& u_channel,
              vector<uint8_t>&& v_channel) noexcept;
@@ -27,6 +32,14 @@ public:
     static YuvFrame createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
     YuvFrame getDownsampled(int downsampling_factor) const;
+    int width() const noexcept
+    {
+        return width_;
+    }
+    int height() const noexcept
+    {
+        return height_;
+    }
     const vector<uint8_t>& y_channel() const noexcept
     {
         return y_channel_;
@@ -51,14 +64,6 @@ public:
     {
         return v_channel_;
     }
-    int width() const noexcept
-    {
-        return width_;
-    }
-    int height() const noexcept
-    {
-        return height_;
-    }
 
 private:
     static YuvFrame createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,
@@ -71,10 +76,10 @@ private:
                                                             int stride) noexcept;
 
 private:
+    int width_;
+    int height_;
     vector<uint8_t> y_channel_;
     vector<uint8_t> u_channel_;
     vector<uint8_t> v_channel_;
-    int width_;
-    int height_;
 };
 } // namespace rgbd
