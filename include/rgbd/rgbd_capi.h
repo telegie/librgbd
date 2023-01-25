@@ -397,6 +397,13 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit);
     //////// END FILE WRITER CONFIG ////////
 
+    //////// START FRAME MAPPER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_ctor(void* src_calibration, void* dst_calibration);
+    RGBD_INTERFACE_EXPORT void rgbd_frame_mapper_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_map_color_frame(void* ptr, void* color_frame);
+    RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_map_depth_frame(void* ptr, void* depth_frame);
+    //////// END FRAME MAPPER ////////
+
     //////// START KINECT CAMERA CALIBRATION ////////
     RGBD_INTERFACE_EXPORT void*
     rgbd_kinect_camera_calibration_ctor(int color_width,

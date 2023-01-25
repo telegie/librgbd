@@ -215,12 +215,11 @@ void standardize_calibration(const std::string& file_path)
             first = false;
         }
 
-        spdlog::info("depth_frame: {}, {}", depth_frame->width(), depth_frame->height());
-        YuvFrame mapped_color_frame{frame_mapper.mapColorFrame(*color_frame)};
-        Int32Frame mapped_depth_frame{frame_mapper.mapDepthFrame(*depth_frame)};
+        auto mapped_color_frame{frame_mapper.mapColorFrame(*color_frame)};
+        auto mapped_depth_frame{frame_mapper.mapDepthFrame(*depth_frame)};
 
-        auto color_bytes{color_encoder.encode(mapped_color_frame, keyframe)};
-        auto depth_bytes{depth_encoder->encode(mapped_depth_frame.values().data(), keyframe)};
+        auto color_bytes{color_encoder.encode(*mapped_color_frame, keyframe)};
+        auto depth_bytes{depth_encoder->encode(mapped_depth_frame->values().data(), keyframe)};
 
         file_writer.writeVideoFrame(video_time_point_us,
                                     keyframe,

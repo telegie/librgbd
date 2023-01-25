@@ -59,7 +59,7 @@ FrameMapper::FrameMapper(const rgbd::CameraCalibration& src_calibration,
 {
 }
 
-YuvFrame FrameMapper::mapColorFrame(const YuvFrame& color_frame)
+unique_ptr<YuvFrame> FrameMapper::mapColorFrame(const YuvFrame& color_frame)
 {
     vector<uint8_t> mapped_y_channel(dst_color_width_ * dst_color_height_);
     for (size_t i{0}; i < mapped_y_channel.size(); ++i) {
@@ -87,14 +87,14 @@ YuvFrame FrameMapper::mapColorFrame(const YuvFrame& color_frame)
         }
     }
 
-    return YuvFrame{dst_color_width_,
-                    dst_color_height_,
-                    std::move(mapped_y_channel),
-                    std::move(mapped_u_channel),
-                    std::move(mapped_v_channel)};
+    return std::make_unique<YuvFrame>(dst_color_width_,
+                                      dst_color_height_,
+                                      std::move(mapped_y_channel),
+                                      std::move(mapped_u_channel),
+                                      std::move(mapped_v_channel));
 }
 
-Int32Frame FrameMapper::mapDepthFrame(const Int32Frame& depth_frame)
+unique_ptr<Int32Frame> FrameMapper::mapDepthFrame(const Int32Frame& depth_frame)
 {
     vector<int> mapped_depth_values(dst_depth_width_ * dst_depth_height_);
     for (size_t i{0}; i < mapped_depth_values.size(); ++i) {
@@ -106,9 +106,6 @@ Int32Frame FrameMapper::mapDepthFrame(const Int32Frame& depth_frame)
         }
     }
 
-    spdlog::info("dst_depth_width_: {}", dst_depth_width_);
-    spdlog::info("dst_depth_height_: {}", dst_depth_height_);
-    spdlog::info("mapped_depth_values.size(): {}", mapped_depth_values.size());
-    return Int32Frame{dst_depth_width_, dst_depth_height_, mapped_depth_values};
+    return std::make_unique<Int32Frame>(dst_depth_width_, dst_depth_height_, mapped_depth_values);
 }
-}
+} // namespace rgbd

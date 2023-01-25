@@ -11,8 +11,8 @@ class FrameMapper
 public:
     FrameMapper(const rgbd::CameraCalibration& src_calibration,
                 const rgbd::CameraCalibration& dst_calibration);
-    YuvFrame mapColorFrame(const YuvFrame& yuv_frame);
-    Int32Frame mapDepthFrame(const Int32Frame& depth_frame);
+    unique_ptr<YuvFrame> mapColorFrame(const YuvFrame& yuv_frame);
+    unique_ptr<Int32Frame> mapDepthFrame(const Int32Frame& depth_frame);
 
 private:
     int dst_color_width_;

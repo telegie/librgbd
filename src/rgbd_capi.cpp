@@ -1,16 +1,6 @@
 #include "rgbd_capi.h"
 
-#include "audio_decoder.hpp"
-#include "capi_containers.hpp"
-#include "color_decoder.hpp"
-#include "file.hpp"
-#include "file_parser.hpp"
-#include "file_writer.hpp"
-#include "integer_frame.hpp"
-#include "ios_camera_calibration.hpp"
-#include "kinect_camera_calibration.hpp"
-#include "tdc1_decoder.hpp"
-#include "undistorted_camera_calibration.hpp"
+#include "rgbd.hpp"
 
 using namespace rgbd;
 
@@ -1078,6 +1068,34 @@ void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)
     static_cast<FileWriterConfig*>(ptr)->depth_unit = depth_unit;
 }
 //////// END FILE WRITER CONFIG ////////
+
+//////// START FRAME MAPPER ////////
+void* rgbd_frame_mapper_ctor(void* src_calibration, void* dst_calibration)
+{
+    return new FrameMapper{*static_cast<const CameraCalibration*>(src_calibration),
+            *static_cast<const CameraCalibration*>(dst_calibration)
+    };
+}
+
+void rgbd_frame_mapper_dtor(void* ptr)
+{
+    delete static_cast<FrameMapper*>(ptr);
+}
+
+void* rgbd_frame_mapper_map_color_frame(void* ptr, void* color_frame)
+{
+    auto frame_mapper{static_cast<FrameMapper*>(ptr)};
+    auto mapped_color_frame{frame_mapper->mapColorFrame(*static_cast<YuvFrame*>(color_frame))};
+    return mapped_color_frame.release();
+}
+
+void* rgbd_frame_mapper_map_depth_frame(void* ptr, void* depth_frame)
+{
+    auto frame_mapper{static_cast<FrameMapper*>(ptr)};
+    auto mapped_depth_frame{frame_mapper->mapDepthFrame(*static_cast<Int32Frame *>(depth_frame))};
+    return mapped_depth_frame.release();
+}
+//////// END FRAME MAPPER ////////
 
 //////// START KINECT CAMERA CALIBRATION ////////
 void* rgbd_kinect_camera_calibration_ctor(int color_width,
