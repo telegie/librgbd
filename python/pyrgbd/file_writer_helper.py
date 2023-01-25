@@ -3,7 +3,6 @@ from .depth_decoder import DepthCodecType
 from .file import FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame
 from .file_writer import NativeFileWriterConfig, NativeFileWriter
 from .yuv_frame import YuvFrame
-from .utils import cast_np_array_to_pointer
 
 
 class FileWriterHelper:
@@ -61,19 +60,19 @@ class FileWriterHelper:
             raise Exception("No frame found from FileWriterHelper")
         minimum_time_point_us = min(initial_time_points)
 
-        if self.calibration == None:
+        if self.calibration is None:
             raise Exception("No CameraCalibration found from FileWriterHelper")
 
-        with self.calibration.to_native() as native_calibration:
-            write_config = NativeFileWriterConfig()
-            write_config.set_depth_codec_type(self.depth_codec_type)
-            if self.depth_unit is not None:
-                write_config.set_depth_unit(self.depth_unit)
-            file_writer = NativeFileWriter(output_file_path,
-                                           native_calibration,
-                                           write_config)
+        writer_config = NativeFileWriterConfig()
+        writer_config.set_depth_codec_type(self.depth_codec_type)
+        if self.depth_unit is not None:
+            writer_config.set_depth_unit(self.depth_unit)
+        file_writer = NativeFileWriter(output_file_path,
+                                       self.calibration,
+                                       writer_config)
 
-        file_writer.write_cover(self.cover)
+        if self.cover is not None:
+            file_writer.write_cover(self.cover)
 
         audio_frame_index = 0
         imu_frame_index = 0

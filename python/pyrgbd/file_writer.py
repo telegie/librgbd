@@ -1,5 +1,5 @@
 from ._librgbd_ffi import lib
-from .camera_calibration import NativeCameraCalibration
+from .camera_calibration import CameraCalibration
 from .depth_decoder import DepthCodecType
 from .utils import cast_np_array_to_pointer
 from .yuv_frame import YuvFrame
@@ -34,8 +34,11 @@ class NativeFileWriterConfig:
 
 
 class NativeFileWriter:
-    def __init__(self, file_path, native_calibration: NativeCameraCalibration, native_config: NativeFileWriterConfig):
-        self.ptr = lib.rgbd_file_writer_ctor_to_path(file_path.encode("utf8"), native_calibration.ptr, native_config.ptr)
+    def __init__(self, file_path, calibration: CameraCalibration, native_config: NativeFileWriterConfig):
+        with calibration.to_native() as native_calibration:
+            self.ptr = lib.rgbd_file_writer_ctor_to_path(file_path.encode("utf8"),
+                                                         native_calibration.ptr,
+                                                         native_config.ptr)
 
     def close(self):
         lib.rgbd_file_writer_dtor(self.ptr)
