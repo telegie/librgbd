@@ -188,7 +188,6 @@ export class FileVideoFrame {
     const depthBytesPtr = wasmModule._malloc(this.depthBytes.byteLength);
     wasmModule.HEAPU8.set(this.colorBytes, colorBytesPtr);
     wasmModule.HEAPU8.set(this.depthBytes, depthBytesPtr);
-
     const ptr = wasmModule.ccall('rgbd_file_video_frame_ctor_wasm',
                                  'number',
                                  ['number', 'number', 'number', 'number', 'number', 'number'],
@@ -215,6 +214,18 @@ export class FileAudioFrame {
     const timePointUs = nativeFileAudioFrame.getTimePointUs();
     const bytes = nativeFileAudioFrame.getBytes();
     return new FileAudioFrame(timePointUs, bytes);
+  }
+
+  toNative(wasmModule: any) {
+    const bytesPtr = wasmModule._malloc(this.bytes.byteLength);
+    wasmModule.HEAPU8.set(this.bytes, bytesPtr);
+    const ptr = wasmModule.ccall('rgbd_file_audio_frame_ctor_wasm',
+                                 'number',
+                                 ['number', 'number', 'number'],
+                                 [this.timePointUs, bytesPtr, this.bytes.byteLength]);
+    wasmModule._free(bytesPtr);
+
+    return new NativeFileAudioFrame(wasmModule, ptr, true);
   }
 }
 
@@ -249,6 +260,23 @@ export class FileIMUFrame {
                             magneticField,
                             gravity)
   }
+
+  toNative(wasmModule: any): NativeFileIMUFrame {
+    const ptr = wasmModule.ccall('rgbd_file_imu_frame_ctor_wasm',
+                                 'number',
+                                 ['number',
+                                  'number', 'number', 'number',
+                                  'number', 'number', 'number',
+                                  'number', 'number', 'number',
+                                  'number', 'number', 'number'],
+                                 [this.timePointUs,
+                                  this.acceleration.x, this.acceleration.y, this.acceleration.z,
+                                  this.rotationRate.x, this.rotationRate.y, this.rotationRate.z,
+                                  this.magneticField.x, this.magneticField.y, this.magneticField.z,
+                                  this.gravity.x, this.gravity.y, this.gravity.z]);
+
+    return new NativeFileIMUFrame(wasmModule, ptr, true);
+  }
 }
 
 export class FileTRSFrame {
@@ -273,6 +301,21 @@ export class FileTRSFrame {
     const rotation = nativeFileTRSFrame.getRotation();
     const scale = nativeFileTRSFrame.getScale();
     return new FileTRSFrame(timePointUs, translation, rotation, scale);
+  }
+
+  toNative(wasmModule: any): NativeFileTRSFrame {
+    const ptr = wasmModule.ccall('rgbd_file_trs_frame_ctor_wasm',
+                                 'number',
+                                 ['number',
+                                  'number', 'number', 'number',
+                                  'number', 'number', 'number', 'number',
+                                  'number', 'number', 'number'],
+                                 [this.timePointUs,
+                                  this.translation.x, this.translation.y, this.translation.z,
+                                  this.rotation.w, this.rotation.x, this.rotation.y, this.rotation.z,
+                                  this.scale.x, this.scale.y, this.scale.z]);
+
+    return new NativeFileTRSFrame(wasmModule, ptr, true);
   }
 }
 

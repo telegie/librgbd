@@ -58,6 +58,17 @@ void FileWriterHelper::addTRSFrame(const FileTRSFrame& trs_frame)
 
 void FileWriterHelper::writeToPath(const std::string& path)
 {
+    write(path);
+}
+
+Bytes FileWriterHelper::writeToBytes()
+{
+    auto file_writer{write(std::nullopt)};
+    return file_writer->getBytes();
+}
+
+unique_ptr<FileWriter> FileWriterHelper::write(optional<string> path)
+{
     sort(video_frames_.begin(),
          video_frames_.end(),
          [](const FileVideoFrame& lhs, const FileVideoFrame& rhs) {
@@ -103,10 +114,15 @@ void FileWriterHelper::writeToPath(const std::string& path)
     writer_config.depth_codec_type = depth_codec_type_;
     if (depth_unit_)
         writer_config.depth_unit = *depth_unit_;
-    FileWriter file_writer{path, *calibration_, writer_config};
+    unique_ptr<FileWriter> file_writer;
+    if (path) {
+        file_writer.reset(new FileWriter{*path, *calibration_, writer_config});
+    } else {
+        file_writer.reset(new FileWriter{*calibration_, writer_config});
+    }
 
     if (cover_) {
-        file_writer.writeCover(*cover_);
+        file_writer->writeCover(*cover_);
         spdlog::info("writing cover");
     }
 
@@ -120,38 +136,39 @@ void FileWriterHelper::writeToPath(const std::string& path)
             auto& audio_frame{audio_frames_[audio_frame_index]};
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeAudioFrame(audio_frame.time_point_us() - minimum_time_point_us,
-                                        audio_frame.bytes());
+            file_writer->writeAudioFrame(audio_frame.time_point_us() - minimum_time_point_us,
+                                         audio_frame.bytes());
             ++audio_frame_index;
         }
         while (imu_frame_index < imu_frames_.size()) {
             auto& imu_frame{imu_frames_[imu_frame_index]};
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeIMUFrame(imu_frame.time_point_us() - minimum_time_point_us,
-                                      imu_frame.acceleration(),
-                                      imu_frame.rotation_rate(),
-                                      imu_frame.magnetic_field(),
-                                      imu_frame.gravity());
+            file_writer->writeIMUFrame(imu_frame.time_point_us() - minimum_time_point_us,
+                                       imu_frame.acceleration(),
+                                       imu_frame.rotation_rate(),
+                                       imu_frame.magnetic_field(),
+                                       imu_frame.gravity());
             ++imu_frame_index;
         }
         while (trs_frame_index < trs_frames_.size()) {
             auto& trs_frame{trs_frames_[trs_frame_index]};
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeTRSFrame(trs_frame.time_point_us() - minimum_time_point_us,
-                                      trs_frame.translation(),
-                                      trs_frame.rotation(),
-                                      trs_frame.scale());
+            file_writer->writeTRSFrame(trs_frame.time_point_us() - minimum_time_point_us,
+                                       trs_frame.translation(),
+                                       trs_frame.rotation(),
+                                       trs_frame.scale());
             ++trs_frame_index;
         }
 
-        file_writer.writeVideoFrame(video_frame.time_point_us(),
-                                    video_frame.keyframe(),
-                                    video_frame.color_bytes(),
-                                    video_frame.depth_bytes());
+        file_writer->writeVideoFrame(video_frame.time_point_us(),
+                                     video_frame.keyframe(),
+                                     video_frame.color_bytes(),
+                                     video_frame.depth_bytes());
     }
 
-    file_writer.flush();
+    file_writer->flush();
+    return file_writer;
 }
 } // namespace rgbd

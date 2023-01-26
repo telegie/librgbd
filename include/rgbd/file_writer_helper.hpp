@@ -18,6 +18,10 @@ public:
     void addIMUFrame(const FileIMUFrame& imu_frame);
     void addTRSFrame(const FileTRSFrame& trs_frame);
     void writeToPath(const std::string& path);
+    Bytes writeToBytes();
+
+private:
+    unique_ptr<FileWriter> write(optional<string> path);
 
 private:
     unique_ptr<CameraCalibration> calibration_;

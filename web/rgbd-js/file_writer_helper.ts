@@ -1,4 +1,5 @@
 import { CameraCalibration } from "./camera_calibration";
+import { NativeByteArray } from "./capi_containers";
 import { DepthCodecType } from "./depth_decoder";
 import { FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame } from "./file";
 import { NativeFileWriter, NativeFileWriterConfig } from "./file_writer";
@@ -41,6 +42,32 @@ export class NativeFileWriterHelper {
     const nativeVideoFrame = videoFrame.toNative(this.wasmModule);
     this.wasmModule.ccall('rgbd_file_writer_helper_add_video_frame', null, ['number', 'number'], [this.ptr, nativeVideoFrame.ptr]);
     nativeVideoFrame.close();
+  }
+
+  addAudioFrame(audioFrame: FileAudioFrame) {
+    const nativeAudioFrame = audioFrame.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_add_audio_frame', null, ['number', 'number'], [this.ptr, nativeAudioFrame.ptr]);
+    nativeAudioFrame.close();
+  }
+
+  addIMUFrame(imuFrame: FileIMUFrame) {
+    const nativeIMUFrame = imuFrame.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_add_imu_frame', null, ['number', 'number'], [this.ptr, nativeIMUFrame.ptr]);
+    nativeIMUFrame.close();
+  }
+
+  addTRSFrame(trsFrame: FileTRSFrame) {
+    const nativeTRSFrame = trsFrame.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_add_trs_frame', null, ['number', 'number'], [this.ptr, nativeTRSFrame.ptr]);
+    nativeTRSFrame.close();
+  }
+
+  writeToBytes(): Uint8Array {
+    const nativeBytesPtr = this.wasmModule.ccall('rgbd_file_writer_helper_write_to_bytes', null, ['number'], [this.ptr]);
+    const nativeBytes = new NativeByteArray(this.wasmModule, nativeBytesPtr);
+    const bytes = nativeBytes.toArray();
+    nativeBytes.close();
+    return bytes;
   }
 }
 

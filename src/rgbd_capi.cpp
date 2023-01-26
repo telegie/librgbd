@@ -483,6 +483,13 @@ void* rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_dat
     return new FileAudioFrame{time_point_us, bytes};
 }
 
+void* rgbd_file_audio_frame_ctor_wasm(int time_point_us,
+                                      const uint8_t* bytes_data,
+                                      size_t byte_size)
+{
+    return rgbd_file_audio_frame_ctor(time_point_us, bytes_data, byte_size);
+}
+
 void rgbd_file_audio_frame_dtor(void* ptr)
 {
     delete static_cast<FileAudioFrame*>(ptr);
@@ -570,6 +577,36 @@ void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
                             glm::vec3{rotation_rate_x, rotation_rate_y, rotation_rate_z},
                             glm::vec3{magnetic_field_x, magnetic_field_y, magnetic_field_z},
                             glm::vec3{gravity_x, gravity_y, gravity_z}};
+}
+
+
+void* rgbd_file_imu_frame_ctor_wasm(int time_point_us,
+                                    float acceleration_x,
+                                    float acceleration_y,
+                                    float acceleration_z,
+                                    float rotation_rate_x,
+                                    float rotation_rate_y,
+                                    float rotation_rate_z,
+                                    float magnetic_field_x,
+                                    float magnetic_field_y,
+                                    float magnetic_field_z,
+                                    float gravity_x,
+                                    float gravity_y,
+                                    float gravity_z)
+{
+    return rgbd_file_imu_frame_ctor(time_point_us,
+                                    acceleration_x,
+                                    acceleration_y,
+                                    acceleration_z,
+                                    rotation_rate_x,
+                                    rotation_rate_y,
+                                    rotation_rate_z,
+                                    magnetic_field_x,
+                                    magnetic_field_y,
+                                    magnetic_field_z,
+                                    gravity_x,
+                                    gravity_y,
+                                    gravity_z);
 }
 
 void rgbd_file_imu_frame_dtor(void* ptr)
@@ -743,6 +780,31 @@ void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
                             glm::vec3{translation_x, translation_y, translation_z},
                             glm::quat{rotation_w, rotation_x, rotation_y, rotation_z},
                             glm::vec3{scale_x, scale_y, scale_z}};
+}
+
+void* rgbd_file_trs_frame_ctor_wasm(int time_point_us,
+                                    float translation_x,
+                                    float translation_y,
+                                    float translation_z,
+                                    float rotation_w,
+                                    float rotation_x,
+                                    float rotation_y,
+                                    float rotation_z,
+                                    float scale_x,
+                                    float scale_y,
+                                    float scale_z)
+{
+    return rgbd_file_trs_frame_ctor(time_point_us,
+                                    translation_x,
+                                    translation_y,
+                                    translation_z,
+                                    rotation_w,
+                                    rotation_x,
+                                    rotation_y,
+                                    rotation_z,
+                                    scale_x,
+                                    scale_y,
+                                    scale_z);
 }
 
 void rgbd_file_trs_frame_dtor(void* ptr)
@@ -1187,6 +1249,12 @@ void rgbd_file_writer_helper_write_to_path(void* ptr, const char* path)
 {
     auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
     file_writer_helper->writeToPath(path);
+}
+
+void* rgbd_file_writer_helper_write_to_bytes(void* ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    return new NativeByteArray{file_writer_helper->writeToBytes()};
 }
 //////// END FILE WRITER HELPER ////////
 
