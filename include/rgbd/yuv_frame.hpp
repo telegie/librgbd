@@ -25,10 +25,6 @@ public:
              vector<uint8_t>&& u_channel,
              vector<uint8_t>&& v_channel) noexcept;
     YuvFrame(AVFrameHandle& av_frame);
-    YuvFrame(const YuvFrame& other) noexcept;
-    YuvFrame(YuvFrame&& other) noexcept;
-    YuvFrame& operator=(const YuvFrame& other) = delete;
-    YuvFrame& operator=(YuvFrame&& other) = delete;
     static YuvFrame createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
     YuvFrame getDownsampled(int downsampling_factor) const;

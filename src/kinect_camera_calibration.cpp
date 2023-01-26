@@ -49,6 +49,11 @@ KinectCameraCalibration::KinectCameraCalibration(int color_width,
 {
 }
 
+unique_ptr<CameraCalibration> KinectCameraCalibration::clone() const noexcept
+{
+    return unique_ptr<CameraCalibration>(new KinectCameraCalibration{*this});
+}
+
 KinectCameraCalibration KinectCameraCalibration::fromBytes(const Bytes& bytes, int& cursor)
 {
     auto color_width{read_from_bytes<int>(bytes, cursor)};

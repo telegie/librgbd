@@ -29,6 +29,7 @@ public:
                             float p1,
                             float p2,
                             float max_radius_for_projection);
+    unique_ptr<CameraCalibration> clone() const noexcept;
     static KinectCameraCalibration fromBytes(const Bytes& bytes, int& cursor);
     static KinectCameraCalibration fromJson(const json& json);
     Bytes toBytes() const noexcept;

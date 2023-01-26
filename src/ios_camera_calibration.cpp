@@ -37,6 +37,11 @@ IosCameraCalibration::IosCameraCalibration(int color_width,
     inverse_lens_distortion_lookup_table_.assign(inverse_lens_distortion_lookup_table.begin(), inverse_lens_distortion_lookup_table.end());
 }
 
+unique_ptr<CameraCalibration> IosCameraCalibration::clone() const noexcept
+{
+    return unique_ptr<CameraCalibration>(new IosCameraCalibration{*this});
+}
+
 IosCameraCalibration IosCameraCalibration::fromBytes(const Bytes& bytes, int& cursor)
 {
     int color_width{read_from_bytes<int>(bytes, cursor)};

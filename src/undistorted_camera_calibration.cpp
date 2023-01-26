@@ -22,6 +22,11 @@ UndistortedCameraCalibration::UndistortedCameraCalibration(
 {
 }
 
+unique_ptr<CameraCalibration> UndistortedCameraCalibration::clone() const noexcept
+{
+    return unique_ptr<CameraCalibration>(new UndistortedCameraCalibration{*this});
+}
+
 UndistortedCameraCalibration UndistortedCameraCalibration::fromJson(const json& json)
 {
     int color_width{json["colorWidth"].get<int>()};

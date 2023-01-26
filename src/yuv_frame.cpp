@@ -80,24 +80,6 @@ YuvFrame::YuvFrame(AVFrameHandle& av_frame)
         av_frame->data[2], av_frame->linesize[2], width_ / 2, height_ / 2);
 }
 
-YuvFrame::YuvFrame(const YuvFrame& other) noexcept
-    : y_channel_{other.y_channel_}
-    , u_channel_{other.u_channel_}
-    , v_channel_{other.v_channel_}
-    , width_(other.width_)
-    , height_(other.height_)
-{
-}
-
-YuvFrame::YuvFrame(YuvFrame&& other) noexcept
-    : y_channel_{std::move(other.y_channel_)}
-    , u_channel_{std::move(other.u_channel_)}
-    , v_channel_{std::move(other.v_channel_)}
-    , width_(other.width_)
-    , height_(other.height_)
-{
-}
-
 YuvFrame YuvFrame::createFromAzureKinectYuy2Buffer(const uint8_t* buffer,
                                                    const int width,
                                                    const int height,

@@ -16,6 +16,7 @@ public:
                                  float fy,
                                  float cx,
                                  float cy);
+    unique_ptr<CameraCalibration> clone() const noexcept;
     static UndistortedCameraCalibration fromJson(const json& json);
     json toJson() const noexcept;
     CameraDeviceType getCameraDeviceType() const noexcept;

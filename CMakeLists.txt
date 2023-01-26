@@ -177,6 +177,7 @@ set(RGBD_SOURCES
   include/rgbd/file.hpp
   include/rgbd/file_parser.hpp
   include/rgbd/file_writer.hpp
+  include/rgbd/file_writer_helper.hpp
   include/rgbd/frame_mapper.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -212,6 +213,7 @@ set(RGBD_SOURCES
   src/file.cpp
   src/file_parser.cpp
   src/file_writer.cpp
+  src/file_writer_helper.cpp
   src/frame_mapper.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
