@@ -16,6 +16,7 @@
 #include <rgbd/file.hpp>
 #include <rgbd/file_parser.hpp>
 #include <rgbd/file_writer.hpp>
+#include <rgbd/file_writer_helper.hpp>
 #include <rgbd/frame_mapper.hpp>
 #include <rgbd/integer_frame.hpp>
 #include <rgbd/ios_calibration_utils.hpp>

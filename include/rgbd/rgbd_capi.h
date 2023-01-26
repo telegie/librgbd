@@ -191,6 +191,8 @@ extern "C"
     //////// END FILE ATTACHMENTS ////////
 
     //////// START FILE AUDIO FRAME ////////
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_audio_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_audio_frame_get_bytes(void* ptr);
@@ -217,6 +219,19 @@ extern "C"
     //////// END FILE FRAME ////////
 
     //////// START FILE IMU FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
+                                                         float acceleration_x,
+                                                         float acceleration_y,
+                                                         float acceleration_z,
+                                                         float rotation_rate_x,
+                                                         float rotation_rate_y,
+                                                         float rotation_rate_z,
+                                                         float magnetic_field_x,
+                                                         float magnetic_field_y,
+                                                         float magnetic_field_z,
+                                                         float gravity_x,
+                                                         float gravity_y,
+                                                         float gravity_z);
     RGBD_INTERFACE_EXPORT void rgbd_file_imu_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_x(void* ptr);
@@ -257,6 +272,17 @@ extern "C"
     //////// START FILE TRACKS ////////
 
     //////// START FILE TRS FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
+                                                         float translation_x,
+                                                         float translation_y,
+                                                         float translation_z,
+                                                         float rotation_w,
+                                                         float rotation_x,
+                                                         float rotation_y,
+                                                         float rotation_z,
+                                                         float scale_x,
+                                                         float scale_y,
+                                                         float scale_z);
     RGBD_INTERFACE_EXPORT void rgbd_file_trs_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_x(void* ptr);
@@ -272,16 +298,17 @@ extern "C"
     //////// END FILE TRS FRAME ////////
 
     //////// START FILE VIDEO FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_ctor(int64_t time_point_us,
+                                                           bool keyframe,
+                                                           const uint8_t* color_bytes_data,
+                                                           size_t color_byte_size,
+                                                           const uint8_t* depth_bytes_data,
+                                                           size_t depth_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_get_keyframe(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_color_bytes(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_depth_bytes(void* ptr);
-    RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_has_floor(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_video_frame_get_floor_normal_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_video_frame_get_floor_normal_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_video_frame_get_floor_normal_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_video_frame_get_floor_constant(void* ptr);
     //////// END FILE VIDEO FRAME ////////
 
     //////// START FILE VIDEO TRACK ////////
@@ -390,6 +417,22 @@ extern "C"
     RGBD_INTERFACE_EXPORT float rgbd_file_writer_config_get_depth_unit(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit);
     //////// END FILE WRITER CONFIG ////////
+
+    //////// START FILE WRITER HELPER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_file_writer_helper_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_calibration(void* ptr,
+                                                                       void* calibration_ptr);
+    RGBD_INTERFACE_EXPORT void
+    rgbd_file_writer_helper_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_depth_unit(void* ptr, float depth_unit);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_cover(void* ptr, void* cover_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_add_video_frame(void* ptr, void* video_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_add_audio_frame(void* ptr, void* audio_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_add_imu_frame(void* ptr, void* imu_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_add_trs_frame(void* ptr, void* trs_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_write_to_path(void* ptr, const char* path);
+    //////// END FILE WRITER HELPER ////////
 
     //////// START FRAME MAPPER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_ctor(void* src_calibration,

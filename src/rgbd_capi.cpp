@@ -156,9 +156,7 @@ void rgbd_audio_decoder_dtor(void* ptr)
     delete static_cast<AudioDecoder*>(ptr);
 }
 
-void* rgbd_audio_decoder_decode(void* ptr,
-                                const uint8_t* opus_frame_data,
-                                size_t opus_frame_size)
+void* rgbd_audio_decoder_decode(void* ptr, const uint8_t* opus_frame_data, size_t opus_frame_size)
 {
     auto pmc_values{static_cast<AudioDecoder*>(ptr)->decode(
         {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
@@ -297,9 +295,7 @@ void rgbd_color_encoder_dtor(void* ptr)
     delete static_cast<ColorEncoder*>(ptr);
 }
 
-void* rgbd_color_encoder_encode(void* ptr,
-                                void* yuv_frame_ptr,
-                                bool keyframe)
+void* rgbd_color_encoder_encode(void* ptr, void* yuv_frame_ptr, bool keyframe)
 {
     auto encoder{static_cast<ColorEncoder*>(ptr)};
     auto bytes{encoder->encode(*static_cast<YuvFrame*>(yuv_frame_ptr), keyframe)};
@@ -318,9 +314,7 @@ void rgbd_depth_decoder_dtor(void* ptr)
     delete static_cast<DepthDecoder*>(ptr);
 }
 
-void* rgbd_depth_decoder_decode(void* ptr,
-                                const uint8_t* depth_bytes_data,
-                                size_t depth_bytes_size)
+void* rgbd_depth_decoder_decode(void* ptr, const uint8_t* depth_bytes_data, size_t depth_bytes_size)
 {
     auto depth_frame{static_cast<DepthDecoder*>(ptr)->decode(
         {reinterpret_cast<const byte*>(depth_bytes_data), depth_bytes_size})};
@@ -481,6 +475,14 @@ void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 //////// END FILE ATTACHMENTS ////////
 
 //////// START FILE AUDIO FRAME ////////
+void* rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size)
+{
+    Bytes bytes;
+    auto bytes_ptr{reinterpret_cast<const byte*>(bytes_data)};
+    bytes.insert(bytes.end(), &bytes_ptr[0], &bytes_ptr[byte_size]);
+    return new FileAudioFrame{time_point_us, bytes};
+}
+
 void rgbd_file_audio_frame_dtor(void* ptr)
 {
     delete static_cast<FileAudioFrame*>(ptr);
@@ -549,6 +551,27 @@ rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 //////// END FILE FRAME ////////
 
 //////// START FILE IMU FRAME ////////
+void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
+                               float acceleration_x,
+                               float acceleration_y,
+                               float acceleration_z,
+                               float rotation_rate_x,
+                               float rotation_rate_y,
+                               float rotation_rate_z,
+                               float magnetic_field_x,
+                               float magnetic_field_y,
+                               float magnetic_field_z,
+                               float gravity_x,
+                               float gravity_y,
+                               float gravity_z)
+{
+    return new FileIMUFrame{time_point_us,
+                            glm::vec3{acceleration_x, acceleration_y, acceleration_z},
+                            glm::vec3{rotation_rate_x, rotation_rate_y, rotation_rate_z},
+                            glm::vec3{magnetic_field_x, magnetic_field_y, magnetic_field_z},
+                            glm::vec3{gravity_x, gravity_y, gravity_z}};
+}
+
 void rgbd_file_imu_frame_dtor(void* ptr)
 {
     delete static_cast<FileIMUFrame*>(ptr);
@@ -704,6 +727,24 @@ void* rgbd_file_tracks_get_audio_track(void* ptr)
 //////// START FILE TRACKS ////////
 
 //////// START FILE TRS FRAME ////////
+void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
+                              float translation_x,
+                              float translation_y,
+                              float translation_z,
+                              float rotation_w,
+                              float rotation_x,
+                              float rotation_y,
+                              float rotation_z,
+                              float scale_x,
+                              float scale_y,
+                              float scale_z)
+{
+    return new FileTRSFrame{time_point_us,
+                            glm::vec3{translation_x, translation_y, translation_z},
+                            glm::quat{rotation_w, rotation_x, rotation_y, rotation_z},
+                            glm::vec3{scale_x, scale_y, scale_z}};
+}
+
 void rgbd_file_trs_frame_dtor(void* ptr)
 {
     delete static_cast<FileTRSFrame*>(ptr);
@@ -766,6 +807,24 @@ float rgbd_file_trs_frame_get_scale_z(void* ptr)
 //////// END FILE TRS FRAME ////////
 
 //////// START FILE VIDEO FRAME ////////
+void* rgbd_file_video_frame_ctor(int64_t time_point_us,
+                                 bool keyframe,
+                                 const uint8_t* color_bytes_data,
+                                 size_t color_byte_size,
+                                 const uint8_t* depth_bytes_data,
+                                 size_t depth_byte_size)
+{
+    Bytes color_bytes;
+    auto color_bytes_ptr{reinterpret_cast<const byte*>(color_bytes_data)};
+    color_bytes.insert(color_bytes.end(), &color_bytes_ptr[0], &color_bytes_ptr[color_byte_size]);
+
+    Bytes depth_bytes;
+    auto depth_bytes_ptr{reinterpret_cast<const byte*>(depth_bytes_data)};
+    depth_bytes.insert(depth_bytes.end(), &depth_bytes_ptr[0], &depth_bytes_ptr[depth_byte_size]);
+
+    return new FileVideoFrame{time_point_us, keyframe, color_bytes, depth_bytes};
+}
+
 void rgbd_file_video_frame_dtor(void* ptr)
 {
     delete static_cast<FileVideoFrame*>(ptr);
@@ -789,43 +848,6 @@ void* rgbd_file_video_frame_get_color_bytes(void* ptr)
 void* rgbd_file_video_frame_get_depth_bytes(void* ptr)
 {
     return new NativeByteArray{static_cast<FileVideoFrame*>(ptr)->depth_bytes()};
-}
-
-bool rgbd_file_video_frame_has_floor(void* ptr)
-{
-    return static_cast<FileVideoFrame*>(ptr)->floor().has_value();
-}
-
-float rgbd_file_video_frame_get_floor_normal_x(void* ptr)
-{
-    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
-    if (!floor)
-        return 0.0f;
-    return floor->normal().x;
-}
-
-float rgbd_file_video_frame_get_floor_normal_y(void* ptr)
-{
-    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
-    if (!floor)
-        return 0.0f;
-    return floor->normal().y;
-}
-
-float rgbd_file_video_frame_get_floor_normal_z(void* ptr)
-{
-    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
-    if (!floor)
-        return 0.0f;
-    return floor->normal().z;
-}
-
-float rgbd_file_video_frame_get_floor_constant(void* ptr)
-{
-    auto floor{static_cast<FileVideoFrame*>(ptr)->floor()};
-    if (!floor)
-        return 0.0f;
-    return floor->constant();
 }
 //////// END FILE VIDEO FRAME ////////
 
@@ -858,14 +880,14 @@ int rgbd_file_video_track_get_height(void* ptr)
 void* rgbd_file_writer_ctor_to_path(const char* file_path, void* calibration, void* config)
 {
     return new FileWriter(file_path,
-                                *static_cast<const CameraCalibration*>(calibration),
-                                *static_cast<const FileWriterConfig*>(config));
+                          *static_cast<const CameraCalibration*>(calibration),
+                          *static_cast<const FileWriterConfig*>(config));
 }
 
 void* rgbd_file_writer_ctor_in_memory(void* calibration, void* config)
 {
     return new FileWriter(*static_cast<const CameraCalibration*>(calibration),
-                                *static_cast<const FileWriterConfig*>(config));
+                          *static_cast<const FileWriterConfig*>(config));
 }
 
 void rgbd_file_writer_dtor(void* ptr)
@@ -894,10 +916,8 @@ void rgbd_file_writer_write_video_frame(void* ptr,
     static_cast<FileWriter*>(ptr)->writeVideoFrame(
         time_point_us,
         keyframe,
-        span<const byte>{reinterpret_cast<const byte*>(color_bytes),
-                                   color_byte_size},
-        span<const byte>{reinterpret_cast<const byte*>(depth_bytes),
-                                   depth_byte_size});
+        span<const byte>{reinterpret_cast<const byte*>(color_bytes), color_byte_size},
+        span<const byte>{reinterpret_cast<const byte*>(depth_bytes), depth_byte_size});
 }
 
 // int64 is not properly supported by Emscripten yet.
@@ -918,12 +938,11 @@ void rgbd_file_writer_write_audio_frame(void* ptr,
                                         const uint8_t* audio_bytes,
                                         size_t audio_byte_size)
 {
-    auto audio_bytes_ptr{reinterpret_cast<const byte*> (audio_bytes)};
-    const span<const byte> audio_bytes_span{
-        reinterpret_cast<const byte*>(audio_bytes), audio_byte_size};
+    auto audio_bytes_ptr{reinterpret_cast<const byte*>(audio_bytes)};
+    const span<const byte> audio_bytes_span{reinterpret_cast<const byte*>(audio_bytes),
+                                            audio_byte_size};
     static_cast<FileWriter*>(ptr)->writeAudioFrame(time_point_us, audio_bytes_span);
 }
-
 
 void rgbd_file_writer_write_audio_frame_wasm(void* ptr,
                                              int time_point_us,
@@ -971,11 +990,20 @@ void rgbd_file_writer_write_imu_frame_wasm(void* ptr,
                                            float gravity_y,
                                            float gravity_z)
 {
-    rgbd_file_writer_write_imu_frame(ptr, time_point_us,
-                                     acceleration_x, acceleration_y, acceleration_z,
-                                     rotation_rate_x, rotation_rate_y, rotation_rate_z,
-                                     magnetic_field_x, magnetic_field_y, magnetic_field_z,
-                                     gravity_x, gravity_y, gravity_z);
+    rgbd_file_writer_write_imu_frame(ptr,
+                                     time_point_us,
+                                     acceleration_x,
+                                     acceleration_y,
+                                     acceleration_z,
+                                     rotation_rate_x,
+                                     rotation_rate_y,
+                                     rotation_rate_z,
+                                     magnetic_field_x,
+                                     magnetic_field_y,
+                                     magnetic_field_z,
+                                     gravity_x,
+                                     gravity_y,
+                                     gravity_z);
 }
 
 void rgbd_file_writer_write_trs_frame(void* ptr,
@@ -1011,10 +1039,18 @@ void rgbd_file_writer_write_trs_frame_wasm(void* ptr,
                                            float scale_y,
                                            float scale_z)
 {
-    rgbd_file_writer_write_trs_frame(ptr, time_point_us,
-                                     translation_x, translation_y, translation_z,
-                                     rotation_w, rotation_x, rotation_y, rotation_z,
-                                     scale_x, scale_y, scale_z);
+    rgbd_file_writer_write_trs_frame(ptr,
+                                     time_point_us,
+                                     translation_x,
+                                     translation_y,
+                                     translation_z,
+                                     rotation_w,
+                                     rotation_x,
+                                     rotation_y,
+                                     rotation_z,
+                                     scale_x,
+                                     scale_y,
+                                     scale_z);
 }
 
 void rgbd_file_writer_flush(void* ptr)
@@ -1067,12 +1103,83 @@ void rgbd_file_writer_config_set_depth_unit(void* ptr, float depth_unit)
 }
 //////// END FILE WRITER CONFIG ////////
 
+//////// START FILE WRITER HELPER ////////
+void* rgbd_file_writer_helper_ctor()
+{
+    return new FileWriterHelper;
+}
+
+void rgbd_file_writer_helper_dtor(void* ptr)
+{
+    delete static_cast<FileWriterHelper*>(ptr);
+}
+
+void rgbd_file_writer_helper_set_calibration(void* ptr, void* calibration_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
+    file_writer_helper->setCalibration(*calibration);
+}
+
+void rgbd_file_writer_helper_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    file_writer_helper->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
+}
+
+void rgbd_file_writer_helper_set_depth_unit(void* ptr, float depth_unit)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    file_writer_helper->setDepthUnit(depth_unit);
+}
+
+void rgbd_file_writer_helper_set_cover(void* ptr, void* cover_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto cover{static_cast<YuvFrame*>(cover_ptr)};
+    file_writer_helper->setCover(*cover);
+}
+
+void rgbd_file_writer_helper_add_video_frame(void* ptr, void* video_frame_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto video_frame{static_cast<FileVideoFrame*>(video_frame_ptr)};
+    file_writer_helper->addVideoFrame(*video_frame);
+}
+
+void rgbd_file_writer_helper_add_audio_frame(void* ptr, void* audio_frame_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto audio_frame{static_cast<FileAudioFrame*>(audio_frame_ptr)};
+    file_writer_helper->addAudioFrame(*audio_frame);
+}
+
+void rgbd_file_writer_helper_add_imu_frame(void* ptr, void* imu_frame_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto imu_frame{static_cast<FileIMUFrame*>(imu_frame_ptr)};
+    file_writer_helper->addIMUFrame(*imu_frame);
+}
+
+void rgbd_file_writer_helper_add_trs_frame(void* ptr, void* trs_frame_ptr)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    auto trs_frame{static_cast<FileTRSFrame*>(trs_frame_ptr)};
+    file_writer_helper->addTRSFrame(*trs_frame);
+}
+
+void rgbd_file_writer_helper_write_to_path(void* ptr, const char* path)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    file_writer_helper->writeToPath(path);
+}
+//////// END FILE WRITER HELPER ////////
+
 //////// START FRAME MAPPER ////////
 void* rgbd_frame_mapper_ctor(void* src_calibration, void* dst_calibration)
 {
     return new FrameMapper{*static_cast<const CameraCalibration*>(src_calibration),
-            *static_cast<const CameraCalibration*>(dst_calibration)
-    };
+                           *static_cast<const CameraCalibration*>(dst_calibration)};
 }
 
 void rgbd_frame_mapper_dtor(void* ptr)
@@ -1090,7 +1197,7 @@ void* rgbd_frame_mapper_map_color_frame(void* ptr, void* color_frame)
 void* rgbd_frame_mapper_map_depth_frame(void* ptr, void* depth_frame)
 {
     auto frame_mapper{static_cast<FrameMapper*>(ptr)};
-    auto mapped_depth_frame{frame_mapper->mapDepthFrame(*static_cast<Int32Frame *>(depth_frame))};
+    auto mapped_depth_frame{frame_mapper->mapDepthFrame(*static_cast<Int32Frame*>(depth_frame))};
     return mapped_depth_frame.release();
 }
 //////// END FRAME MAPPER ////////
@@ -1119,26 +1226,26 @@ void* rgbd_kinect_camera_calibration_ctor(int color_width,
                                           float max_radius_for_projection)
 {
     return new KinectCameraCalibration{color_width,
-                                             color_height,
-                                             depth_width,
-                                             depth_height,
-                                             resolution_width,
-                                             resolution_height,
-                                             cx,
-                                             cy,
-                                             fx,
-                                             fy,
-                                             k1,
-                                             k2,
-                                             k3,
-                                             k4,
-                                             k5,
-                                             k6,
-                                             codx,
-                                             cody,
-                                             p1,
-                                             p2,
-                                             max_radius_for_projection};
+                                       color_height,
+                                       depth_width,
+                                       depth_height,
+                                       resolution_width,
+                                       resolution_height,
+                                       cx,
+                                       cy,
+                                       fx,
+                                       fy,
+                                       k1,
+                                       k2,
+                                       k3,
+                                       k4,
+                                       k5,
+                                       k6,
+                                       codx,
+                                       cody,
+                                       p1,
+                                       p2,
+                                       max_radius_for_projection};
 }
 
 int rgbd_kinect_camera_calibration_get_resolution_width(void* ptr)
@@ -1331,8 +1438,7 @@ float rgbd_ios_camera_calibration_get_lens_distortion_center_y(void* ptr)
 
 void* rgbd_ios_camera_calibration_get_lens_distortion_lookup_table(void* ptr)
 {
-    auto floats{
-        static_cast<const IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
+    auto floats{static_cast<const IosCameraCalibration*>(ptr)->lens_distortion_lookup_table()};
     return new NativeFloatArray{std::move(floats)};
 }
 

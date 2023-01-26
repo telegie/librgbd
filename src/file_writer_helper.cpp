@@ -142,6 +142,11 @@ void FileWriterHelper::writeToPath(const std::string& path)
                                       trs_frame.scale());
             ++trs_frame_index;
         }
+
+        file_writer.writeVideoFrame(video_frame.time_point_us(),
+                                    video_frame.keyframe(),
+                                    video_frame.color_bytes(),
+                                    video_frame.depth_bytes());
     }
 
     file_writer.flush();

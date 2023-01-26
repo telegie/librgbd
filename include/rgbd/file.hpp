@@ -111,13 +111,11 @@ public:
     FileVideoFrame(int64_t time_point_us,
                    bool keyframe,
                    const Bytes& color_bytes,
-                   const Bytes& depth_bytes,
-                   const optional<Plane>& floor)
+                   const Bytes& depth_bytes)
         : time_point_us_{time_point_us}
         , keyframe_{keyframe}
         , color_bytes_{color_bytes}
         , depth_bytes_{depth_bytes}
-        , floor_{floor}
     {
     }
     FileFrameType getType()
@@ -140,17 +138,12 @@ public:
     {
         return depth_bytes_;
     }
-    const optional<Plane>& floor() const noexcept
-    {
-        return floor_;
-    }
 
 private:
     int64_t time_point_us_;
     bool keyframe_;
     Bytes color_bytes_;
     Bytes depth_bytes_;
-    optional<Plane> floor_;
 };
 
 class FileAudioFrame : public FileFrame

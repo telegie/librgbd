@@ -15,7 +15,8 @@ def copy_librgbd():
                 f"{librgbd_root}/output/x64-windows/bin/rgbd.lib"]
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            srcs = [f"{librgbd_root}/output/arm64-mac/bin/librgbd.dylib"]
+            # srcs = [f"{librgbd_root}/output/arm64-mac/bin/librgbd.dylib"]
+            srcs = [f"{librgbd_root}/output/universal-mac/bin/librgbd.dylib"]
         elif platform.machine() == "x86_64":
             srcs = [f"{librgbd_root}/output/x64-mac/bin/librgbd.dylib"]
         else:
@@ -61,7 +62,9 @@ def main():
     if platform.system() == "Windows":
         copy_windows_dependencies()
     subprocess.run(["pip3", "install", "cffi"], check=True)
+    print("cffi installed")
     subprocess.run(["python3", f"{here}/pyrgbd/_build_librgbd_ffi.py"], check=True)
+    print("_build_librgbd_ffi done")
 
 
 if __name__ == "__main__":

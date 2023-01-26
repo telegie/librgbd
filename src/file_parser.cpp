@@ -587,7 +587,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         if (!keyframe)
             throw std::runtime_error("Failed to find keyframe info.");
         return new FileVideoFrame{
-            time_point_us, *keyframe, color_bytes, depth_bytes, floor};
+            time_point_us, *keyframe, color_bytes, depth_bytes};
     }
 
     if (audio_bytes.size() > 0) {

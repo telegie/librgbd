@@ -12,13 +12,11 @@ public:
     VideoFrame(int64_t time_point_us,
                bool keyframe,
                unique_ptr<YuvFrame>&& yuv_frame,
-               unique_ptr<Int32Frame>&& depth_frame,
-               const optional<Plane>& floor) noexcept
+               unique_ptr<Int32Frame>&& depth_frame) noexcept
         : time_point_us_{time_point_us}
         , keyframe_{keyframe}
         , yuv_frame_{std::move(yuv_frame)}
         , depth_frame_{std::move(depth_frame)}
-        , floor_{floor}
     {
     }
     int64_t time_point_us() const noexcept
@@ -45,17 +43,11 @@ public:
     {
         return depth_frame_;
     }
-    const optional<Plane>& floor() const noexcept
-    {
-        return floor_;
-    }
 
 private:
     int64_t time_point_us_;
     bool keyframe_;
     unique_ptr<YuvFrame> yuv_frame_;
     unique_ptr<Int32Frame> depth_frame_;
-    vector<vector<float>> pcm_frames_;
-    optional<Plane> floor_;
 };
 } // namespace rgbd

@@ -57,6 +57,23 @@ def build_x64_mac_binaries():
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
 
 
+def merge_mac_binaries():
+    here = Path(__file__).parent.resolve()
+    arm64_mac_output_path = f"{here}/output/arm64-mac"
+    x64_mac_output_path = f"{here}/output/x64-mac"
+    universal_mac_output_bin_path = f"{here}/output/universal-mac/bin"
+    if not os.path.exists(universal_mac_output_bin_path):
+        os.makedirs(universal_mac_output_bin_path)
+
+    subprocess.run(["lipo",
+                    "-create",
+                    f"{arm64_mac_output_path}/bin/librgbd.dylib",
+                    f"{x64_mac_output_path}/bin/librgbd.dylib",
+                    "-output",
+                    f"{universal_mac_output_bin_path}/librgbd.dylib"],
+                   check=True)
+
+
 def build_x64_linux_binaries():
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/x64-linux"
@@ -68,6 +85,8 @@ def build_x64_linux_binaries():
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux"])
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
+
+
 
 
 def main():
@@ -88,6 +107,7 @@ def main():
         if platform.machine() == "arm64":
             build_arm64_mac_binaries()
             build_x64_mac_binaries()
+            merge_mac_binaries()
         elif platform.machine() == "x86_64":
             build_x64_mac_binaries()
         return

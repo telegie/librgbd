@@ -55,4 +55,6 @@ ffi.cdef("".join(cdef_lines))
 
 if __name__ == "__main__":
     here = Path(__file__).resolve().parent
-    ffi.compile(tmpdir=here)
+    print("before ffi.compile")
+    ffi.compile(tmpdir=here, verbose=True)
+    print("after ffi.compile")

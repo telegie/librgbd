@@ -7,6 +7,7 @@ from .direction_table import NativeDirectionTable, DirectionTable
 from typing import Optional
 from .color_decoder import ColorCodecType
 from .depth_decoder import DepthCodecType
+from .utils import cast_np_array_to_pointer
 
 
 class NativeFileInfo:
@@ -133,18 +134,6 @@ class NativeFileVideoFrame:
 
     def get_depth_bytes(self) -> NativeByteArray:
         return NativeByteArray(lib.rgbd_file_video_frame_get_depth_bytes(self.ptr))
-
-    def get_floor_normal_x(self) -> float:
-        return lib.rgbd_file_video_frame_get_floor_normal_x(self.ptr)
-
-    def get_floor_normal_y(self) -> float:
-        return lib.rgbd_file_video_frame_get_floor_normal_y(self.ptr)
-
-    def get_floor_normal_z(self) -> float:
-        return lib.rgbd_file_video_frame_get_floor_normal_z(self.ptr)
-
-    def get_floor_constant(self) -> float:
-        return lib.rgbd_file_video_frame_get_floor_constant(self.ptr)
 
 
 class NativeFileAudioFrame:
@@ -407,17 +396,11 @@ class FileTracks:
 
 class FileVideoFrame:
     def __init__(self, time_point_us: int, keyframe: bool,
-                 color_bytes: np.array, depth_bytes: np.array,
-                 floor_normal_x: float = None, floor_normal_y: float = None,
-                 floor_normal_z: float = None, floor_constant: float = None):
+                 color_bytes: np.array, depth_bytes: np.array):
         self.time_point_us = time_point_us
         self.keyframe = keyframe
         self.color_bytes = color_bytes
         self.depth_bytes = depth_bytes
-        self.floor_normal_x = floor_normal_x
-        self.floor_normal_y = floor_normal_y
-        self.floor_normal_z = floor_normal_z
-        self.floor_constant = floor_constant
 
     @classmethod
     def from_native(cls, native_file_video_frame: NativeFileVideoFrame):
@@ -427,14 +410,17 @@ class FileVideoFrame:
             color_bytes = color_bytes.to_np_array()
         with native_file_video_frame.get_depth_bytes() as depth_bytes:
             depth_bytes = depth_bytes.to_np_array()
-        floor_normal_x = native_file_video_frame.get_floor_normal_x()
-        floor_normal_y = native_file_video_frame.get_floor_normal_y()
-        floor_normal_z = native_file_video_frame.get_floor_normal_z()
-        floor_constant = native_file_video_frame.get_floor_constant()
         return FileVideoFrame(time_point_us, keyframe,
-                              color_bytes, depth_bytes,
-                              floor_normal_x, floor_normal_y,
-                              floor_normal_z, floor_constant)
+                              color_bytes, depth_bytes)
+
+    def to_native(self):
+        ptr = lib.rgbd_file_video_frame_ctor(self.time_point_us,
+                                             self.keyframe,
+                                             cast_np_array_to_pointer(self.color_bytes),
+                                             len(self.color_bytes),
+                                             cast_np_array_to_pointer(self.depth_bytes),
+                                             len(self.depth_bytes))
+        return NativeFileVideoFrame(ptr, True)
 
 
 class FileAudioFrame:
@@ -448,6 +434,12 @@ class FileAudioFrame:
         with native_file_audio_frame.get_bytes() as audio_bytes:
             bytes = audio_bytes.to_np_array()
         return FileAudioFrame(time_point_us, bytes)
+
+    def to_native(self):
+        ptr = lib.rgbd_file_audio_frame_ctor(self.time_point_us,
+                                             cast_np_array_to_pointer(self.bytes),
+                                             len(self.bytes))
+        return NativeFileAudioFrame(ptr, True)
 
 
 class FileIMUFrame:
@@ -486,6 +478,22 @@ class FileIMUFrame:
 
         return FileIMUFrame(time_point_us, acceleration, rotation_rate, magnetic_field, gravity)
 
+    def to_native(self):
+        ptr = lib.rgbd_file_imu_frame_ctor(self.time_point_us,
+                                           self.acceleration.x,
+                                           self.acceleration.y,
+                                           self.acceleration.z,
+                                           self.rotation_rate.x,
+                                           self.rotation_rate.y,
+                                           self.rotation_rate.z,
+                                           self.magnetic_field.x,
+                                           self.magnetic_field.y,
+                                           self.magnetic_field.z,
+                                           self.gravity.x,
+                                           self.gravity.y,
+                                           self.gravity.z)
+        return NativeFileIMUFrame(ptr, True)
+
 
 class FileTRSFrame:
     def __init__(self, time_point_us: int, translation: glm.vec3, rotation: glm.quat, scale: glm.vec3):
@@ -514,6 +522,20 @@ class FileTRSFrame:
         scale_z = native_file_trs_frame.get_scale_z()
         scale = glm.vec(scale_x, scale_y, scale_z)
         return FileTRSFrame(time_point_us, translation, rotation, scale)
+
+    def to_native(self):
+        ptr = lib.rgbd_file_trs_frame_ctor(self.time_point_us,
+                                           self.translation.x,
+                                           self.translation.y,
+                                           self.translation.z,
+                                           self.rotation.w,
+                                           self.rotation.x,
+                                           self.rotation.y,
+                                           self.rotation.z,
+                                           self.scale.x,
+                                           self.scale.y,
+                                           self.scale.z)
+        return NativeFileTRSFrame(ptr, True)
 
 
 class File:

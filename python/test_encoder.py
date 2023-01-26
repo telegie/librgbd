@@ -27,7 +27,7 @@ def main():
                                                              512, 512,
                                                              0.5, 0.5, 0.5, 0.5)
 
-    file_writer_helper = rgbd.FileWriterHelper()
+    file_writer_helper = rgbd.NativeFileWriterHelper()
     file_writer_helper.set_calibration(standard_calibration)
     file_writer_helper.set_depth_unit(file.tracks.depth_track.depth_unit)
 
@@ -89,7 +89,7 @@ def main():
     for trs_frame in file.trs_frames:
         file_writer_helper.add_trs_frame(trs_frame)
 
-    file_writer_helper.write("tmp/test_encoder_result.mkv")
+    file_writer_helper.write_to_path("tmp/test_encoder_result.mkv")
 
 
 if __name__ == "__main__":
