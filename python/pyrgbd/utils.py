@@ -22,7 +22,7 @@ def get_librgbd_patch_version() -> int:
     return lib.RGBD_PATCH_VERSION()
 
 
-def cast_np_array_to_pointer(np_array: np.array):
+def cast_np_array_to_pointer(np_array: np.ndarray):
     return ffi.cast("void*", np_array.ctypes.data)
 
 

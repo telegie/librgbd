@@ -28,7 +28,7 @@ class NativeInt32Frame:
 
 
 class Int32Frame:
-    def __init__(self, width: int, height: int, values: np.array):
+    def __init__(self, width: int, height: int, values: np.ndarray):
         self.width = width
         self.height = height
         self.values = values

@@ -52,6 +52,6 @@ class DirectionTable:
         directions = directions
         return DirectionTable(width, height, directions)
 
-    def to_np_array(self) -> np.array:
+    def to_np_array(self) -> np.ndarray:
         directions = list(map(lambda v: v.to_list(), self.directions))
         return np.array(directions).reshape((self.height, self.width, 3))

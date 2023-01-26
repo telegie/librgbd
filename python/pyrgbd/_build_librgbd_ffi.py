@@ -19,7 +19,7 @@ elif platform.system() == "Linux":
     include_dir = f"{librgbd_root}/include"
     extra_link_args = [f"-Wl,-rpath,$ORIGIN"]
 else:
-    raise f"Unknown platform.system(): {platform.system()}"
+    raise Exception(f"Unknown platform.system(): {platform.system()}")
 
 ffi.set_source('_librgbd_ffi',
                r'#include <rgbd/rgbd_capi.h>',
@@ -55,6 +55,4 @@ ffi.cdef("".join(cdef_lines))
 
 if __name__ == "__main__":
     here = Path(__file__).resolve().parent
-    print("before ffi.compile")
-    ffi.compile(tmpdir=here, verbose=True)
-    print("after ffi.compile")
+    ffi.compile(tmpdir=str(here))

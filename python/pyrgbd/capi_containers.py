@@ -21,7 +21,7 @@ class NativeByteArray:
     def get_size(self) -> int:
         return lib.rgbd_native_byte_array_get_size(self.ptr)
 
-    def to_np_array(self) -> np.array:
+    def to_np_array(self) -> np.ndarray:
         buffer = ffi.buffer(self.get_data(), self.get_size())
         # np.frombuffer does not copy
         # std::byte is uint8_t, so using np.ubyte, not np.byte.
@@ -48,7 +48,7 @@ class NativeFloatArray:
     def get_size(self) -> int:
         return lib.rgbd_native_float_array_get_size(self.ptr)
 
-    def to_np_array(self) -> np.array:
+    def to_np_array(self) -> np.ndarray:
         buffer = ffi.buffer(self.get_data(), self.get_size() * 4)
         # np.frombuffer does not copy
         np_array = np.frombuffer(buffer, dtype=np.float32)
@@ -74,7 +74,7 @@ class NativeInt32Array:
     def get_size(self) -> int:
         return lib.rgbd_native_int32_array_get_size(self.ptr)
 
-    def to_np_array(self) -> np.array:
+    def to_np_array(self) -> np.ndarray:
         # Multiplying 4 since int32 is 2 bytes and the second argument
         # is for the byte size.
         buffer = ffi.buffer(self.get_data(), self.get_size() * 4)
@@ -102,7 +102,7 @@ class NativeUInt8Array:
     def get_size(self) -> int:
         return lib.rgbd_native_uint8_array_get_size(self.ptr)
 
-    def to_np_array(self) -> np.array:
+    def to_np_array(self) -> np.ndarray:
         buffer = ffi.buffer(self.get_data(), self.get_size())
         # np.frombuffer does not copy
         np_array = np.frombuffer(buffer, dtype=np.uint8)

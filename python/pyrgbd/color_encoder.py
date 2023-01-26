@@ -24,7 +24,7 @@ class NativeColorEncoder:
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def encode(self, yuv_frame: YuvFrame, keyframe) -> np.array:
+    def encode(self, yuv_frame: YuvFrame, keyframe) -> np.ndarray:
         with yuv_frame.to_native() as native_yuv_frame:
             return NativeByteArray(lib.rgbd_color_encoder_encode(self.ptr,
                                                                  native_yuv_frame.ptr,

@@ -17,6 +17,10 @@ pyglm = "^2.6.0"
 [tool.poetry.dev-dependencies]
 build = "^0.8.0"
 
+[tool.poetry.group.dev.dependencies]
+types-cffi = "^1.15.1.4"
+mypy = "^0.991"
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"

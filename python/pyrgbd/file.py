@@ -345,11 +345,13 @@ class FileColorVideoTrack(FileVideoTrack):
         self.codec = codec
 
     @classmethod
-    def from_native(cls, native_file_color_video_track: NativeFileColorVideoTrack):
-        track_number = native_file_color_video_track.get_track_number()
-        width = native_file_color_video_track.get_width()
-        height = native_file_color_video_track.get_height()
-        codec = native_file_color_video_track.get_codec()
+    def from_native(cls, native_file_video_track: NativeFileVideoTrack):
+        if not isinstance(native_file_video_track, NativeFileColorVideoTrack):
+            raise Exception("Found a non-NativeFileColorVideoTrack in FileColorVideoTrack.from_native")
+        track_number = native_file_video_track.get_track_number()
+        width = native_file_video_track.get_width()
+        height = native_file_video_track.get_height()
+        codec = native_file_video_track.get_codec()
         return FileColorVideoTrack(track_number, width, height, codec)
 
 
@@ -360,13 +362,24 @@ class FileDepthVideoTrack(FileVideoTrack):
         self.depth_unit = depth_unit
 
     @classmethod
-    def from_native(cls, native_file_depth_video_track: NativeFileDepthVideoTrack):
-        track_number = native_file_depth_video_track.get_track_number()
-        width = native_file_depth_video_track.get_width()
-        height = native_file_depth_video_track.get_height()
-        codec = native_file_depth_video_track.get_codec()
-        depth_unit = native_file_depth_video_track.get_depth_unit()
+    def from_native(cls, native_file_video_track: NativeFileVideoTrack):
+        if not isinstance(native_file_video_track, NativeFileDepthVideoTrack):
+            raise Exception("Found a non-NativeFileDepthVideoTrack in FileDepthVideoTrack.from_native")
+        track_number = native_file_video_track.get_track_number()
+        width = native_file_video_track.get_width()
+        height = native_file_video_track.get_height()
+        codec = native_file_video_track.get_codec()
+        depth_unit = native_file_video_track.get_depth_unit()
         return FileDepthVideoTrack(track_number, width, height, codec, depth_unit)
+
+    # @classmethod
+    # def from_native(cls, native_file_depth_video_track: NativeFileDepthVideoTrack):
+    #     track_number = native_file_depth_video_track.get_track_number()
+    #     width = native_file_depth_video_track.get_width()
+    #     height = native_file_depth_video_track.get_height()
+    #     codec = native_file_depth_video_track.get_codec()
+    #     depth_unit = native_file_depth_video_track.get_depth_unit()
+    #     return FileDepthVideoTrack(track_number, width, height, codec, depth_unit)
 
 
 class FileAttachments:
@@ -396,7 +409,7 @@ class FileTracks:
 
 class FileVideoFrame:
     def __init__(self, time_point_us: int, keyframe: bool,
-                 color_bytes: np.array, depth_bytes: np.array):
+                 color_bytes: np.ndarray, depth_bytes: np.ndarray):
         self.time_point_us = time_point_us
         self.keyframe = keyframe
         self.color_bytes = color_bytes
@@ -424,7 +437,7 @@ class FileVideoFrame:
 
 
 class FileAudioFrame:
-    def __init__(self, time_point_us: int, bytes: np.array):
+    def __init__(self, time_point_us: int, bytes: np.ndarray):
         self.time_point_us = time_point_us
         self.bytes = bytes
 
@@ -509,7 +522,7 @@ class FileTRSFrame:
         translation_x = native_file_trs_frame.get_translation_x()
         translation_y = native_file_trs_frame.get_translation_y()
         translation_z = native_file_trs_frame.get_translation_z()
-        translation = glm.vec(translation_x, translation_y, translation_z)
+        translation = glm.vec3(translation_x, translation_y, translation_z)
 
         rotation_w = native_file_trs_frame.get_rotation_w()
         rotation_x = native_file_trs_frame.get_rotation_x()
@@ -520,7 +533,7 @@ class FileTRSFrame:
         scale_x = native_file_trs_frame.get_scale_x()
         scale_y = native_file_trs_frame.get_scale_y()
         scale_z = native_file_trs_frame.get_scale_z()
-        scale = glm.vec(scale_x, scale_y, scale_z)
+        scale = glm.vec3(scale_x, scale_y, scale_z)
         return FileTRSFrame(time_point_us, translation, rotation, scale)
 
     def to_native(self):
@@ -607,5 +620,4 @@ def get_calibration_directions(native_file: NativeFile) -> np.ndarray:
                     with native_camera_calibration.get_direction(u, v) as native_direction:
                         directions.append(native_direction.to_np_array())
 
-    directions = np.reshape(directions, (depth_height, depth_width, 3))
-    return directions
+    return np.reshape(directions, (depth_height, depth_width, 3))

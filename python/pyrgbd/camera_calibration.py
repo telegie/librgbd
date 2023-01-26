@@ -226,31 +226,33 @@ class KinectCameraCalibration(CameraCalibration):
         self.max_radius_for_projection = max_radius_for_projection
 
     @classmethod
-    def from_native(cls, native_kinect_camera_calibration: NativeKinectCameraCalibration):
-        camera_device_type = native_kinect_camera_calibration.get_camera_device_type()
+    def from_native(cls, native_camera_calibration: NativeCameraCalibration):
+        if not isinstance(native_camera_calibration, NativeKinectCameraCalibration):
+            raise Exception("Found a non-NativeKinectCameraCalibration in KinectCameraCalibration.from_native")
+        camera_device_type = native_camera_calibration.get_camera_device_type()
         if camera_device_type != CameraDeviceType.AZURE_KINECT:
             raise Exception("camera_device_type != CameraDeviceType.AZURE_KINECT")
-        color_width = native_kinect_camera_calibration.get_color_width()
-        color_height = native_kinect_camera_calibration.get_color_height()
-        depth_width = native_kinect_camera_calibration.get_depth_width()
-        depth_height = native_kinect_camera_calibration.get_depth_height()
-        resolution_width = native_kinect_camera_calibration.get_resolution_width()
-        resolution_height = native_kinect_camera_calibration.get_resolution_height()
-        cx = native_kinect_camera_calibration.get_cx()
-        cy = native_kinect_camera_calibration.get_cy()
-        fx = native_kinect_camera_calibration.get_fx()
-        fy = native_kinect_camera_calibration.get_fy()
-        k1 = native_kinect_camera_calibration.get_k1()
-        k2 = native_kinect_camera_calibration.get_k2()
-        k3 = native_kinect_camera_calibration.get_k3()
-        k4 = native_kinect_camera_calibration.get_k4()
-        k5 = native_kinect_camera_calibration.get_k5()
-        k6 = native_kinect_camera_calibration.get_k6()
-        codx = native_kinect_camera_calibration.get_codx()
-        cody = native_kinect_camera_calibration.get_cody()
-        p1 = native_kinect_camera_calibration.get_p1()
-        p2 = native_kinect_camera_calibration.get_p2()
-        max_radius_for_projection = native_kinect_camera_calibration.get_max_radius_for_projection()
+        color_width = native_camera_calibration.get_color_width()
+        color_height = native_camera_calibration.get_color_height()
+        depth_width = native_camera_calibration.get_depth_width()
+        depth_height = native_camera_calibration.get_depth_height()
+        resolution_width = native_camera_calibration.get_resolution_width()
+        resolution_height = native_camera_calibration.get_resolution_height()
+        cx = native_camera_calibration.get_cx()
+        cy = native_camera_calibration.get_cy()
+        fx = native_camera_calibration.get_fx()
+        fy = native_camera_calibration.get_fy()
+        k1 = native_camera_calibration.get_k1()
+        k2 = native_camera_calibration.get_k2()
+        k3 = native_camera_calibration.get_k3()
+        k4 = native_camera_calibration.get_k4()
+        k5 = native_camera_calibration.get_k5()
+        k6 = native_camera_calibration.get_k6()
+        codx = native_camera_calibration.get_codx()
+        cody = native_camera_calibration.get_cody()
+        p1 = native_camera_calibration.get_p1()
+        p2 = native_camera_calibration.get_p2()
+        max_radius_for_projection = native_camera_calibration.get_max_radius_for_projection()
         return KinectCameraCalibration(camera_device_type,
                                        color_width, color_height,
                                        depth_width, depth_height,
@@ -292,8 +294,8 @@ class IosCameraCalibration(CameraCalibration):
                  fx: float, fy: float, ox: float, oy: float,
                  reference_dimension_width: float, reference_dimension_height: float,
                  lens_distortion_center_x: float, lens_distortion_center_y: float,
-                 lens_distortion_lookup_table: np.array,
-                 inverse_lens_distortion_lookup_table: np.array):
+                 lens_distortion_lookup_table: np.ndarray,
+                 inverse_lens_distortion_lookup_table: np.ndarray):
         super().__init__(CameraDeviceType.IOS,
                          color_width, color_height,
                          depth_width, depth_height)
@@ -309,25 +311,27 @@ class IosCameraCalibration(CameraCalibration):
         self.inverse_lens_distortion_lookup_table = inverse_lens_distortion_lookup_table
 
     @classmethod
-    def from_native(cls, native_ios_camera_calibration: NativeIosCameraCalibration):
-        camera_device_type = native_ios_camera_calibration.get_camera_device_type()
+    def from_native(cls, native_camera_calibration: NativeCameraCalibration):
+        if not isinstance(native_camera_calibration, NativeIosCameraCalibration):
+            raise Exception("Found a non-NativeIosCameraCalibration in IosCameraCalibration.from_native")
+        camera_device_type = native_camera_calibration.get_camera_device_type()
         if camera_device_type != CameraDeviceType.IOS:
             raise Exception("camera_device_type != CameraDeviceType.IOS")
-        color_width = native_ios_camera_calibration.get_color_width()
-        color_height = native_ios_camera_calibration.get_color_height()
-        depth_width = native_ios_camera_calibration.get_depth_width()
-        depth_height = native_ios_camera_calibration.get_depth_height()
-        fx = native_ios_camera_calibration.get_fx()
-        fy = native_ios_camera_calibration.get_fy()
-        ox = native_ios_camera_calibration.get_ox()
-        oy = native_ios_camera_calibration.get_oy()
-        reference_dimension_width = native_ios_camera_calibration.get_reference_dimension_width()
-        reference_dimension_height = native_ios_camera_calibration.get_reference_dimension_height()
-        lens_distortion_center_x = native_ios_camera_calibration.get_lens_distortion_center_x()
-        lens_distortion_center_y = native_ios_camera_calibration.get_lens_distortion_center_y()
-        with native_ios_camera_calibration.get_lens_distortion_lookup_table() as lens_distortion_lookup_table:
+        color_width = native_camera_calibration.get_color_width()
+        color_height = native_camera_calibration.get_color_height()
+        depth_width = native_camera_calibration.get_depth_width()
+        depth_height = native_camera_calibration.get_depth_height()
+        fx = native_camera_calibration.get_fx()
+        fy = native_camera_calibration.get_fy()
+        ox = native_camera_calibration.get_ox()
+        oy = native_camera_calibration.get_oy()
+        reference_dimension_width = native_camera_calibration.get_reference_dimension_width()
+        reference_dimension_height = native_camera_calibration.get_reference_dimension_height()
+        lens_distortion_center_x = native_camera_calibration.get_lens_distortion_center_x()
+        lens_distortion_center_y = native_camera_calibration.get_lens_distortion_center_y()
+        with native_camera_calibration.get_lens_distortion_lookup_table() as lens_distortion_lookup_table:
             lens_distortion_lookup_table = lens_distortion_lookup_table.to_np_array()
-        with native_ios_camera_calibration.get_inverse_lens_distortion_lookup_table() as lookup_table:
+        with native_camera_calibration.get_inverse_lens_distortion_lookup_table() as lookup_table:
             inverse_lens_distortion_lookup_table = lookup_table.to_np_array()
         return IosCameraCalibration(color_width, color_height,
                                     depth_width, depth_height,
@@ -370,18 +374,21 @@ class UndistortedCameraCalibration(CameraCalibration):
         self.cy = cy
 
     @classmethod
-    def from_native(cls, native_undistorted_camera_calibration: NativeUndistortedCameraCalibration):
-        camera_device_type = native_undistorted_camera_calibration.get_camera_device_type()
+    def from_native(cls, native_camera_calibration: NativeCameraCalibration):
+        if not isinstance(native_camera_calibration, NativeUndistortedCameraCalibration):
+            raise Exception(
+                "Found a non-NativeUndistortedCameraCalibration in UndistortedCameraCalibration.from_native")
+        camera_device_type = native_camera_calibration.get_camera_device_type()
         if camera_device_type != CameraDeviceType.UNDISTORTED:
             raise Exception("camera_device_type != CameraDeviceType.UNDISTORTED")
-        color_width = native_undistorted_camera_calibration.get_color_width()
-        color_height = native_undistorted_camera_calibration.get_color_height()
-        depth_width = native_undistorted_camera_calibration.get_depth_width()
-        depth_height = native_undistorted_camera_calibration.get_depth_height()
-        fx = native_undistorted_camera_calibration.get_fx()
-        fy = native_undistorted_camera_calibration.get_fy()
-        cx = native_undistorted_camera_calibration.get_cx()
-        cy = native_undistorted_camera_calibration.get_cy()
+        color_width = native_camera_calibration.get_color_width()
+        color_height = native_camera_calibration.get_color_height()
+        depth_width = native_camera_calibration.get_depth_width()
+        depth_height = native_camera_calibration.get_depth_height()
+        fx = native_camera_calibration.get_fx()
+        fy = native_camera_calibration.get_fy()
+        cx = native_camera_calibration.get_cx()
+        cy = native_camera_calibration.get_cy()
         return UndistortedCameraCalibration(color_width, color_height,
                                             depth_width, depth_height,
                                             fx, fy, cx, cy)

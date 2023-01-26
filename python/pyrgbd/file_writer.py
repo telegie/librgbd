@@ -75,8 +75,9 @@ class NativeFileWriter:
                                              rotation_rate.x, rotation_rate.y, rotation_rate.z,
                                              magnetic_field.x, magnetic_field.y, magnetic_field.z,
                                              gravity.x, gravity.y, gravity.z)
+
     def write_trs_frame(self, time_point_us: int,
-                        translation: glm.vec3, rotation: glm.vec3, scale: glm.vec3):
+                        translation: glm.vec3, rotation: glm.quat, scale: glm.vec3):
         lib.rgbd_file_writer_write_trs_frame(self.ptr, time_point_us,
                                              translation.x, translation.y, translation.z,
                                              rotation.w, rotation.x, rotation.y, rotation.z,

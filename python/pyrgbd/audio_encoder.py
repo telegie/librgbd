@@ -18,7 +18,7 @@ class NativeAudioEncoderFrame:
     def get_packet_bytes_list_count(self):
         return lib.rgbd_audio_encoder_frame_get_packet_bytes_list_count(self.ptr)
 
-    def get_packet_bytes(self, index: int) -> np.array:
+    def get_packet_bytes(self, index: int) -> np.ndarray:
         return NativeByteArray(lib.rgbd_audio_encoder_frame_get_packet_bytes(self.ptr, index)).to_np_array()
 
 

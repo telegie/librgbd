@@ -21,6 +21,9 @@ This library can read files exported from the Telegie and is based on librgbd.
 ## Install
 - pip3 install -e .
 
+## Check
+- mypy ./pyrgbd
+
 ## Deploy
 - python -m build --wheel
 - twine check dist/*
