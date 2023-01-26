@@ -27,6 +27,24 @@ export class YuvFrame {
     const height = nativeYuvFrame.getHeight();
     return new YuvFrame(yChannel, uChannel, vChannel, width, height);
   }
+
+  toNative(wasmModule: any) {
+    const yChannelPtr = wasmModule._malloc(this.yChannel.byteLength);
+    const uChannelPtr = wasmModule._malloc(this.uChannel.byteLength);
+    const vChannelPtr = wasmModule._malloc(this.vChannel.byteLength);
+    wasmModule.HEAPU8.set(this.yChannel, yChannelPtr);
+    wasmModule.HEAPU8.set(this.uChannel, uChannelPtr);
+    wasmModule.HEAPU8.set(this.vChannel, vChannelPtr);
+    const ptr = wasmModule.ccall('rgbd_yuv_frame_ctor',
+                                 'number',
+                                 ['number', 'number', 'number', 'number', 'boolean'],
+                                 [this.width, this.height, yChannelPtr, uChannelPtr, vChannelPtr]);
+    wasmModule._free(yChannelPtr);
+    wasmModule._free(uChannelPtr);
+    wasmModule._free(vChannelPtr);
+
+    return new NativeYuvFrame(wasmModule, ptr);
+  }
 }
 
 export class NativeYuvFrame {

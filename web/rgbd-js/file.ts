@@ -164,18 +164,15 @@ export class FileVideoFrame {
   keyframe: boolean;
   colorBytes: Uint8Array;
   depthBytes: Uint8Array;
-  floor: Plane | null;
 
   constructor(timePointUs: number,
               keyframe: boolean,
               colorBytes: Uint8Array,
-              depthBytes: Uint8Array,
-              floor: Plane | null) {
+              depthBytes: Uint8Array) {
     this.timePointUs = timePointUs;
     this.keyframe = keyframe;
     this.colorBytes = colorBytes;
     this.depthBytes = depthBytes;
-    this.floor = floor;
   }
 
   static fromNative(nativeFileVideoFrame: NativeFileVideoFrame) {
@@ -183,8 +180,25 @@ export class FileVideoFrame {
     const keyframe = nativeFileVideoFrame.getKeyframe();
     const colorBytes = nativeFileVideoFrame.getColorBytes();
     const depthBytes = nativeFileVideoFrame.getDepthBytes();
-    const floor = nativeFileVideoFrame.getFloor();
-    return new FileVideoFrame(timePointUs, keyframe, colorBytes, depthBytes, floor);
+    return new FileVideoFrame(timePointUs, keyframe, colorBytes, depthBytes);
+  }
+
+  toNative(wasmModule: any) {
+    const colorBytesPtr = wasmModule._malloc(this.colorBytes.byteLength);
+    const depthBytesPtr = wasmModule._malloc(this.depthBytes.byteLength);
+    wasmModule.HEAPU8.set(this.colorBytes, colorBytesPtr);
+    wasmModule.HEAPU8.set(this.depthBytes, depthBytesPtr);
+
+    const ptr = wasmModule.ccall('rgbd_file_video_frame_ctor_wasm',
+                                 'number',
+                                 ['number', 'number', 'number', 'number', 'number', 'number'],
+                                 [this.timePointUs, this.keyframe,
+                                  colorBytesPtr, this.colorBytes.byteLength,
+                                  depthBytesPtr, this.depthBytes.byteLength]);
+    wasmModule._free(colorBytesPtr);
+    wasmModule._free(depthBytesPtr);
+
+    return new NativeFileVideoFrame(wasmModule, ptr, true);
   }
 }
 
@@ -553,19 +567,6 @@ export class NativeFileVideoFrame {
     nativeByteArray.close();
 
     return byteArray;
-  }
-
-  getFloor(): Plane | null {
-    const hasFloor = this.wasmModule.ccall('rgbd_file_video_frame_has_floor', 'boolean', ['number'], [this.ptr]);
-    if (!hasFloor) {
-        return null;
-    }
-    const normalX = this.wasmModule.ccall('rgbd_file_video_frame_get_floor_normal_x', 'number', ['number'], [this.ptr]);
-    const normalY = this.wasmModule.ccall('rgbd_file_video_frame_get_floor_normal_y', 'number', ['number'], [this.ptr]);
-    const normalZ = this.wasmModule.ccall('rgbd_file_video_frame_get_floor_normal_z', 'number', ['number'], [this.ptr]);
-    const constant = this.wasmModule.ccall('rgbd_file_video_frame_get_floor_constant', 'number', ['number'], [this.ptr]);
-
-    return new Plane(new Vector3(normalX, normalY, normalZ), constant);
   }
 }
 

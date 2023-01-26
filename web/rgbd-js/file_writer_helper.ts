@@ -4,6 +4,46 @@ import { FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame } from "./fi
 import { NativeFileWriter, NativeFileWriterConfig } from "./file_writer";
 import { YuvFrame } from "./yuv_frame";
 
+export class NativeFileWriterHelper {
+  wasmModule: any;
+  ptr: number;
+
+  constructor(wasmModule: any) {
+    this.wasmModule = wasmModule;
+    this.ptr = this.wasmModule.ccall('rgbd_file_writer_helper_ctor', 'number', [], []);
+  }
+
+  close() {
+    this.wasmModule.ccall('rgbd_file_writer_helper_dtor', null, ['number'], [this.ptr]);
+  }
+
+  setCalibration(calibration: CameraCalibration) {
+    const nativeCalibration = calibration.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_set_calibration', null, ['number', 'number'], [this.ptr, nativeCalibration.ptr]);
+    nativeCalibration.close();
+  }
+
+  setDepthCodecType(depthCodecType: DepthCodecType) {
+    this.wasmModule.ccall('rgbd_file_writer_helper_set_depth_codec_type', null, ['number', 'number'], [this.ptr, depthCodecType]);
+  }
+
+  setDepthUnit(depthUnit: number) {
+    this.wasmModule.ccall('rgbd_file_writer_helper_set_depth_unit', null, ['number', 'number'], [this.ptr, depthUnit]);
+  }
+
+  setCover(cover: YuvFrame) {
+    const nativeCover = cover.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_set_cover', null, ['number', 'number'], [this.ptr, nativeCover.ptr]);
+    nativeCover.close();
+  }
+
+  addVideoFrame(videoFrame: FileVideoFrame) {
+    const nativeVideoFrame = videoFrame.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_writer_helper_add_video_frame', null, ['number', 'number'], [this.ptr, nativeVideoFrame.ptr]);
+    nativeVideoFrame.close();
+  }
+}
+
 export class FileWriterHelper {
   wasmModule: any;
   calibration: CameraCalibration | null;

@@ -7,20 +7,17 @@ export enum CameraDeviceType {
 }
 
 export class CameraCalibration {
-  wasmModule: any;
   cameraDeviceType: CameraDeviceType;
   colorWidth: number;
   colorHeight: number;
   depthWidth: number;
   depthHeight: number;
 
-  constructor(wasmModule: any,
-              cameraDeviceType: CameraDeviceType,
+  constructor(cameraDeviceType: CameraDeviceType,
               colorWidth: number,
               colorHeight: number,
               depthWidth: number,
               depthHeight: number) {
-    this.wasmModule = wasmModule;
     this.cameraDeviceType = cameraDeviceType;
     this.colorWidth = colorWidth;
     this.colorHeight = colorHeight;
@@ -41,7 +38,7 @@ export class CameraCalibration {
     throw Error('Failed to infer device type in fromNative.create');
   }
 
-  toNative(): NativeCameraCalibration {
+  toNative(wasmModule: any): NativeCameraCalibration {
     throw Error('CameraCalibration.toNative not implemented.');
   }
 }
@@ -65,8 +62,7 @@ export class KinectCameraCalibration extends CameraCalibration {
   p2: number;
   maxRadiusForProjection: number;
 
-  constructor(wasmModule: any,
-              cameraDeviceType: CameraDeviceType,
+  constructor(cameraDeviceType: CameraDeviceType,
               colorWidth: number, colorHeight: number,
               depthWidth: number, depthHeight: number,
               resolutionWidth: number, resolutionHeight: number,
@@ -75,7 +71,7 @@ export class KinectCameraCalibration extends CameraCalibration {
               codx: number, cody: number,
               p1: number, p2: number,
               maxRadiusForProjection: number) {
-    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
     this.resolutionWidth = resolutionWidth;
     this.resolutionHeight = resolutionHeight;
     this.cx = cx;
@@ -119,8 +115,7 @@ export class KinectCameraCalibration extends CameraCalibration {
     const p2 = nativeKinectCameraCalibration.getP2();
     const maxRadiusForProjection = nativeKinectCameraCalibration.getMaxRadiusForProjection();
 
-    return new KinectCameraCalibration(nativeKinectCameraCalibration.wasmModule,
-                                       cameraDeviceType,
+    return new KinectCameraCalibration(cameraDeviceType,
                                        colorWidth, colorHeight,
                                        depthWidth, depthHeight,
                                        resolutionWidth, resolutionHeight,
@@ -131,22 +126,22 @@ export class KinectCameraCalibration extends CameraCalibration {
                                        maxRadiusForProjection);
   }
 
-  toNative() {
-    const nativePtr = this.wasmModule.ccall('rgbd_kinect_camera_calibration_ctor',
-                                            'number',
-                                            ['number', 'number', 'number', 'number',
-                                             'number', 'number',
-                                             'number', 'number', 'number', 'number',
-                                             'number', 'number', 'number', 'number', 'number', 'number',
-                                             'number', 'number', 'number', 'number',
-                                             'number'],
-                                            [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
-                                             this.resolutionWidth, this.resolutionHeight,
-                                             this.cx, this.cy, this.fx, this.fy,
-                                             this.k1, this.k2, this.k3, this.k4, this.k5, this.k6,
-                                             this.codx, this.cody, this.p1, this.p2,
-                                             this.maxRadiusForProjection]);
-    return new NativeKinectCameraCalibration(this.wasmModule, nativePtr, true);
+  toNative(wasmModule: any): NativeKinectCameraCalibration {
+    const nativePtr = wasmModule.ccall('rgbd_kinect_camera_calibration_ctor',
+                                       'number',
+                                       ['number', 'number', 'number', 'number',
+                                         'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number'],
+                                       [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
+                                         this.resolutionWidth, this.resolutionHeight,
+                                         this.cx, this.cy, this.fx, this.fy,
+                                         this.k1, this.k2, this.k3, this.k4, this.k5, this.k6,
+                                         this.codx, this.cody, this.p1, this.p2,
+                                         this.maxRadiusForProjection]);
+    return new NativeKinectCameraCalibration(wasmModule, nativePtr, true);
   }
 }
 
@@ -161,15 +156,14 @@ export class IosCameraCalibration extends CameraCalibration {
   lensDistortionCenterY: number;
   lensDistortionLookupTable: Float32Array;
 
-  constructor(wasmModule: any,
-              cameraDeviceType: CameraDeviceType,
+  constructor(cameraDeviceType: CameraDeviceType,
               colorWidth: number, colorHeight: number,
               depthWidth: number, depthHeight: number,
               fx: number, fy: number, ox: number, oy: number,
               referenceDimensionWidth: number, referenceDimensionHeight: number,
               lensDistortionCenterX: number, lensDistortionCenterY: number,
               lensDistortionLookupTable: Float32Array) {
-    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
     this.fx = fx;
     this.fy = fy;
     this.ox = ox;
@@ -196,8 +190,7 @@ export class IosCameraCalibration extends CameraCalibration {
     const lensDistortionCenterX = nativeIosCameraCalibration.getLensDistortionCenterX();
     const lensDistortionCenterY = nativeIosCameraCalibration.getLensDistortionCenterY();
     const lensDistortionLookupTable = nativeIosCameraCalibration.getLensDistortionLookupTable();
-    return new IosCameraCalibration(nativeIosCameraCalibration.wasmModule,
-                                    cameraDeviceType,
+    return new IosCameraCalibration(cameraDeviceType,
                                     colorWidth, colorHeight,
                                     depthWidth, depthHeight,
                                     fx, fy, ox, oy,
@@ -206,29 +199,29 @@ export class IosCameraCalibration extends CameraCalibration {
                                     lensDistortionLookupTable);
   }
 
-  toNative(): NativeIosCameraCalibration {
-    const lookupTablePtr = this.wasmModule._malloc(this.lensDistortionLookupTable.byteLength);
+  toNative(wasmModule: any): NativeIosCameraCalibration {
+    const lookupTablePtr = wasmModule._malloc(this.lensDistortionLookupTable.byteLength);
     // Have to do >> 2 to the pointer since the set() function interprets its second parameter
     // as an index, not a pointer.
     // https://github.com/emscripten-core/emscripten/issues/4003
-    this.wasmModule.HEAPF32.set(this.lensDistortionLookupTable, lookupTablePtr >> 2);
-    const nativePtr = this.wasmModule.ccall('rgbd_ios_camera_calibration_ctor',
-                                            'number',
-                                            ['number', 'number', 'number', 'number',
-                                             'number', 'number', 'number', 'number',
-                                             'number', 'number',
-                                             'number', 'number',
-                                             'number',
-                                             'number'],
-                                            [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
-                                             this.fx, this.fy, this.ox, this.oy,
-                                             this.referenceDimensionWidth, this.referenceDimensionHeight,
-                                             this.lensDistortionCenterX, this.lensDistortionCenterY,
-                                             lookupTablePtr,
-                                             this.lensDistortionLookupTable.length]);
-    this.wasmModule._free(lookupTablePtr);
+    wasmModule.HEAPF32.set(this.lensDistortionLookupTable, lookupTablePtr >> 2);
+    const nativePtr = wasmModule.ccall('rgbd_ios_camera_calibration_ctor',
+                                       'number',
+                                       ['number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number', 'number',
+                                         'number', 'number',
+                                         'number',
+                                         'number'],
+                                       [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
+                                         this.fx, this.fy, this.ox, this.oy,
+                                         this.referenceDimensionWidth, this.referenceDimensionHeight,
+                                         this.lensDistortionCenterX, this.lensDistortionCenterY,
+                                         lookupTablePtr,
+                                         this.lensDistortionLookupTable.length]);
+    wasmModule._free(lookupTablePtr);
 
-    return new NativeIosCameraCalibration(this.wasmModule, nativePtr, true);
+    return new NativeIosCameraCalibration(wasmModule, nativePtr, true);
   }
 }
 
@@ -238,12 +231,11 @@ export class UndistortedCameraCalibration extends CameraCalibration {
   cx: number;
   cy: number;
 
-  constructor(wasmModule: any,
-              cameraDeviceType: CameraDeviceType,
+  constructor(cameraDeviceType: CameraDeviceType,
               colorWidth: number, colorHeight: number,
               depthWidth: number, depthHeight: number,
               fx: number, fy: number, cx: number, cy: number) {
-    super(wasmModule, cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(cameraDeviceType, colorWidth, colorHeight, depthWidth, depthHeight);
     this.fx = fx;
     this.fy = fy;
     this.cx = cx;
@@ -260,25 +252,24 @@ export class UndistortedCameraCalibration extends CameraCalibration {
     const fy = nativeUndistortedCameraCalibration.getFy();
     const cx = nativeUndistortedCameraCalibration.getCx();
     const cy = nativeUndistortedCameraCalibration.getCy();
-    return new UndistortedCameraCalibration(nativeUndistortedCameraCalibration.wasmModule,
-                                            cameraDeviceType,
+    return new UndistortedCameraCalibration(cameraDeviceType,
                                             colorWidth, colorHeight,
                                             depthWidth, depthHeight,
                                             fx, fy, cx, cy);
   }
 
-  toNative(): NativeUndistortedCameraCalibration {
-    const nativePtr = this.wasmModule.ccall('rgbd_undistorted_camera_calibration_ctor',
-                                            'number',
-                                            ['number', 'number', 'number', 'number',
-                                             'number', 'number',
-                                             'number', 'number', 'number', 'number',
-                                             'number', 'number', 'number', 'number', 'number', 'number',
-                                             'number', 'number', 'number', 'number',
-                                             'number'],
-                                            [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
-                                             this.fx, this.fy, this.cx, this.cy]);
-    return new NativeUndistortedCameraCalibration(this.wasmModule, nativePtr, true);
+  toNative(wasmModule: any): NativeUndistortedCameraCalibration {
+    const nativePtr = wasmModule.ccall('rgbd_undistorted_camera_calibration_ctor',
+                                       'number',
+                                       ['number', 'number', 'number', 'number',
+                                         'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number', 'number', 'number',
+                                         'number', 'number', 'number', 'number',
+                                         'number'],
+                                       [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
+                                         this.fx, this.fy, this.cx, this.cy]);
+    return new NativeUndistortedCameraCalibration(wasmModule, nativePtr, true);
   }
 }
 

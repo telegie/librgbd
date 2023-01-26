@@ -825,6 +825,21 @@ void* rgbd_file_video_frame_ctor(int64_t time_point_us,
     return new FileVideoFrame{time_point_us, keyframe, color_bytes, depth_bytes};
 }
 
+void* rgbd_file_video_frame_ctor_wasm(int time_point_us,
+                                      bool keyframe,
+                                      const uint8_t* color_bytes_data,
+                                      size_t color_byte_size,
+                                      const uint8_t* depth_bytes_data,
+                                      size_t depth_byte_size)
+{
+    return rgbd_file_video_frame_ctor(time_point_us,
+                                      keyframe,
+                                      color_bytes_data,
+                                      color_byte_size,
+                                      depth_bytes_data,
+                                      depth_byte_size);
+}
+
 void rgbd_file_video_frame_dtor(void* ptr)
 {
     delete static_cast<FileVideoFrame*>(ptr);

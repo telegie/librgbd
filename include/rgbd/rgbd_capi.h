@@ -304,6 +304,12 @@ extern "C"
                                                            size_t color_byte_size,
                                                            const uint8_t* depth_bytes_data,
                                                            size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_ctor_wasm(int time_point_us,
+                                                                bool keyframe,
+                                                                const uint8_t* color_bytes_data,
+                                                                size_t color_byte_size,
+                                                                const uint8_t* depth_bytes_data,
+                                                                size_t depth_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_get_keyframe(void* ptr);

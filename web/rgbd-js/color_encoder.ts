@@ -1,4 +1,5 @@
 import { NativeByteArray } from './capi_containers';
+import { YuvFrame } from './yuv_frame';
 
 export class NativeColorEncoder {
   wasmModule: any;
@@ -21,20 +22,13 @@ export class NativeColorEncoder {
     this.wasmModule.ccall('rgbd_color_encoder_dtor', null, ['number'], [this.ptr]);
   }
 
-  encode(yChannel: Uint8Array, uChannel: Uint8Array, vChannel: Uint8Array, keyframe: boolean): Uint8Array {
-    const yChannelPtr = this.wasmModule._malloc(yChannel.byteLength);
-    const uChannelPtr = this.wasmModule._malloc(uChannel.byteLength);
-    const vChannelPtr = this.wasmModule._malloc(vChannel.byteLength);
-    this.wasmModule.HEAPU8.set(yChannel, yChannelPtr);
-    this.wasmModule.HEAPU8.set(uChannel, uChannelPtr);
-    this.wasmModule.HEAPU8.set(vChannel, vChannelPtr);
+  encode(yuvFrame: YuvFrame, keyframe: boolean): Uint8Array {
+    const nativeYuvFrame = yuvFrame.toNative(this.wasmModule);
     const byteArrayPtr = this.wasmModule.ccall('rgbd_color_encoder_encode',
                                                'number',
-                                               ['number', 'number', 'number', 'number', 'boolean'],
-                                               [this.ptr, yChannelPtr, uChannelPtr, vChannelPtr, keyframe]);
-    this.wasmModule._free(yChannelPtr);
-    this.wasmModule._free(uChannelPtr);
-    this.wasmModule._free(vChannelPtr);
+                                               ['number', 'number', 'boolean'],
+                                               [this.ptr, nativeYuvFrame.ptr, keyframe]);
+    nativeYuvFrame.close();
 
     const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);
     const bytes = byteArray.toArray();
