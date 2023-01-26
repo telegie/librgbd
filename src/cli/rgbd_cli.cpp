@@ -102,10 +102,7 @@ void split_file(const std::string& file_path)
         auto color_bytes{color_encoder->encode(*color_frame, first)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
-        file_writer->writeVideoFrame(time_point_us,
-                                     first,
-                                     color_bytes,
-                                     depth_bytes);
+        file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
     }
 
     file_writer->flush();
@@ -164,10 +161,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), keyframe)};
 
-        file_writer.writeVideoFrame(trimmed_time_point_us,
-                                    keyframe,
-                                    color_bytes,
-                                    depth_bytes);
+        file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
     }
 
     file_writer.flush();
@@ -188,7 +182,9 @@ void standardize_calibration(const std::string& file_path)
 
     FrameMapper frame_mapper{original_calibration, standard_calibration};
 
-    FileWriter file_writer{output_path, standard_calibration, writer_config};
+    //    FileWriter file_writer{output_path, standard_calibration, writer_config};
+    FileWriterHelper file_writer_helper;
+    file_writer_helper.setCalibration(standard_calibration);
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                standard_calibration.getColorWidth(),
@@ -211,7 +207,9 @@ void standardize_calibration(const std::string& file_path)
 
         bool keyframe{video_frame->keyframe()};
         if (first) {
-            file_writer.writeCover(*color_frame);
+            //            file_writer.writeCover(*color_frame);
+            file_writer_helper.setCover(*color_frame);
+            spdlog::info("set cover");
             first = false;
         }
 
@@ -221,35 +219,40 @@ void standardize_calibration(const std::string& file_path)
         auto color_bytes{color_encoder.encode(*mapped_color_frame, keyframe)};
         auto depth_bytes{depth_encoder->encode(mapped_depth_frame->values().data(), keyframe)};
 
-        file_writer.writeVideoFrame(video_time_point_us,
-                                    keyframe,
-                                    color_bytes,
-                                    depth_bytes);
+        //        file_writer.writeVideoFrame(video_time_point_us, keyframe, color_bytes,
+        //        depth_bytes);
+        file_writer_helper.addVideoFrame(
+            FileVideoFrame{video_time_point_us, keyframe, color_bytes, depth_bytes});
+//        spdlog::info("add video frame: {}", video_time_point_us);
 
         while (audio_frame_index < file->audio_frames().size()) {
             auto& audio_frame{file->audio_frames()[audio_frame_index]};
             if (audio_frame->time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeAudioFrame(*audio_frame);
+//            file_writer.writeAudioFrame(*audio_frame);
+            file_writer_helper.addAudioFrame(*audio_frame);
             ++audio_frame_index;
         }
         while (imu_frame_index < file->imu_frames().size()) {
             auto& imu_frame{file->imu_frames()[imu_frame_index]};
             if (imu_frame->time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeIMUFrame(*imu_frame);
+//            file_writer.writeIMUFrame(*imu_frame);
+            file_writer_helper.addIMUFrame(*imu_frame);
             ++imu_frame_index;
         }
         while (trs_frame_index < file->trs_frames().size()) {
             auto& trs_frame{file->trs_frames()[trs_frame_index]};
             if (trs_frame->time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeTRSFrame(*trs_frame);
+//            file_writer.writeTRSFrame(*trs_frame);
+            file_writer_helper.addTRSFrame(*trs_frame);
             ++trs_frame_index;
         }
     }
 
-    file_writer.flush();
+//    file_writer.flush();
+    file_writer_helper.writeToPath(output_path);
 }
 
 int main(int argc, char** argv)

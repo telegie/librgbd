@@ -31,7 +31,9 @@ void FileWriterHelper::setDepthUnit(float depth_unit)
 
 void FileWriterHelper::setCover(const YuvFrame& cover)
 {
+    spdlog::info("setCover");
     cover_ = cover;
+    spdlog::info("cover_.has_value(): {}", cover_.has_value());
 }
 
 void FileWriterHelper::addVideoFrame(const FileVideoFrame& video_frame)
@@ -99,13 +101,14 @@ void FileWriterHelper::writeToPath(const std::string& path)
 
     FileWriterConfig writer_config;
     writer_config.depth_codec_type = depth_codec_type_;
-    if (!depth_unit_)
+    if (depth_unit_)
         writer_config.depth_unit = *depth_unit_;
     FileWriter file_writer{path, *calibration_, writer_config};
 
-    if (!cover_)
+    if (cover_) {
         file_writer.writeCover(*cover_);
-
+        spdlog::info("writing cover");
+    }
 
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};
