@@ -38,7 +38,7 @@ elif platform.system() == "Linux":
         f"{here}/pyrgbd/_librgbd_ffi.cpython-311-x86_64-linux-gnu.so",
     ]
 else:
-    raise f"Unknown platform.system(): {platform.system()}"
+    raise Exception(f"Unknown platform.system(): {platform.system()}")
 
 setup(
     name="pyrgbd",
