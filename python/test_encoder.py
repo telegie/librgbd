@@ -1,6 +1,4 @@
-print("test_encoder - 1")
 import pyrgbd as rgbd
-print("test_encoder - 2")
 import requests
 import os.path
 
@@ -25,16 +23,13 @@ def main():
     print(f"color codec: {file.tracks.color_track.codec}")
     print(f"depth codec: {file.tracks.depth_track.codec}")
 
-    file_writer_helper = rgbd.FileWriterHelper()
-    file_writer_helper.set_calibration(file.attachments.camera_calibration)
-
-    color_track = file.tracks.color_track
-    depth_track = file.tracks.depth_track
-    print(f"depth_track.depth_unit: {depth_track.depth_unit}")
-
     standard_calibration = rgbd.UndistortedCameraCalibration(1024, 1024,
                                                              512, 512,
                                                              0.5, 0.5, 0.5, 0.5)
+
+    file_writer_helper = rgbd.FileWriterHelper()
+    file_writer_helper.set_calibration(standard_calibration)
+    file_writer_helper.set_depth_unit(file.tracks.depth_track.depth_unit)
 
     yuv_frames = []
     depth_frames = []
@@ -60,6 +55,7 @@ def main():
     depth_width = depth_frames[0].width
     depth_height = depth_frames[0].height
 
+    print(f"color_width: {color_width}, color_height: {color_height}")
     print(f"depth_width: {depth_width}, depth_height: {depth_height}")
 
     file_writer_helper.set_cover(yuv_frames[0])
@@ -93,7 +89,7 @@ def main():
     for trs_frame in file.trs_frames:
         file_writer_helper.add_trs_frame(trs_frame)
 
-    file_writer_helper.write("tmp/written_file.mkv")
+    file_writer_helper.write("tmp/test_encoder_result.mkv")
 
 
 if __name__ == "__main__":
