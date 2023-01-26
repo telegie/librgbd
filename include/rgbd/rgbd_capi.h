@@ -456,6 +456,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_calibration(void* ptr,
                                                                        void* calibration_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_framerate(void* ptr, int framerate);
+    RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_samplerate(void* ptr, int samplerate);
     RGBD_INTERFACE_EXPORT void
     rgbd_file_writer_helper_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_file_writer_helper_set_depth_unit(void* ptr, float depth_unit);

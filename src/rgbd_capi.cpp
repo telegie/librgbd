@@ -1198,6 +1198,18 @@ void rgbd_file_writer_helper_set_calibration(void* ptr, void* calibration_ptr)
     file_writer_helper->setCalibration(*calibration);
 }
 
+void rgbd_file_writer_helper_set_framerate(void* ptr, int framerate)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    file_writer_helper->setFramerate(framerate);
+}
+
+void rgbd_file_writer_helper_set_samplerate(void* ptr, int samplerate)
+{
+    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
+    file_writer_helper->setSamplerate(samplerate);
+}
+
 void rgbd_file_writer_helper_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
 {
     auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};

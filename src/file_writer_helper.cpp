@@ -19,6 +19,16 @@ void FileWriterHelper::setCalibration(const CameraCalibration& calibration)
     calibration_ = calibration.clone();
 }
 
+void FileWriterHelper::setFramerate(int framerate)
+{
+    framerate_ = framerate;
+}
+
+void FileWriterHelper::setSamplerate(int samplerate)
+{
+    samplerate_ = samplerate;
+}
+
 void FileWriterHelper::setDepthCodecType(DepthCodecType depth_codec_type)
 {
     depth_codec_type_ = depth_codec_type;
@@ -111,6 +121,10 @@ unique_ptr<FileWriter> FileWriterHelper::write(optional<string> path)
     }
 
     FileWriterConfig writer_config;
+    if (framerate_)
+        writer_config.framerate = *framerate_;
+    if (samplerate_)
+        writer_config.samplerate = *samplerate_;
     writer_config.depth_codec_type = depth_codec_type_;
     if (depth_unit_)
         writer_config.depth_unit = *depth_unit_;

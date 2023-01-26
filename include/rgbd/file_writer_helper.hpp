@@ -10,6 +10,8 @@ class FileWriterHelper
 public:
     FileWriterHelper();
     void setCalibration(const CameraCalibration& calibration);
+    void setFramerate(int framerate);
+    void setSamplerate(int samplerate);
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);
     void setCover(const YuvFrame& cover);
@@ -25,6 +27,8 @@ private:
 
 private:
     unique_ptr<CameraCalibration> calibration_;
+    optional<int> framerate_;
+    optional<int> samplerate_;
     DepthCodecType depth_codec_type_;
     optional<float> depth_unit_;
     optional<YuvFrame> cover_;
