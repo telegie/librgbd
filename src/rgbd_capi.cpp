@@ -565,11 +565,17 @@ void rgbd_file_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
     file_bytes_builder->setCalibration(*calibration);
 }
 
-void rgbd_file_bytes_builder_set_cover(void* ptr, void* cover_ptr)
+void rgbd_file_bytes_builder_set_cover_png_bytes(void* ptr,
+                                                 const uint8_t* cover_png_bytes_data,
+                                                 size_t cover_png_byte_size)
 {
+    Bytes cover_png_bytes;
+    auto cover_png_bytes_ptr{reinterpret_cast<const byte*>(cover_png_bytes_data)};
+    cover_png_bytes.insert(
+        cover_png_bytes.end(), &cover_png_bytes_ptr[0], &cover_png_bytes_ptr[cover_png_byte_size]);
+
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto cover{static_cast<YuvFrame*>(cover_ptr)};
-    file_bytes_builder->setCover(*cover);
+    file_bytes_builder->setCoverPNGBytes(cover_png_bytes);
 }
 
 void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr)
@@ -668,7 +674,6 @@ void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
                             glm::vec3{magnetic_field_x, magnetic_field_y, magnetic_field_z},
                             glm::vec3{gravity_x, gravity_y, gravity_z}};
 }
-
 
 void* rgbd_file_imu_frame_ctor_wasm(int time_point_us,
                                     float acceleration_x,
@@ -855,16 +860,16 @@ void* rgbd_file_tracks_get_audio_track(void* ptr)
 
 //////// START FILE TRS FRAME ////////
 void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
-                              float translation_x,
-                              float translation_y,
-                              float translation_z,
-                              float rotation_w,
-                              float rotation_x,
-                              float rotation_y,
-                              float rotation_z,
-                              float scale_x,
-                              float scale_y,
-                              float scale_z)
+                               float translation_x,
+                               float translation_y,
+                               float translation_z,
+                               float rotation_w,
+                               float rotation_x,
+                               float rotation_y,
+                               float rotation_z,
+                               float scale_x,
+                               float scale_y,
+                               float scale_z)
 {
     return new FileTRSFrame{time_point_us,
                             glm::vec3{translation_x, translation_y, translation_z},
@@ -1368,6 +1373,27 @@ void rgbd_yuv_frame_dtor(void* ptr)
     delete static_cast<YuvFrame*>(ptr);
 }
 
+void* rgbd_yuv_frame_get_mkv_cover_sized(void* ptr)
+{
+    return static_cast<YuvFrame*>(ptr)->getMkvCoverSized().release();
+}
+
+void* rgbd_yuv_frame_get_png_bytes(void* ptr)
+{
+    auto yuv_frame{static_cast<YuvFrame*>(ptr)};
+    return new NativeByteArray{yuv_frame->getPNGBytes()};
+}
+
+int rgbd_yuv_frame_get_width(void* ptr)
+{
+    return static_cast<YuvFrame*>(ptr)->width();
+}
+
+int rgbd_yuv_frame_get_height(void* ptr)
+{
+    return static_cast<YuvFrame*>(ptr)->height();
+}
+
 void* rgbd_yuv_frame_get_y_channel(void* ptr)
 {
     return new NativeUInt8Array{static_cast<YuvFrame*>(ptr)->y_channel()};
@@ -1381,15 +1407,5 @@ void* rgbd_yuv_frame_get_u_channel(void* ptr)
 void* rgbd_yuv_frame_get_v_channel(void* ptr)
 {
     return new NativeUInt8Array{static_cast<YuvFrame*>(ptr)->v_channel()};
-}
-
-int rgbd_yuv_frame_get_width(void* ptr)
-{
-    return static_cast<YuvFrame*>(ptr)->width();
-}
-
-int rgbd_yuv_frame_get_height(void* ptr)
-{
-    return static_cast<YuvFrame*>(ptr)->height();
 }
 //////// END YUV FRAME ////////

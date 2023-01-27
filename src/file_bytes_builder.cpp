@@ -8,7 +8,7 @@ FileBytesBuilder::FileBytesBuilder()
     , calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
     , depth_unit_{DEFAULT_DEPTH_UNIT}
-    , cover_{std::nullopt}
+    , cover_png_bytes_{std::nullopt}
     , video_frames_{}
     , audio_frames_{}
     , imu_frames_{}
@@ -41,11 +41,9 @@ void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
     calibration_ = calibration.clone();
 }
 
-void FileBytesBuilder::setCover(const YuvFrame& cover)
+void FileBytesBuilder::setCoverPNGBytes(const Bytes& cover_png_bytes)
 {
-    spdlog::info("setCover");
-    cover_ = cover;
-    spdlog::info("cover_.has_value(): {}", cover_.has_value());
+    cover_png_bytes_ = cover_png_bytes;
 }
 
 void FileBytesBuilder::addVideoFrame(const FileVideoFrame& video_frame)
@@ -128,16 +126,13 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
         throw std::runtime_error("No CameraCalibration found from FileWriterHelper");
     }
 
-    optional<Bytes> cover_png_bytes;
-    if (cover_)
-        cover_png_bytes = cover_->getMkvCoverSized().getPNGBytes();
     FileWriter file_writer{io_callback,
                            framerate_,
                            samplerate_,
                            depth_codec_type_,
                            depth_unit_,
                            *calibration_,
-                           cover_png_bytes};
+                           cover_png_bytes_};
 
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};

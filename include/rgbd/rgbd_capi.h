@@ -193,9 +193,8 @@ extern "C"
     //////// START FILE AUDIO FRAME ////////
     RGBD_INTERFACE_EXPORT void*
     rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_audio_frame_ctor_wasm(int time_point_us,
-                                                                const uint8_t* bytes_data,
-                                                                size_t byte_size);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_file_audio_frame_ctor_wasm(int time_point_us, const uint8_t* bytes_data, size_t byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_file_audio_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_audio_frame_get_bytes(void* ptr);
@@ -217,11 +216,16 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_calibration(void* ptr,
                                                                        void* calibration_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_cover(void* ptr, void* cover_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_trs_frame(void* ptr, void* trs_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_cover_png_bytes(
+        void* ptr, const uint8_t* cover_png_bytes_data, size_t cover_png_byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_video_frame(void* ptr,
+                                                                       void* video_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_audio_frame(void* ptr,
+                                                                       void* audio_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_imu_frame(void* ptr,
+                                                                     void* imu_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_trs_frame(void* ptr,
+                                                                     void* trs_frame_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_file_bytes_builder_build(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_build_to_path(void* ptr, const char* path);
     //////// END FILE WRITER HELPER ////////
@@ -422,8 +426,7 @@ extern "C"
     //////// END KINECT CAMERA CALIBRATION ////////
 
     //////// START INT32 FRAME ////////
-    RGBD_INTERFACE_EXPORT void*
-    rgbd_int32_frame_ctor(int width, int height, const int32_t* values);
+    RGBD_INTERFACE_EXPORT void* rgbd_int32_frame_ctor(int width, int height, const int32_t* values);
     RGBD_INTERFACE_EXPORT void rgbd_int32_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_width(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_height(void* ptr);
@@ -486,11 +489,13 @@ extern "C"
                                                     const uint8_t* u_channel,
                                                     const uint8_t* v_channel);
     RGBD_INTERFACE_EXPORT void rgbd_yuv_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_mkv_cover_sized(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_png_bytes(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_yuv_frame_get_width(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_yuv_frame_get_height(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_y_channel(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_u_channel(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_yuv_frame_get_v_channel(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_yuv_frame_get_width(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_yuv_frame_get_height(void* ptr);
     //////// END YUV FRAME ////////
 #ifdef __cplusplus
 }

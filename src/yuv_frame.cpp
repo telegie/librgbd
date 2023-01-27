@@ -141,7 +141,7 @@ YuvFrame YuvFrame::getDownsampled(int downsampling_factor) const
                     std::move(downsampled_v_channel)};
 }
 
-YuvFrame YuvFrame::getMkvCoverSized() const
+unique_ptr<YuvFrame> YuvFrame::getMkvCoverSized() const
 {
     // Pick the largest centered square area.
     int y_row_start{0};
@@ -182,11 +182,11 @@ YuvFrame YuvFrame::getMkvCoverSized() const
         }
     }
 
-    return YuvFrame{COVER_SIZE,
-                    COVER_SIZE,
-                    std::move(cover_y_channel),
-                    std::move(cover_u_channel),
-                    std::move(cover_v_channel)};
+    return std::make_unique<YuvFrame>(COVER_SIZE,
+                                      COVER_SIZE,
+                                      std::move(cover_y_channel),
+                                      std::move(cover_u_channel),
+                                      std::move(cover_v_channel));
 }
 
 Bytes YuvFrame::getPNGBytes() const
