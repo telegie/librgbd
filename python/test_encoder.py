@@ -27,9 +27,9 @@ def main():
                                                              512, 512,
                                                              0.5, 0.5, 0.5, 0.5)
 
-    file_writer_helper = rgbd.NativeFileWriterHelper()
-    file_writer_helper.set_calibration(standard_calibration)
-    file_writer_helper.set_depth_unit(file.tracks.depth_track.depth_unit)
+    file_bytes_builder = rgbd.NativeFileBytesBuilder()
+    file_bytes_builder.set_calibration(standard_calibration)
+    file_bytes_builder.set_depth_unit(file.tracks.depth_track.depth_unit)
 
     yuv_frames = []
     depth_frames = []
@@ -58,7 +58,7 @@ def main():
     print(f"color_width: {color_width}, color_height: {color_height}")
     print(f"depth_width: {depth_width}, depth_height: {depth_height}")
 
-    file_writer_helper.set_cover(yuv_frames[0])
+    file_bytes_builder.set_cover(yuv_frames[0])
 
     with rgbd.NativeColorEncoder(rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8,
                                  color_width,
@@ -75,21 +75,21 @@ def main():
             color_bytes = color_encoder.encode(yuv_frame, keyframe)
             depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
 
-            file_writer_helper.add_video_frame(rgbd.FileVideoFrame(video_frame.time_point_us,
+            file_bytes_builder.add_video_frame(rgbd.FileVideoFrame(video_frame.time_point_us,
                                                                    keyframe,
                                                                    color_bytes,
                                                                    depth_bytes))
 
     for audio_frame in file.audio_frames:
-        file_writer_helper.add_audio_frame(audio_frame)
+        file_bytes_builder.add_audio_frame(audio_frame)
 
     for imu_frame in file.imu_frames:
-        file_writer_helper.add_imu_frame(imu_frame)
+        file_bytes_builder.add_imu_frame(imu_frame)
 
     for trs_frame in file.trs_frames:
-        file_writer_helper.add_trs_frame(trs_frame)
+        file_bytes_builder.add_trs_frame(trs_frame)
 
-    file_writer_helper.write_to_path("tmp/test_encoder_result.mkv")
+    file_bytes_builder.build_to_path("tmp/test_encoder_result.mkv")
 
 
 if __name__ == "__main__":
