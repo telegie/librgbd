@@ -58,7 +58,7 @@ void split_file(const std::string& file_path)
     auto& video_frames{file->video_frames()};
 
     int previous_chunk_index{-1};
-    unique_ptr<FileWriter> file_writer;
+    unique_ptr<FileBytesBuilder> file_bytes_builder;
     unique_ptr<ColorEncoder> color_encoder;
     unique_ptr<DepthEncoder> depth_encoder;
 
@@ -76,14 +76,19 @@ void split_file(const std::string& file_path)
 
         bool first{false};
         if (chunk_index == previous_chunk_index + 1) {
-            if (file_writer)
-                file_writer->flush();
+            // if (file_writer)
+                // file_writer->flush();
+            if (file_bytes_builder)
+                file_bytes_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
 
-            auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
-            FileWriterConfig writer_config;
-            writer_config.depth_codec_type = DepthCodecType::TDC1;
-            file_writer = std::make_unique<FileWriter>(
-                output_path, *file->attachments().camera_calibration, writer_config);
+            // auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
+            // FileWriterConfig writer_config;
+            // writer_config.depth_codec_type = DepthCodecType::TDC1;
+            // file_writer = std::make_unique<FileWriter>(
+                // output_path, *file->attachments().camera_calibration, writer_config);
+
+            file_bytes_builder.reset(new FileBytesBuilder);
+            file_bytes_builder->setCalibration(*file->attachments().camera_calibration);
 
             color_encoder = std::make_unique<ColorEncoder>(
                 ColorCodecType::VP8, color_frame->width(), color_frame->height(), 2500, 30);
@@ -91,7 +96,8 @@ void split_file(const std::string& file_path)
                 DepthEncoder::createTDC1Encoder(depth_frame->width(), depth_frame->height(), 500);
             first = true;
 
-            file_writer->writeCover(*color_frame);
+            // file_writer->writeCover(*color_frame);
+            file_bytes_builder->setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
             previous_chunk_index = chunk_index;
         } else if (chunk_index == previous_chunk_index) {
             first = false;
@@ -102,10 +108,12 @@ void split_file(const std::string& file_path)
         auto color_bytes{color_encoder->encode(*color_frame, first)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
-        file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
+        // file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
+        file_bytes_builder->addVideoFrame(FileVideoFrame{time_point_us, first, color_bytes, depth_bytes});
     }
 
-    file_writer->flush();
+    // file_writer->flush();
+    file_bytes_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
 }
 
 void trim_file(const std::string& file_path, float from_sec, float to_sec)
@@ -117,9 +125,11 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     auto& video_frames{file->video_frames()};
 
     auto output_path{"trimmed.mkv"};
-    FileWriterConfig writer_config;
-    writer_config.depth_codec_type = DepthCodecType::TDC1;
-    FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
+    // FileWriterConfig writer_config;
+    // writer_config.depth_codec_type = DepthCodecType::TDC1;
+    // FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
+    FileBytesBuilder file_bytes_builder;
+    file_bytes_builder.setCalibration(*file->attachments().camera_calibration);
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                file->tracks().color_track.width,
@@ -149,8 +159,10 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
         bool keyframe{false};
         if (keyframe_index == previous_keyframe_index + 1) {
-            if (keyframe_index == 0)
-                file_writer.writeCover(*color_frame);
+            if (keyframe_index == 0) {
+                // file_writer.writeCover(*color_frame);
+                file_bytes_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
+            }
 
             keyframe = true;
             previous_keyframe_index = keyframe_index;
@@ -161,10 +173,12 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), keyframe)};
 
-        file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
+        // file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
+        file_bytes_builder.addVideoFrame(FileVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
     }
 
-    file_writer.flush();
+    // file_writer.flush();
+    file_bytes_builder.buildToPath(output_path);
 }
 
 void standardize_calibration(const std::string& file_path)
@@ -174,8 +188,8 @@ void standardize_calibration(const std::string& file_path)
     auto& video_frames{file->video_frames()};
 
     auto output_path{"standardized.mkv"};
-    FileWriterConfig writer_config;
-    writer_config.depth_codec_type = DepthCodecType::TDC1;
+    // FileWriterConfig writer_config;
+    // writer_config.depth_codec_type = DepthCodecType::TDC1;
 
     auto& original_calibration{*file->attachments().camera_calibration};
     UndistortedCameraCalibration standard_calibration{1024, 1024, 512, 512, 0.5f, 0.5f, 0.5f, 0.5f};
@@ -206,7 +220,7 @@ void standardize_calibration(const std::string& file_path)
 
         bool keyframe{video_frame->keyframe()};
         if (first) {
-            file_bytes_builder.setCover(*color_frame);
+            file_bytes_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
             spdlog::info("set cover");
             first = false;
         }

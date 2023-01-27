@@ -17,18 +17,18 @@ export class NativeFileBytesBuilder {
     this.wasmModule.ccall('rgbd_file_bytes_builder_dtor', null, ['number'], [this.ptr]);
   }
 
-  setCalibration(calibration: CameraCalibration) {
-    const nativeCalibration = calibration.toNative(this.wasmModule);
-    this.wasmModule.ccall('rgbd_file_bytes_builder_set_calibration', null, ['number', 'number'], [this.ptr, nativeCalibration.ptr]);
-    nativeCalibration.close();
-  }
-
   setDepthCodecType(depthCodecType: DepthCodecType) {
     this.wasmModule.ccall('rgbd_file_bytes_builder_set_depth_codec_type', null, ['number', 'number'], [this.ptr, depthCodecType]);
   }
 
   setDepthUnit(depthUnit: number) {
     this.wasmModule.ccall('rgbd_file_bytes_builder_set_depth_unit', null, ['number', 'number'], [this.ptr, depthUnit]);
+  }
+
+  setCalibration(calibration: CameraCalibration) {
+    const nativeCalibration = calibration.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_file_bytes_builder_set_calibration', null, ['number', 'number'], [this.ptr, nativeCalibration.ptr]);
+    nativeCalibration.close();
   }
 
   setCoverPNGBytes(coverPNGBytes: Uint8Array) {

@@ -58,7 +58,7 @@ def main():
     print(f"color_width: {color_width}, color_height: {color_height}")
     print(f"depth_width: {depth_width}, depth_height: {depth_height}")
 
-    file_bytes_builder.set_cover(yuv_frames[0])
+    file_bytes_builder.set_cover_png_bytes(yuv_frames[0].get_mkv_cover_sized().get_png_bytes())
 
     with rgbd.NativeColorEncoder(rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8,
                                  color_width,

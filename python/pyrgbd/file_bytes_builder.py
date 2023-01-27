@@ -3,6 +3,8 @@ from .depth_decoder import DepthCodecType
 from .file import FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame
 from .yuv_frame import YuvFrame
 from ._librgbd_ffi import lib
+import numpy as np
+from .utils import cast_np_array_to_pointer
 
 
 class NativeFileBytesBuilder:
@@ -28,9 +30,10 @@ class NativeFileBytesBuilder:
     def set_depth_unit(self, depth_unit: float):
         lib.rgbd_file_bytes_builder_set_depth_unit(self.ptr, depth_unit)
 
-    def set_cover(self, cover: YuvFrame):
-        with cover.to_native() as native_cover:
-            lib.rgbd_file_bytes_builder_set_cover(self.ptr, native_cover.ptr)
+    def set_cover_png_bytes(self, cover_png_bytes: np.ndarray):
+        lib.rgbd_file_bytes_builder_set_cover_png_bytes(self.ptr,
+                                                        cast_np_array_to_pointer(cover_png_bytes),
+                                                        cover_png_bytes.size)
 
     def add_video_frame(self, video_frame: FileVideoFrame):
         with video_frame.to_native() as native_video_frame:

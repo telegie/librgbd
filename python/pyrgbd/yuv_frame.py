@@ -2,6 +2,7 @@ from ._librgbd_ffi import lib
 from .capi_containers import NativeUInt8Array
 from .utils import cast_np_array_to_pointer
 import numpy as np
+from .capi_containers import NativeByteArray
 
 
 class NativeYuvFrame:
@@ -16,6 +17,13 @@ class NativeYuvFrame:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
+
+    def get_mkv_cover_sized(self):
+        cover_sized_ptr = lib.rgbd_yuv_frame_get_mkv_cover_sized(self.ptr)
+        return NativeYuvFrame(cover_sized_ptr)
+
+    def get_png_bytes(self) -> np.ndarray:
+        return NativeByteArray(lib.rgbd_yuv_frame_get_png_bytes(self.ptr)).to_np_array()
 
     def get_y_channel(self) -> NativeUInt8Array:
         return NativeUInt8Array(lib.rgbd_yuv_frame_get_y_channel(self.ptr))
@@ -64,3 +72,11 @@ class YuvFrame:
                                       cast_np_array_to_pointer(self.u_channel),
                                       cast_np_array_to_pointer(self.v_channel))
         return NativeYuvFrame(ptr)
+
+    def get_mkv_cover_sized(self):
+        with self.to_native() as native_yuv_frame:
+            return YuvFrame.from_native(native_yuv_frame.get_mkv_cover_sized())
+
+    def get_png_bytes(self) -> np.ndarray:
+        with self.to_native() as native_yuv_frame:
+            return native_yuv_frame.get_png_bytes()
