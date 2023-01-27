@@ -1430,9 +1430,9 @@ float rgbd_kinect_camera_calibration_get_max_radius_for_projection(void* ptr)
 //////// END KINECT CAMERA CALIBRATION ////////
 
 //////// START INT32 FRAME ////////
-void* rgbd_int32_frame_ctor(int width, int height, const int32_t* depth_values)
+void* rgbd_int32_frame_ctor(int width, int height, const int32_t* values)
 {
-    return new Int32Frame{width, height, depth_values};
+    return new Int32Frame{width, height, values};
 }
 
 void rgbd_int32_frame_dtor(void* ptr)

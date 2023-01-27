@@ -523,7 +523,7 @@ extern "C"
 
     //////// START INT32 FRAME ////////
     RGBD_INTERFACE_EXPORT void*
-    rgbd_int32_frame_ctor(int width, int height, const int32_t* depth_values);
+    rgbd_int32_frame_ctor(int width, int height, const int32_t* values);
     RGBD_INTERFACE_EXPORT void rgbd_int32_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_width(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_int32_frame_get_height(void* ptr);

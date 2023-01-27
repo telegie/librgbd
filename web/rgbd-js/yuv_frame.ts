@@ -37,7 +37,7 @@ export class YuvFrame {
     wasmModule.HEAPU8.set(this.vChannel, vChannelPtr);
     const ptr = wasmModule.ccall('rgbd_yuv_frame_ctor',
                                  'number',
-                                 ['number', 'number', 'number', 'number', 'boolean'],
+                                 ['number', 'number', 'number', 'number', 'number'],
                                  [this.width, this.height, yChannelPtr, uChannelPtr, vChannelPtr]);
     wasmModule._free(yChannelPtr);
     wasmModule._free(uChannelPtr);
