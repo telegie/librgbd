@@ -58,27 +58,18 @@ struct FileWriterTracks
 class FileWriter
 {
 public:
-    FileWriter(const string& file_path,
+    FileWriter(IOCallback& io_callback,
                const CameraCalibration& calibration,
                const FileWriterConfig& config,
                const optional<Bytes>& cover_png_bytes);
-    FileWriter(const CameraCalibration& calibration,
-               const FileWriterConfig& config,
-               const optional<Bytes>& cover_png_bytes);
-private:
-    void init(const CameraCalibration& calibration,
-              const FileWriterConfig& config,
-              const optional<Bytes>& cover_png_bytes);
-public:
     void writeVideoFrame(const FileVideoFrame& video_frame);
     void writeAudioFrame(const FileAudioFrame& audio_frame);
     void writeIMUFrame(const FileIMUFrame& imu_frame);
     void writeTRSFrame(const FileTRSFrame& trs_frame);
     void flush();
-    Bytes getBytes();
 
 private:
-    unique_ptr<IOCallback> io_callback_;
+    IOCallback& io_callback_;
     unique_ptr<libmatroska::KaxSegment> segment_;
     FileWriterTracks writer_tracks_;
     unique_ptr<EbmlVoid> seek_head_placeholder_;

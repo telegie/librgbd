@@ -23,7 +23,7 @@ public:
     void buildToPath(const std::string& path);
 
 private:
-    unique_ptr<FileWriter> _build(optional<string> path);
+    void _build(IOCallback& io_callback);
 
 private:
     unique_ptr<CameraCalibration> calibration_;

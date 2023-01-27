@@ -25,11 +25,11 @@ Bytes convert_quat_to_bytes(const glm::quat& q)
     return bytes;
 }
 
-FileWriter::FileWriter(const string& file_path,
+FileWriter::FileWriter(IOCallback& io_callback,
                        const CameraCalibration& calibration,
                        const FileWriterConfig& config,
                        const optional<Bytes>& cover_png_bytes)
-    : io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
+    : io_callback_{io_callback}
     , segment_{std::make_unique<KaxSegment>()}
     , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
@@ -37,28 +37,6 @@ FileWriter::FileWriter(const string& file_path,
     , past_color_block_blob_{nullptr}
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
-{
-    init(calibration, config, cover_png_bytes);
-}
-
-FileWriter::FileWriter(const CameraCalibration& calibration,
-                       const FileWriterConfig& config,
-                       const optional<Bytes>& cover_png_bytes)
-    : io_callback_{std::make_unique<MemIOCallback>()}
-    , segment_{std::make_unique<KaxSegment>()}
-    , writer_tracks_{}
-    , seek_head_placeholder_{nullptr}
-    , segment_info_placeholder_{nullptr}
-    , past_color_block_blob_{nullptr}
-    , past_depth_block_blob_{nullptr}
-    , last_timecode_{0}
-{
-    init(calibration, config, cover_png_bytes);
-}
-
-void FileWriter::init(const CameraCalibration& calibration,
-                      const FileWriterConfig& config,
-                      const optional<Bytes>& cover_png_bytes)
 {
     std::random_device random_device;
     std::mt19937 generator{random_device()};
@@ -380,11 +358,11 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<EDocType>(head).SetValue("matroska");
         GetChild<EDocTypeVersion>(head).SetValue(2);
         GetChild<EDocTypeReadVersion>(head).SetValue(2);
-        head.Render(*io_callback_, true);
+        head.Render(io_callback_, true);
     }
 
     // size is unknown and will always be, we can render it right away
-    segment_->WriteHead(*io_callback_, 8);
+    segment_->WriteHead(io_callback_, 8);
 
     // Following the optimum layout of SeekHead -> Info -> Tracks -> Attachements -> Clusters.
     // reference: https://www.matroska.org/technical/ordering.html
@@ -396,23 +374,23 @@ void FileWriter::init(const CameraCalibration& calibration,
         // reserve some space for the Meta Seek writen at the end
         seek_head_placeholder_ = std::make_unique<EbmlVoid>();
         seek_head_placeholder_->SetSize(256);
-        seek_head_placeholder_->Render(*io_callback_);
+        seek_head_placeholder_->Render(io_callback_);
 
         segment_info_placeholder_ = std::make_unique<EbmlVoid>();
         segment_info_placeholder_->SetSize(256);
-        segment_info_placeholder_->Render(*io_callback_);
+        segment_info_placeholder_->Render(io_callback_);
     }
 
     // Write KaxTracks
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
-        tracks.Render(*io_callback_);
+        tracks.Render(io_callback_);
     }
 
     // Write KaxAttachments
     {
         auto& attachments{GetChild<KaxAttachments>(*segment_)};
-        attachments.Render(*io_callback_);
+        attachments.Render(io_callback_);
     }
 }
 
@@ -458,7 +436,7 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
                                    LACING_AUTO,
                                    video_frame.keyframe() ? nullptr : past_depth_block_blob_);
 
-    video_cluster->Render(*io_callback_, cues);
+    video_cluster->Render(io_callback_, cues);
     video_cluster->ReleaseFrames();
 
     past_color_block_blob_ = color_block_blob;
@@ -498,7 +476,7 @@ void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
     block_blob->SetParent(*audio_cluster);
     block_blob->AddFrameAuto(*writer_tracks_.audio_track, audio_cluster_timecode, *data_buffer);
 
-    audio_cluster->Render(*io_callback_, cues);
+    audio_cluster->Render(io_callback_, cues);
     audio_cluster->ReleaseFrames();
 
     last_timecode_ = audio_cluster_timecode;
@@ -566,7 +544,7 @@ void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
     gravity_block_blob->AddFrameAuto(
         *writer_tracks_.gravity_track, imu_timecode, *gravity_data_buffer);
 
-    imu_cluster->Render(*io_callback_, cues);
+    imu_cluster->Render(io_callback_, cues);
     imu_cluster->ReleaseFrames();
 
     last_timecode_ = imu_timecode;
@@ -621,7 +599,7 @@ void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
     scale_block_blob->SetParent(*trs_cluster);
     scale_block_blob->AddFrameAuto(*writer_tracks_.scale_track, trs_timecode, *scale_data_buffer);
 
-    trs_cluster->Render(*io_callback_, cues);
+    trs_cluster->Render(io_callback_, cues);
     trs_cluster->ReleaseFrames();
 
     last_timecode_ = trs_timecode;
@@ -634,14 +612,14 @@ void FileWriter::flush()
 
         auto& segment_info{GetChild<KaxInfo>(*segment_)};
         GetChild<KaxDuration>(segment_info).SetValue(duration);
-        segment_info_placeholder_->ReplaceWith(segment_info, *io_callback_);
+        segment_info_placeholder_->ReplaceWith(segment_info, io_callback_);
     }
 
     //
     // render KaxCues
     //
     auto& cues{GetChild<KaxCues>(*segment_)};
-    cues.Render(*io_callback_);
+    cues.Render(io_callback_);
 
     //
     // update KaxSeekHead
@@ -660,30 +638,16 @@ void FileWriter::flush()
 
         seek_head.IndexThis(cues, *segment_);
 
-        seek_head_placeholder_->ReplaceWith(seek_head, *io_callback_);
+        seek_head_placeholder_->ReplaceWith(seek_head, io_callback_);
     }
 
-    io_callback_->setFilePointer(0, libebml::seek_end);
-    uint64_t segment_size{io_callback_->getFilePointer() - segment_->GetElementPosition() -
+    io_callback_.setFilePointer(0, libebml::seek_end);
+    uint64_t segment_size{io_callback_.getFilePointer() - segment_->GetElementPosition() -
                           segment_->HeadSize()};
     segment_->SetSizeInfinite(true);
     if (!segment_->ForceSize(segment_size))
         spdlog::info("Failed to set segment size");
-    segment_->OverwriteHead(*io_callback_);
-    io_callback_->close();
-}
-
-Bytes FileWriter::getBytes()
-{
-    auto mem_io_callback{reinterpret_cast<MemIOCallback*>(io_callback_.get())};
-
-    // bool ok{mem_io_callback->IsOk()};
-    // string error_str{mem_io_callback->GetLastErrorStr()};
-    // spdlog::info("ok: {}, error_str: {}", ok, error_str);
-
-    uint64_t size{mem_io_callback->GetDataBufferSize()};
-    Bytes bytes(size);
-    memcpy(bytes.data(), mem_io_callback->GetDataBuffer(), size);
-    return bytes;
+    segment_->OverwriteHead(io_callback_);
+    io_callback_.close();
 }
 } // namespace rgbd

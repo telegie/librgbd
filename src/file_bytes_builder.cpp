@@ -68,16 +68,22 @@ void FileBytesBuilder::addTRSFrame(const FileTRSFrame& trs_frame)
 
 Bytes FileBytesBuilder::build()
 {
-    auto file_writer{_build(std::nullopt)};
-    return file_writer->getBytes();
+    MemIOCallback io_callback;
+    _build(io_callback);
+
+    uint64_t size{io_callback.GetDataBufferSize()};
+    Bytes bytes(size);
+    memcpy(bytes.data(), io_callback.GetDataBuffer(), size);
+    return bytes;
 }
 
 void FileBytesBuilder::buildToPath(const std::string& path)
 {
-    _build(path);
+    StdIOCallback io_callback{path.c_str(), MODE_CREATE};
+    _build(io_callback);
 }
 
-unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
+void FileBytesBuilder::_build(IOCallback& io_callback)
 {
     sort(video_frames_.begin(),
          video_frames_.end(),
@@ -128,15 +134,10 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
     writer_config.depth_codec_type = depth_codec_type_;
     if (depth_unit_)
         writer_config.depth_unit = *depth_unit_;
-    unique_ptr<FileWriter> file_writer;
     optional<Bytes> cover_png_bytes;
     if (cover_)
         cover_png_bytes = cover_->getMkvCoverSized().getPNGBytes();
-    if (path) {
-        file_writer.reset(new FileWriter{*path, *calibration_, writer_config, cover_png_bytes});
-    } else {
-        file_writer.reset(new FileWriter{*calibration_, writer_config, cover_png_bytes});
-    }
+    FileWriter file_writer{io_callback, *calibration_, writer_config, cover_png_bytes};
 
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};
@@ -148,7 +149,7 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
             auto& audio_frame{audio_frames_[audio_frame_index]};
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeAudioFrame(FileAudioFrame{
+            file_writer.writeAudioFrame(FileAudioFrame{
                 audio_frame.time_point_us() - minimum_time_point_us, audio_frame.bytes()});
             ++audio_frame_index;
         }
@@ -156,7 +157,7 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
             auto& imu_frame{imu_frames_[imu_frame_index]};
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeIMUFrame(
+            file_writer.writeIMUFrame(
                 FileIMUFrame{imu_frame.time_point_us() - minimum_time_point_us,
                              imu_frame.acceleration(),
                              imu_frame.rotation_rate(),
@@ -168,7 +169,7 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
             auto& trs_frame{trs_frames_[trs_frame_index]};
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeTRSFrame(
+            file_writer.writeTRSFrame(
                 FileTRSFrame{trs_frame.time_point_us() - minimum_time_point_us,
                              trs_frame.translation(),
                              trs_frame.rotation(),
@@ -176,10 +177,9 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
             ++trs_frame_index;
         }
 
-        file_writer->writeVideoFrame(video_frame);
+        file_writer.writeVideoFrame(video_frame);
     }
 
-    file_writer->flush();
-    return file_writer;
+    file_writer.flush();
 }
 } // namespace rgbd
