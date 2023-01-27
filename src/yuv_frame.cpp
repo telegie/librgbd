@@ -12,6 +12,8 @@ extern "C"
 }
 #pragma warning(pop)
 
+#include "png_utils.hpp"
+
 namespace rgbd
 {
 // A helper function for YuvFrame::create(VpxImage) that converts a VpxImage
@@ -137,6 +139,36 @@ YuvFrame YuvFrame::getDownsampled(int downsampling_factor) const
                     std::move(downsampled_y_channel),
                     std::move(downsampled_u_channel),
                     std::move(downsampled_v_channel)};
+}
+
+Bytes YuvFrame::getPNGBytes() const
+{
+    std::vector<uint8_t> r_channel(width_ * height_, 0);
+    std::vector<uint8_t> g_channel(width_ * height_, 0);
+    std::vector<uint8_t> b_channel(width_ * height_, 0);
+    std::vector<uint8_t> a_channel(width_ * height_, 255);
+
+    for (int row{0}; row < height_; ++row) {
+        for (int col{0}; col < width_; ++col) {
+            uint8_t y{y_channel_[row * width_ + col]};
+            uint8_t u{u_channel_[(row / 2) * (width_ / 2) + (col / 2)]};
+            uint8_t v{v_channel_[(row / 2) * (width_ / 2) + (col / 2)]};
+
+            // from https://en.wikipedia.org/wiki/YUV
+            int r_tmp = y + ((351 * (v - 128)) >> 8);
+            int g_tmp = y - ((179 * (v - 128) + 86 * (u - 128)) >> 8);
+            int b_tmp = y + ((443 * (u - 128)) >> 8);
+            uint8_t r = std::clamp(r_tmp, 0, 255);
+            uint8_t g = std::clamp(g_tmp, 0, 255);
+            uint8_t b = std::clamp(b_tmp, 0, 255);
+
+            r_channel[row * width_ + col] = r;
+            g_channel[row * width_ + col] = g;
+            b_channel[row * width_ + col] = b;
+        }
+    }
+
+    return PNGUtils::write(width_, height_, r_channel, g_channel, b_channel, a_channel);
 }
 
 YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,

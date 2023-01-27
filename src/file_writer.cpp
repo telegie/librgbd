@@ -59,11 +59,6 @@ Bytes get_cover_png_bytes(int width,
                           const uint8_t* u_channel,
                           const uint8_t* v_channel)
 {
-    constexpr int COVER_SIZE{600};
-    std::vector<uint8_t> r_channel(COVER_SIZE * COVER_SIZE, 0);
-    std::vector<uint8_t> g_channel(COVER_SIZE * COVER_SIZE, 0);
-    std::vector<uint8_t> b_channel(COVER_SIZE * COVER_SIZE, 0);
-    std::vector<uint8_t> a_channel(COVER_SIZE * COVER_SIZE, 255);
 
     // Pick the largest centered square area.
     int y_row_start{0};
@@ -78,19 +73,38 @@ Bytes get_cover_png_bytes(int width,
         y_row_end = height / 2 + width / 2;
     }
 
+    constexpr int COVER_SIZE{600};
+    std::vector<uint8_t> cover_y_channel(COVER_SIZE * COVER_SIZE, 0);
+    std::vector<uint8_t> cover_u_channel(COVER_SIZE * COVER_SIZE / 4, 0);
+    std::vector<uint8_t> cover_v_channel(COVER_SIZE * COVER_SIZE / 4, 0);
+
     for (int cover_row{0}; cover_row < COVER_SIZE; ++cover_row) {
         int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
         for (int cover_col{0}; cover_col < COVER_SIZE; ++cover_col) {
             int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
-            uint8_t r, g, b;
-            convert_yuv_to_rgb(y_row, y_col, width, y_channel, u_channel, v_channel, r, g, b);
-            r_channel[cover_row * COVER_SIZE + cover_col] = r;
-            g_channel[cover_row * COVER_SIZE + cover_col] = g;
-            b_channel[cover_row * COVER_SIZE + cover_col] = b;
+            cover_y_channel[cover_row * COVER_SIZE + cover_col] = y_channel[y_row * width + y_col];
         }
     }
 
-    return PNGUtils::write(COVER_SIZE, COVER_SIZE, r_channel, g_channel, b_channel, a_channel);
+    for (int cover_row{0}; cover_row < COVER_SIZE; cover_row += 2) {
+        int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
+        int uv_row{y_row / 2};
+        for (int cover_col{0}; cover_col < COVER_SIZE; cover_col += 2) {
+            int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
+            int uv_col{y_col / 2};
+            cover_u_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
+                u_channel[uv_row * (width / 2) + uv_col];
+            cover_v_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
+                v_channel[uv_row * (width / 2) + uv_col];
+        }
+    }
+
+    YuvFrame cover_yuv_frame{COVER_SIZE,
+                             COVER_SIZE,
+                             std::move(cover_y_channel),
+                             std::move(cover_u_channel),
+                             std::move(cover_v_channel)};
+    return cover_yuv_frame.getPNGBytes();
 }
 
 vector<byte> convert_vec3_to_bytes(const glm::vec3& v)
@@ -144,8 +158,7 @@ FileWriter::FileWriter(const CameraCalibration& calibration, const FileWriterCon
     init(calibration, config);
 }
 
-void FileWriter::init(const CameraCalibration& calibration,
-                      const FileWriterConfig& config)
+void FileWriter::init(const CameraCalibration& calibration, const FileWriterConfig& config)
 {
     //
     // init segment_info
@@ -177,7 +190,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.color_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.color_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.color_track); // Track will be freed when the file is closed.
         writer_tracks_.color_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         // Track numbers start at 1
@@ -187,7 +201,8 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxTrackName>(*writer_tracks_.color_track).SetValueUTF8("COLOR");
         GetChild<KaxCodecID>(*writer_tracks_.color_track).SetValue("V_VP8");
 
-        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.color_track).SetValue(ONE_SECOND_NS / config.framerate);
+        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.color_track)
+            .SetValue(ONE_SECOND_NS / config.framerate);
         auto& color_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.color_track)};
         GetChild<KaxVideoPixelWidth>(color_video_track).SetValue(calibration.getColorWidth());
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
@@ -198,7 +213,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.depth_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.depth_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.depth_track); // Track will be freed when the file is closed.
         writer_tracks_.depth_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.depth_track).SetValue(DEPTH_TRACK_NUMBER);
@@ -214,7 +230,8 @@ void FileWriter::init(const CameraCalibration& calibration,
             throw std::runtime_error("Invalid depth codec found");
         }
 
-        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.depth_track).SetValue(ONE_SECOND_NS / config.framerate);
+        GetChild<KaxTrackDefaultDuration>(*writer_tracks_.depth_track)
+            .SetValue(ONE_SECOND_NS / config.framerate);
 
         json codec_private_json{{"depthUnit", config.depth_unit}};
         string codec_private_str{codec_private_json.dump()};
@@ -234,7 +251,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.audio_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.audio_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.audio_track); // Track will be freed when the file is closed.
         writer_tracks_.audio_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.audio_track).SetValue(AUDIO_TRACK_NUMBER);
@@ -295,11 +313,14 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.acceleration_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.acceleration_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.acceleration_track); // Track will be freed when the file is closed.
         writer_tracks_.acceleration_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*writer_tracks_.acceleration_track).SetValue(ACCELERATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.acceleration_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackNumber>(*writer_tracks_.acceleration_track)
+            .SetValue(ACCELERATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.acceleration_track)
+            .SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*writer_tracks_.acceleration_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.acceleration_track).SetValueUTF8("ACCELERATION");
         GetChild<KaxCodecID>(*writer_tracks_.acceleration_track).SetValue("S_ACCELERATION");
@@ -310,11 +331,14 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.rotation_rate_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.rotation_rate_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.rotation_rate_track); // Track will be freed when the file is closed.
         writer_tracks_.rotation_rate_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*writer_tracks_.rotation_rate_track).SetValue(ROTATION_RATE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.rotation_rate_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackNumber>(*writer_tracks_.rotation_rate_track)
+            .SetValue(ROTATION_RATE_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.rotation_rate_track)
+            .SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*writer_tracks_.rotation_rate_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.rotation_rate_track).SetValueUTF8("ROTATION_RATE");
         GetChild<KaxCodecID>(*writer_tracks_.rotation_rate_track).SetValue("S_ROTATION_RATE");
@@ -325,11 +349,14 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.magnetic_field_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.magnetic_field_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.magnetic_field_track); // Track will be freed when the file is closed.
         writer_tracks_.magnetic_field_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*writer_tracks_.magnetic_field_track).SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.magnetic_field_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackNumber>(*writer_tracks_.magnetic_field_track)
+            .SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.magnetic_field_track)
+            .SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*writer_tracks_.magnetic_field_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.magnetic_field_track).SetValueUTF8("MAGNETIC_FIELD");
         GetChild<KaxCodecID>(*writer_tracks_.magnetic_field_track).SetValue("S_MAGNETIC_FIELD");
@@ -340,7 +367,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.gravity_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.gravity_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.gravity_track); // Track will be freed when the file is closed.
         writer_tracks_.gravity_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.gravity_track).SetValue(GRAVITY_TRACK_NUMBER);
@@ -355,11 +383,14 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.translation_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.translation_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.translation_track); // Track will be freed when the file is closed.
         writer_tracks_.translation_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
-        GetChild<KaxTrackNumber>(*writer_tracks_.translation_track).SetValue(TRANSLATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.translation_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackNumber>(*writer_tracks_.translation_track)
+            .SetValue(TRANSLATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.translation_track)
+            .SetValue(distribution_(generator_));
         GetChild<KaxTrackType>(*writer_tracks_.translation_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.translation_track).SetValueUTF8("TRANSLATION");
         GetChild<KaxCodecID>(*writer_tracks_.translation_track).SetValue("S_TRANSLATION");
@@ -370,7 +401,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.rotation_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.rotation_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.rotation_track); // Track will be freed when the file is closed.
         writer_tracks_.rotation_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.rotation_track).SetValue(ROTATION_TRACK_NUMBER);
@@ -385,7 +417,8 @@ void FileWriter::init(const CameraCalibration& calibration,
     {
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         writer_tracks_.scale_track = new KaxTrackEntry;
-        tracks.PushElement(*writer_tracks_.scale_track); // Track will be freed when the file is closed.
+        tracks.PushElement(
+            *writer_tracks_.scale_track); // Track will be freed when the file is closed.
         writer_tracks_.scale_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.scale_track).SetValue(SCALE_TRACK_NUMBER);
@@ -498,8 +531,9 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {
-        spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be negative.", time_point_ns);
-	    return;
+        spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be negative.",
+                      time_point_ns);
+        return;
     }
 
     auto& cues{GetChild<KaxCues>(*segment_)};
@@ -547,8 +581,9 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, span<const byte> audio_b
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {
-        spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should be positive.", time_point_ns);
-	    return;
+        spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should be positive.",
+                      time_point_ns);
+        return;
     }
 
     auto audio_frame_timecode{gsl::narrow<uint64_t>(time_point_ns)};
@@ -593,8 +628,9 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {
-        spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be negative ({}).", time_point_ns);
-	    return;
+        spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be negative ({}).",
+                      time_point_ns);
+        return;
     }
 
     auto imu_timecode{gsl::narrow<uint64_t>(time_point_ns)};
@@ -647,7 +683,8 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
                                             gsl::narrow<uint32_t>(gravity_bytes.size())}};
     imu_cluster->AddBlockBlob(gravity_block_blob);
     gravity_block_blob->SetParent(*imu_cluster);
-    gravity_block_blob->AddFrameAuto(*writer_tracks_.gravity_track, imu_timecode, *gravity_data_buffer);
+    gravity_block_blob->AddFrameAuto(
+        *writer_tracks_.gravity_track, imu_timecode, *gravity_data_buffer);
 
     imu_cluster->Render(*io_callback_, cues);
     imu_cluster->ReleaseFrames();
@@ -671,8 +708,9 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
 {
     int64_t time_point_ns{time_point_us * 1000};
     if (time_point_ns < 0) {
-        spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.", time_point_ns);
-	    return;
+        spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.",
+                      time_point_ns);
+        return;
     }
 
     auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns)};
@@ -699,9 +737,8 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     vector<byte> rotation_bytes(convert_quat_to_bytes(rotation));
 
     auto rotation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto rotation_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
-                       gsl::narrow<uint32_t>(rotation_bytes.size())}};
+    auto rotation_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
+                                             gsl::narrow<uint32_t>(rotation_bytes.size())}};
     trs_cluster->AddBlockBlob(rotation_block_blob);
     rotation_block_blob->SetParent(*trs_cluster);
     rotation_block_blob->AddFrameAuto(
@@ -710,13 +747,11 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     vector<byte> scale_bytes(convert_vec3_to_bytes(scale));
 
     auto scale_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto scale_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),
-                       gsl::narrow<uint32_t>(scale_bytes.size())}};
+    auto scale_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),
+                                          gsl::narrow<uint32_t>(scale_bytes.size())}};
     trs_cluster->AddBlockBlob(scale_block_blob);
     scale_block_blob->SetParent(*trs_cluster);
-    scale_block_blob->AddFrameAuto(
-        *writer_tracks_.scale_track, trs_timecode, *scale_data_buffer);
+    scale_block_blob->AddFrameAuto(*writer_tracks_.scale_track, trs_timecode, *scale_data_buffer);
 
     trs_cluster->Render(*io_callback_, cues);
     trs_cluster->ReleaseFrames();
@@ -776,7 +811,6 @@ void FileWriter::flush()
         spdlog::info("Failed to set segment size");
     segment_->OverwriteHead(*io_callback_);
     io_callback_->close();
-
 }
 
 Bytes FileWriter::getBytes()

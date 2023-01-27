@@ -28,6 +28,7 @@ public:
     static YuvFrame createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
     YuvFrame getDownsampled(int downsampling_factor) const;
+    Bytes getPNGBytes() const;
     int width() const noexcept
     {
         return width_;
