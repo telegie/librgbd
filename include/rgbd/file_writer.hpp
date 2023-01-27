@@ -78,8 +78,6 @@ public:
     Bytes getBytes();
 
 private:
-    std::mt19937 generator_;
-    std::uniform_int_distribution<uint64_t> distribution_;
     unique_ptr<IOCallback> io_callback_;
     unique_ptr<libmatroska::KaxSegment> segment_;
     FileWriterTracks writer_tracks_;

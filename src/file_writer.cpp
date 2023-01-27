@@ -6,12 +6,6 @@ using namespace LIBMATROSKA_NAMESPACE;
 
 namespace rgbd
 {
-unsigned int get_random_number()
-{
-    std::random_device random_device;
-    return random_device();
-}
-
 Bytes convert_vec3_to_bytes(const glm::vec3& v)
 {
     Bytes bytes;
@@ -35,9 +29,7 @@ FileWriter::FileWriter(const string& file_path,
                        const CameraCalibration& calibration,
                        const FileWriterConfig& config,
                        const optional<Bytes>& cover_png_bytes)
-    : generator_{get_random_number()}
-    , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
-    , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
+    : io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
     , segment_{std::make_unique<KaxSegment>()}
     , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
@@ -52,9 +44,7 @@ FileWriter::FileWriter(const string& file_path,
 FileWriter::FileWriter(const CameraCalibration& calibration,
                        const FileWriterConfig& config,
                        const optional<Bytes>& cover_png_bytes)
-    : generator_{get_random_number()}
-    , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
-    , io_callback_{std::make_unique<MemIOCallback>()}
+    : io_callback_{std::make_unique<MemIOCallback>()}
     , segment_{std::make_unique<KaxSegment>()}
     , writer_tracks_{}
     , seek_head_placeholder_{nullptr}
@@ -70,6 +60,10 @@ void FileWriter::init(const CameraCalibration& calibration,
                       const FileWriterConfig& config,
                       const optional<Bytes>& cover_png_bytes)
 {
+    std::random_device random_device;
+    std::mt19937 generator{random_device()};
+    std::uniform_int_distribution<uint64_t> distribution{std::numeric_limits<uint64_t>::min(),
+                                                         std::numeric_limits<uint64_t>::max()};
     //
     // init segment_info
     //
@@ -106,7 +100,7 @@ void FileWriter::init(const CameraCalibration& calibration,
 
         // Track numbers start at 1
         GetChild<KaxTrackNumber>(*writer_tracks_.color_track).SetValue(COLOR_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.color_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.color_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.color_track).SetValue(track_video);
         GetChild<KaxTrackName>(*writer_tracks_.color_track).SetValueUTF8("COLOR");
         GetChild<KaxCodecID>(*writer_tracks_.color_track).SetValue("V_VP8");
@@ -128,7 +122,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         writer_tracks_.depth_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.depth_track).SetValue(DEPTH_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.depth_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.depth_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.depth_track).SetValue(track_video);
         GetChild<KaxTrackName>(*writer_tracks_.depth_track).SetValueUTF8("DEPTH");
         if (config.depth_codec_type == DepthCodecType::RVL) {
@@ -166,7 +160,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         writer_tracks_.audio_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.audio_track).SetValue(AUDIO_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.audio_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.audio_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.audio_track).SetValue(track_audio);
         GetChild<KaxTrackName>(*writer_tracks_.audio_track).SetValueUTF8("AUDIO");
         GetChild<KaxCodecID>(*writer_tracks_.audio_track).SetValue("A_OPUS");
@@ -230,7 +224,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxTrackNumber>(*writer_tracks_.acceleration_track)
             .SetValue(ACCELERATION_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*writer_tracks_.acceleration_track)
-            .SetValue(distribution_(generator_));
+            .SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.acceleration_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.acceleration_track).SetValueUTF8("ACCELERATION");
         GetChild<KaxCodecID>(*writer_tracks_.acceleration_track).SetValue("S_ACCELERATION");
@@ -248,7 +242,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxTrackNumber>(*writer_tracks_.rotation_rate_track)
             .SetValue(ROTATION_RATE_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*writer_tracks_.rotation_rate_track)
-            .SetValue(distribution_(generator_));
+            .SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.rotation_rate_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.rotation_rate_track).SetValueUTF8("ROTATION_RATE");
         GetChild<KaxCodecID>(*writer_tracks_.rotation_rate_track).SetValue("S_ROTATION_RATE");
@@ -266,7 +260,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxTrackNumber>(*writer_tracks_.magnetic_field_track)
             .SetValue(MAGNETIC_FIELD_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*writer_tracks_.magnetic_field_track)
-            .SetValue(distribution_(generator_));
+            .SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.magnetic_field_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.magnetic_field_track).SetValueUTF8("MAGNETIC_FIELD");
         GetChild<KaxCodecID>(*writer_tracks_.magnetic_field_track).SetValue("S_MAGNETIC_FIELD");
@@ -282,7 +276,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         writer_tracks_.gravity_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.gravity_track).SetValue(GRAVITY_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.gravity_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.gravity_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.gravity_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.gravity_track).SetValueUTF8("GRAVITY");
         GetChild<KaxCodecID>(*writer_tracks_.gravity_track).SetValue("S_GRAVITY");
@@ -300,7 +294,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         GetChild<KaxTrackNumber>(*writer_tracks_.translation_track)
             .SetValue(TRANSLATION_TRACK_NUMBER);
         GetChild<KaxTrackUID>(*writer_tracks_.translation_track)
-            .SetValue(distribution_(generator_));
+            .SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.translation_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.translation_track).SetValueUTF8("TRANSLATION");
         GetChild<KaxCodecID>(*writer_tracks_.translation_track).SetValue("S_TRANSLATION");
@@ -316,7 +310,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         writer_tracks_.rotation_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.rotation_track).SetValue(ROTATION_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.rotation_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.rotation_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.rotation_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.rotation_track).SetValueUTF8("ROTATION");
         GetChild<KaxCodecID>(*writer_tracks_.rotation_track).SetValue("S_ROTATION");
@@ -332,7 +326,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         writer_tracks_.scale_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
 
         GetChild<KaxTrackNumber>(*writer_tracks_.scale_track).SetValue(SCALE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.scale_track).SetValue(distribution_(generator_));
+        GetChild<KaxTrackUID>(*writer_tracks_.scale_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.scale_track).SetValue(track_subtitle);
         GetChild<KaxTrackName>(*writer_tracks_.scale_track).SetValueUTF8("SCALE");
         GetChild<KaxCodecID>(*writer_tracks_.scale_track).SetValue("S_SCALE");
@@ -346,7 +340,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         attachments.PushElement(*calibration_attached_file);
         GetChild<KaxFileName>(*calibration_attached_file).SetValueUTF8("calibration.json");
         GetChild<KaxMimeType>(*calibration_attached_file).SetValue("application/octet-stream");
-        GetChild<KaxFileUID>(*calibration_attached_file).SetValue(distribution_(generator_));
+        GetChild<KaxFileUID>(*calibration_attached_file).SetValue(distribution(generator));
 
         string calibration_str{calibration.toJson().dump()};
         std::vector<char> calibration_vector(calibration_str.begin(), calibration_str.end());
@@ -364,7 +358,7 @@ void FileWriter::init(const CameraCalibration& calibration,
         attachments.PushElement(*cover_attached_file);
         GetChild<KaxFileName>(*cover_attached_file).SetValueUTF8("cover.png");
         GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
-        GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
+        GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution(generator));
 
         GetChild<KaxFileData>(*cover_attached_file)
             .CopyBuffer(reinterpret_cast<const binary*>(cover_png_bytes->data()),
