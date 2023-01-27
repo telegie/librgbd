@@ -136,7 +136,8 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
     }
 
     if (cover_) {
-        file_writer->writeCover(*cover_);
+        auto cover_png_bytes{cover_->getMkvCoverSized().getPNGBytes()};
+        file_writer->writeCover(cover_png_bytes);
         spdlog::info("writing cover");
     }
 
@@ -150,29 +151,31 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
             auto& audio_frame{audio_frames_[audio_frame_index]};
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeAudioFrame(audio_frame.time_point_us() - minimum_time_point_us,
-                                         audio_frame.bytes());
+            file_writer->writeAudioFrame(FileAudioFrame{
+                audio_frame.time_point_us() - minimum_time_point_us, audio_frame.bytes()});
             ++audio_frame_index;
         }
         while (imu_frame_index < imu_frames_.size()) {
             auto& imu_frame{imu_frames_[imu_frame_index]};
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeIMUFrame(imu_frame.time_point_us() - minimum_time_point_us,
-                                       imu_frame.acceleration(),
-                                       imu_frame.rotation_rate(),
-                                       imu_frame.magnetic_field(),
-                                       imu_frame.gravity());
+            file_writer->writeIMUFrame(
+                FileIMUFrame{imu_frame.time_point_us() - minimum_time_point_us,
+                             imu_frame.acceleration(),
+                             imu_frame.rotation_rate(),
+                             imu_frame.magnetic_field(),
+                             imu_frame.gravity()});
             ++imu_frame_index;
         }
         while (trs_frame_index < trs_frames_.size()) {
             auto& trs_frame{trs_frames_[trs_frame_index]};
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer->writeTRSFrame(trs_frame.time_point_us() - minimum_time_point_us,
-                                       trs_frame.translation(),
-                                       trs_frame.rotation(),
-                                       trs_frame.scale());
+            file_writer->writeTRSFrame(
+                FileTRSFrame{trs_frame.time_point_us() - minimum_time_point_us,
+                             trs_frame.translation(),
+                             trs_frame.rotation(),
+                             trs_frame.scale()});
             ++trs_frame_index;
         }
 

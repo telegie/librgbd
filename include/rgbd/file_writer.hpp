@@ -67,20 +67,10 @@ private:
     void init(const CameraCalibration& calibration,
               const FileWriterConfig& config);
 public:
-    void writeCover(const YuvFrame& yuv_frame);
+    void writeCover(const Bytes& png_bytes);
     void writeVideoFrame(const FileVideoFrame& video_frame);
-    void writeAudioFrame(int64_t time_point_us, span<const byte> frame_data_bytes);
     void writeAudioFrame(const FileAudioFrame& audio_frame);
-    void writeIMUFrame(int64_t time_point_us,
-                       const glm::vec3& acceleration,
-                       const glm::vec3& rotation_rate,
-                       const glm::vec3& magnetic_field,
-                       const glm::vec3& gravity);
     void writeIMUFrame(const FileIMUFrame& imu_frame);
-    void writeTRSFrame(int64_t time_point_us,
-                       const glm::vec3& translation,
-                       const glm::quat& rotation,
-                       const glm::vec3& scale);
     void writeTRSFrame(const FileTRSFrame& trs_frame);
     void flush();
     Bytes getBytes();

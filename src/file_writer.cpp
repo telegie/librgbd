@@ -12,18 +12,18 @@ unsigned int get_random_number()
     return random_device();
 }
 
-vector<byte> convert_vec3_to_bytes(const glm::vec3& v)
+Bytes convert_vec3_to_bytes(const glm::vec3& v)
 {
-    vector<byte> bytes;
+    Bytes bytes;
     append_bytes(bytes, convert_to_bytes(v.x));
     append_bytes(bytes, convert_to_bytes(v.y));
     append_bytes(bytes, convert_to_bytes(v.z));
     return bytes;
 }
 
-vector<byte> convert_quat_to_bytes(const glm::quat& q)
+Bytes convert_quat_to_bytes(const glm::quat& q)
 {
-    vector<byte> bytes;
+    Bytes bytes;
     append_bytes(bytes, convert_to_bytes(q.w));
     append_bytes(bytes, convert_to_bytes(q.x));
     append_bytes(bytes, convert_to_bytes(q.y));
@@ -395,7 +395,7 @@ void FileWriter::init(const CameraCalibration& calibration, const FileWriterConf
     }
 }
 
-void FileWriter::writeCover(const YuvFrame& yuv_frame)
+void FileWriter::writeCover(const Bytes& png_bytes)
 {
     //
     // add cover art
@@ -407,9 +407,8 @@ void FileWriter::writeCover(const YuvFrame& yuv_frame)
     GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
     GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
 
-    auto png_bytes{yuv_frame.getMkvCoverSized().getPNGBytes()};
     GetChild<KaxFileData>(*cover_attached_file)
-        .CopyBuffer(reinterpret_cast<binary*>(png_bytes.data()),
+        .CopyBuffer(reinterpret_cast<const binary*>(png_bytes.data()),
                     gsl::narrow<uint32_t>(png_bytes.size()));
 
     // Write KaxAttachments
@@ -466,9 +465,9 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
     last_timecode_ = video_timecode;
 }
 
-void FileWriter::writeAudioFrame(int64_t time_point_us, span<const byte> audio_bytes)
+void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
 {
-    int64_t time_point_ns{time_point_us * 1000};
+    int64_t time_point_ns{audio_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
         spdlog::error("FileWriter::writeAudioFrame: time_point_ns ({}) should be positive.",
                       time_point_ns);
@@ -492,8 +491,8 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, span<const byte> audio_b
     // and this lets the argument become a const one, which is helpful for the C API side.
     // For example, this makes calling the C API easier from Swift.
     auto data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(audio_bytes.data())),
-                       gsl::narrow<uint32_t>(audio_bytes.size())}};
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(audio_frame.bytes().data())),
+                       gsl::narrow<uint32_t>(audio_frame.bytes().size())}};
     audio_cluster->AddBlockBlob(block_blob);
     block_blob->SetParent(*audio_cluster);
     block_blob->AddFrameAuto(*writer_tracks_.audio_track, audio_cluster_timecode, *data_buffer);
@@ -504,18 +503,9 @@ void FileWriter::writeAudioFrame(int64_t time_point_us, span<const byte> audio_b
     last_timecode_ = audio_cluster_timecode;
 }
 
-void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
+void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
 {
-    writeAudioFrame(audio_frame.time_point_us(), audio_frame.bytes());
-}
-
-void FileWriter::writeIMUFrame(int64_t time_point_us,
-                               const glm::vec3& acceleration,
-                               const glm::vec3& rotation_rate,
-                               const glm::vec3& magnetic_field,
-                               const glm::vec3& gravity)
-{
-    int64_t time_point_ns{time_point_us * 1000};
+    int64_t time_point_ns{imu_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
         spdlog::error("FileWriter::writeIMUFrame: time_point_ns ({}) should not be negative ({}).",
                       time_point_ns);
@@ -532,7 +522,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     imu_cluster->SetParent(*segment_);
     imu_cluster->EnableChecksum();
 
-    vector<byte> acceleration_bytes(convert_vec3_to_bytes(acceleration));
+    Bytes acceleration_bytes(convert_vec3_to_bytes(imu_frame.acceleration()));
 
     auto acceleration_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto acceleration_data_buffer{
@@ -543,7 +533,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     acceleration_block_blob->AddFrameAuto(
         *writer_tracks_.acceleration_track, imu_timecode, *acceleration_data_buffer);
 
-    vector<byte> rotation_rate_bytes(convert_vec3_to_bytes(rotation_rate));
+    Bytes rotation_rate_bytes(convert_vec3_to_bytes(imu_frame.rotation_rate()));
 
     auto rotation_rate_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto rotation_rate_data_buffer{
@@ -554,7 +544,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     rotation_rate_block_blob->AddFrameAuto(
         *writer_tracks_.rotation_rate_track, imu_timecode, *rotation_rate_data_buffer);
 
-    vector<byte> magnetic_field_bytes(convert_vec3_to_bytes(magnetic_field));
+    Bytes magnetic_field_bytes(convert_vec3_to_bytes(imu_frame.magnetic_field()));
 
     auto magnetic_field_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto magnetic_field_data_buffer{
@@ -565,7 +555,7 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     magnetic_field_block_blob->AddFrameAuto(
         *writer_tracks_.magnetic_field_track, imu_timecode, *magnetic_field_data_buffer);
 
-    vector<byte> gravity_bytes(convert_vec3_to_bytes(gravity));
+    Bytes gravity_bytes(convert_vec3_to_bytes(imu_frame.gravity()));
 
     auto gravity_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto gravity_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(gravity_bytes.data()),
@@ -581,21 +571,9 @@ void FileWriter::writeIMUFrame(int64_t time_point_us,
     last_timecode_ = imu_timecode;
 }
 
-void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
+void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
 {
-    writeIMUFrame(imu_frame.time_point_us(),
-                  imu_frame.acceleration(),
-                  imu_frame.rotation_rate(),
-                  imu_frame.magnetic_field(),
-                  imu_frame.gravity());
-}
-
-void FileWriter::writeTRSFrame(int64_t time_point_us,
-                               const glm::vec3& translation,
-                               const glm::quat& rotation,
-                               const glm::vec3& scale)
-{
-    int64_t time_point_ns{time_point_us * 1000};
+    int64_t time_point_ns{trs_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
         spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.",
                       time_point_ns);
@@ -612,7 +590,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->SetParent(*segment_);
     trs_cluster->EnableChecksum();
 
-    vector<byte> translation_bytes(convert_vec3_to_bytes(translation));
+    vector<byte> translation_bytes(convert_vec3_to_bytes(trs_frame.translation()));
 
     auto translation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto translation_data_buffer{
@@ -623,7 +601,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     translation_block_blob->AddFrameAuto(
         *writer_tracks_.translation_track, trs_timecode, *translation_data_buffer);
 
-    vector<byte> rotation_bytes(convert_quat_to_bytes(rotation));
+    vector<byte> rotation_bytes(convert_quat_to_bytes(trs_frame.rotation()));
 
     auto rotation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto rotation_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
@@ -633,7 +611,7 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     rotation_block_blob->AddFrameAuto(
         *writer_tracks_.rotation_track, trs_timecode, *rotation_data_buffer);
 
-    vector<byte> scale_bytes(convert_vec3_to_bytes(scale));
+    vector<byte> scale_bytes(convert_vec3_to_bytes(trs_frame.scale()));
 
     auto scale_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto scale_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),
@@ -646,14 +624,6 @@ void FileWriter::writeTRSFrame(int64_t time_point_us,
     trs_cluster->ReleaseFrames();
 
     last_timecode_ = trs_timecode;
-}
-
-void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
-{
-    writeTRSFrame(trs_frame.time_point_us(),
-                  trs_frame.translation(),
-                  trs_frame.rotation(),
-                  trs_frame.scale());
 }
 
 void FileWriter::flush()
