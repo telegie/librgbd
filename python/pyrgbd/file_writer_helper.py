@@ -1,7 +1,6 @@
 from .camera_calibration import CameraCalibration
 from .depth_decoder import DepthCodecType
 from .file import FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame
-from .file_writer import NativeFileWriterConfig, NativeFileWriter
 from .yuv_frame import YuvFrame
 from ._librgbd_ffi import lib
 
