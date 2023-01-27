@@ -70,10 +70,10 @@ public:
 
 private:
     IOCallback& io_callback_;
-    unique_ptr<libmatroska::KaxSegment> segment_;
+    libmatroska::KaxSegment segment_;
+    EbmlVoid seek_head_placeholder_;
+    EbmlVoid segment_info_placeholder_;
     FileWriterTracks writer_tracks_;
-    unique_ptr<EbmlVoid> seek_head_placeholder_;
-    unique_ptr<EbmlVoid> segment_info_placeholder_;
     libmatroska::KaxBlockBlob* past_color_block_blob_;
     libmatroska::KaxBlockBlob* past_depth_block_blob_;
     int64_t last_timecode_;
