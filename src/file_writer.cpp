@@ -33,7 +33,8 @@ Bytes convert_quat_to_bytes(const glm::quat& q)
 
 FileWriter::FileWriter(const string& file_path,
                        const CameraCalibration& calibration,
-                       const FileWriterConfig& config)
+                       const FileWriterConfig& config,
+                       const optional<Bytes>& cover_png_bytes)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<StdIOCallback>(file_path.c_str(), MODE_CREATE)}
@@ -45,10 +46,12 @@ FileWriter::FileWriter(const string& file_path,
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
 {
-    init(calibration, config);
+    init(calibration, config, cover_png_bytes);
 }
 
-FileWriter::FileWriter(const CameraCalibration& calibration, const FileWriterConfig& config)
+FileWriter::FileWriter(const CameraCalibration& calibration,
+                       const FileWriterConfig& config,
+                       const optional<Bytes>& cover_png_bytes)
     : generator_{get_random_number()}
     , distribution_{std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max()}
     , io_callback_{std::make_unique<MemIOCallback>()}
@@ -60,10 +63,12 @@ FileWriter::FileWriter(const CameraCalibration& calibration, const FileWriterCon
     , past_depth_block_blob_{nullptr}
     , last_timecode_{0}
 {
-    init(calibration, config);
+    init(calibration, config, cover_png_bytes);
 }
 
-void FileWriter::init(const CameraCalibration& calibration, const FileWriterConfig& config)
+void FileWriter::init(const CameraCalibration& calibration,
+                      const FileWriterConfig& config,
+                      const optional<Bytes>& cover_png_bytes)
 {
     //
     // init segment_info
@@ -333,7 +338,7 @@ void FileWriter::init(const CameraCalibration& calibration, const FileWriterConf
         GetChild<KaxCodecID>(*writer_tracks_.scale_track).SetValue("S_SCALE");
     }
     //
-    // init KaxAttached
+    // calibration
     //
     {
         auto& attachments{GetChild<KaxAttachments>(*segment_)};
@@ -348,6 +353,22 @@ void FileWriter::init(const CameraCalibration& calibration, const FileWriterConf
         GetChild<KaxFileData>(*calibration_attached_file)
             .CopyBuffer(reinterpret_cast<binary*>(calibration_vector.data()),
                         gsl::narrow<uint32_t>(calibration_vector.size()));
+    }
+    //
+    // cover
+    //
+    if (cover_png_bytes)
+    {
+        auto& attachments{GetChild<KaxAttachments>(*segment_)};
+        auto cover_attached_file{new KaxAttached};
+        attachments.PushElement(*cover_attached_file);
+        GetChild<KaxFileName>(*cover_attached_file).SetValueUTF8("cover.png");
+        GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
+        GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
+
+        GetChild<KaxFileData>(*cover_attached_file)
+            .CopyBuffer(reinterpret_cast<const binary*>(cover_png_bytes->data()),
+                        gsl::narrow<uint32_t>(cover_png_bytes->size()));
     }
     //
     // init KaxCues
@@ -393,26 +414,12 @@ void FileWriter::init(const CameraCalibration& calibration, const FileWriterConf
         auto& tracks{GetChild<KaxTracks>(*segment_)};
         tracks.Render(*io_callback_);
     }
-}
-
-void FileWriter::writeCover(const Bytes& png_bytes)
-{
-    //
-    // add cover art
-    //
-    auto& attachments{GetChild<KaxAttachments>(*segment_)};
-    auto cover_attached_file{new KaxAttached};
-    attachments.PushElement(*cover_attached_file);
-    GetChild<KaxFileName>(*cover_attached_file).SetValueUTF8("cover.png");
-    GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
-    GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
-
-    GetChild<KaxFileData>(*cover_attached_file)
-        .CopyBuffer(reinterpret_cast<const binary*>(png_bytes.data()),
-                    gsl::narrow<uint32_t>(png_bytes.size()));
 
     // Write KaxAttachments
-    attachments.Render(*io_callback_);
+    {
+        auto& attachments{GetChild<KaxAttachments>(*segment_)};
+        attachments.Render(*io_callback_);
+    }
 }
 
 void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
@@ -434,9 +441,9 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
     video_cluster->EnableChecksum();
 
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto color_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.color_bytes().data())),
-                       gsl::narrow<uint32_t>(video_frame.color_bytes().size())}};
+    auto color_data_buffer{new DataBuffer{
+        reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.color_bytes().data())),
+        gsl::narrow<uint32_t>(video_frame.color_bytes().size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*writer_tracks_.color_track,
@@ -446,9 +453,9 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
                                    video_frame.keyframe() ? nullptr : past_color_block_blob_);
 
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto depth_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.depth_bytes().data())),
-                       gsl::narrow<uint32_t>(video_frame.depth_bytes().size())}};
+    auto depth_data_buffer{new DataBuffer{
+        reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.depth_bytes().data())),
+        gsl::narrow<uint32_t>(video_frame.depth_bytes().size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
     depth_block_blob->AddFrameAuto(*writer_tracks_.depth_track,

@@ -129,16 +129,13 @@ unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
     if (depth_unit_)
         writer_config.depth_unit = *depth_unit_;
     unique_ptr<FileWriter> file_writer;
+    optional<Bytes> cover_png_bytes;
+    if (cover_)
+        cover_png_bytes = cover_->getMkvCoverSized().getPNGBytes();
     if (path) {
-        file_writer.reset(new FileWriter{*path, *calibration_, writer_config});
+        file_writer.reset(new FileWriter{*path, *calibration_, writer_config, cover_png_bytes});
     } else {
-        file_writer.reset(new FileWriter{*calibration_, writer_config});
-    }
-
-    if (cover_) {
-        auto cover_png_bytes{cover_->getMkvCoverSized().getPNGBytes()};
-        file_writer->writeCover(cover_png_bytes);
-        spdlog::info("writing cover");
+        file_writer.reset(new FileWriter{*calibration_, writer_config, cover_png_bytes});
     }
 
     size_t audio_frame_index{0};

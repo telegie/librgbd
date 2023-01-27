@@ -60,14 +60,16 @@ class FileWriter
 public:
     FileWriter(const string& file_path,
                const CameraCalibration& calibration,
-               const FileWriterConfig& config);
+               const FileWriterConfig& config,
+               const optional<Bytes>& cover_png_bytes);
     FileWriter(const CameraCalibration& calibration,
-               const FileWriterConfig& config);
+               const FileWriterConfig& config,
+               const optional<Bytes>& cover_png_bytes);
 private:
     void init(const CameraCalibration& calibration,
-              const FileWriterConfig& config);
+              const FileWriterConfig& config,
+              const optional<Bytes>& cover_png_bytes);
 public:
-    void writeCover(const Bytes& png_bytes);
     void writeVideoFrame(const FileVideoFrame& video_frame);
     void writeAudioFrame(const FileAudioFrame& audio_frame);
     void writeIMUFrame(const FileIMUFrame& imu_frame);
