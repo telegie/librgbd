@@ -9,7 +9,6 @@ export * from './depth_decoder';
 export * from './depth_encoder';
 export * from './file_parser';
 export * from './file_writer_helper';
-export * from './file_writer';
 export * from './file';
 export * from './frame_mapper';
 export * from './integer_frame';
