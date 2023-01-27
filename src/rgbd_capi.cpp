@@ -534,13 +534,6 @@ void rgbd_file_bytes_builder_dtor(void* ptr)
     delete static_cast<FileBytesBuilder*>(ptr);
 }
 
-void rgbd_file_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
-{
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
-    file_bytes_builder->setCalibration(*calibration);
-}
-
 void rgbd_file_bytes_builder_set_framerate(void* ptr, int framerate)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
@@ -563,6 +556,13 @@ void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
     file_bytes_builder->setDepthUnit(depth_unit);
+}
+
+void rgbd_file_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
+    file_bytes_builder->setCalibration(*calibration);
 }
 
 void rgbd_file_bytes_builder_set_cover(void* ptr, void* cover_ptr)

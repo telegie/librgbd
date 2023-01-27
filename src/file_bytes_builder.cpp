@@ -3,20 +3,17 @@
 namespace rgbd
 {
 FileBytesBuilder::FileBytesBuilder()
-    : calibration_{}
+    : framerate_{30}
+    , samplerate_{AUDIO_SAMPLE_RATE}
+    , calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
-    , depth_unit_{std::nullopt}
+    , depth_unit_{DEFAULT_DEPTH_UNIT}
     , cover_{std::nullopt}
     , video_frames_{}
     , audio_frames_{}
     , imu_frames_{}
     , trs_frames_{}
 {
-}
-
-void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
-{
-    calibration_ = calibration.clone();
 }
 
 void FileBytesBuilder::setFramerate(int framerate)
@@ -37,6 +34,11 @@ void FileBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
 void FileBytesBuilder::setDepthUnit(float depth_unit)
 {
     depth_unit_ = depth_unit;
+}
+
+void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
+{
+    calibration_ = calibration.clone();
 }
 
 void FileBytesBuilder::setCover(const YuvFrame& cover)
@@ -126,18 +128,16 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
         throw std::runtime_error("No CameraCalibration found from FileWriterHelper");
     }
 
-    FileWriterConfig writer_config;
-    if (framerate_)
-        writer_config.framerate = *framerate_;
-    if (samplerate_)
-        writer_config.samplerate = *samplerate_;
-    writer_config.depth_codec_type = depth_codec_type_;
-    if (depth_unit_)
-        writer_config.depth_unit = *depth_unit_;
     optional<Bytes> cover_png_bytes;
     if (cover_)
         cover_png_bytes = cover_->getMkvCoverSized().getPNGBytes();
-    FileWriter file_writer{io_callback, *calibration_, writer_config, cover_png_bytes};
+    FileWriter file_writer{io_callback,
+                           framerate_,
+                           samplerate_,
+                           depth_codec_type_,
+                           depth_unit_,
+                           *calibration_,
+                           cover_png_bytes};
 
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};

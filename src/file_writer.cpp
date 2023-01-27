@@ -26,8 +26,11 @@ Bytes convert_quat_to_bytes(const glm::quat& q)
 }
 
 FileWriter::FileWriter(IOCallback& io_callback,
+                       int framerate,
+                       int samplerate,
+                       DepthCodecType depth_codec_type,
+                       float depth_unit,
                        const CameraCalibration& calibration,
-                       const FileWriterConfig& config,
                        const optional<Bytes>& cover_png_bytes)
     : io_callback_{io_callback}
     , segment_{}
@@ -84,7 +87,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
         GetChild<KaxCodecID>(*writer_tracks_.color_track).SetValue("V_VP8");
 
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.color_track)
-            .SetValue(ONE_SECOND_NS / config.framerate);
+            .SetValue(ONE_SECOND_NS / framerate);
         auto& color_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.color_track)};
         GetChild<KaxVideoPixelWidth>(color_video_track).SetValue(calibration.getColorWidth());
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
@@ -103,9 +106,9 @@ FileWriter::FileWriter(IOCallback& io_callback,
         GetChild<KaxTrackUID>(*writer_tracks_.depth_track).SetValue(distribution(generator));
         GetChild<KaxTrackType>(*writer_tracks_.depth_track).SetValue(track_video);
         GetChild<KaxTrackName>(*writer_tracks_.depth_track).SetValueUTF8("DEPTH");
-        if (config.depth_codec_type == DepthCodecType::RVL) {
+        if (depth_codec_type == DepthCodecType::RVL) {
             GetChild<KaxCodecID>(*writer_tracks_.depth_track).SetValue("V_RVL");
-        } else if (config.depth_codec_type == DepthCodecType::TDC1) {
+        } else if (depth_codec_type == DepthCodecType::TDC1) {
             GetChild<KaxCodecID>(*writer_tracks_.depth_track).SetValue("V_TDC1");
         } else {
             spdlog::error("Invalid depth codec found");
@@ -113,9 +116,9 @@ FileWriter::FileWriter(IOCallback& io_callback,
         }
 
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.depth_track)
-            .SetValue(ONE_SECOND_NS / config.framerate);
+            .SetValue(ONE_SECOND_NS / framerate);
 
-        json codec_private_json{{"depthUnit", config.depth_unit}};
+        json codec_private_json{{"depthUnit", depth_unit}};
         string codec_private_str{codec_private_json.dump()};
         std::vector<char> codec_private_vector(codec_private_str.begin(), codec_private_str.end());
         GetChild<KaxCodecPrivate>(*writer_tracks_.depth_track)
@@ -165,7 +168,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
         append_bytes(opus_head_bytes, convert_to_bytes(channel_count));
         uint16_t preskip{3840};
         append_bytes(opus_head_bytes, convert_to_bytes(preskip));
-        uint32_t intput_samplerate{gsl::narrow<uint32_t>(config.samplerate)};
+        uint32_t intput_samplerate{gsl::narrow<uint32_t>(samplerate)};
         append_bytes(opus_head_bytes, convert_to_bytes(intput_samplerate));
         uint16_t output_gain{0};
         append_bytes(opus_head_bytes, convert_to_bytes(output_gain));
@@ -182,10 +185,10 @@ FileWriter::FileWriter(IOCallback& io_callback,
 
         // KaxTrackDefaultDuration expects "number of nanoseconds (not scaled) per frame" here.
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.audio_track)
-            .SetValue(ONE_SECOND_NS / config.samplerate);
+            .SetValue(ONE_SECOND_NS / samplerate);
         auto& audio_track_details = GetChild<KaxTrackAudio>(*writer_tracks_.audio_track);
-        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(config.samplerate);
-        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(config.samplerate);
+        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(samplerate);
+        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(samplerate);
         GetChild<KaxAudioChannels>(audio_track_details).SetValue(AUDIO_INPUT_CHANNEL_COUNT);
         GetChild<KaxAudioBitDepth>(audio_track_details).SetValue(sizeof(float) * 8);
     }

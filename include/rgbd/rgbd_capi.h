@@ -210,13 +210,13 @@ extern "C"
     //////// START FILE BYTES BUILDER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_file_bytes_builder_ctor();
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_calibration(void* ptr,
-                                                                       void* calibration_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_framerate(void* ptr, int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_samplerate(void* ptr, int samplerate);
     RGBD_INTERFACE_EXPORT void
     rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_calibration(void* ptr,
+                                                                       void* calibration_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_cover(void* ptr, void* cover_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr);

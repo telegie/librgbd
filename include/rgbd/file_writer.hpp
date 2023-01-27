@@ -33,14 +33,6 @@
 
 namespace rgbd
 {
-struct FileWriterConfig
-{
-    int framerate{30};
-    int samplerate{AUDIO_SAMPLE_RATE};
-    DepthCodecType depth_codec_type{DepthCodecType::TDC1};
-    float depth_unit{DEFAULT_DEPTH_UNIT}; // 1 mm
-};
-
 struct FileWriterTracks
 {
     libmatroska::KaxTrackEntry* color_track{nullptr};
@@ -59,8 +51,11 @@ class FileWriter
 {
 public:
     FileWriter(IOCallback& io_callback,
+               int framerate,
+               int samplerate,
+               DepthCodecType depth_codec_type,
+               float depth_unit,
                const CameraCalibration& calibration,
-               const FileWriterConfig& config,
                const optional<Bytes>& cover_png_bytes);
     void writeVideoFrame(const FileVideoFrame& video_frame);
     void writeAudioFrame(const FileAudioFrame& audio_frame);

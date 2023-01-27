@@ -9,11 +9,11 @@ class FileBytesBuilder
 {
 public:
     FileBytesBuilder();
-    void setCalibration(const CameraCalibration& calibration);
     void setFramerate(int framerate);
     void setSamplerate(int samplerate);
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);
+    void setCalibration(const CameraCalibration& calibration);
     void setCover(const YuvFrame& cover);
     void addVideoFrame(const FileVideoFrame& video_frame);
     void addAudioFrame(const FileAudioFrame& audio_frame);
@@ -26,11 +26,11 @@ private:
     void _build(IOCallback& io_callback);
 
 private:
-    unique_ptr<CameraCalibration> calibration_;
-    optional<int> framerate_;
-    optional<int> samplerate_;
+    int framerate_;
+    int samplerate_;
     DepthCodecType depth_codec_type_;
-    optional<float> depth_unit_;
+    float depth_unit_;
+    unique_ptr<CameraCalibration> calibration_;
     optional<YuvFrame> cover_;
     vector<FileVideoFrame> video_frames_;
     vector<FileAudioFrame> audio_frames_;
