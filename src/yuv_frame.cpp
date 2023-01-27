@@ -141,6 +141,54 @@ YuvFrame YuvFrame::getDownsampled(int downsampling_factor) const
                     std::move(downsampled_v_channel)};
 }
 
+YuvFrame YuvFrame::getMkvCoverSized() const
+{
+    // Pick the largest centered square area.
+    int y_row_start{0};
+    int y_row_end{height_};
+    int y_col_start{0};
+    int y_col_end{width_};
+    if (width_ > height_) {
+        y_col_start = width_ / 2 - height_ / 2;
+        y_col_end = width_ / 2 + height_ / 2;
+    } else {
+        y_row_start = height_ / 2 - width_ / 2;
+        y_row_end = height_ / 2 + width_ / 2;
+    }
+
+    constexpr int COVER_SIZE{600};
+    std::vector<uint8_t> cover_y_channel(COVER_SIZE * COVER_SIZE, 0);
+    std::vector<uint8_t> cover_u_channel(COVER_SIZE * COVER_SIZE / 4, 0);
+    std::vector<uint8_t> cover_v_channel(COVER_SIZE * COVER_SIZE / 4, 0);
+
+    for (int cover_row{0}; cover_row < COVER_SIZE; ++cover_row) {
+        int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
+        for (int cover_col{0}; cover_col < COVER_SIZE; ++cover_col) {
+            int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
+            cover_y_channel[cover_row * COVER_SIZE + cover_col] = y_channel_[y_row * width_ + y_col];
+        }
+    }
+
+    for (int cover_row{0}; cover_row < COVER_SIZE; cover_row += 2) {
+        int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
+        int uv_row{y_row / 2};
+        for (int cover_col{0}; cover_col < COVER_SIZE; cover_col += 2) {
+            int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
+            int uv_col{y_col / 2};
+            cover_u_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
+                u_channel_[uv_row * (width_ / 2) + uv_col];
+            cover_v_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
+                v_channel_[uv_row * (width_ / 2) + uv_col];
+        }
+    }
+
+    return YuvFrame{COVER_SIZE,
+                    COVER_SIZE,
+                    std::move(cover_y_channel),
+                    std::move(cover_u_channel),
+                    std::move(cover_v_channel)};
+}
+
 Bytes YuvFrame::getPNGBytes() const
 {
     std::vector<uint8_t> r_channel(width_ * height_, 0);

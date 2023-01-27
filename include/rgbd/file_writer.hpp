@@ -68,15 +68,7 @@ private:
               const FileWriterConfig& config);
 public:
     void writeCover(const YuvFrame& yuv_frame);
-    void writeCover(int width,
-                    int height,
-                    const uint8_t* y_channel,
-                    const uint8_t* u_channel,
-                    const uint8_t* v_channel);
-    void writeVideoFrame(int64_t time_point_us,
-                         bool keyframe,
-                         span<const byte> color_bytes,
-                         span<const byte> depth_bytes);
+    void writeVideoFrame(const FileVideoFrame& video_frame);
     void writeAudioFrame(int64_t time_point_us, span<const byte> frame_data_bytes);
     void writeAudioFrame(const FileAudioFrame& audio_frame);
     void writeIMUFrame(int64_t time_point_us,

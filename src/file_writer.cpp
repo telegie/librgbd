@@ -6,105 +6,10 @@ using namespace LIBMATROSKA_NAMESPACE;
 
 namespace rgbd
 {
-auto get_random_number()
+unsigned int get_random_number()
 {
     std::random_device random_device;
     return random_device();
-}
-
-void convert_yuv_to_rgb(int y_row,
-                        int y_col,
-                        int y_width,
-                        const uint8_t* y_channel,
-                        const uint8_t* u_channel,
-                        const uint8_t* v_channel,
-                        uint8_t& r,
-                        uint8_t& g,
-                        uint8_t& b)
-{
-    int uv_row{y_row / 2};
-    int uv_col{y_col / 2};
-    int uv_width{y_width / 2};
-    uint8_t y{y_channel[y_row * y_width + y_col]};
-    uint8_t u{u_channel[uv_row * uv_width + uv_col]};
-    uint8_t v{v_channel[uv_row * uv_width + uv_col]};
-
-    // from https://en.wikipedia.org/wiki/YUV
-    int r_tmp = y + ((351 * (v - 128)) >> 8);
-    int g_tmp = y - ((179 * (v - 128) + 86 * (u - 128)) >> 8);
-    int b_tmp = y + ((443 * (u - 128)) >> 8);
-    r = std::clamp(r_tmp, 0, 255);
-    g = std::clamp(g_tmp, 0, 255);
-    b = std::clamp(b_tmp, 0, 255);
-}
-
-void set_rgb_channels(uint8_t r,
-                      uint8_t g,
-                      uint8_t b,
-                      int rgb_row,
-                      int rgb_col,
-                      int rgb_width,
-                      vector<uint8_t>& r_channel,
-                      vector<uint8_t>& g_channel,
-                      vector<uint8_t>& b_channel)
-{
-    r_channel[rgb_row * rgb_width + rgb_col] = r;
-    g_channel[rgb_row * rgb_width + rgb_col] = g;
-    b_channel[rgb_row * rgb_width + rgb_col] = b;
-}
-
-Bytes get_cover_png_bytes(int width,
-                          int height,
-                          const uint8_t* y_channel,
-                          const uint8_t* u_channel,
-                          const uint8_t* v_channel)
-{
-
-    // Pick the largest centered square area.
-    int y_row_start{0};
-    int y_row_end{height};
-    int y_col_start{0};
-    int y_col_end{width};
-    if (width > height) {
-        y_col_start = width / 2 - height / 2;
-        y_col_end = width / 2 + height / 2;
-    } else {
-        y_row_start = height / 2 - width / 2;
-        y_row_end = height / 2 + width / 2;
-    }
-
-    constexpr int COVER_SIZE{600};
-    std::vector<uint8_t> cover_y_channel(COVER_SIZE * COVER_SIZE, 0);
-    std::vector<uint8_t> cover_u_channel(COVER_SIZE * COVER_SIZE / 4, 0);
-    std::vector<uint8_t> cover_v_channel(COVER_SIZE * COVER_SIZE / 4, 0);
-
-    for (int cover_row{0}; cover_row < COVER_SIZE; ++cover_row) {
-        int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
-        for (int cover_col{0}; cover_col < COVER_SIZE; ++cover_col) {
-            int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
-            cover_y_channel[cover_row * COVER_SIZE + cover_col] = y_channel[y_row * width + y_col];
-        }
-    }
-
-    for (int cover_row{0}; cover_row < COVER_SIZE; cover_row += 2) {
-        int y_row{y_row_start + cover_row * (y_row_end - y_row_start) / COVER_SIZE};
-        int uv_row{y_row / 2};
-        for (int cover_col{0}; cover_col < COVER_SIZE; cover_col += 2) {
-            int y_col{y_col_start + cover_col * (y_col_end - y_col_start) / COVER_SIZE};
-            int uv_col{y_col / 2};
-            cover_u_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
-                u_channel[uv_row * (width / 2) + uv_col];
-            cover_v_channel[(cover_row / 2) * (COVER_SIZE / 2) + (cover_col / 2)] =
-                v_channel[uv_row * (width / 2) + uv_col];
-        }
-    }
-
-    YuvFrame cover_yuv_frame{COVER_SIZE,
-                             COVER_SIZE,
-                             std::move(cover_y_channel),
-                             std::move(cover_u_channel),
-                             std::move(cover_v_channel)};
-    return cover_yuv_frame.getPNGBytes();
 }
 
 vector<byte> convert_vec3_to_bytes(const glm::vec3& v)
@@ -492,19 +397,6 @@ void FileWriter::init(const CameraCalibration& calibration, const FileWriterConf
 
 void FileWriter::writeCover(const YuvFrame& yuv_frame)
 {
-    writeCover(yuv_frame.width(),
-               yuv_frame.height(),
-               yuv_frame.y_channel().data(),
-               yuv_frame.u_channel().data(),
-               yuv_frame.v_channel().data());
-}
-
-void FileWriter::writeCover(int width,
-                            int height,
-                            const uint8_t* y_channel,
-                            const uint8_t* u_channel,
-                            const uint8_t* v_channel)
-{
     //
     // add cover art
     //
@@ -515,7 +407,7 @@ void FileWriter::writeCover(int width,
     GetChild<KaxMimeType>(*cover_attached_file).SetValue("image/png");
     GetChild<KaxFileUID>(*cover_attached_file).SetValue(distribution_(generator_));
 
-    auto png_bytes{get_cover_png_bytes(width, height, y_channel, u_channel, v_channel)};
+    auto png_bytes{yuv_frame.getMkvCoverSized().getPNGBytes()};
     GetChild<KaxFileData>(*cover_attached_file)
         .CopyBuffer(reinterpret_cast<binary*>(png_bytes.data()),
                     gsl::narrow<uint32_t>(png_bytes.size()));
@@ -524,12 +416,9 @@ void FileWriter::writeCover(int width,
     attachments.Render(*io_callback_);
 }
 
-void FileWriter::writeVideoFrame(int64_t time_point_us,
-                                 bool keyframe,
-                                 span<const byte> color_bytes,
-                                 span<const byte> depth_bytes)
+void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
 {
-    int64_t time_point_ns{time_point_us * 1000};
+    int64_t time_point_ns{video_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
         spdlog::error("FileWriter::writeVideoFrame: time_point_ns ({}) should not be negative.",
                       time_point_ns);
@@ -547,27 +436,27 @@ void FileWriter::writeVideoFrame(int64_t time_point_us,
 
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto color_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(color_bytes.data())),
-                       gsl::narrow<uint32_t>(color_bytes.size())}};
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.color_bytes().data())),
+                       gsl::narrow<uint32_t>(video_frame.color_bytes().size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
     color_block_blob->AddFrameAuto(*writer_tracks_.color_track,
                                    video_timecode,
                                    *color_data_buffer,
                                    LACING_AUTO,
-                                   keyframe ? nullptr : past_color_block_blob_);
+                                   video_frame.keyframe() ? nullptr : past_color_block_blob_);
 
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto depth_data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(depth_bytes.data())),
-                       gsl::narrow<uint32_t>(depth_bytes.size())}};
+        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.depth_bytes().data())),
+                       gsl::narrow<uint32_t>(video_frame.depth_bytes().size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
     depth_block_blob->AddFrameAuto(*writer_tracks_.depth_track,
                                    video_timecode,
                                    *depth_data_buffer,
                                    LACING_AUTO,
-                                   keyframe ? nullptr : past_depth_block_blob_);
+                                   video_frame.keyframe() ? nullptr : past_depth_block_blob_);
 
     video_cluster->Render(*io_callback_, cues);
     video_cluster->ReleaseFrames();
