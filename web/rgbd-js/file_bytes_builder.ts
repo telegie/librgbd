@@ -31,10 +31,14 @@ export class NativeFileBytesBuilder {
     this.wasmModule.ccall('rgbd_file_bytes_builder_set_depth_unit', null, ['number', 'number'], [this.ptr, depthUnit]);
   }
 
-  setCover(cover: YuvFrame) {
-    const nativeCover = cover.toNative(this.wasmModule);
-    this.wasmModule.ccall('rgbd_file_bytes_builder_set_cover', null, ['number', 'number'], [this.ptr, nativeCover.ptr]);
-    nativeCover.close();
+  setCoverPNGBytes(coverPNGBytes: Uint8Array) {
+    const coverPNGBytesPtr = this.wasmModule._malloc(coverPNGBytes.byteLength);
+    this.wasmModule.HEAPU8.set(coverPNGBytes, coverPNGBytesPtr);
+    this.wasmModule.ccall('rgbd_file_bytes_builder_set_cover_png_bytes',
+                          null,
+                          ['number', 'number', 'number'],
+                          [this.ptr, coverPNGBytesPtr, coverPNGBytes.byteLength]);
+    this.wasmModule._free(coverPNGBytesPtr);
   }
 
   addVideoFrame(videoFrame: FileVideoFrame) {

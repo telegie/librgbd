@@ -1,4 +1,4 @@
-import { NativeUInt8Array } from './capi_containers';
+import { NativeByteArray, NativeUInt8Array } from './capi_containers';
 
 export class YuvFrame {
   yChannel: Uint8Array;
@@ -45,6 +45,22 @@ export class YuvFrame {
 
     return new NativeYuvFrame(wasmModule, ptr);
   }
+
+  getMkvCoverSized(wasmModule: any): YuvFrame {
+    const nativeYuvFrame = this.toNative(wasmModule);
+    const nativeCoverSized = nativeYuvFrame.getMkvCoverSized();
+    const coverSized = YuvFrame.fromNative(nativeCoverSized);
+    nativeYuvFrame.close();
+    nativeCoverSized.close();
+    return coverSized;
+  }
+
+  getPNGBytes(wasmModule: any): Uint8Array {
+    const nativeYuvFrame = this.toNative(wasmModule);
+    const pngBytes = nativeYuvFrame.getPNGBytes();
+    nativeYuvFrame.close();
+    return pngBytes;
+  }
 }
 
 export class NativeYuvFrame {
@@ -58,6 +74,23 @@ export class NativeYuvFrame {
 
   close() {
     this.wasmModule.ccall('rgbd_yuv_frame_dtor', null, ['number'], [this.ptr]);
+  }
+
+  getMkvCoverSized(): NativeYuvFrame {
+    const coverSizedPtr = this.wasmModule.ccall('rgbd_yuv_frame_get_mkv_cover_sized', 'number', ['number'], [this.ptr]);
+    return new NativeYuvFrame(this.wasmModule, coverSizedPtr);
+  }
+
+  getPNGBytes(): Uint8Array {
+    const byteArrayPtr = this.wasmModule.ccall('rgbd_yuv_frame_get_png_bytes',
+                                               'number',
+                                               ['number'],
+                                               [this.ptr]);
+
+    const byteArray = new NativeByteArray(this.wasmModule, byteArrayPtr);
+    const bytes = byteArray.toArray();
+    byteArray.close();
+    return bytes;
   }
 
   getYChannel(): Uint8Array {
