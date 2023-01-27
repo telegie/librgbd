@@ -175,9 +175,9 @@ set(RGBD_SOURCES
   include/rgbd/direction_table.hpp
   include/rgbd/ffmpeg_utils.hpp
   include/rgbd/file.hpp
+  include/rgbd/file_bytes_builder.hpp
   include/rgbd/file_parser.hpp
   include/rgbd/file_writer.hpp
-  include/rgbd/file_writer_helper.hpp
   include/rgbd/frame_mapper.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -211,9 +211,9 @@ set(RGBD_SOURCES
   src/direction_table.cpp
   src/ffmpeg_utils.cpp
   src/file.cpp
+  src/file_bytes_builder.cpp
   src/file_parser.cpp
   src/file_writer.cpp
-  src/file_writer_helper.cpp
   src/frame_mapper.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp

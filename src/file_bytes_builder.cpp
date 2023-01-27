@@ -1,8 +1,8 @@
-#include "file_writer_helper.hpp"
+#include "file_bytes_builder.hpp"
 
 namespace rgbd
 {
-FileWriterHelper::FileWriterHelper()
+FileBytesBuilder::FileBytesBuilder()
     : calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
     , depth_unit_{std::nullopt}
@@ -14,70 +14,70 @@ FileWriterHelper::FileWriterHelper()
 {
 }
 
-void FileWriterHelper::setCalibration(const CameraCalibration& calibration)
+void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
 {
     calibration_ = calibration.clone();
 }
 
-void FileWriterHelper::setFramerate(int framerate)
+void FileBytesBuilder::setFramerate(int framerate)
 {
     framerate_ = framerate;
 }
 
-void FileWriterHelper::setSamplerate(int samplerate)
+void FileBytesBuilder::setSamplerate(int samplerate)
 {
     samplerate_ = samplerate;
 }
 
-void FileWriterHelper::setDepthCodecType(DepthCodecType depth_codec_type)
+void FileBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
 {
     depth_codec_type_ = depth_codec_type;
 }
 
-void FileWriterHelper::setDepthUnit(float depth_unit)
+void FileBytesBuilder::setDepthUnit(float depth_unit)
 {
     depth_unit_ = depth_unit;
 }
 
-void FileWriterHelper::setCover(const YuvFrame& cover)
+void FileBytesBuilder::setCover(const YuvFrame& cover)
 {
     spdlog::info("setCover");
     cover_ = cover;
     spdlog::info("cover_.has_value(): {}", cover_.has_value());
 }
 
-void FileWriterHelper::addVideoFrame(const FileVideoFrame& video_frame)
+void FileBytesBuilder::addVideoFrame(const FileVideoFrame& video_frame)
 {
     video_frames_.push_back(video_frame);
 }
 
-void FileWriterHelper::addAudioFrame(const FileAudioFrame& audio_frame)
+void FileBytesBuilder::addAudioFrame(const FileAudioFrame& audio_frame)
 {
     audio_frames_.push_back(audio_frame);
 }
 
-void FileWriterHelper::addIMUFrame(const FileIMUFrame& imu_frame)
+void FileBytesBuilder::addIMUFrame(const FileIMUFrame& imu_frame)
 {
     imu_frames_.push_back(imu_frame);
 }
 
-void FileWriterHelper::addTRSFrame(const FileTRSFrame& trs_frame)
+void FileBytesBuilder::addTRSFrame(const FileTRSFrame& trs_frame)
 {
     trs_frames_.push_back(trs_frame);
 }
 
-void FileWriterHelper::writeToPath(const std::string& path)
+Bytes FileBytesBuilder::build()
 {
-    write(path);
-}
-
-Bytes FileWriterHelper::writeToBytes()
-{
-    auto file_writer{write(std::nullopt)};
+    auto file_writer{_build(std::nullopt)};
     return file_writer->getBytes();
 }
 
-unique_ptr<FileWriter> FileWriterHelper::write(optional<string> path)
+void FileBytesBuilder::buildToPath(const std::string& path)
+{
+    _build(path);
+}
+
+unique_ptr<FileWriter> FileBytesBuilder::_build(optional<string> path)
 {
     sort(video_frames_.begin(),
          video_frames_.end(),

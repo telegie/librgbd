@@ -523,6 +523,96 @@ double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 }
 //////// END FILE AUDIO TRACK ////////
 
+//////// START FILE BYTES BUILDER ////////
+void* rgbd_file_bytes_builder_ctor()
+{
+    return new FileBytesBuilder;
+}
+
+void rgbd_file_bytes_builder_dtor(void* ptr)
+{
+    delete static_cast<FileBytesBuilder*>(ptr);
+}
+
+void rgbd_file_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
+    file_bytes_builder->setCalibration(*calibration);
+}
+
+void rgbd_file_bytes_builder_set_framerate(void* ptr, int framerate)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    file_bytes_builder->setFramerate(framerate);
+}
+
+void rgbd_file_bytes_builder_set_samplerate(void* ptr, int samplerate)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    file_bytes_builder->setSamplerate(samplerate);
+}
+
+void rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    file_bytes_builder->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
+}
+
+void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    file_bytes_builder->setDepthUnit(depth_unit);
+}
+
+void rgbd_file_bytes_builder_set_cover(void* ptr, void* cover_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto cover{static_cast<YuvFrame*>(cover_ptr)};
+    file_bytes_builder->setCover(*cover);
+}
+
+void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto video_frame{static_cast<FileVideoFrame*>(video_frame_ptr)};
+    file_bytes_builder->addVideoFrame(*video_frame);
+}
+
+void rgbd_file_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto audio_frame{static_cast<FileAudioFrame*>(audio_frame_ptr)};
+    file_bytes_builder->addAudioFrame(*audio_frame);
+}
+
+void rgbd_file_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto imu_frame{static_cast<FileIMUFrame*>(imu_frame_ptr)};
+    file_bytes_builder->addIMUFrame(*imu_frame);
+}
+
+void rgbd_file_bytes_builder_add_trs_frame(void* ptr, void* trs_frame_ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto trs_frame{static_cast<FileTRSFrame*>(trs_frame_ptr)};
+    file_bytes_builder->addTRSFrame(*trs_frame);
+}
+
+void* rgbd_file_bytes_builder_build(void* ptr)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    return new NativeByteArray{file_bytes_builder->build()};
+}
+
+void rgbd_file_bytes_builder_build_to_path(void* ptr, const char* path)
+{
+    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    file_bytes_builder->buildToPath(path);
+}
+//////// END FILE BYTES BUILDER ////////
+
 //////// START FILE COLOR VIDEO TRACK ////////
 rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr)
 {
@@ -952,96 +1042,6 @@ int rgbd_file_video_track_get_height(void* ptr)
     return file_video_track->height;
 }
 //////// START FILE VIDEO TRACK ////////
-
-//////// START FILE WRITER HELPER ////////
-void* rgbd_file_writer_helper_ctor()
-{
-    return new FileWriterHelper;
-}
-
-void rgbd_file_writer_helper_dtor(void* ptr)
-{
-    delete static_cast<FileWriterHelper*>(ptr);
-}
-
-void rgbd_file_writer_helper_set_calibration(void* ptr, void* calibration_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
-    file_writer_helper->setCalibration(*calibration);
-}
-
-void rgbd_file_writer_helper_set_framerate(void* ptr, int framerate)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    file_writer_helper->setFramerate(framerate);
-}
-
-void rgbd_file_writer_helper_set_samplerate(void* ptr, int samplerate)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    file_writer_helper->setSamplerate(samplerate);
-}
-
-void rgbd_file_writer_helper_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    file_writer_helper->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
-}
-
-void rgbd_file_writer_helper_set_depth_unit(void* ptr, float depth_unit)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    file_writer_helper->setDepthUnit(depth_unit);
-}
-
-void rgbd_file_writer_helper_set_cover(void* ptr, void* cover_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto cover{static_cast<YuvFrame*>(cover_ptr)};
-    file_writer_helper->setCover(*cover);
-}
-
-void rgbd_file_writer_helper_add_video_frame(void* ptr, void* video_frame_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto video_frame{static_cast<FileVideoFrame*>(video_frame_ptr)};
-    file_writer_helper->addVideoFrame(*video_frame);
-}
-
-void rgbd_file_writer_helper_add_audio_frame(void* ptr, void* audio_frame_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto audio_frame{static_cast<FileAudioFrame*>(audio_frame_ptr)};
-    file_writer_helper->addAudioFrame(*audio_frame);
-}
-
-void rgbd_file_writer_helper_add_imu_frame(void* ptr, void* imu_frame_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto imu_frame{static_cast<FileIMUFrame*>(imu_frame_ptr)};
-    file_writer_helper->addIMUFrame(*imu_frame);
-}
-
-void rgbd_file_writer_helper_add_trs_frame(void* ptr, void* trs_frame_ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    auto trs_frame{static_cast<FileTRSFrame*>(trs_frame_ptr)};
-    file_writer_helper->addTRSFrame(*trs_frame);
-}
-
-void rgbd_file_writer_helper_write_to_path(void* ptr, const char* path)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    file_writer_helper->writeToPath(path);
-}
-
-void* rgbd_file_writer_helper_write_to_bytes(void* ptr)
-{
-    auto file_writer_helper{static_cast<FileWriterHelper*>(ptr)};
-    return new NativeByteArray{file_writer_helper->writeToBytes()};
-}
-//////// END FILE WRITER HELPER ////////
 
 //////// START FRAME MAPPER ////////
 void* rgbd_frame_mapper_ctor(void* src_calibration, void* dst_calibration)

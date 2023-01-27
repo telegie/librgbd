@@ -5,10 +5,10 @@
 namespace rgbd
 {
 // FileWriterHelper is to make using FileWriter easier.
-class FileWriterHelper
+class FileBytesBuilder
 {
 public:
-    FileWriterHelper();
+    FileBytesBuilder();
     void setCalibration(const CameraCalibration& calibration);
     void setFramerate(int framerate);
     void setSamplerate(int samplerate);
@@ -19,11 +19,11 @@ public:
     void addAudioFrame(const FileAudioFrame& audio_frame);
     void addIMUFrame(const FileIMUFrame& imu_frame);
     void addTRSFrame(const FileTRSFrame& trs_frame);
-    void writeToPath(const std::string& path);
-    Bytes writeToBytes();
+    Bytes build();
+    void buildToPath(const std::string& path);
 
 private:
-    unique_ptr<FileWriter> write(optional<string> path);
+    unique_ptr<FileWriter> _build(optional<string> path);
 
 private:
     unique_ptr<CameraCalibration> calibration_;
