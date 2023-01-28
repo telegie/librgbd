@@ -392,6 +392,11 @@ export class File {
     return new File(info, tracks, attachments,
       videoFrames, audioFrames, imuFrames, trsFrames);
   }
+
+  clone(): File {
+    return new File(this.info, this.tracks, this.attachments,
+      this.videoFrames, this.audioFrames, this.imuFrames, this.trsFrames);
+  }
 }
 
 export class NativeFileInfo {
