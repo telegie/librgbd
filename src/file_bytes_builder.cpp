@@ -106,22 +106,6 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
              return lhs.time_point_us() < rhs.time_point_us();
          });
 
-    // Find minimum_time_point_us.
-    std::vector<int64_t> initial_time_points;
-    if (video_frames_.size() > 0)
-        initial_time_points.push_back(video_frames_[0].time_point_us());
-    if (audio_frames_.size() > 0)
-        initial_time_points.push_back(audio_frames_[0].time_point_us());
-    if (imu_frames_.size() > 0)
-        initial_time_points.push_back(imu_frames_[0].time_point_us());
-    if (trs_frames_.size() > 0)
-        initial_time_points.push_back(trs_frames_[0].time_point_us());
-
-    if (initial_time_points.size() == 0)
-        throw std::runtime_error("No frame found from FileWriterHelper");
-    int64_t minimum_time_point_us{
-        *std::min_element(initial_time_points.begin(), initial_time_points.end())};
-
     if (!calibration_) {
         throw std::runtime_error("No CameraCalibration found from FileWriterHelper");
     }
@@ -134,6 +118,15 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
                            *calibration_,
                            cover_png_bytes_};
 
+    if (video_frames_.size() == 0) {
+        spdlog::info("No video frame found from FileWriterHelper.");
+        file_writer.flush();
+        return;
+    }
+
+    // Find minimum_time_point_us.
+    int64_t initial_video_time_point{video_frames_[0].time_point_us()};
+
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};
     size_t trs_frame_index{0};
@@ -142,33 +135,41 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
 
         while (audio_frame_index < audio_frames_.size()) {
             auto& audio_frame{audio_frames_[audio_frame_index]};
+            int64_t audio_time_point_us{audio_frame.time_point_us() - initial_video_time_point};
+            // Skip frames before the first video frame.
+            if (audio_time_point_us < 0)
+                continue;
+            // Write if it is before the current video frame.
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeAudioFrame(FileAudioFrame{
-                audio_frame.time_point_us() - minimum_time_point_us, audio_frame.bytes()});
+            file_writer.writeAudioFrame(FileAudioFrame{audio_time_point_us, audio_frame.bytes()});
             ++audio_frame_index;
         }
         while (imu_frame_index < imu_frames_.size()) {
             auto& imu_frame{imu_frames_[imu_frame_index]};
+            int64_t imu_time_point_us{imu_frame.time_point_us() - initial_video_time_point};
+            if (imu_time_point_us < 0)
+                continue;
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeIMUFrame(
-                FileIMUFrame{imu_frame.time_point_us() - minimum_time_point_us,
-                             imu_frame.acceleration(),
-                             imu_frame.rotation_rate(),
-                             imu_frame.magnetic_field(),
-                             imu_frame.gravity()});
+            file_writer.writeIMUFrame(FileIMUFrame{imu_time_point_us,
+                                                   imu_frame.acceleration(),
+                                                   imu_frame.rotation_rate(),
+                                                   imu_frame.magnetic_field(),
+                                                   imu_frame.gravity()});
             ++imu_frame_index;
         }
         while (trs_frame_index < trs_frames_.size()) {
             auto& trs_frame{trs_frames_[trs_frame_index]};
+            int64_t trs_time_point_us{trs_frame.time_point_us() - initial_video_time_point};
+            if (trs_time_point_us < 0)
+                continue;
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeTRSFrame(
-                FileTRSFrame{trs_frame.time_point_us() - minimum_time_point_us,
-                             trs_frame.translation(),
-                             trs_frame.rotation(),
-                             trs_frame.scale()});
+            file_writer.writeTRSFrame(FileTRSFrame{trs_time_point_us,
+                                                   trs_frame.translation(),
+                                                   trs_frame.rotation(),
+                                                   trs_frame.scale()});
             ++trs_frame_index;
         }
 
