@@ -137,8 +137,10 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
             auto& audio_frame{audio_frames_[audio_frame_index]};
             int64_t audio_time_point_us{audio_frame.time_point_us() - initial_video_time_point};
             // Skip frames before the first video frame.
-            if (audio_time_point_us < 0)
+            if (audio_time_point_us < 0) {
+                ++audio_frame_index;
                 continue;
+            }
             // Write if it is before the current video frame.
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
@@ -148,8 +150,10 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
         while (imu_frame_index < imu_frames_.size()) {
             auto& imu_frame{imu_frames_[imu_frame_index]};
             int64_t imu_time_point_us{imu_frame.time_point_us() - initial_video_time_point};
-            if (imu_time_point_us < 0)
+            if (imu_time_point_us < 0) {
+                ++imu_frame_index;
                 continue;
+            }
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
             file_writer.writeIMUFrame(FileIMUFrame{imu_time_point_us,
@@ -162,15 +166,16 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
         while (trs_frame_index < trs_frames_.size()) {
             auto& trs_frame{trs_frames_[trs_frame_index]};
             int64_t trs_time_point_us{trs_frame.time_point_us() - initial_video_time_point};
-            if (trs_time_point_us < 0)
+            if (trs_time_point_us < 0) {
+                ++trs_frame_index;
                 continue;
+            }
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
             file_writer.writeTRSFrame(FileTRSFrame{trs_time_point_us,
                                                    trs_frame.translation(),
                                                    trs_frame.rotation(),
                                                    trs_frame.scale()});
-            ++trs_frame_index;
         }
 
         file_writer.writeVideoFrame(video_frame);

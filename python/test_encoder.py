@@ -66,6 +66,7 @@ def main():
                                  30) as color_encoder, \
             rgbd.NativeDepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500) as depth_encoder:
         for index in range(len(file.video_frames)):
+            print(f"index: {index}")
             video_frame = file.video_frames[index]
             keyframe = index % 60 == 0
 
@@ -88,7 +89,9 @@ def main():
     for trs_frame in file.trs_frames:
         file_bytes_builder.add_trs_frame(trs_frame)
 
+    print("?")
     file_bytes_builder.build_to_path("tmp/test_encoder_result.mkv")
+    print("done")
 
 
 if __name__ == "__main__":
