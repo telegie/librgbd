@@ -135,7 +135,7 @@ extern "C"
 
     //////// START COLOR ENCODER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(
-        rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate);
+        rgbdColorCodecType type, int width, int height, int framerate);
     RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
     rgbd_color_encoder_encode(void* ptr, void* yuv_frame_ptr, bool keyframe);

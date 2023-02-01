@@ -11,7 +11,7 @@ extern "C"
 namespace rgbd
 {
 ColorEncoder::ColorEncoder(
-    ColorCodecType type, int width, int height, int target_bitrate, int framerate)
+    ColorCodecType type, int width, int height, int framerate)
     : codec_context_{find_encoder_avcodec(type)}
     , frame_{}
     , next_pts_{0}
@@ -25,12 +25,17 @@ ColorEncoder::ColorEncoder(
     codec_context_->width = width;
     codec_context_->height = height;
     codec_context_->pix_fmt = AV_PIX_FMT_YUV420P;
+
+    // Dividing by 200 leads to a similar value to Youtube's recommendations.
+    // ref: https://support.google.com/youtube/answer/1722171
+    int target_bitrate_kbps{width * height / 200};
+
     // setting codec_context_->rc_min_rate == codec_context_->rc_max_rate and
     // codec_context_->rc_min_rate == codec_context_->bit_rate
     // puts libvpx into VPX_CBR (constant bitrate) mode.
-    codec_context_->bit_rate = target_bitrate * 1000;
-    codec_context_->rc_min_rate = static_cast<int64_t>(target_bitrate) * 1000;
-    codec_context_->rc_max_rate = target_bitrate * 1000;
+    codec_context_->bit_rate = target_bitrate_kbps * 1000;
+    codec_context_->rc_min_rate = static_cast<int64_t>(target_bitrate_kbps) * 1000;
+    codec_context_->rc_max_rate = target_bitrate_kbps * 1000;
     codec_context_->framerate = AVRational{framerate, 1};
     codec_context_->time_base = AVRational{1, framerate};
 

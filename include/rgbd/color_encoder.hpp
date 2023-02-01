@@ -7,8 +7,10 @@ namespace rgbd
 class ColorEncoder
 {
 public:
-    ColorEncoder(
-        ColorCodecType type, int width, int height, int target_bitrate, int framerate);
+    ColorEncoder(ColorCodecType type,
+                 int width,
+                 int height,
+                 int framerate);
     Bytes encode(const YuvFrame& yuv_image, bool keyframe);
     Bytes encode(const uint8_t* y_channel,
                  const uint8_t* u_channel,

@@ -284,10 +284,10 @@ void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t
 
 //////// START COLOR ENCODER ////////
 void* rgbd_color_encoder_ctor(
-    rgbdColorCodecType type, int width, int height, int target_bitrate, int framerate)
+    rgbdColorCodecType type, int width, int height, int framerate)
 {
     return new ColorEncoder{
-        static_cast<ColorCodecType>(type), width, height, target_bitrate, framerate};
+        static_cast<ColorCodecType>(type), width, height, framerate};
 }
 
 void rgbd_color_encoder_dtor(void* ptr)
