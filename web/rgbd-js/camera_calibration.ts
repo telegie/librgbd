@@ -207,25 +207,28 @@ export class IosCameraCalibration extends CameraCalibration {
 
   toNative(wasmModule: any): NativeIosCameraCalibration {
     const lookupTablePtr = wasmModule._malloc(this.lensDistortionLookupTable.byteLength);
+    const inverseLookupTablePtr = wasmModule._malloc(this.inverseLensDistortionLookupTable.byteLength);
     // Have to do >> 2 to the pointer since the set() function interprets its second parameter
     // as an index, not a pointer.
     // https://github.com/emscripten-core/emscripten/issues/4003
     wasmModule.HEAPF32.set(this.lensDistortionLookupTable, lookupTablePtr >> 2);
+    wasmModule.HEAPF32.set(this.inverseLensDistortionLookupTable, inverseLookupTablePtr >> 2);
     const nativePtr = wasmModule.ccall('rgbd_ios_camera_calibration_ctor',
                                        'number',
                                        ['number', 'number', 'number', 'number',
                                          'number', 'number', 'number', 'number',
                                          'number', 'number',
                                          'number', 'number',
-                                         'number',
-                                         'number'],
+                                         'number', 'number',
+                                         'number', 'number'],
                                        [this.colorWidth, this.colorHeight, this.depthWidth, this.depthHeight,
                                          this.fx, this.fy, this.ox, this.oy,
                                          this.referenceDimensionWidth, this.referenceDimensionHeight,
                                          this.lensDistortionCenterX, this.lensDistortionCenterY,
-                                         lookupTablePtr,
-                                         this.lensDistortionLookupTable.length]);
+                                         lookupTablePtr, this.lensDistortionLookupTable.length,
+                                         inverseLookupTablePtr, this.inverseLensDistortionLookupTable.length]);
     wasmModule._free(lookupTablePtr);
+    wasmModule._free(inverseLookupTablePtr);
 
     return new NativeIosCameraCalibration(wasmModule, nativePtr, true);
   }

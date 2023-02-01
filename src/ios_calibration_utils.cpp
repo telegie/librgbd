@@ -2,17 +2,20 @@
 
 namespace rgbd
 {
-float get_magnification(float r, const vector<float>& lens_distortion_lookup_table, float r_max)
+float get_magnification(float r, const vector<float>& lookup_table, float r_max)
 {
-    if (r >= r_max)
-        return lens_distortion_lookup_table.back();
+    if (lookup_table.size() == 0)
+        return 0.0f;
 
-    float val{r * static_cast<float>(lens_distortion_lookup_table.size() - 1) / r_max};
+    if (r >= r_max)
+        return lookup_table.back();
+
+    float val{r * static_cast<float>(lookup_table.size() - 1) / r_max};
     int idx{static_cast<int>(val)};
     float frac{val - static_cast<float>(idx)};
 
-    float mag1{lens_distortion_lookup_table[idx]};
-    float mag2{lens_distortion_lookup_table[idx + 1]};
+    float mag1{lookup_table[idx]};
+    float mag2{lookup_table[idx + 1]};
 
     return (1.0f - frac) * mag1 + frac * mag2;
 }
@@ -69,6 +72,7 @@ glm::vec2 compute_ios_uv(const IosCameraCalibration& calibration, const glm::vec
 
     float lens_distortion_center_x{calibration.lens_distortion_center_x()};
     float lens_distortion_center_y{calibration.lens_distortion_center_y()};
+    const vector<float>& inverse_lens_distortion_lookup_table{calibration.inverse_lens_distortion_lookup_table()};
 
     float x{direction.x / -direction.z};
     float y{direction.y / -direction.z};
@@ -84,9 +88,14 @@ glm::vec2 compute_ios_uv(const IosCameraCalibration& calibration, const glm::vec
 
     float calibrated_delta_uu{calibrated_uu - lens_distortion_center_x};
     float calibrated_delta_vv{calibrated_vv - lens_distortion_center_y};
+    float r{std::sqrt(calibrated_delta_uu * calibrated_delta_uu + calibrated_delta_vv * calibrated_delta_vv)};
 
-    // TODO: get the right value for magnification.
-    float magnification{0.0f};
+    // Find the largest r value possible.
+    float delta_uu_max{std::max(lens_distortion_center_x, reference_dimension_width - lens_distortion_center_x)};
+    float delta_vv_max{std::max(lens_distortion_center_y, reference_dimension_height - lens_distortion_center_y)};
+    float r_max{std::sqrt(delta_uu_max * delta_uu_max + delta_vv_max * delta_vv_max)};
+
+    float magnification{get_magnification(r, inverse_lens_distortion_lookup_table, r_max)};
 
     float delta_uu{calibrated_delta_uu * (1.0f + magnification)};
     float delta_vv{calibrated_delta_vv * (1.0f + magnification)};
