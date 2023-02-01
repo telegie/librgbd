@@ -248,9 +248,13 @@ glm::vec3 compute_kinect_direction(const KinectCameraCalibration& calibration, c
 
 glm::vec2 compute_kinect_uv(const KinectCameraCalibration& calibration, const glm::vec3& direction)
 {
+    const int width{calibration.resolution_width()};
+    const int height{calibration.resolution_height()};
+
     glm::vec3 point3d{direction.x, -direction.y, -direction.z};
     bool valid;
-    glm::vec2 uv{kinect_transformation_project(calibration, point3d, valid)};
+    glm::vec2 point2d{kinect_transformation_project(calibration, point3d, valid)};
+    glm::vec2 uv{point2d.x / (width - 1), point2d.y / (height - 1)};
     return uv;
 }
 } // namespace rgbd
