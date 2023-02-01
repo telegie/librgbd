@@ -6,13 +6,12 @@ import numpy as np
 
 
 class NativeColorEncoder:
-    def __init__(self, color_codec_type, width: int, height: int, target_bitrate: int, framerate: int):
+    def __init__(self, color_codec_type, width: int, height: int, framerate: int):
         # Setting lib.VP8 assuming since it is the only codec for now.
         # Fix this later when a codec gets added.
         self.ptr = lib.rgbd_color_encoder_ctor(color_codec_type,
                                                width,
                                                height,
-                                               target_bitrate,
                                                framerate)
 
     def close(self):

@@ -63,7 +63,6 @@ def main():
     with rgbd.NativeColorEncoder(rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8,
                                  color_width,
                                  color_height,
-                                 3500,
                                  30) as color_encoder, \
             rgbd.NativeDepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500) as depth_encoder:
         for index in range(len(file.video_frames)):
