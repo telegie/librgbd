@@ -109,7 +109,7 @@ IosCameraCalibration IosCameraCalibration::fromJson(const json& json)
     // inverseLensDistortionLookupTable.
     if (json.contains("inverseLensDistortionLookupTable")) {
         for (auto& value : json["inverseLensDistortionLookupTable"])
-            lens_distortion_lookup_table.push_back(value.get<float>());
+            inverse_lens_distortion_lookup_table.push_back(value.get<float>());
     }
 
     return IosCameraCalibration{color_width,

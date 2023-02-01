@@ -156,13 +156,15 @@ export class IosCameraCalibration extends CameraCalibration {
   lensDistortionCenterX: number;
   lensDistortionCenterY: number;
   lensDistortionLookupTable: Float32Array;
+  inverseLensDistortionLookupTable: Float32Array;
 
   constructor(colorWidth: number, colorHeight: number,
               depthWidth: number, depthHeight: number,
               fx: number, fy: number, ox: number, oy: number,
               referenceDimensionWidth: number, referenceDimensionHeight: number,
               lensDistortionCenterX: number, lensDistortionCenterY: number,
-              lensDistortionLookupTable: Float32Array) {
+              lensDistortionLookupTable: Float32Array,
+              inverseLensDistortionLookupTable: Float32Array) {
     super(CameraDeviceType.IOS, colorWidth, colorHeight, depthWidth, depthHeight);
     this.fx = fx;
     this.fy = fy;
@@ -173,6 +175,7 @@ export class IosCameraCalibration extends CameraCalibration {
     this.lensDistortionCenterX = lensDistortionCenterX;
     this.lensDistortionCenterY = lensDistortionCenterY;
     this.lensDistortionLookupTable = lensDistortionLookupTable;
+    this.inverseLensDistortionLookupTable = inverseLensDistortionLookupTable;
   }
 
   static fromNative(nativeIosCameraCalibration: NativeIosCameraCalibration) {
@@ -192,12 +195,14 @@ export class IosCameraCalibration extends CameraCalibration {
     const lensDistortionCenterX = nativeIosCameraCalibration.getLensDistortionCenterX();
     const lensDistortionCenterY = nativeIosCameraCalibration.getLensDistortionCenterY();
     const lensDistortionLookupTable = nativeIosCameraCalibration.getLensDistortionLookupTable();
+    const inverseLensDistortionLookupTable = nativeIosCameraCalibration.getInverseLensDistortionLookupTable();
     return new IosCameraCalibration(colorWidth, colorHeight,
                                     depthWidth, depthHeight,
                                     fx, fy, ox, oy,
                                     referenceDimensionWidth, referenceDimensionHeight,
                                     lensDistortionCenterX, lensDistortionCenterY,
-                                    lensDistortionLookupTable);
+                                    lensDistortionLookupTable,
+                                    inverseLensDistortionLookupTable);
   }
 
   toNative(wasmModule: any): NativeIosCameraCalibration {
@@ -444,6 +449,15 @@ export class NativeIosCameraCalibration extends NativeCameraCalibration {
 
   getLensDistortionLookupTable(): Float32Array {
     const nativeFloatArrayPtr = this.wasmModule.ccall('rgbd_ios_camera_calibration_get_lens_distortion_lookup_table', 'number', ['number'], [this.ptr]);
+    const nativeFloatArray = new NativeFloatArray(this.wasmModule, nativeFloatArrayPtr);
+    const floatArray = nativeFloatArray.toArray();
+    nativeFloatArray.close();
+
+    return floatArray;
+  }
+
+  getInverseLensDistortionLookupTable(): Float32Array {
+    const nativeFloatArrayPtr = this.wasmModule.ccall('rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table', 'number', ['number'], [this.ptr]);
     const nativeFloatArray = new NativeFloatArray(this.wasmModule, nativeFloatArrayPtr);
     const floatArray = nativeFloatArray.toArray();
     nativeFloatArray.close();
