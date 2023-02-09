@@ -176,6 +176,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
                                                    trs_frame.translation(),
                                                    trs_frame.rotation(),
                                                    trs_frame.scale()});
+            ++trs_frame_index;
         }
 
         file_writer.writeVideoFrame(video_frame);
