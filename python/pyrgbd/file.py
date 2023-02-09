@@ -112,6 +112,11 @@ class NativeFileAttachments:
         return NativeCameraCalibration.create(
             lib.rgbd_file_attachments_get_camera_calibration(self.ptr), False
         )
+    
+    def get_cover_png_bytes(self) -> np.ndarray:
+        return NativeByteArray(
+            lib.rgbd_file_attachments_get_cover_png_bytes(self.ptr)
+        ).to_np_array()
 
 
 class NativeFileVideoFrame:
@@ -406,8 +411,9 @@ class FileDepthVideoTrack(FileVideoTrack):
 
 
 class FileAttachments:
-    def __init__(self, camera_calibration: CameraCalibration):
+    def __init__(self, camera_calibration: CameraCalibration, cover_png_bytes: np.ndarray):
         self.camera_calibration = camera_calibration
+        self.cover_png_bytes = cover_png_bytes
 
     @classmethod
     def from_native(cls, native_file_attachments: NativeFileAttachments):
@@ -415,7 +421,8 @@ class FileAttachments:
             camera_calibration = CameraCalibration.from_native(
                 native_camera_calibration
             )
-        return FileAttachments(camera_calibration)
+        cover_png_bytes = native_file_attachments.get_cover_png_bytes()
+        return FileAttachments(camera_calibration, cover_png_bytes)
 
 
 class FileTracks:
