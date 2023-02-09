@@ -23,9 +23,9 @@ def main():
     print(f"color codec: {file.tracks.color_track.codec}")
     print(f"depth codec: {file.tracks.depth_track.codec}")
 
-    standard_calibration = rgbd.UndistortedCameraCalibration(1024, 1024,
-                                                             512, 512,
-                                                             0.5, 0.5, 0.5, 0.5)
+    standard_calibration = rgbd.UndistortedCameraCalibration(
+        1024, 1024, 512, 512, 0.5, 0.5, 0.5, 0.5
+    )
 
     file_bytes_builder = rgbd.NativeFileBytesBuilder()
     file_bytes_builder.set_calibration(standard_calibration)
@@ -33,8 +33,9 @@ def main():
 
     yuv_frames = []
     depth_frames = []
-    with rgbd.NativeFrameMapper(file.attachments.camera_calibration,
-                                standard_calibration) as native_frame_mapper:
+    with rgbd.NativeFrameMapper(
+        file.attachments.camera_calibration, standard_calibration
+    ) as native_frame_mapper:
         with rgbd.NativeColorDecoder(rgbd.ColorCodecType.VP8) as native_color_decoder:
             for video_frame in file.video_frames:
                 yuv_frame = native_color_decoder.decode(video_frame.color_bytes)
@@ -58,13 +59,15 @@ def main():
     print(f"color_width: {color_width}, color_height: {color_height}")
     print(f"depth_width: {depth_width}, depth_height: {depth_height}")
 
-    file_bytes_builder.set_cover_png_bytes(yuv_frames[0].get_mkv_cover_sized().get_png_bytes())
+    file_bytes_builder.set_cover_png_bytes(
+        yuv_frames[0].get_mkv_cover_sized().get_png_bytes()
+    )
 
-    with rgbd.NativeColorEncoder(rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8,
-                                 color_width,
-                                 color_height,
-                                 30) as color_encoder, \
-            rgbd.NativeDepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500) as depth_encoder:
+    with rgbd.NativeColorEncoder(
+        rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8, color_width, color_height, 30
+    ) as color_encoder, rgbd.NativeDepthEncoder.create_tdc1_encoder(
+        depth_width, depth_height, 500
+    ) as depth_encoder:
         for index in range(len(file.video_frames)):
             print(f"index: {index}")
             video_frame = file.video_frames[index]
@@ -75,10 +78,11 @@ def main():
             color_bytes = color_encoder.encode(yuv_frame, keyframe)
             depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
 
-            file_bytes_builder.add_video_frame(rgbd.FileVideoFrame(video_frame.time_point_us,
-                                                                   keyframe,
-                                                                   color_bytes,
-                                                                   depth_bytes))
+            file_bytes_builder.add_video_frame(
+                rgbd.FileVideoFrame(
+                    video_frame.time_point_us, keyframe, color_bytes, depth_bytes
+                )
+            )
 
     for audio_frame in file.audio_frames:
         file_bytes_builder.add_audio_frame(audio_frame)

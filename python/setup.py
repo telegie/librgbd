@@ -54,10 +54,6 @@ setup(
     install_requires=["cffi", "numpy", "opencv-python", "pyglm"],
     setup_requires=["cffi"],
     # For files to be copied by package_data, they should exist inside the corresponding package's directory.
-    package_data={
-        "pyrgbd": PYRGBD_PACKAGE_DATA
-    },
-    cffi_modules=[
-        "./pyrgbd/_build_librgbd_ffi.py:ffi"
-    ]
+    package_data={"pyrgbd": PYRGBD_PACKAGE_DATA},
+    cffi_modules=["./pyrgbd/_build_librgbd_ffi.py:ffi"],
 )

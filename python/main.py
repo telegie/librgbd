@@ -27,7 +27,9 @@ def main():
     with rgbd.NativeColorDecoder(rgbd.ColorCodecType.VP8) as color_decoder:
         for video_frame in file.video_frames:
             yuv_frame = color_decoder.decode(video_frame.color_bytes)
-            color_array = rgbd.convert_yuv420_to_rgb(yuv_frame.y_channel, yuv_frame.u_channel, yuv_frame.v_channel)
+            color_array = rgbd.convert_yuv420_to_rgb(
+                yuv_frame.y_channel, yuv_frame.u_channel, yuv_frame.v_channel
+            )
             color_arrays.append(color_array)
 
     # Decode depth frames.
@@ -74,7 +76,10 @@ def main():
     direction_x_diffs = np.diff(direction_xs, axis=1)
     # cv2.imshow("Direction X Diff", np.absolute(direction_x_diffs * 10000000).astype(np.uint16))
     direction_x_diffs_delta = direction_x_diffs - np.mean(direction_x_diffs)
-    cv2.imshow("Direction X Diff Delta", np.absolute(direction_x_diffs_delta * 1000000000).astype(np.uint16))
+    cv2.imshow(
+        "Direction X Diff Delta",
+        np.absolute(direction_x_diffs_delta * 1000000000).astype(np.uint16),
+    )
 
     cv2.waitKey(0)
 

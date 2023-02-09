@@ -23,7 +23,7 @@ This library can read files exported from the Telegie and is based on librgbd.
 
 ## Check
 - mypy .
-- black pyrgbd
+- black .
 
 ## Deploy
 - python -m build --wheel

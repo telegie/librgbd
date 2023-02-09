@@ -11,8 +11,10 @@ def copy_librgbd():
     librgbd_root = here.parent
 
     if platform.system() == "Windows":
-        srcs = [f"{librgbd_root}/output/x64-windows/bin/rgbd.dll",
-                f"{librgbd_root}/output/x64-windows/bin/rgbd.lib"]
+        srcs = [
+            f"{librgbd_root}/output/x64-windows/bin/rgbd.dll",
+            f"{librgbd_root}/output/x64-windows/bin/rgbd.lib",
+        ]
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
             # srcs = [f"{librgbd_root}/output/arm64-mac/bin/librgbd.dylib"]
