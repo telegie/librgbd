@@ -10,11 +10,17 @@ class NativeDepthEncoder:
 
     @staticmethod
     def create_rvl_encoder(width: int, height: int):
-        return NativeDepthEncoder(lib.rgbd_depth_encoder_create_rvl_encoder(width, height))
+        return NativeDepthEncoder(
+            lib.rgbd_depth_encoder_create_rvl_encoder(width, height)
+        )
 
     @staticmethod
     def create_tdc1_encoder(width: int, height: int, depth_diff_multiplier: int):
-        return NativeDepthEncoder(lib.rgbd_depth_encoder_create_tdc1_encoder(width, height, depth_diff_multiplier))
+        return NativeDepthEncoder(
+            lib.rgbd_depth_encoder_create_tdc1_encoder(
+                width, height, depth_diff_multiplier
+            )
+        )
 
     def close(self):
         lib.rgbd_depth_encoder_dtor(self.ptr)
@@ -27,6 +33,7 @@ class NativeDepthEncoder:
 
     def encode(self, depth_values: np.ndarray, keyframe: bool) -> np.ndarray:
         return NativeByteArray(
-            lib.rgbd_depth_encoder_encode(self.ptr,
-                                          cast_np_array_to_pointer(depth_values),
-                                          keyframe)).to_np_array()
+            lib.rgbd_depth_encoder_encode(
+                self.ptr, cast_np_array_to_pointer(depth_values), keyframe
+            )
+        ).to_np_array()

@@ -22,7 +22,9 @@ class NativeFileBytesBuilder:
 
     def set_calibration(self, calibration: CameraCalibration):
         with calibration.to_native() as native_calibration:
-            lib.rgbd_file_bytes_builder_set_calibration(self.ptr, native_calibration.ptr)
+            lib.rgbd_file_bytes_builder_set_calibration(
+                self.ptr, native_calibration.ptr
+            )
 
     def set_depth_codec_type(self, depth_codec_type: DepthCodecType):
         lib.rgbd_file_bytes_builder_set_depth_codec_type(self.ptr, depth_codec_type)
@@ -31,17 +33,21 @@ class NativeFileBytesBuilder:
         lib.rgbd_file_bytes_builder_set_depth_unit(self.ptr, depth_unit)
 
     def set_cover_png_bytes(self, cover_png_bytes: np.ndarray):
-        lib.rgbd_file_bytes_builder_set_cover_png_bytes(self.ptr,
-                                                        cast_np_array_to_pointer(cover_png_bytes),
-                                                        cover_png_bytes.size)
+        lib.rgbd_file_bytes_builder_set_cover_png_bytes(
+            self.ptr, cast_np_array_to_pointer(cover_png_bytes), cover_png_bytes.size
+        )
 
     def add_video_frame(self, video_frame: FileVideoFrame):
         with video_frame.to_native() as native_video_frame:
-            lib.rgbd_file_bytes_builder_add_video_frame(self.ptr, native_video_frame.ptr)
+            lib.rgbd_file_bytes_builder_add_video_frame(
+                self.ptr, native_video_frame.ptr
+            )
 
     def add_audio_frame(self, audio_frame: FileAudioFrame):
         with audio_frame.to_native() as native_audio_frame:
-            lib.rgbd_file_bytes_builder_add_audio_frame(self.ptr, native_audio_frame.ptr)
+            lib.rgbd_file_bytes_builder_add_audio_frame(
+                self.ptr, native_audio_frame.ptr
+            )
 
     def add_imu_frame(self, imu_frame: FileIMUFrame):
         with imu_frame.to_native() as native_imu_frame:

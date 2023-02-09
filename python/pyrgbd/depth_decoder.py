@@ -24,9 +24,11 @@ class NativeDepthDecoder:
         self.close()
 
     def decode(self, depth_frame_bytes: np.ndarray) -> Int32Frame:
-        native_depth_frame_ptr = lib.rgbd_depth_decoder_decode(self.ptr,
-                                                               cast_np_array_to_pointer(depth_frame_bytes),
-                                                               depth_frame_bytes.size)
+        native_depth_frame_ptr = lib.rgbd_depth_decoder_decode(
+            self.ptr,
+            cast_np_array_to_pointer(depth_frame_bytes),
+            depth_frame_bytes.size,
+        )
         with NativeInt32Frame(native_depth_frame_ptr) as native_depth_frame:
             depth_frame = Int32Frame.from_native(native_depth_frame)
         return depth_frame

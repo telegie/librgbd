@@ -41,7 +41,7 @@ class Int32Frame:
         return Int32Frame(width, height, values)
 
     def to_native(self):
-        ptr = lib.rgbd_int32_frame_ctor(self.width,
-                                        self.height,
-                                        cast_np_array_to_pointer(self.values))
+        ptr = lib.rgbd_int32_frame_ctor(
+            self.width, self.height, cast_np_array_to_pointer(self.values)
+        )
         return NativeInt32Frame(ptr)

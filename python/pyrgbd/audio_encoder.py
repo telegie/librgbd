@@ -2,6 +2,7 @@ import numpy as np
 from ._librgbd_ffi import lib
 from .capi_containers import NativeByteArray
 
+
 class NativeAudioEncoderFrame:
     def __init__(self, ptr):
         self.ptr = ptr
@@ -19,7 +20,9 @@ class NativeAudioEncoderFrame:
         return lib.rgbd_audio_encoder_frame_get_packet_bytes_list_count(self.ptr)
 
     def get_packet_bytes(self, index: int) -> np.ndarray:
-        return NativeByteArray(lib.rgbd_audio_encoder_frame_get_packet_bytes(self.ptr, index)).to_np_array()
+        return NativeByteArray(
+            lib.rgbd_audio_encoder_frame_get_packet_bytes(self.ptr, index)
+        ).to_np_array()
 
 
 class NativeAudioEncoder:
@@ -36,7 +39,9 @@ class NativeAudioEncoder:
         self.close()
 
     def encode(self, pcm_samples_data, pcm_samples_size) -> NativeAudioEncoderFrame:
-        return NativeAudioEncoderFrame(lib.rgbd_audio_encoder_encode(self.ptr, pcm_samples_data, pcm_samples_size))
+        return NativeAudioEncoderFrame(
+            lib.rgbd_audio_encoder_encode(self.ptr, pcm_samples_data, pcm_samples_size)
+        )
 
     def flush(self) -> NativeAudioEncoderFrame:
         return NativeAudioEncoderFrame(lib.rgbd_audio_encoder_flush(self.ptr))

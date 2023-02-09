@@ -42,8 +42,14 @@ class NativeYuvFrame:
 
 
 class YuvFrame:
-    def __init__(self, width: int, height: int,
-                 y_channel: np.ndarray, u_channel: np.ndarray, v_channel: np.ndarray):
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        y_channel: np.ndarray,
+        u_channel: np.ndarray,
+        v_channel: np.ndarray,
+    ):
         self.width = width
         self.height = height
         self.y_channel = y_channel
@@ -66,11 +72,13 @@ class YuvFrame:
         return YuvFrame(width, height, y_channel, u_channel, v_channel)
 
     def to_native(self) -> NativeYuvFrame:
-        ptr = lib.rgbd_yuv_frame_ctor(self.width,
-                                      self.height,
-                                      cast_np_array_to_pointer(self.y_channel),
-                                      cast_np_array_to_pointer(self.u_channel),
-                                      cast_np_array_to_pointer(self.v_channel))
+        ptr = lib.rgbd_yuv_frame_ctor(
+            self.width,
+            self.height,
+            cast_np_array_to_pointer(self.y_channel),
+            cast_np_array_to_pointer(self.u_channel),
+            cast_np_array_to_pointer(self.v_channel),
+        )
         return NativeYuvFrame(ptr)
 
     def get_mkv_cover_sized(self):

@@ -16,4 +16,6 @@ class NativeFileParser:
         self.close()
 
     def parse(self, with_frames: bool, with_directions: bool) -> rgbd_file.NativeFile:
-        return rgbd_file.NativeFile(lib.rgbd_file_parser_parse(self.ptr, with_frames, with_directions))
+        return rgbd_file.NativeFile(
+            lib.rgbd_file_parser_parse(self.ptr, with_frames, with_directions)
+        )

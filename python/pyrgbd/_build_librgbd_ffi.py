@@ -21,12 +21,14 @@ elif platform.system() == "Linux":
 else:
     raise Exception(f"Unknown platform.system(): {platform.system()}")
 
-ffi.set_source('_librgbd_ffi',
-               r'#include <rgbd/rgbd_capi.h>',
-               include_dirs=[f"{librgbd_root}/include"],
-               libraries=["rgbd"],
-               library_dirs=[f"{here}"],
-               extra_link_args=extra_link_args)
+ffi.set_source(
+    "_librgbd_ffi",
+    r"#include <rgbd/rgbd_capi.h>",
+    include_dirs=[f"{librgbd_root}/include"],
+    libraries=["rgbd"],
+    library_dirs=[f"{here}"],
+    extra_link_args=extra_link_args,
+)
 
 
 # Use rgbd_capi.h except for the lines that cffi cannot handle.

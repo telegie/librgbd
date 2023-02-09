@@ -9,10 +9,9 @@ class NativeColorEncoder:
     def __init__(self, color_codec_type, width: int, height: int, framerate: int):
         # Setting lib.VP8 assuming since it is the only codec for now.
         # Fix this later when a codec gets added.
-        self.ptr = lib.rgbd_color_encoder_ctor(color_codec_type,
-                                               width,
-                                               height,
-                                               framerate)
+        self.ptr = lib.rgbd_color_encoder_ctor(
+            color_codec_type, width, height, framerate
+        )
 
     def close(self):
         lib.rgbd_color_encoder_dtor(self.ptr)
@@ -25,6 +24,6 @@ class NativeColorEncoder:
 
     def encode(self, yuv_frame: YuvFrame, keyframe) -> np.ndarray:
         with yuv_frame.to_native() as native_yuv_frame:
-            return NativeByteArray(lib.rgbd_color_encoder_encode(self.ptr,
-                                                                 native_yuv_frame.ptr,
-                                                                 keyframe)).to_np_array()
+            return NativeByteArray(
+                lib.rgbd_color_encoder_encode(self.ptr, native_yuv_frame.ptr, keyframe)
+            ).to_np_array()

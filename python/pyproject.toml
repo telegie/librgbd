@@ -21,6 +21,7 @@ build = "^0.8.0"
 types-cffi = "^1.15.1.4"
 mypy = "^0.991"
 types-requests = "^2.28.11.8"
+black = "^23.1.0"
 
 [build-system]
 requires = ["setuptools"]

@@ -83,10 +83,14 @@ class NativeFileTracks:
         self.close()
 
     def get_color_track(self) -> NativeFileColorVideoTrack:
-        return NativeFileColorVideoTrack(lib.rgbd_file_tracks_get_color_track(self.ptr), False)
+        return NativeFileColorVideoTrack(
+            lib.rgbd_file_tracks_get_color_track(self.ptr), False
+        )
 
     def get_depth_track(self) -> NativeFileDepthVideoTrack:
-        return NativeFileDepthVideoTrack(lib.rgbd_file_tracks_get_depth_track(self.ptr), False)
+        return NativeFileDepthVideoTrack(
+            lib.rgbd_file_tracks_get_depth_track(self.ptr), False
+        )
 
 
 class NativeFileAttachments:
@@ -105,7 +109,9 @@ class NativeFileAttachments:
         self.close()
 
     def get_camera_calibration(self) -> NativeCameraCalibration:
-        return NativeCameraCalibration.create(lib.rgbd_file_attachments_get_camera_calibration(self.ptr), False)
+        return NativeCameraCalibration.create(
+            lib.rgbd_file_attachments_get_camera_calibration(self.ptr), False
+        )
 
 
 class NativeFileVideoFrame:
@@ -288,13 +294,17 @@ class NativeFile:
         return lib.rgbd_file_get_video_frame_count(self.ptr)
 
     def get_video_frame(self, index: int) -> NativeFileVideoFrame:
-        return NativeFileVideoFrame(lib.rgbd_file_get_video_frame(self.ptr, index), False)
+        return NativeFileVideoFrame(
+            lib.rgbd_file_get_video_frame(self.ptr, index), False
+        )
 
     def get_audio_frame_count(self) -> int:
         return lib.rgbd_file_get_audio_frame_count(self.ptr)
 
     def get_audio_frame(self, index: int) -> NativeFileAudioFrame:
-        return NativeFileAudioFrame(lib.rgbd_file_get_audio_frame(self.ptr, index), False)
+        return NativeFileAudioFrame(
+            lib.rgbd_file_get_audio_frame(self.ptr, index), False
+        )
 
     def get_imu_frame_count(self) -> int:
         return lib.rgbd_file_get_imu_frame_count(self.ptr)
@@ -340,14 +350,18 @@ class FileVideoTrack:
 
 
 class FileColorVideoTrack(FileVideoTrack):
-    def __init__(self, track_number: int, width: int, height: int, codec: ColorCodecType):
+    def __init__(
+        self, track_number: int, width: int, height: int, codec: ColorCodecType
+    ):
         super().__init__(track_number, width, height)
         self.codec = codec
 
     @classmethod
     def from_native(cls, native_file_video_track: NativeFileVideoTrack):
         if not isinstance(native_file_video_track, NativeFileColorVideoTrack):
-            raise Exception("Found a non-NativeFileColorVideoTrack in FileColorVideoTrack.from_native")
+            raise Exception(
+                "Found a non-NativeFileColorVideoTrack in FileColorVideoTrack.from_native"
+            )
         track_number = native_file_video_track.get_track_number()
         width = native_file_video_track.get_width()
         height = native_file_video_track.get_height()
@@ -356,7 +370,14 @@ class FileColorVideoTrack(FileVideoTrack):
 
 
 class FileDepthVideoTrack(FileVideoTrack):
-    def __init__(self, track_number: int, width: int, height: int, codec: DepthCodecType, depth_unit: float):
+    def __init__(
+        self,
+        track_number: int,
+        width: int,
+        height: int,
+        codec: DepthCodecType,
+        depth_unit: float,
+    ):
         super().__init__(track_number, width, height)
         self.codec = codec
         self.depth_unit = depth_unit
@@ -364,7 +385,9 @@ class FileDepthVideoTrack(FileVideoTrack):
     @classmethod
     def from_native(cls, native_file_video_track: NativeFileVideoTrack):
         if not isinstance(native_file_video_track, NativeFileDepthVideoTrack):
-            raise Exception("Found a non-NativeFileDepthVideoTrack in FileDepthVideoTrack.from_native")
+            raise Exception(
+                "Found a non-NativeFileDepthVideoTrack in FileDepthVideoTrack.from_native"
+            )
         track_number = native_file_video_track.get_track_number()
         width = native_file_video_track.get_width()
         height = native_file_video_track.get_height()
@@ -389,7 +412,9 @@ class FileAttachments:
     @classmethod
     def from_native(cls, native_file_attachments: NativeFileAttachments):
         with native_file_attachments.get_camera_calibration() as native_camera_calibration:
-            camera_calibration = CameraCalibration.from_native(native_camera_calibration)
+            camera_calibration = CameraCalibration.from_native(
+                native_camera_calibration
+            )
         return FileAttachments(camera_calibration)
 
 
@@ -408,8 +433,13 @@ class FileTracks:
 
 
 class FileVideoFrame:
-    def __init__(self, time_point_us: int, keyframe: bool,
-                 color_bytes: np.ndarray, depth_bytes: np.ndarray):
+    def __init__(
+        self,
+        time_point_us: int,
+        keyframe: bool,
+        color_bytes: np.ndarray,
+        depth_bytes: np.ndarray,
+    ):
         self.time_point_us = time_point_us
         self.keyframe = keyframe
         self.color_bytes = color_bytes
@@ -423,16 +453,17 @@ class FileVideoFrame:
             color_bytes = color_bytes.to_np_array()
         with native_file_video_frame.get_depth_bytes() as depth_bytes:
             depth_bytes = depth_bytes.to_np_array()
-        return FileVideoFrame(time_point_us, keyframe,
-                              color_bytes, depth_bytes)
+        return FileVideoFrame(time_point_us, keyframe, color_bytes, depth_bytes)
 
     def to_native(self):
-        ptr = lib.rgbd_file_video_frame_ctor(self.time_point_us,
-                                             self.keyframe,
-                                             cast_np_array_to_pointer(self.color_bytes),
-                                             len(self.color_bytes),
-                                             cast_np_array_to_pointer(self.depth_bytes),
-                                             len(self.depth_bytes))
+        ptr = lib.rgbd_file_video_frame_ctor(
+            self.time_point_us,
+            self.keyframe,
+            cast_np_array_to_pointer(self.color_bytes),
+            len(self.color_bytes),
+            cast_np_array_to_pointer(self.depth_bytes),
+            len(self.depth_bytes),
+        )
         return NativeFileVideoFrame(ptr, True)
 
 
@@ -449,16 +480,21 @@ class FileAudioFrame:
         return FileAudioFrame(time_point_us, bytes)
 
     def to_native(self):
-        ptr = lib.rgbd_file_audio_frame_ctor(self.time_point_us,
-                                             cast_np_array_to_pointer(self.bytes),
-                                             len(self.bytes))
+        ptr = lib.rgbd_file_audio_frame_ctor(
+            self.time_point_us, cast_np_array_to_pointer(self.bytes), len(self.bytes)
+        )
         return NativeFileAudioFrame(ptr, True)
 
 
 class FileIMUFrame:
-    def __init__(self, time_point_us: int,
-                 acceleration: glm.vec3, rotation_rate: glm.vec3,
-                 magnetic_field: glm.vec3, gravity: glm.vec3):
+    def __init__(
+        self,
+        time_point_us: int,
+        acceleration: glm.vec3,
+        rotation_rate: glm.vec3,
+        magnetic_field: glm.vec3,
+        gravity: glm.vec3,
+    ):
         self.time_point_us = time_point_us
         self.acceleration = acceleration
         self.rotation_rate = rotation_rate
@@ -489,27 +525,37 @@ class FileIMUFrame:
         gravity_z = native_file_imu_frame.get_gravity_z()
         gravity = glm.vec3(gravity_x, gravity_y, gravity_z)
 
-        return FileIMUFrame(time_point_us, acceleration, rotation_rate, magnetic_field, gravity)
+        return FileIMUFrame(
+            time_point_us, acceleration, rotation_rate, magnetic_field, gravity
+        )
 
     def to_native(self):
-        ptr = lib.rgbd_file_imu_frame_ctor(self.time_point_us,
-                                           self.acceleration.x,
-                                           self.acceleration.y,
-                                           self.acceleration.z,
-                                           self.rotation_rate.x,
-                                           self.rotation_rate.y,
-                                           self.rotation_rate.z,
-                                           self.magnetic_field.x,
-                                           self.magnetic_field.y,
-                                           self.magnetic_field.z,
-                                           self.gravity.x,
-                                           self.gravity.y,
-                                           self.gravity.z)
+        ptr = lib.rgbd_file_imu_frame_ctor(
+            self.time_point_us,
+            self.acceleration.x,
+            self.acceleration.y,
+            self.acceleration.z,
+            self.rotation_rate.x,
+            self.rotation_rate.y,
+            self.rotation_rate.z,
+            self.magnetic_field.x,
+            self.magnetic_field.y,
+            self.magnetic_field.z,
+            self.gravity.x,
+            self.gravity.y,
+            self.gravity.z,
+        )
         return NativeFileIMUFrame(ptr, True)
 
 
 class FileTRSFrame:
-    def __init__(self, time_point_us: int, translation: glm.vec3, rotation: glm.quat, scale: glm.vec3):
+    def __init__(
+        self,
+        time_point_us: int,
+        translation: glm.vec3,
+        rotation: glm.quat,
+        scale: glm.vec3,
+    ):
         self.time_point_us = time_point_us
         self.translation = translation
         self.rotation = rotation
@@ -537,25 +583,34 @@ class FileTRSFrame:
         return FileTRSFrame(time_point_us, translation, rotation, scale)
 
     def to_native(self):
-        ptr = lib.rgbd_file_trs_frame_ctor(self.time_point_us,
-                                           self.translation.x,
-                                           self.translation.y,
-                                           self.translation.z,
-                                           self.rotation.w,
-                                           self.rotation.x,
-                                           self.rotation.y,
-                                           self.rotation.z,
-                                           self.scale.x,
-                                           self.scale.y,
-                                           self.scale.z)
+        ptr = lib.rgbd_file_trs_frame_ctor(
+            self.time_point_us,
+            self.translation.x,
+            self.translation.y,
+            self.translation.z,
+            self.rotation.w,
+            self.rotation.x,
+            self.rotation.y,
+            self.rotation.z,
+            self.scale.x,
+            self.scale.y,
+            self.scale.z,
+        )
         return NativeFileTRSFrame(ptr, True)
 
 
 class File:
-    def __init__(self, info: FileInfo, tracks: FileTracks, attachments: FileAttachments,
-                 video_frames: list[FileVideoFrame], audio_frames: list[FileAudioFrame],
-                 imu_frames: list[FileIMUFrame], trs_frames: list[FileTRSFrame],
-                 direction_table: Optional[DirectionTable]):
+    def __init__(
+        self,
+        info: FileInfo,
+        tracks: FileTracks,
+        attachments: FileAttachments,
+        video_frames: list[FileVideoFrame],
+        audio_frames: list[FileAudioFrame],
+        imu_frames: list[FileIMUFrame],
+        trs_frames: list[FileTRSFrame],
+        direction_table: Optional[DirectionTable],
+    ):
         self.info = info
         self.tracks = tracks
         self.attachments = attachments
@@ -599,10 +654,21 @@ class File:
                 trs_frames.append(FileTRSFrame.from_native(native_file_trs_frame))
 
         if native_file.has_direction_table():
-            direction_table = DirectionTable.from_native(native_file.get_direction_table())
+            direction_table = DirectionTable.from_native(
+                native_file.get_direction_table()
+            )
         else:
             direction_table = None
-        return File(info, tracks, attachments, video_frames, audio_frames, imu_frames, trs_frames, direction_table)
+        return File(
+            info,
+            tracks,
+            attachments,
+            video_frames,
+            audio_frames,
+            imu_frames,
+            trs_frames,
+            direction_table,
+        )
 
 
 def get_calibration_directions(native_file: NativeFile) -> np.ndarray:
@@ -617,7 +683,9 @@ def get_calibration_directions(native_file: NativeFile) -> np.ndarray:
                 v = row / depth_height
                 for col in range(depth_width):
                     u = col / depth_width
-                    with native_camera_calibration.get_direction(u, v) as native_direction:
+                    with native_camera_calibration.get_direction(
+                        u, v
+                    ) as native_direction:
                         directions.append(native_direction.to_np_array())
 
     return np.reshape(directions, (depth_height, depth_width, 3))

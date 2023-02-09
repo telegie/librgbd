@@ -25,9 +25,11 @@ class NativeColorDecoder:
         self.close()
 
     def decode(self, color_frame_bytes: np.ndarray) -> YuvFrame:
-        native_yuv_frame_ptr = lib.rgbd_color_decoder_decode(self.ptr,
-                                                             cast_np_array_to_pointer(color_frame_bytes),
-                                                             color_frame_bytes.size)
+        native_yuv_frame_ptr = lib.rgbd_color_decoder_decode(
+            self.ptr,
+            cast_np_array_to_pointer(color_frame_bytes),
+            color_frame_bytes.size,
+        )
         with NativeYuvFrame(native_yuv_frame_ptr) as native_yuv_frame:
             yuv_frame = YuvFrame.from_native(native_yuv_frame)
         return yuv_frame
