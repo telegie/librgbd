@@ -25,7 +25,7 @@ public:
              vector<uint8_t>&& u_channel,
              vector<uint8_t>&& v_channel) noexcept;
     YuvFrame(AVFrameHandle& av_frame);
-    static YuvFrame createFromAzureKinectYuy2Buffer(
+    static unique_ptr<YuvFrame> createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
     YuvFrame getDownsampled(int downsampling_factor) const;
     unique_ptr<YuvFrame> getMkvCoverSized() const;
@@ -64,14 +64,14 @@ public:
     }
 
 private:
-    static YuvFrame createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,
-                                                                int width,
-                                                                int height,
-                                                                int stride) noexcept;
-    static YuvFrame createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer,
-                                                            int width,
-                                                            int height,
-                                                            int stride) noexcept;
+    static unique_ptr<YuvFrame> createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,
+                                                                            int width,
+                                                                            int height,
+                                                                            int stride) noexcept;
+    static unique_ptr<YuvFrame> createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer,
+                                                                        int width,
+                                                                        int height,
+                                                                        int stride) noexcept;
 
 private:
     int width_;

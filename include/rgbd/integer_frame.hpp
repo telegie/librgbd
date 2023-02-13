@@ -20,7 +20,7 @@ public:
     {
         Expects(values.size() == (width * height));
     }
-    IntegerFrame getDownsampled(int downsampling_factor) const
+    unique_ptr<IntegerFrame> getDownsampled(int downsampling_factor) const
     {
         int downsampled_width{width_ / downsampling_factor};
         int downsampled_height{height_ / downsampling_factor};
@@ -34,7 +34,7 @@ public:
                 index += downsampling_factor;
             }
         }
-        return IntegerFrame<T>{downsampled_width, downsampled_height, downsampled_values};
+        return std::make_unique<IntegerFrame<T>>(downsampled_width, downsampled_height, downsampled_values);
     }
     int width() const noexcept
     {
