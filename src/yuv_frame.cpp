@@ -82,7 +82,7 @@ YuvFrame::YuvFrame(AVFrameHandle& av_frame)
         av_frame->data[2], av_frame->linesize[2], width_ / 2, height_ / 2);
 }
 
-YuvFrame YuvFrame::createFromAzureKinectYuy2Buffer(const uint8_t* buffer,
+unique_ptr<YuvFrame> YuvFrame::createFromAzureKinectYuy2Buffer(const uint8_t* buffer,
                                                    const int width,
                                                    const int height,
                                                    const int stride_bytes,
@@ -219,10 +219,8 @@ Bytes YuvFrame::getPNGBytes() const
     return PNGUtils::write(width_, height_, r_channel, g_channel, b_channel, a_channel);
 }
 
-YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* buffer,
-                                                               const int width,
-                                                               const int height,
-                                                               const int stride_bytes) noexcept
+unique_ptr<YuvFrame> YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(
+    const uint8_t* buffer, const int width, const int height, const int stride_bytes) noexcept
 {
     // Sizes assume Kinect runs in ColorImageFormat_Yuy2.
     vector<uint8_t> y_channel(gsl::narrow<size_t>(width * height));
@@ -254,13 +252,11 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferOriginalSize(const uint8_t* bu
         }
     }
 
-    return YuvFrame(width, height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
+    return std::make_unique<YuvFrame>(width, height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
 }
 
-YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer,
-                                                           const int width,
-                                                           const int height,
-                                                           const int stride_bytes) noexcept
+unique_ptr<YuvFrame> YuvFrame::createFromAzureKinectYuy2BufferHalfSize(
+    const uint8_t* buffer, const int width, const int height, const int stride_bytes) noexcept
 {
     const int half_width{width / 2};
     const int half_height{height / 2};
@@ -294,7 +290,7 @@ YuvFrame YuvFrame::createFromAzureKinectYuy2BufferHalfSize(const uint8_t* buffer
         }
     }
 
-    return YuvFrame(
+    return std::make_unique<YuvFrame>(
         half_width, half_height, std::move(y_channel), std::move(u_channel), std::move(v_channel));
 }
 } // namespace rgbd
