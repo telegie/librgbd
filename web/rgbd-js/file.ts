@@ -1,6 +1,5 @@
 import { CameraCalibration, NativeCameraCalibration } from './camera_calibration';
 import { NativeByteArray, NativeString } from './capi_containers';
-import { Plane } from './plane';
 import { Vector3 } from './vector3';
 import { Quaternion } from './quaternion';
 import { DepthCodecType } from './depth_decoder';
