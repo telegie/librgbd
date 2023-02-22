@@ -40,19 +40,22 @@ glm::vec3 DirectionTable::getDirection(const glm::vec2& uv) const
     float row{uv.y * (height_ - 1)};
 
     int left_col{static_cast<int>(std::floor(col))};
+    int right_col{left_col + 1};
     int top_row{static_cast<int>(std::floor(row))};
+    int bottom_row{top_row + 1};
 
-    int left_top_index{left_col + top_row * width_};
-    glm::vec3 left_top_direction{directions_[left_top_index]};
-    glm::vec3 right_top_direction{directions_[left_top_index + 1]};
-    glm::vec3 left_bottom_direction{directions_[left_top_index + width_]};
+    glm::vec3 left_top{directions_[left_col + top_row * width_]};
+    glm::vec3 right_top{directions_[right_col + top_row * width_]};
+    glm::vec3 left_bottom{directions_[left_col + bottom_row * width_]};
+    glm::vec3 right_bottom{directions_[right_col + bottom_row * width_]};
 
-    glm::vec3 horizontal_diff{right_top_direction - left_top_direction};
-    glm::vec3 vertical_diff{right_top_direction - left_top_direction};
-    float col_remainder = col - left_col;
-    float row_remainder = row - top_row;
-
-    glm::vec3 direction{left_top_direction + horizontal_diff * col_remainder + vertical_diff * row_remainder};
+    // Bilinear interpolation
+    // ref: https://en.wikipedia.org/wiki/Bilinear_interpolation
+    // ref: https://math.stackexchange.com/questions/3230376/interpolate-between-4-points-on-a-2d-plane
+    float x = col - left_col; // col_remainder but using x to match the formula in above ref
+    float y = row - top_row; // row_remainder but using y to match the formula in above ref
+    glm::vec3 direction{(1.0f - x) * (1.0f - y) * left_top + x * (1.0f - y) * right_top +
+                        (1.0f - x) * y * left_bottom + x * y * right_bottom};
     return direction;
 }
 } // namespace rgbd
