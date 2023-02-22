@@ -305,7 +305,6 @@ class KinectCameraCalibration(CameraCalibration):
             native_camera_calibration.get_max_radius_for_projection()
         )
         return KinectCameraCalibration(
-            camera_device_type,
             color_width,
             color_height,
             depth_width,
