@@ -4,6 +4,7 @@ import { Vector3 } from './vector3';
 import { Quaternion } from './quaternion';
 import { DepthCodecType } from './depth_decoder';
 import { ColorCodecType } from './color_decoder';
+import { DirectionTable, NativeDirectionTable } from './direction_table';
 
 export class FileInfo {
   timecodeScaleNs: number;
@@ -326,6 +327,7 @@ export class File {
   audioFrames: FileAudioFrame[];
   imuFrames: FileIMUFrame[];
   trsFrames: FileTRSFrame[];
+  directionTable: DirectionTable | null;
 
   constructor(info: FileInfo,
               tracks: FileTracks,
@@ -333,7 +335,8 @@ export class File {
               videoFrames: FileVideoFrame[],
               audioFrames: FileAudioFrame[],
               imuFrames: FileIMUFrame[],
-              trsFrames: FileTRSFrame[]) {
+              trsFrames: FileTRSFrame[],
+              directionTable: DirectionTable | null) {
     this.info = info;
     this.tracks = tracks;
     this.attachments = attachments;
@@ -341,6 +344,7 @@ export class File {
     this.audioFrames = audioFrames;
     this.imuFrames = imuFrames;
     this.trsFrames = trsFrames;
+    this.directionTable = directionTable;
   }
 
   static fromNative(nativeFile: NativeFile) {
@@ -387,14 +391,21 @@ export class File {
       trsFrames.push(FileTRSFrame.fromNative(nativeTRSFrame));
       nativeTRSFrame.close();
     }
+
+    let directionTable: DirectionTable | null = null;
+    if (nativeFile.hasDirectionTable()) {
+      const nativeDirectionTable = nativeFile.getDirectionTable();
+      directionTable = DirectionTable.fromNative(nativeDirectionTable);
+    }
     
     return new File(info, tracks, attachments,
-      videoFrames, audioFrames, imuFrames, trsFrames);
+      videoFrames, audioFrames, imuFrames, trsFrames, directionTable);
   }
 
+  // This function does a shallow copy.
   clone(): File {
     return new File(this.info, this.tracks, this.attachments,
-      this.videoFrames, this.audioFrames, this.imuFrames, this.trsFrames);
+      this.videoFrames, this.audioFrames, this.imuFrames, this.trsFrames, this.directionTable);
   }
 }
 
@@ -801,5 +812,14 @@ export class NativeFile {
   getTRSFrame(index: number): NativeFileTRSFrame {
     const imuFramePtr = this.wasmModule.ccall('rgbd_file_get_trs_frame', 'number', ['number', 'number'], [this.ptr, index]);
     return new NativeFileTRSFrame(this.wasmModule, imuFramePtr, false);
+  }
+
+  hasDirectionTable(): boolean {
+    return this.wasmModule.ccall('rgbd_file_has_direction_table', 'boolean', ['number'], [this.ptr]);
+  }
+
+  getDirectionTable(): NativeDirectionTable {
+    const directionTablePtr = this.wasmModule.ccall('rgbd_file_get_direction_table', 'number', ['number'], [this.ptr]);
+    return new NativeDirectionTable(this.wasmModule, directionTablePtr, false);
   }
 }

@@ -1,6 +1,5 @@
 import { YuvFrame } from  "./yuv_frame";
 import { Int32Frame } from  "./integer_frame";
-import { Plane } from  "./plane";
 
 export class VideoFrame {
   timePointUs: number;

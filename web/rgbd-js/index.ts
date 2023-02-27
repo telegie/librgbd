@@ -7,6 +7,7 @@ export * from './color_decoder';
 export * from './color_encoder';
 export * from './depth_decoder';
 export * from './depth_encoder';
+export * from './direction_table';
 export * from './file_bytes_builder';
 export * from './file_parser';
 export * from './file';

@@ -12,4 +12,8 @@ export class Vector3 {
   multiply(factor: number): Vector3 {
     return new Vector3(this.x * factor, this.y * factor, this.z * factor);
   }
+
+  dot(v: Vector3): number {
+    return this.x * v.x + this.y * v.y + this.z * v.z;
+  }
 }
