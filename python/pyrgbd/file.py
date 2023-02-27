@@ -676,23 +676,3 @@ class File:
             trs_frames,
             direction_table,
         )
-
-
-def get_calibration_directions(native_file: NativeFile) -> np.ndarray:
-    # Get directions array from the native_camera_calibration.
-    # native_camera_calibration should be GC'ed here while directions will be needed.
-    directions = []
-    with native_file.get_attachments() as native_attachments:
-        with native_attachments.get_camera_calibration() as native_camera_calibration:
-            depth_width = native_camera_calibration.get_depth_width()
-            depth_height = native_camera_calibration.get_depth_height()
-            for row in range(depth_height):
-                v = row / depth_height
-                for col in range(depth_width):
-                    u = col / depth_width
-                    with native_camera_calibration.get_direction(
-                        u, v
-                    ) as native_direction:
-                        directions.append(native_direction.to_np_array())
-
-    return np.reshape(directions, (depth_height, depth_width, 3))
