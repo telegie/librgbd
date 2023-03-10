@@ -738,7 +738,7 @@ export class NativeFileTRSFrame {
     const x  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_x', 'number', ['number'], [this.ptr]);
     const y  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_y', 'number', ['number'], [this.ptr]);
     const z  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_z', 'number', ['number'], [this.ptr]);
-    return new Quaternion(w, x, y, z);
+    return new Quaternion(x, y, z, w);
   }
 
   getScale(): Vector3 {
