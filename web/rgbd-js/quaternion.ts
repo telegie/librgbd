@@ -10,4 +10,8 @@ export class Quaternion {
     this.y = y;
     this.z = z;
   }
+
+  static identity() {
+    return new Quaternion(1, 0, 0, 0);
+  }
 }
