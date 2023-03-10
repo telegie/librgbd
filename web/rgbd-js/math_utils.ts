@@ -1,6 +1,5 @@
-import { Quaternion } from "./quaternion"
-import { Vector3 } from "./vector3"
-import { NativeQuaternion } from "./capi_containers"
+import { Quaternion, Vector3 } from "@math.gl/core";
+import { NativeQuaternion, NativeVector3 } from "./capi_containers"
 
 export class MathUtils {
   static applyRotationRateAndGravityToRotation(wasmModule: any,
@@ -8,9 +7,9 @@ export class MathUtils {
                                                deltaTimeSec: number,
                                                rotationRate: Vector3,
                                                gravity: Vector3): Quaternion {
-    const nativeRotation = rotation.toNative(wasmModule);
-    const nativeRotationRate = rotationRate.toNative(wasmModule);
-    const nativeGravity = gravity.toNative(wasmModule);
+    const nativeRotation = NativeQuaternion.fromMathGL(wasmModule, rotation);
+    const nativeRotationRate = NativeVector3.fromMathGL(wasmModule, rotationRate);
+    const nativeGravity = NativeVector3.fromMathGL(wasmModule, gravity);
     const nativeNewRotationPtr = wasmModule.ccall('rgbd_math_utils_apply_rotation_rate_and_gravity_to_rotation',
                                                   'number',
                                                   ['number', 'number', 'number', 'number'],
@@ -20,7 +19,7 @@ export class MathUtils {
     nativeGravity.close();
 
     const nativeNewRotation = new NativeQuaternion(wasmModule, nativeNewRotationPtr, true);
-    const newRotation = Quaternion.fromNative(nativeNewRotation);
+    const newRotation = nativeNewRotation.toMathGL();
     nativeNewRotation.close();
     return newRotation;
   }

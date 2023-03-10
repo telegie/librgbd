@@ -1,10 +1,9 @@
 import { CameraCalibration, NativeCameraCalibration } from './camera_calibration';
 import { NativeByteArray, NativeString } from './capi_containers';
-import { Vector3 } from './vector3';
-import { Quaternion } from './quaternion';
 import { DepthCodecType } from './depth_decoder';
 import { ColorCodecType } from './color_decoder';
 import { DirectionTable, NativeDirectionTable } from './direction_table';
+import { Quaternion, Vector3 } from '@math.gl/core';
 
 export class FileInfo {
   timecodeScaleNs: number;

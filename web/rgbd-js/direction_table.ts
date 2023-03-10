@@ -1,4 +1,4 @@
-import { Vector3 } from './vector3';
+import { Vector3 } from "@math.gl/core";
 
 export class NativeDirectionTable {
   wasmModule: any;
