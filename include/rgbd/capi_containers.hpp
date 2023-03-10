@@ -10,6 +10,8 @@ namespace rgbd
 using NativeByteArray = Bytes;
 using NativeFloatArray = vector<float>;
 using NativeInt32Array = vector<int32_t>;
+using NativeQuaternion = glm::quat;
 using NativeUInt8Array = vector<uint8_t>;
 using NativeString = string;
+using NativeVector3 = glm::vec3;
 }

@@ -69,6 +69,39 @@ export class NativeInt32Array {
   }
 }
 
+export class NativeQuaternion {
+  wasmModule: any;
+  ptr: number;
+  owner: boolean;
+
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
+    this.wasmModule = wasmModule;
+    this.ptr = ptr;
+    this.owner = owner;
+  }
+
+  close() {
+    if (this.owner)
+      this.wasmModule.ccall('rgbd_native_quaternion_dtor', null, ['number'], [this.ptr]);
+  }
+
+  getW(): number {
+    return this.wasmModule.ccall('rgbd_native_quaternion_get_w', 'number', ['number'], [this.ptr]);
+  }
+
+  getX(): number {
+    return this.wasmModule.ccall('rgbd_native_quaternion_get_x', 'number', ['number'], [this.ptr]);
+  }
+
+  getY(): number {
+    return this.wasmModule.ccall('rgbd_native_quaternion_get_y', 'number', ['number'], [this.ptr]);
+  }
+
+  getZ(): number {
+    return this.wasmModule.ccall('rgbd_native_quaternion_get_z', 'number', ['number'], [this.ptr]);
+  }
+}
+
 export class NativeUInt8Array {
   wasmModule: any;
   ptr: number;
@@ -107,5 +140,34 @@ export class NativeString {
   toString(): string {
     const cStrPtr = this.wasmModule.ccall('rgbd_native_string_get_c_str', 'number', ['number'], [this.ptr]);
     return this.wasmModule.UTF8ToString(cStrPtr);
+  }
+}
+
+export class NativeVector3 {
+  wasmModule: any;
+  ptr: number;
+  owner: boolean;
+
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
+    this.wasmModule = wasmModule;
+    this.ptr = ptr;
+    this.owner = owner;
+  }
+
+  close() {
+    if (this.owner)
+      this.wasmModule.ccall('rgbd_native_vector3_dtor', null, ['number'], [this.ptr]);
+  }
+
+  getX(): number {
+    return this.wasmModule.ccall('rgbd_native_vector3_get_x', 'number', ['number'], [this.ptr]);
+  }
+
+  getY(): number {
+    return this.wasmModule.ccall('rgbd_native_vector3_get_y', 'number', ['number'], [this.ptr]);
+  }
+
+  getZ(): number {
+    return this.wasmModule.ccall('rgbd_native_vector3_get_z', 'number', ['number'], [this.ptr]);
   }
 }

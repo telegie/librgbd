@@ -102,6 +102,31 @@ size_t rgbd_native_int32_array_get_size(void* ptr)
     return static_cast<NativeInt32Array*>(ptr)->size();
 }
 
+void rgbd_native_quaternion_dtor(void* ptr)
+{
+    delete static_cast<NativeQuaternion*>(ptr);
+}
+
+float rgbd_native_quaternion_get_w(void* ptr)
+{
+    return static_cast<NativeQuaternion*>(ptr)->w;
+}
+
+float rgbd_native_quaternion_get_x(void* ptr)
+{
+    return static_cast<NativeQuaternion*>(ptr)->x;
+}
+
+float rgbd_native_quaternion_get_y(void* ptr)
+{
+    return static_cast<NativeQuaternion*>(ptr)->y;
+}
+
+float rgbd_native_quaternion_get_z(void* ptr)
+{
+    return static_cast<NativeQuaternion*>(ptr)->z;
+}
+
 void rgbd_native_uint8_array_dtor(void* ptr)
 {
     delete static_cast<NativeUInt8Array*>(ptr);
@@ -125,6 +150,26 @@ void rgbd_native_string_dtor(void* ptr)
 const char* rgbd_native_string_get_c_str(void* ptr)
 {
     return static_cast<NativeString*>(ptr)->c_str();
+}
+
+void rgbd_native_vector3_dtor(void* ptr)
+{
+    delete static_cast<NativeVector3*>(ptr);
+}
+
+float rgbd_native_vector3_get_x(void* ptr)
+{
+    return static_cast<NativeVector3*>(ptr)->x;
+}
+
+float rgbd_native_vector3_get_y(void* ptr)
+{
+    return static_cast<NativeVector3*>(ptr)->y;
+}
+
+float rgbd_native_vector3_get_z(void* ptr)
+{
+    return static_cast<NativeVector3*>(ptr)->z;
 }
 //////// END CAPI CONTAINER CLASSES ////////
 
@@ -1330,8 +1375,7 @@ void* rgbd_math_utils_compute_gravity_compensating_euler_angles(float gravity_x,
 {
     glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
     glm::vec3 euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
-    vector<float> euler_angle_values{euler_angles.x, euler_angles.y, euler_angles.z};
-    return new rgbd::NativeFloatArray(std::move(euler_angle_values));
+    return new NativeVector3{euler_angles};
 }
 
 void* rgbd_math_utils_compute_gravity_compensating_rotation(float gravity_x,
@@ -1340,8 +1384,7 @@ void* rgbd_math_utils_compute_gravity_compensating_rotation(float gravity_x,
 {
     glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
     glm::quat rotation{MathUtils::computeGravityCompensatingRotation(gravity)};
-    vector<float> rotation_values{rotation.w, rotation.x, rotation.y, rotation.z};
-    return new rgbd::NativeFloatArray(std::move(rotation_values));
+    return new NativeQuaternion(rotation);
 }
 
 void* rgbd_math_utils_rotate_vector3_by_quaternion(float quat_w,
@@ -1355,8 +1398,7 @@ void* rgbd_math_utils_rotate_vector3_by_quaternion(float quat_w,
     glm::quat quat{quat_w, quat_x, quat_y, quat_z};
     glm::vec3 vec3{vec3_x, vec3_y, vec3_z};
     glm::vec3 rotated{MathUtils::rotateVector3ByQuaternion(quat, vec3)};
-    vector<float> rotated_values{rotated.x, rotated.y, rotated.z};
-    return new rgbd::NativeFloatArray(std::move(rotated_values));
+    return new NativeVector3(rotated);
 }
 
 void* rgbd_math_utils_convert_euler_angles_to_quaternion(float eular_angles_x,
@@ -1365,8 +1407,7 @@ void* rgbd_math_utils_convert_euler_angles_to_quaternion(float eular_angles_x,
 {
     glm::vec3 euler_angles{eular_angles_x, eular_angles_y, eular_angles_z};
     glm::quat rotation{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
-    vector<float> rotation_values{rotation.w, rotation.x, rotation.y, rotation.z};
-    return new rgbd::NativeFloatArray(std::move(rotation_values));
+    return new NativeQuaternion(rotation);
 }
 
 void* rgbd_math_utils_multiply_quaternions(float quat1_w,
@@ -1383,7 +1424,7 @@ void* rgbd_math_utils_multiply_quaternions(float quat1_w,
     glm::quat multiplied_quat{MathUtils::multipleQuaternions(quat1, quat2)};
     vector<float> rotation_values{
         multiplied_quat.w, multiplied_quat.x, multiplied_quat.y, multiplied_quat.z};
-    return new rgbd::NativeFloatArray(std::move(rotation_values));
+    return new NativeQuaternion(multiplied_quat);
 }
 
 float rgbd_math_utils_extract_yaw(float quat_w,

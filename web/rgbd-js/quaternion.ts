@@ -1,3 +1,5 @@
+import { NativeQuaternion } from "./capi_containers";
+
 export class Quaternion {
   w: number;
   x: number;
@@ -9,6 +11,14 @@ export class Quaternion {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  static fromNative(nativeQuaternion: NativeQuaternion) {
+    const w = nativeQuaternion.getW();
+    const x = nativeQuaternion.getX();
+    const y = nativeQuaternion.getY();
+    const z = nativeQuaternion.getZ();
+    return new Quaternion(w, x, y, z);
   }
 
   static createIdentity() {

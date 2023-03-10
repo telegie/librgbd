@@ -1,3 +1,5 @@
+import { NativeVector3 } from "./capi_containers";
+
 export class Vector3 {
   x: number;
   y: number;
@@ -7,6 +9,13 @@ export class Vector3 {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  static fromNative(nativeVector3: NativeVector3) {
+    const x = nativeVector3.getX();
+    const y = nativeVector3.getY();
+    const z = nativeVector3.getZ();
+    return new Vector3(x, y, z);
   }
 
   multiply(factor: number): Vector3 {

@@ -72,12 +72,23 @@ extern "C"
     RGBD_INTERFACE_EXPORT int32_t* rgbd_native_int32_array_get_data(void* ptr);
     RGBD_INTERFACE_EXPORT size_t rgbd_native_int32_array_get_size(void* ptr);
 
+    RGBD_INTERFACE_EXPORT void rgbd_native_quaternion_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_quaternion_get_w(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_quaternion_get_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_quaternion_get_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_quaternion_get_z(void* ptr);
+
     RGBD_INTERFACE_EXPORT void rgbd_native_uint8_array_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT uint8_t* rgbd_native_uint8_array_get_data(void* ptr);
     RGBD_INTERFACE_EXPORT size_t rgbd_native_uint8_array_get_size(void* ptr);
 
     RGBD_INTERFACE_EXPORT void rgbd_native_string_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT const char* rgbd_native_string_get_c_str(void* ptr);
+
+    RGBD_INTERFACE_EXPORT void rgbd_native_vector3_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_vector3_get_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_vector3_get_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_native_vector3_get_z(void* ptr);
     //////// END CAPI CONTAINER CLASSES ////////
 
     //////// START HELPER FUNCTIONS FOR WEBASSEBMLY ////////
