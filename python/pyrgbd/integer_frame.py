@@ -34,7 +34,7 @@ class Int32Frame:
         self.values = values
 
     @classmethod
-    def from_native(self, native_int32_frame: NativeInt32Frame):
+    def from_native(cls, native_int32_frame: NativeInt32Frame):
         width = native_int32_frame.get_width()
         height = native_int32_frame.get_height()
         values = native_int32_frame.get_values().to_np_array().reshape((height, width))

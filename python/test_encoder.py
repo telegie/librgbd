@@ -1,6 +1,7 @@
 import pyrgbd as rgbd
 import requests
 import os.path
+import glm
 
 
 def main():
@@ -88,8 +89,21 @@ def main():
     for audio_frame in file.audio_frames:
         file_bytes_builder.add_audio_frame(audio_frame)
 
+    previous_rotation = glm.quat(1, 0, 0, 0)
+    previous_time_point_us = 0
+    if len(file.imu_frames) > 0:
+        previous_time_point_us = file.imu_frames[0].time_point_us
+
     for imu_frame in file.imu_frames:
+        delta_time_sec = (imu_frame.time_point_us - previous_time_point_us) / 1000.0 / 1000.0
+        rotation = rgbd.apply_rotation_rate_and_gravity_to_rotation(previous_rotation,
+                                                                    delta_time_sec,
+                                                                    imu_frame.rotation_rate,
+                                                                    imu_frame.gravity)
+        print(f"rotation: {rotation}")
         file_bytes_builder.add_imu_frame(imu_frame)
+        previous_rotation = rotation
+        previous_time_point_us = imu_frame.time_point_us
 
     for trs_frame in file.trs_frames:
         file_bytes_builder.add_trs_frame(trs_frame)

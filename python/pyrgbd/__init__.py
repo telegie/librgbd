@@ -10,5 +10,6 @@ from .file_bytes_builder import *
 from .file_parser import *
 from .frame_mapper import *
 from .integer_frame import *
+from .math_utils import *
 from .utils import *
 from .yuv_frame import *
