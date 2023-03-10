@@ -102,6 +102,11 @@ size_t rgbd_native_int32_array_get_size(void* ptr)
     return static_cast<NativeInt32Array*>(ptr)->size();
 }
 
+void* rgbd_native_quaternion_ctor(float w, float x, float y, float z)
+{
+    return new NativeQuaternion{w, x, y, z};
+}
+
 void rgbd_native_quaternion_dtor(void* ptr)
 {
     delete static_cast<NativeQuaternion*>(ptr);
@@ -150,6 +155,11 @@ void rgbd_native_string_dtor(void* ptr)
 const char* rgbd_native_string_get_c_str(void* ptr)
 {
     return static_cast<NativeString*>(ptr)->c_str();
+}
+
+void* rgbd_native_vector3_ctor(float x, float y, float z)
+{
+    return new NativeVector3{x, y, z};
 }
 
 void rgbd_native_vector3_dtor(void* ptr)
@@ -1369,72 +1379,17 @@ void* rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void*
 //////// END IOS CAMERA CALIBRATION ////////
 
 //////// START MATH UTILS ////////
-void* rgbd_math_utils_compute_gravity_compensating_euler_angles(float gravity_x,
-                                                                float gravity_y,
-                                                                float gravity_z)
+void* rgbd_math_utils_apply_rotation_rate_and_gravity_to_rotation(void* rotation_ptr,
+                                                                  float delta_time_sec,
+                                                                  void* rotation_rate_ptr,
+                                                                  void* gravity_ptr)
 {
-    glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
-    glm::vec3 euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
-    return new NativeVector3{euler_angles};
-}
-
-void* rgbd_math_utils_compute_gravity_compensating_rotation(float gravity_x,
-                                                            float gravity_y,
-                                                            float gravity_z)
-{
-    glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
-    glm::quat rotation{MathUtils::computeGravityCompensatingRotation(gravity)};
-    return new NativeQuaternion(rotation);
-}
-
-void* rgbd_math_utils_rotate_vector3_by_quaternion(float quat_w,
-                                                   float quat_x,
-                                                   float quat_y,
-                                                   float quat_z,
-                                                   float vec3_x,
-                                                   float vec3_y,
-                                                   float vec3_z)
-{
-    glm::quat quat{quat_w, quat_x, quat_y, quat_z};
-    glm::vec3 vec3{vec3_x, vec3_y, vec3_z};
-    glm::vec3 rotated{MathUtils::rotateVector3ByQuaternion(quat, vec3)};
-    return new NativeVector3(rotated);
-}
-
-void* rgbd_math_utils_convert_euler_angles_to_quaternion(float eular_angles_x,
-                                                         float eular_angles_y,
-                                                         float eular_angles_z)
-{
-    glm::vec3 euler_angles{eular_angles_x, eular_angles_y, eular_angles_z};
-    glm::quat rotation{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
-    return new NativeQuaternion(rotation);
-}
-
-void* rgbd_math_utils_multiply_quaternions(float quat1_w,
-                                           float quat1_x,
-                                           float quat1_y,
-                                           float quat1_z,
-                                           float quat2_w,
-                                           float quat2_x,
-                                           float quat2_y,
-                                           float quat2_z)
-{
-    glm::quat quat1{quat1_w, quat1_x, quat1_y, quat1_z};
-    glm::quat quat2{quat2_w, quat2_x, quat2_y, quat2_z};
-    glm::quat multiplied_quat{MathUtils::multipleQuaternions(quat1, quat2)};
-    vector<float> rotation_values{
-        multiplied_quat.w, multiplied_quat.x, multiplied_quat.y, multiplied_quat.z};
-    return new NativeQuaternion(multiplied_quat);
-}
-
-float rgbd_math_utils_extract_yaw(float quat_w,
-                                  float quat_x,
-                                  float quat_y,
-                                  float quat_z)
-{
-    glm::quat quat{quat_w, quat_x, quat_y, quat_z};
-    float yaw{MathUtils::extractYaw(quat)};
-    return yaw;
+    auto rotation{static_cast<NativeQuaternion*>(rotation_ptr)};
+    auto rotation_rate{static_cast<NativeVector3*>(rotation_rate_ptr)};
+    auto gravity{static_cast<NativeVector3*>(gravity_ptr)};
+    glm::quat result{MathUtils::applyRotationRateAndGravityToRotation(
+        *rotation, delta_time_sec, *rotation_rate, *gravity)};
+    return new NativeQuaternion{result};
 }
 //////// END MATH UTILS ////////
 

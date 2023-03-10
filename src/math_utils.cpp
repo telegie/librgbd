@@ -4,6 +4,26 @@
 
 namespace rgbd
 {
+glm::quat MathUtils::applyRotationRateAndGravityToRotation(
+    const glm::quat& rotation,
+    float delta_time_sec,
+    const glm::vec3& rotation_rate,
+    const glm::vec3& gravity
+)
+{
+    glm::quat rotation_delta_from_rotation_rate{
+        convertEulerAnglesToQuaternion(rotation_rate * delta_time_sec)};
+    // Applying gyro to the previous rotation results in best-effort rotation.
+    glm::quat rotation_with_correct_yaw{rotation * rotation_delta_from_rotation_rate};
+    float yaw{extractYaw(rotation_with_correct_yaw)};
+
+    glm::vec3 gravity_euler_angles{computeGravityCompensatingEulerAngles(gravity)};
+    glm::vec3 euler_angles{gravity_euler_angles.x, yaw, gravity_euler_angles.z};
+
+    glm::quat new_rotation{convertEulerAnglesToQuaternion(euler_angles)};
+    return new_rotation;
+}
+
 // Below function convert_floor_to_gimbal_position_and_rotation is for
 // finding a pair of position and rotation that satisfies the following conditions.
 // R1. The rotation has a z-axis rotation, then an x-axis one, but no y-axis one.
@@ -35,7 +55,7 @@ namespace rgbd
 // x = cos(theta) * sin(psi), y = cos(theta) * cos(psi), z = -sin(theta). --- (4)
 // A solution for (4), without the issue of moving behind the user, is
 // theta = -arcsin(z), psi = atan2(x, y).
-void convert_gravity_to_gimbal_theta_and_psi(const glm::vec3& gravity, float& theta, float& psi)
+void MathUtils::convertGravityToThetaAndPsi(const glm::vec3& gravity, float& theta, float& psi)
 {
     glm::vec3 gravity_direction{glm::normalize(gravity)};
     theta = glm::asin(gravity_direction.z);
@@ -48,7 +68,7 @@ glm::vec3 MathUtils::computeGravityCompensatingEulerAngles(const glm::vec3& grav
 {
     float theta{0.0f};
     float psi{0.0f};
-    convert_gravity_to_gimbal_theta_and_psi(gravity, theta, psi);
+    convertGravityToThetaAndPsi(gravity, theta, psi);
     return glm::vec3{theta, 0.0f, psi};
 }
 

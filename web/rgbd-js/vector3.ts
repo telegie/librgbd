@@ -18,6 +18,14 @@ export class Vector3 {
     return new Vector3(x, y, z);
   }
 
+  toNative(wasmModule: any) {
+    const ptr = wasmModule.ccall('rgbd_native_vector3_ctor',
+                                 'number',
+                                 ['number', 'number', 'number'],
+                                 [this.x, this.y, this.z]);
+    return new NativeVector3(wasmModule, ptr, true);
+  }
+
   multiply(factor: number): Vector3 {
     return new Vector3(this.x * factor, this.y * factor, this.z * factor);
   }

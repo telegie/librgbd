@@ -24,4 +24,12 @@ export class Quaternion {
   static createIdentity() {
     return new Quaternion(1, 0, 0, 0);
   }
+
+  toNative(wasmModule: any) {
+    const ptr = wasmModule.ccall('rgbd_native_quaternion_ctor',
+                                 'number',
+                                 ['number', 'number', 'number', 'number'],
+                                 [this.w, this.x, this.y, this.z]);
+    return new NativeQuaternion(wasmModule, ptr, true);
+  }
 }
