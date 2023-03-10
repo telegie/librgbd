@@ -64,7 +64,7 @@ void rgbd_native_byte_array_dtor(void* ptr)
 
 uint8_t* rgbd_native_byte_array_get_data(void* ptr)
 {
-    return static_cast<NativeByteArray*>(ptr)->data();
+    return reinterpret_cast<uint8_t*>(static_cast<NativeByteArray*>(ptr)->data());
 }
 
 size_t rgbd_native_byte_array_get_size(void* ptr)
