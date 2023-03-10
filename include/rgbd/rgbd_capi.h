@@ -467,6 +467,37 @@ extern "C"
     rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void* ptr);
     //////// END IOS CAMERA CALIBRATION ////////
 
+    //////// START MATH UTILS ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_compute_gravity_compensating_euler_angles(float gravity_x,
+                                                                                          float gravity_y,
+                                                                                          float gravity_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_compute_gravity_compensating_rotation(float gravity_x,
+                                                                                      float gravity_y,
+                                                                                      float gravity_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_rotate_vector3_by_quaternion(float quat_w,
+                                                                             float quat_x,
+                                                                             float quat_y,
+                                                                             float quat_z,
+                                                                             float vec3_x,
+                                                                             float vec3_y,
+                                                                             float vec3_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_euler_angles_to_quaternion(float eular_angles_x,
+                                                                                   float eular_angles_y,
+                                                                                   float eular_angles_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_multiply_quaternions(float quat1_w,
+                                                                     float quat1_x,
+                                                                     float quat1_y,
+                                                                     float quat1_z,
+                                                                     float quat2_w,
+                                                                     float quat2_x,
+                                                                     float quat2_y,
+                                                                     float quat2_z);
+    RGBD_INTERFACE_EXPORT float rgbd_math_utils_extract_yaw(float quat_w,
+                                                            float quat_x,
+                                                            float quat_y,
+                                                            float quat_z);
+    //////// END MATH UTILS ////////
+
     //////// START UNDISTORTED CAMERA CALIBRATION ////////
     RGBD_INTERFACE_EXPORT void* rgbd_undistorted_camera_calibration_ctor(int color_width,
                                                                          int color_height,

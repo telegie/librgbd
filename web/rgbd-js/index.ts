@@ -13,6 +13,7 @@ export * from './file_parser';
 export * from './file';
 export * from './frame_mapper';
 export * from './integer_frame';
+export * from "./math_utils";
 export * from './plane';
 export * from './pointer_by_reference';
 export * from './quaternion';

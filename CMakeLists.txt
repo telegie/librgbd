@@ -184,6 +184,7 @@ set(RGBD_SOURCES
   include/rgbd/ios_camera_calibration.hpp
   include/rgbd/kinect_calibration_utils.hpp
   include/rgbd/kinect_camera_calibration.hpp
+  include/rgbd/math_utils.hpp
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
   include/rgbd/rgbd.hpp
@@ -220,6 +221,7 @@ set(RGBD_SOURCES
   src/ios_camera_calibration.cpp
   src/kinect_calibration_utils.cpp
   src/kinect_camera_calibration.cpp
+  src/math_utils.cpp
   src/plane.cpp
   src/png_utils.cpp
   src/rgbd_capi.cpp

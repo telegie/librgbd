@@ -23,6 +23,7 @@
 #include <rgbd/ios_camera_calibration.hpp>
 #include <rgbd/kinect_calibration_utils.hpp>
 #include <rgbd/kinect_camera_calibration.hpp>
+#include <rgbd/math_utils.hpp>
 #include <rgbd/plane.hpp>
 #include <rgbd/png_utils.hpp>
 #include <rgbd/rvl.hpp>

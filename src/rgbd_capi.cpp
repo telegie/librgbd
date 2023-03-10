@@ -1323,6 +1323,80 @@ void* rgbd_ios_camera_calibration_get_inverse_lens_distortion_lookup_table(void*
 }
 //////// END IOS CAMERA CALIBRATION ////////
 
+//////// START MATH UTILS ////////
+void* rgbd_math_utils_compute_gravity_compensating_euler_angles(float gravity_x,
+                                                                float gravity_y,
+                                                                float gravity_z)
+{
+    glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
+    glm::vec3 euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
+    vector<float> euler_angle_values{euler_angles.x, euler_angles.y, euler_angles.z};
+    return new rgbd::NativeFloatArray(std::move(euler_angle_values));
+}
+
+void* rgbd_math_utils_compute_gravity_compensating_rotation(float gravity_x,
+                                                            float gravity_y,
+                                                            float gravity_z)
+{
+    glm::vec3 gravity{gravity_x, gravity_y, gravity_z};
+    glm::quat rotation{MathUtils::computeGravityCompensatingRotation(gravity)};
+    vector<float> rotation_values{rotation.w, rotation.x, rotation.y, rotation.z};
+    return new rgbd::NativeFloatArray(std::move(rotation_values));
+}
+
+void* rgbd_math_utils_rotate_vector3_by_quaternion(float quat_w,
+                                                   float quat_x,
+                                                   float quat_y,
+                                                   float quat_z,
+                                                   float vec3_x,
+                                                   float vec3_y,
+                                                   float vec3_z)
+{
+    glm::quat quat{quat_w, quat_x, quat_y, quat_z};
+    glm::vec3 vec3{vec3_x, vec3_y, vec3_z};
+    glm::vec3 rotated{MathUtils::rotateVector3ByQuaternion(quat, vec3)};
+    vector<float> rotated_values{rotated.x, rotated.y, rotated.z};
+    return new rgbd::NativeFloatArray(std::move(rotated_values));
+}
+
+void* rgbd_math_utils_convert_euler_angles_to_quaternion(float eular_angles_x,
+                                                         float eular_angles_y,
+                                                         float eular_angles_z)
+{
+    glm::vec3 euler_angles{eular_angles_x, eular_angles_y, eular_angles_z};
+    glm::quat rotation{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
+    vector<float> rotation_values{rotation.w, rotation.x, rotation.y, rotation.z};
+    return new rgbd::NativeFloatArray(std::move(rotation_values));
+}
+
+void* rgbd_math_utils_multiply_quaternions(float quat1_w,
+                                           float quat1_x,
+                                           float quat1_y,
+                                           float quat1_z,
+                                           float quat2_w,
+                                           float quat2_x,
+                                           float quat2_y,
+                                           float quat2_z)
+{
+    glm::quat quat1{quat1_w, quat1_x, quat1_y, quat1_z};
+    glm::quat quat2{quat2_w, quat2_x, quat2_y, quat2_z};
+    glm::quat multiplied_quat{MathUtils::multipleQuaternions(quat1, quat2)};
+    vector<float> rotation_values{
+        multiplied_quat.w, multiplied_quat.x, multiplied_quat.y, multiplied_quat.z};
+    return new rgbd::NativeFloatArray(std::move(rotation_values));
+}
+
+float rgbd_math_utils_extract_yaw(float quat_w,
+                                  float quat_x,
+                                  float quat_y,
+                                  float quat_z)
+{
+    glm::quat quat{quat_w, quat_x, quat_y, quat_z};
+    float yaw{MathUtils::extractYaw(quat)};
+    return yaw;
+}
+//////// END MATH UTILS ////////
+
 //////// START UNDISTORTED CAMERA CALIBRATION ////////
 void* rgbd_undistorted_camera_calibration_ctor(int color_width,
                                                int color_height,
