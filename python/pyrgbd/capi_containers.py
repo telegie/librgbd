@@ -103,7 +103,7 @@ class NativeQuaternion:
         return NativeQuaternion(ptr)
 
     def to_glm(self) -> glm.quat:
-        return glm.quat(self.get_w(), self.get_y(), self.get_x(), self.get_z())
+        return glm.quat(self.get_w(), self.get_x(), self.get_y(), self.get_z())
 
     def get_w(self) -> float:
         return lib.rgbd_native_quaternion_get_w(self.ptr)
@@ -163,7 +163,7 @@ class NativeVector3:
         return NativeVector3(ptr)
 
     def to_glm(self) -> glm.vec3:
-        return glm.vec3(self.get_y(), self.get_x(), self.get_z())
+        return glm.vec3(self.get_x(), self.get_y(), self.get_z())
 
     def get_x(self) -> float:
         return lib.rgbd_native_quaternion_get_x(self.ptr)

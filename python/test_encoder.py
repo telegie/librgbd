@@ -8,8 +8,9 @@ def main():
     print(f"TWO: {rgbd.get_number_two()}")
     print(f"MAJOR: {rgbd.get_librgbd_major_version()}")
 
-    base64url_video_id = "A9oofdweNJ4"
-    video_file_path = f"tmp/{base64url_video_id}.mkv"
+    # base64url_video_id = "A9oofdweNJ4"
+    # video_file_path = f"tmp/{base64url_video_id}.mkv"
+    video_file_path = f"tmp/Office.mkv"
     if not os.path.exists(video_file_path):
         video_id = rgbd.decode_base64url_to_long(base64url_video_id)
         video_url = f"https://posts.telegie.com/v1/{video_id}/{video_id}.mkv"
@@ -95,22 +96,25 @@ def main():
         previous_time_point_us = file.imu_frames[0].time_point_us
 
     for imu_frame in file.imu_frames:
+        file_bytes_builder.add_imu_frame(imu_frame)
+
         delta_time_sec = (imu_frame.time_point_us - previous_time_point_us) / 1000.0 / 1000.0
         rotation = rgbd.apply_rotation_rate_and_gravity_to_rotation(previous_rotation,
                                                                     delta_time_sec,
                                                                     imu_frame.rotation_rate,
                                                                     imu_frame.gravity)
-        print(f"rotation: {rotation}")
-        file_bytes_builder.add_imu_frame(imu_frame)
+        print(f"imu to rotation: {rotation}")
+        file_bytes_builder.add_trs_frame(rgbd.FileTRSFrame(imu_frame.time_point_us,
+                                                           glm.vec3(0, 0, 0),
+                                                           rotation,
+                                                           glm.vec3(1, 1, 1)))
         previous_rotation = rotation
         previous_time_point_us = imu_frame.time_point_us
 
-    for trs_frame in file.trs_frames:
-        file_bytes_builder.add_trs_frame(trs_frame)
+    # for trs_frame in file.trs_frames:
+    #     file_bytes_builder.add_trs_frame(trs_frame)
 
-    print("?")
     file_bytes_builder.build_to_path("tmp/test_encoder_result.mkv")
-    print("done")
 
 
 if __name__ == "__main__":
