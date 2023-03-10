@@ -11,7 +11,7 @@ export class Quaternion {
     this.z = z;
   }
 
-  static identity() {
+  static createIdentity() {
     return new Quaternion(1, 0, 0, 0);
   }
 }
