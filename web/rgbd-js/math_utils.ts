@@ -23,4 +23,32 @@ export class MathUtils {
     nativeNewRotation.close();
     return newRotation;
   }
+
+  static convertEulerAnglesToQuaternion(wasmModule: any, eulerAngles: Vector3): Quaternion {
+    const nativeEulerAngles = NativeVector3.fromMathGL(wasmModule, eulerAngles);
+    const nativeQuaternionPtr = wasmModule.ccall('rgbd_math_utils_convert_euler_angles_to_quaternion',
+                                                 'number',
+                                                 ['number'],
+                                                 [nativeEulerAngles.ptr]);
+    nativeEulerAngles.close();
+
+    const nativeQuaternion = new NativeQuaternion(wasmModule, nativeQuaternionPtr, true);
+    const quat = nativeQuaternion.toMathGL();
+    nativeQuaternion.close();
+    return quat;
+  }
+
+  static convertQuaternionToEulerAngles(wasmModule: any, quat: Quaternion): Vector3 {
+    const nativeQuaternion = NativeQuaternion.fromMathGL(wasmModule, quat);
+    const nativeEulerAnglesPtr = wasmModule.ccall('rgbd_math_utils_convert_quaternion_to_euler_angles',
+                                                  'number',
+                                                  ['number'],
+                                                  [nativeQuaternion.ptr]);
+    nativeQuaternion.close();
+
+    const nativeEulerAngles = new NativeVector3(wasmModule, nativeEulerAnglesPtr, true);
+    const eulerAngles = nativeEulerAngles.toMathGL();
+    nativeEulerAngles.close();
+    return eulerAngles;
+  }
 }

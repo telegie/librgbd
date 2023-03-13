@@ -28,8 +28,8 @@ glm::quat MathUtils::applyRotationRateAndGravityToRotation(
 
 glm::quat MathUtils::convertEulerAnglesToQuaternion(const glm::vec3& euler_angles)
 {
-    glm::quat pitch_rotation{glm::angleAxis(euler_angles.x, glm::vec3(1.0f, 0.0f, 0.0f))};
     glm::quat yaw_rotation{glm::angleAxis(euler_angles.y, glm::vec3(0.0f, 1.0f, 0.0f))};
+    glm::quat pitch_rotation{glm::angleAxis(euler_angles.x, glm::vec3(1.0f, 0.0f, 0.0f))};
     glm::quat roll_rotation{glm::angleAxis(euler_angles.z, glm::vec3(0.0f, 0.0f, 1.0f))};
 
     glm::quat quat{yaw_rotation * pitch_rotation * roll_rotation};

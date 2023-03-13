@@ -485,6 +485,8 @@ extern "C"
                                                                                             float delta_time_sec,
                                                                                             void* rotation_rate_ptr,
                                                                                             void* gravity_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr);
     //////// END MATH UTILS ////////
 
     //////// START UNDISTORTED CAMERA CALIBRATION ////////

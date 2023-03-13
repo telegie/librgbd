@@ -1391,6 +1391,20 @@ void* rgbd_math_utils_apply_rotation_rate_and_gravity_to_rotation(void* rotation
         *rotation, delta_time_sec, *rotation_rate, *gravity)};
     return new NativeQuaternion{result};
 }
+
+void* rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr)
+{
+    auto euler_angles{static_cast<NativeVector3*>(euler_angles_ptr)};
+    glm::quat quat{MathUtils::convertEulerAnglesToQuaternion(*euler_angles)};
+    return new NativeQuaternion{quat};
+}
+
+void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr)
+{
+    auto quat{static_cast<NativeQuaternion*>(quat_ptr)};
+    glm::vec3 euler_angles{MathUtils::convertQuaternionToEulerAngles(*quat)};
+    return new NativeVector3{euler_angles};
+}
 //////// END MATH UTILS ////////
 
 //////// START UNDISTORTED CAMERA CALIBRATION ////////
