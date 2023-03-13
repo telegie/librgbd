@@ -1,6 +1,8 @@
 #include "math_utils.hpp"
 
 #include <glm/gtx/quaternion.hpp>
+#include <spdlog/spdlog.h>
+#include <glm/gtx/string_cast.hpp>
 
 namespace rgbd
 {
@@ -15,13 +17,58 @@ glm::quat MathUtils::applyRotationRateAndGravityToRotation(
         convertEulerAnglesToQuaternion(rotation_rate * delta_time_sec)};
     // Applying gyro to the previous rotation results in best-effort rotation.
     glm::quat rotation_with_correct_yaw{rotation * rotation_delta_from_rotation_rate};
-    float yaw{extractYaw(rotation_with_correct_yaw)};
+    float yaw{convertQuaternionToEulerAngles(rotation_with_correct_yaw).y};
 
     glm::vec3 gravity_euler_angles{computeGravityCompensatingEulerAngles(gravity)};
     glm::vec3 euler_angles{gravity_euler_angles.x, yaw, gravity_euler_angles.z};
 
     glm::quat new_rotation{convertEulerAnglesToQuaternion(euler_angles)};
     return new_rotation;
+}
+
+glm::quat MathUtils::convertEulerAnglesToQuaternion(const glm::vec3& euler_angles)
+{
+    glm::quat pitch_rotation{glm::angleAxis(euler_angles.x, glm::vec3(1.0f, 0.0f, 0.0f))};
+    glm::quat yaw_rotation{glm::angleAxis(euler_angles.y, glm::vec3(0.0f, 1.0f, 0.0f))};
+    glm::quat roll_rotation{glm::angleAxis(euler_angles.z, glm::vec3(0.0f, 0.0f, 1.0f))};
+
+    glm::quat quat{yaw_rotation * pitch_rotation * roll_rotation};
+    return quat.w >= 0.0f ? quat : -quat;
+}
+
+glm::vec3 MathUtils::convertQuaternionToEulerAngles(const glm::quat& quat)
+{
+    glm::vec3 rotated_z{glm::rotate(quat, glm::vec3{0.0f, 0.0f, 1.0f})};
+//    spdlog::info("rotated_z: {}", glm::to_string(rotated_z));
+    float yaw{atan2f(rotated_z.x, rotated_z.z)};
+    glm::quat negative_yaw_rotation{glm::angleAxis(-yaw, glm::vec3(0.0f, 1.0f, 0.0f))};
+
+    // roll_pitch_z is unit z rotated by roll and pitch, but no yaw.
+    glm::vec3 roll_pitch_z{glm::rotate(negative_yaw_rotation, rotated_z)};
+    float pitch{atan2f(-rotated_z.y, roll_pitch_z.z)};
+    glm::quat negative_pitch_rotation{glm::angleAxis(-pitch, glm::vec3(1.0f, 0.0f, 0.0f))};
+
+    if (abs(pitch - glm::half_pi<float>()) < 0.0001f) {
+        // when pitch == pi/2 (a case of gimbal lock)
+        // Rotating a unit y with pitch of pi/2 results in a unit z.
+        glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};
+        float yaw{atan2f(rotated_y.x, rotated_y.z)};
+        return glm::vec3{glm::half_pi<float>(), yaw, 0.0f};
+    } else if(abs(pitch + glm::half_pi<float>()) < 0.0001f) {
+        // when pitch == -pi/2 (a case of gimbal lock)
+        // Rotating a unit y with pitch of pi/2 results in a negative unit z.
+        glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};
+        float yaw{atan2f(-rotated_y.x, -rotated_y.z)};
+        return glm::vec3{glm::half_pi<float>(), yaw, 0.0f};
+    }
+
+    glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};
+    // roll_pitch_y is unit y rotated by roll and pitch, but no yaw.
+    glm::vec3 roll_pitch_y{glm::rotate(negative_yaw_rotation, rotated_y)};
+    // roll_y is unit y rotated by roll only.
+    glm::vec3 roll_y{glm::rotate(negative_pitch_rotation, roll_pitch_y)};
+    float roll{atan2f(-roll_y.x, roll_y.y)};
+    return glm::vec3{pitch, yaw, roll};
 }
 
 // Below function convert_floor_to_gimbal_position_and_rotation is for
@@ -70,45 +117,5 @@ glm::vec3 MathUtils::computeGravityCompensatingEulerAngles(const glm::vec3& grav
     float psi{0.0f};
     convertGravityToThetaAndPsi(gravity, theta, psi);
     return glm::vec3{theta, 0.0f, psi};
-}
-
-glm::quat MathUtils::computeGravityCompensatingRotation(const glm::vec3& gravity)
-{
-    auto euler_angles{computeGravityCompensatingEulerAngles(gravity)};
-    return convertEulerAnglesToQuaternion(euler_angles);
-}
-
-glm::vec3 MathUtils::rotateVector3ByQuaternion(const glm::quat& quat, const glm::vec3& vec3)
-{
-    return glm::rotate(quat, vec3);
-}
-
-glm::quat MathUtils::convertEulerAnglesToQuaternion(const glm::vec3& euler_angles)
-{
-    glm::quat pitch_rotation{glm::angleAxis(euler_angles.x, glm::vec3(1.0f, 0.0f, 0.0f))};
-    glm::quat yaw_rotation{glm::angleAxis(euler_angles.y, glm::vec3(0.0f, 1.0f, 0.0f))};
-    glm::quat roll_rotation{glm::angleAxis(euler_angles.z, glm::vec3(0.0f, 0.0f, 1.0f))};
-
-    return yaw_rotation * pitch_rotation * roll_rotation;
-}
-
-glm::quat MathUtils::multipleQuaternions(const glm::quat& quat1, const glm::quat& quat2)
-{
-    return quat1 * quat2;
-}
-
-float MathUtils::extractYaw(const glm::quat& quat)
-{
-    glm::vec3 front{glm::rotate(quat, glm::vec3{0.0f, 0.0f, -1.0f})};
-    float yaw{atan2f(-front.x, -front.z)};
-    return yaw;
-}
-
-float MathUtils::extractPitch(const glm::quat& quat)
-{
-    glm::vec3 front{glm::rotate(quat, glm::vec3{0.0f, 0.0f, -1.0f})};
-    float xz_length{glm::sqrt(front.x * front.x + front.z * front.z)};
-    float pitch{atan2f(front.y, xz_length)};
-    return pitch;
 }
 }
