@@ -40,11 +40,13 @@ if(RGBD_OS_MAC)
     set(RGBD_ARCH_X64 TRUE)
   endif()
 endif()
-# message("CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
-# message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
+message("CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message("CMAKE_OSX_ARCHITECTURES: ${CMAKE_OSX_ARCHITECTURES}")
 
 set(RGBD_WEB_DIR ${PROJECT_SOURCE_DIR}/web)
-set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
+if(NOT PROJECT_IS_TOP_LEVEL)
+  set(RGBD_WEB_DIR ${RGBD_WEB_DIR} PARENT_SCOPE)
+endif()
 
 ### CATCH2 BEGIN
 add_subdirectory(deps/Catch2)
@@ -141,6 +143,10 @@ endif()
 set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
 set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
 ### OPUS END ###
+
+### PYBIND11 BEGIN ###
+add_subdirectory(deps/pybind11)
+### PYBIND11 END ###
 
 ### SPDLOG BEGIN ###
 # Use existing spdlog if there already is an spdlog added.
@@ -369,6 +375,7 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
   add_subdirectory(examples/minimum_example)
   add_subdirectory(src/cli)
+  add_subdirectory(src/python)
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)

@@ -24,6 +24,7 @@
     <mapping directory="$PROJECT_DIR$/deps/opencv-binaries" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/opencv-binaries/opencv" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/opencv-binaries/opencv_contrib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/deps/pybind11" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/spdlog" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/deps/zstd" vcs="Git" />
   </component>
