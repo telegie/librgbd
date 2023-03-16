@@ -177,10 +177,10 @@ class FileIMUFrame : public FileFrame
 {
 public:
     FileIMUFrame(int64_t time_point_us,
-                 glm::vec3 acceleration,
-                 glm::vec3 rotation_rate,
-                 glm::vec3 magnetic_field,
-                 glm::vec3 gravity)
+                 const glm::vec3& acceleration,
+                 const glm::vec3& rotation_rate,
+                 const glm::vec3& magnetic_field,
+                 const glm::vec3& gravity)
         : time_point_us_{time_point_us}
         , acceleration_{acceleration}
         , rotation_rate_{rotation_rate}

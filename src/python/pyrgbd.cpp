@@ -34,6 +34,25 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("pcm_samples", &AudioFrame::pcm_samples);
     // END audio_frame.hpp
 
+    // BEGIN camera_calibration.hpp
+    py::class_<CameraCalibration>(m, "CameraCalibration")
+        .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
+        .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
+        .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
+        .def_property_readonly("depth_height", &CameraCalibration::getDepthHeight)
+        .def("get_direction", &CameraCalibration::getDirection)
+        .def("get_uv", &CameraCalibration::getUv);
+    // END camera_calibration.hpp
+
+    // BEGIN constants.hpp
+    py::enum_<ColorCodecType>(m, "ColorCodecType")
+        .value("VP8", ColorCodecType::VP8);
+
+    py::enum_<DepthCodecType>(m, "DepthCodecType")
+        .value("RVL", DepthCodecType::RVL)
+        .value("TDC1", DepthCodecType::TDC1);
+    // END constants.hpp
+
     // BEGIN file.hpp
     py::class_<FileOffsets>(m, "FileOffsets")
         .def(py::init())
@@ -97,19 +116,26 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<FileFrame>(m, "FileFrame").def("getType", &FileFrame::getType);
 
     py::class_<FileVideoFrame, FileFrame>(m, "FileVideoFrame")
+        .def(py::init<int64_t, bool, const Bytes&, const Bytes&>())
         .def_property_readonly("time_point_us", &FileVideoFrame::time_point_us)
         .def_property_readonly("keyframe", &FileVideoFrame::keyframe)
         .def_property_readonly("color_bytes", &FileVideoFrame::color_bytes)
         .def_property_readonly("depth_bytes", &FileVideoFrame::depth_bytes);
 
+    py::class_<FileAudioFrame, FileFrame>(m, "FileAudioFrame")
+        .def(py::init<int64_t, const Bytes&>())
+        .def_property_readonly("time_point_us", &FileAudioFrame::time_point_us)
+        .def_property_readonly("bytes", &FileAudioFrame::bytes);
+
     py::class_<FileIMUFrame, FileFrame>(m, "FileIMUFrame")
+        .def(py::init<int64_t, const glm::vec3&, const glm::vec3&, const glm::vec3&, const glm::vec3&>())
         .def_property_readonly("time_point_us", &FileIMUFrame::time_point_us)
         .def_property_readonly("acceleration", &FileIMUFrame::acceleration)
         .def_property_readonly("rotation_rate", &FileIMUFrame::rotation_rate)
         .def_property_readonly("magnetic_field", &FileIMUFrame::magnetic_field)
         .def_property_readonly("gravity", &FileIMUFrame::gravity);
 
-    py::class_<FileTRSFrame, FileFrame>(m, "FileIMUFrame")
+    py::class_<FileTRSFrame, FileFrame>(m, "FileTRSFrame")
         .def_property_readonly("time_point_us", &FileTRSFrame::time_point_us)
         .def_property_readonly("translation", &FileTRSFrame::translation)
         .def_property_readonly("rotation", &FileTRSFrame::rotation)
@@ -127,7 +153,36 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("direction_table", &File::direction_table);
     // END file.hpp
 
+    // BEGIN file_bytes_builder.hpp
+    py::class_<FileBytesBuilder>(m, "FileBytesBuilder")
+        .def(py::init<>())
+        .def("set_framerate", &FileBytesBuilder::setFramerate)
+        .def("set_samplerate", &FileBytesBuilder::setSamplerate)
+        .def("set_depth_codec_type", &FileBytesBuilder::setDepthCodecType)
+        .def("set_depth_unit", &FileBytesBuilder::setDepthUnit)
+        .def("set_calibration", &FileBytesBuilder::setCalibration)
+        .def("set_cover_png_bytes", &FileBytesBuilder::setCoverPNGBytes)
+        .def("add_video_frame", &FileBytesBuilder::addVideoFrame)
+        .def("add_video_frame", &FileBytesBuilder::addVideoFrame)
+        .def("add_audio_frame", &FileBytesBuilder::addAudioFrame)
+        .def("add_imu_frame", &FileBytesBuilder::addIMUFrame)
+        .def("add_trs_frame", &FileBytesBuilder::addTRSFrame)
+        .def("build", &FileBytesBuilder::build)
+        .def("build_to_path", &FileBytesBuilder::buildToPath);
+    // END file_bytes_builder.hpp
+
     // BEGIN file_parser.hpp
-    py::class_<FileParser>(m, "FileParser").def("parse", &FileParser::parse);
+    py::class_<FileParser>(m, "FileParser")
+        .def(py::init<const string&>())
+        .def("parse", &FileParser::parse);
     // END file_parser.hpp
+
+    // BEGIN undistorted_camera_distortion.hpp
+    py::class_<UndistortedCameraCalibration, CameraCalibration>(m, "UndistortedCameraCalibration")
+        .def(py::init<int, int, int, int, float, float, float, float>())
+        .def_property_readonly("fx", &UndistortedCameraCalibration::fx)
+        .def_property_readonly("fy", &UndistortedCameraCalibration::fy)
+        .def_property_readonly("cx", &UndistortedCameraCalibration::cx)
+        .def_property_readonly("cy", &UndistortedCameraCalibration::cy);
+    // END undistorted_camera_distortion.hpp
 }
