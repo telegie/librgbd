@@ -23,6 +23,8 @@ Camera calibration data are saved in a json format as a Matroska attachment.
 
 For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp](src/file_parser.cpp).
 
-## pyrgbd pybind11 build
+## pyrgbd pybind11
 
-CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py build
+Build: CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py install
+
+Test: python test_pyrgbd.py
