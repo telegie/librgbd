@@ -618,10 +618,10 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
 }
 
-void FileParser::parseAllClusters(vector<unique_ptr<FileVideoFrame>>& video_frames,
-                                  vector<unique_ptr<FileAudioFrame>>& audio_frames,
-                                  vector<unique_ptr<FileIMUFrame>>& imu_frames,
-                                  vector<unique_ptr<FileTRSFrame>>& trs_frames)
+void FileParser::parseAllClusters(vector<FileVideoFrame>& video_frames,
+                                  vector<FileAudioFrame>& audio_frames,
+                                  vector<FileIMUFrame>& imu_frames,
+                                  vector<FileTRSFrame>& trs_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
@@ -635,22 +635,22 @@ void FileParser::parseAllClusters(vector<unique_ptr<FileVideoFrame>>& video_fram
         switch (frame->getType()) {
         case FileFrameType::Video: {
             auto video_frame{dynamic_cast<FileVideoFrame*>(frame)};
-            video_frames.emplace_back(video_frame);
+            video_frames.push_back(std::move(*video_frame));
             break;
         }
         case FileFrameType::Audio: {
             auto audio_frame{dynamic_cast<FileAudioFrame*>(frame)};
-            audio_frames.emplace_back(audio_frame);
+            audio_frames.push_back(std::move(*audio_frame));
             break;
         }
         case FileFrameType::IMU: {
             auto imu_frame{dynamic_cast<FileIMUFrame*>(frame)};
-            imu_frames.emplace_back(imu_frame);
+            imu_frames.push_back(std::move(*imu_frame));
             break;
         }
         case FileFrameType::TRS: {
             auto trs_frame{dynamic_cast<FileTRSFrame*>(frame)};
-            trs_frames.emplace_back(trs_frame);
+            trs_frames.push_back(std::move(*trs_frame));
             break;
         }
         default:
@@ -661,10 +661,10 @@ void FileParser::parseAllClusters(vector<unique_ptr<FileVideoFrame>>& video_fram
 
 unique_ptr<File> FileParser::parse(bool with_frames, bool with_directions)
 {
-    vector<unique_ptr<FileVideoFrame>> video_frames;
-    vector<unique_ptr<FileAudioFrame>> audio_frames;
-    vector<unique_ptr<FileIMUFrame>> imu_frames;
-    vector<unique_ptr<FileTRSFrame>> trs_frames;
+    vector<FileVideoFrame> video_frames;
+    vector<FileAudioFrame> audio_frames;
+    vector<FileIMUFrame> imu_frames;
+    vector<FileTRSFrame> trs_frames;
     if (with_frames)
         parseAllClusters(video_frames, audio_frames, imu_frames, trs_frames);
 

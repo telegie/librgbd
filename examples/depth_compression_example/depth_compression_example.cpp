@@ -20,8 +20,8 @@ void run()
     size_t color_size{0};
     size_t depth_size{0};
     for (auto& video_frame : file->video_frames()) {
-        color_size += video_frame->color_bytes().size();
-        depth_size += video_frame->depth_bytes().size();
+        color_size += video_frame.color_bytes().size();
+        depth_size += video_frame.depth_bytes().size();
     }
 
     spdlog::info("color_size: {}", color_size);
@@ -30,7 +30,7 @@ void run()
     rgbd::TDC1Decoder decoder;
     vector<unique_ptr<rgbd::Int32Frame>> decoded_frames;
     for (auto& video_frame : file->video_frames())
-        decoded_frames.push_back(decoder.decode(video_frame->depth_bytes()));
+        decoded_frames.push_back(decoder.decode(video_frame.depth_bytes()));
 
     rgbd::TDC1Encoder encoder{decoded_frames[0]->width(), decoded_frames[0]->height(), 500};
     // TODO: Test if encoded ones are containing the same information by decompressing and comparing them.

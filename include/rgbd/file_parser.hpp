@@ -21,10 +21,10 @@ private:
     optional<const FileAttachments>
     parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments);
     FileFrame* parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster);
-    void parseAllClusters(vector<unique_ptr<FileVideoFrame>>& video_frames,
-                          vector<unique_ptr<FileAudioFrame>>& audio_frames,
-                          vector<unique_ptr<FileIMUFrame>>& imu_frames,
-                          vector<unique_ptr<FileTRSFrame>>& trs_frames);
+    void parseAllClusters(vector<FileVideoFrame>& video_frames,
+                          vector<FileAudioFrame>& audio_frames,
+                          vector<FileIMUFrame>& imu_frames,
+                          vector<FileTRSFrame>& trs_frames);
 
 public:
     unique_ptr<File> parse(bool with_frames, bool with_directions);

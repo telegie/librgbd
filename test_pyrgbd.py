@@ -43,11 +43,11 @@ def main():
     frame_mapper = rgbd.FrameMapper(file.attachments.camera_calibration, standard_calibration)
     color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
     for video_frame in file.video_frames:
-        yuv_frame = native_color_decoder.decode(video_frame.color_bytes)
+        yuv_frame = color_decoder.decode(video_frame.color_bytes)
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
 
-    color_decoder = rgbd.DepthDecoder(rgbd.DepthCodecType.TDC1)
+    depth_decoder = rgbd.DepthDecoder(rgbd.DepthCodecType.TDC1)
     for video_frame in file.video_frames:
         depth_frame = depth_decoder.decode(video_frame.depth_bytes)
         mapped_depth_frame = frame_mapper.map_depth_frame(depth_frame)

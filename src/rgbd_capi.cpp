@@ -464,7 +464,9 @@ size_t rgbd_file_get_video_frame_count(void* ptr)
 
 void* rgbd_file_get_video_frame(void* ptr, size_t index)
 {
-    return static_cast<File*>(ptr)->video_frames()[index].get();
+    auto file{static_cast<File*>(ptr)};
+    auto& video_frame{file->video_frames()[index]};
+    return &video_frame;
 }
 
 size_t rgbd_file_get_audio_frame_count(void* ptr)
@@ -474,7 +476,9 @@ size_t rgbd_file_get_audio_frame_count(void* ptr)
 
 void* rgbd_file_get_audio_frame(void* ptr, size_t index)
 {
-    return static_cast<File*>(ptr)->audio_frames()[index].get();
+    auto file{static_cast<File*>(ptr)};
+    auto& audio_frame{file->audio_frames()[index]};
+    return &audio_frame;
 }
 
 size_t rgbd_file_get_imu_frame_count(void* ptr)
@@ -484,7 +488,9 @@ size_t rgbd_file_get_imu_frame_count(void* ptr)
 
 void* rgbd_file_get_imu_frame(void* ptr, size_t index)
 {
-    return static_cast<File*>(ptr)->imu_frames()[index].get();
+    auto file{static_cast<File*>(ptr)};
+    auto& imu_frame{file->imu_frames()[index]};
+    return &imu_frame;
 }
 
 size_t rgbd_file_get_trs_frame_count(void* ptr)
@@ -494,7 +500,9 @@ size_t rgbd_file_get_trs_frame_count(void* ptr)
 
 void* rgbd_file_get_trs_frame(void* ptr, size_t index)
 {
-    return static_cast<File*>(ptr)->trs_frames()[index].get();
+    auto file{static_cast<File*>(ptr)};
+    auto& trs_frame{file->trs_frames()[index]};
+    return &trs_frame;
 }
 
 bool rgbd_file_has_direction_table(void* ptr)

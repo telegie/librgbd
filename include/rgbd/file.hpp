@@ -269,10 +269,10 @@ public:
          const FileInfo& info,
          const FileTracks& tracks,
          const FileAttachments& attachments,
-         vector<unique_ptr<FileVideoFrame>>&& video_frames,
-         vector<unique_ptr<FileAudioFrame>>&& audio_frames,
-         vector<unique_ptr<FileIMUFrame>>&& imu_frames,
-         vector<unique_ptr<FileTRSFrame>>&& trs_frames,
+         vector<FileVideoFrame>&& video_frames,
+         vector<FileAudioFrame>&& audio_frames,
+         vector<FileIMUFrame>&& imu_frames,
+         vector<FileTRSFrame>&& trs_frames,
          optional<DirectionTable>&& direction_table)
         : offsets_{offsets}
         , info_{info}
@@ -301,19 +301,19 @@ public:
     {
         return attachments_;
     }
-    const vector<unique_ptr<FileVideoFrame>>& video_frames() const noexcept
+    vector<FileVideoFrame>& video_frames() noexcept
     {
         return video_frames_;
     }
-    const vector<unique_ptr<FileAudioFrame>>& audio_frames() const noexcept
+    vector<FileAudioFrame>& audio_frames() noexcept
     {
         return audio_frames_;
     }
-    const vector<unique_ptr<FileIMUFrame>>& imu_frames() const noexcept
+    vector<FileIMUFrame>& imu_frames() noexcept
     {
         return imu_frames_;
     }
-    const vector<unique_ptr<FileTRSFrame>>& trs_frames() const noexcept
+    vector<FileTRSFrame>& trs_frames() noexcept
     {
         return trs_frames_;
     }
@@ -327,10 +327,10 @@ private:
     FileInfo info_;
     FileTracks tracks_;
     FileAttachments attachments_;
-    vector<unique_ptr<FileVideoFrame>> video_frames_;
-    vector<unique_ptr<FileAudioFrame>> audio_frames_;
-    vector<unique_ptr<FileIMUFrame>> imu_frames_;
-    vector<unique_ptr<FileTRSFrame>> trs_frames_;
+    vector<FileVideoFrame> video_frames_;
+    vector<FileAudioFrame> audio_frames_;
+    vector<FileIMUFrame> imu_frames_;
+    vector<FileTRSFrame> trs_frames_;
     optional<DirectionTable> direction_table_;
 };
 } // namespace rgbd
