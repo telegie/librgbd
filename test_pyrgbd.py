@@ -40,20 +40,18 @@ def main():
 
     yuv_frames = []
     depth_frames = []
-    with rgbd.NativeFrameMapper(
-        file.attachments.camera_calibration, standard_calibration
-    ) as native_frame_mapper:
-        with rgbd.NativeColorDecoder(rgbd.ColorCodecType.VP8) as native_color_decoder:
-            for video_frame in file.video_frames:
-                yuv_frame = native_color_decoder.decode(video_frame.color_bytes)
-                mapped_color_frame = native_frame_mapper.map_color_frame(yuv_frame)
-                yuv_frames.append(mapped_color_frame)
+    frame_mapper = rgbd.FrameMapper(file.attachments.camera_calibration, standard_calibration)
+    color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
+    for video_frame in file.video_frames:
+        yuv_frame = native_color_decoder.decode(video_frame.color_bytes)
+        mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
+        yuv_frames.append(mapped_color_frame)
 
-        with rgbd.NativeDepthDecoder(rgbd.DepthCodecType.TDC1) as depth_decoder:
-            for video_frame in file.video_frames:
-                depth_frame = depth_decoder.decode(video_frame.depth_bytes)
-                mapped_depth_frame = native_frame_mapper.map_depth_frame(depth_frame)
-                depth_frames.append(mapped_depth_frame)
+    color_decoder = rgbd.DepthDecoder(rgbd.DepthCodecType.TDC1)
+    for video_frame in file.video_frames:
+        depth_frame = depth_decoder.decode(video_frame.depth_bytes)
+        mapped_depth_frame = frame_mapper.map_depth_frame(depth_frame)
+        depth_frames.append(mapped_depth_frame)
 
     # cv2.imshow("color", rgb)
     # cv2.imshow("depth", depth_arrays[0].astype(np.uint16))

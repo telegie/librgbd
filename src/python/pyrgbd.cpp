@@ -1,4 +1,5 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 #include <rgbd/rgbd.hpp>
 
 namespace py = pybind11;
@@ -43,6 +44,32 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_direction", &CameraCalibration::getDirection)
         .def("get_uv", &CameraCalibration::getUv);
     // END camera_calibration.hpp
+
+    // BEGIN color_decoder.hpp
+    py::class_<ColorDecoder>(m, "ColorDecoder")
+        .def(py::init<ColorCodecType>())
+        .def("decode", &ColorDecoder::decode);
+    // END color_decoder.hpp
+
+    // BEGIN color_encoder.hpp
+    py::class_<ColorEncoder>(m, "ColorEncoder")
+        .def(py::init<ColorCodecType, int, int, int>())
+        .def("encode", &ColorEncoder::encode);
+    // END color_encoder.hpp
+
+    // BEGIN depth_decoder.hpp
+    py::class_<DepthDecoder>(m, "DepthDecoder")
+        .def(py::init<DepthCodecType>())
+        .def("decode", &DepthDecoder::decode);
+    // END depth_decoder.hpp
+
+    // BEGIN depth_encoder.hpp
+    py::class_<DepthEncoder>(m, "DepthEncoder")
+        .def_static("createRVLEncoder", &DepthEncoder::createRVLEncoder)
+        .def_static("createTDC1Encoder", &DepthEncoder::createTDC1Encoder)
+        .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
+        .def("encode", &DepthEncoder::encode);
+    // END depth_encoder.hpp
 
     // BEGIN constants.hpp
     py::enum_<ColorCodecType>(m, "ColorCodecType")
@@ -176,6 +203,13 @@ PYBIND11_MODULE(pyrgbd, m)
         .def(py::init<const string&>())
         .def("parse", &FileParser::parse);
     // END file_parser.hpp
+
+    // BEGIN frame_mapper.hpp
+    py::class_<FrameMapper>(m, "FrameMapper")
+        .def(py::init<const rgbd::CameraCalibration&, const rgbd::CameraCalibration&>())
+        .def("mapColorFrame", &FrameMapper::mapColorFrame)
+        .def("mapDepthFrame", &FrameMapper::mapDepthFrame);
+    // END frame_mapper.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
     py::class_<UndistortedCameraCalibration, CameraCalibration>(m, "UndistortedCameraCalibration")
