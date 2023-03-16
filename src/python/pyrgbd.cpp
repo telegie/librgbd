@@ -8,6 +8,32 @@ PYBIND11_MODULE(pyrgbd, m)
 {
     m.doc() = "Library for reading and writing RGBD videos.";
 
+    // BEGIN audio_decoder.hpp
+    py::class_<AudioDecoder>(m, "AudioDecoder")
+        .def(py::init())
+        .def("decode", &AudioDecoder::decode);
+    // END audio_decoder.hpp
+
+    // BEGIN audio_encoder.hpp
+    py::class_<AudioEncoderFrame>(m, "AudioEncoderFrame")
+        .def(py::init())
+        .def_readwrite("packet_bytes_list", &AudioEncoderFrame::packet_bytes_list);
+
+    py::class_<AudioEncoder>(m, "AudioEncoder")
+        .def(py::init())
+        .def("packet_bytes_list", &AudioEncoder::encode)
+        .def("flush", &AudioEncoder::flush)
+        .def_property_readonly("codec_context", &AudioEncoder::codec_context)
+        .def_property_readonly("next_pts", &AudioEncoder::next_pts);
+    // END audio_encoder.hpp
+
+    // BEGIN audio_frame.hpp
+    py::class_<AudioFrame>(m, "AudioFrame")
+        .def(py::init<int64_t, const vector<float>&>())
+        .def_property_readonly("time_point_us", &AudioFrame::time_point_us)
+        .def_property_readonly("pcm_samples", &AudioFrame::pcm_samples);
+    // END audio_frame.hpp
+
     // BEGIN file.hpp
     py::class_<FileOffsets>(m, "FileOffsets")
         .def(py::init())
@@ -68,8 +94,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .value("IMU", FileFrameType::IMU)
         .value("TRS", FileFrameType::TRS);
 
-    py::class_<FileFrame>(m, "FileFrame")
-        .def("getType", &FileFrame::getType);
+    py::class_<FileFrame>(m, "FileFrame").def("getType", &FileFrame::getType);
 
     py::class_<FileVideoFrame, FileFrame>(m, "FileVideoFrame")
         .def_property_readonly("time_point_us", &FileVideoFrame::time_point_us)
@@ -103,7 +128,6 @@ PYBIND11_MODULE(pyrgbd, m)
     // END file.hpp
 
     // BEGIN file_parser.hpp
-    py::class_<FileParser>(m, "FileParser")
-        .def("parse", &FileParser::parse);
+    py::class_<FileParser>(m, "FileParser").def("parse", &FileParser::parse);
     // END file_parser.hpp
 }
