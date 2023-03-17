@@ -354,8 +354,8 @@ PYBIND11_MODULE(pyrgbd, m)
                 py::buffer_info y_buffer{y_array.request()};
                 py::buffer_info u_buffer{u_array.request()};
                 py::buffer_info v_buffer{v_array.request()};
-                int width{y_buffer.shape[1]};
-                int height{y_buffer.shape[0]};
+                int width{gsl::narrow<int>(y_buffer.shape[1])};
+                int height{gsl::narrow<int>(y_buffer.shape[0])};
                 return YuvFrame{width,
                                 height,
                                 static_cast<uint8_t*>(y_buffer.ptr),

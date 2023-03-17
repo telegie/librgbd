@@ -2,11 +2,13 @@
 name = "pyrgbd"
 version = "0.1.0"
 description = ""
-authors = ["Hanseul Jun <hanseuljun@gmail.com>"]
+authors = ["Hanseul Jun <hanseul@telegie.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.9.0"
+numpy = "^1.23.2"
+pyglm = "^2.6.0"
 
 
 [build-system]

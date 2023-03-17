@@ -27,6 +27,35 @@ For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp
 
 Build: CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py install
 
-Faster linux build: CMAKE_BUILD_PARALLEL_LEVEL=8 python setup.py install
+Faster linux build: python setup.py install -j8
 
 Test: python test_pyrgbd.py
+
+# pyrgbd
+
+pyrgbd is a Python library for read and writing RGBD videos files based on libmatroska.
+
+This library can read files exported from the Telegie and is based on librgbd.
+
+## Linux Requirements
+
+- add-apt-repository ppa:deadsnakes/ppa
+- apt install python3.9-dev python3.9-distutils libgl1 python3-venv python3-cachecontrol
+
+## Setup
+- git submodule update --init --recursive
+- python3 bootstrap.py
+- poetry shell
+- poetry install
+
+## Install
+- pip3 install -e .
+
+## Check
+- mypy .
+- black .
+
+## Deploy
+- python -m build --wheel
+- twine check dist/*
+- twine upload dist/*
