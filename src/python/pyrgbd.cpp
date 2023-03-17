@@ -108,8 +108,9 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_static("create_tdc1_encoder", &DepthEncoder::createTDC1Encoder)
         .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
         .def("encode",
-             [](DepthEncoder& encoder, const Int32Frame depth_frame, bool keyframe) {
-                 return encoder.encode(depth_frame.values().data(), keyframe);
+             [](DepthEncoder& encoder, const py::array_t<int32_t> depth_array, bool keyframe) {
+                 py::buffer_info depth_buffer{depth_array.request()};
+                 return encoder.encode(static_cast<int32_t*>(depth_buffer.ptr), keyframe);
              });
     // END depth_encoder.hpp
 
