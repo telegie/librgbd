@@ -79,7 +79,7 @@ def main():
         yuv_frame = yuv_frames[index]
         depth_frame = depth_frames[index]
         color_bytes = color_encoder.encode(yuv_frame, keyframe)
-        depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
+        depth_bytes = depth_encoder.encode(depth_frame, keyframe)
 
         file_bytes_builder.add_video_frame(
             rgbd.FileVideoFrame(

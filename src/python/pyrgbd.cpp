@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/stl_bind.h>
+#include <pybind11/numpy.h>
 #include <rgbd/rgbd.hpp>
 
 namespace py = pybind11;
@@ -69,6 +69,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN camera_calibration.hpp
     py::class_<CameraCalibration, std::shared_ptr<CameraCalibration>>(m, "CameraCalibration")
+        .def_property_readonly("camera_device_type", &CameraCalibration::getCameraDeviceType)
         .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
@@ -107,12 +108,17 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_static("create_tdc1_encoder", &DepthEncoder::createTDC1Encoder)
         .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
         .def("encode",
-             [](DepthEncoder& encoder, const vector<int32_t> depth_values, bool keyframe) {
-                 return encoder.encode(depth_values.data(), keyframe);
+             [](DepthEncoder& encoder, const Int32Frame depth_frame, bool keyframe) {
+                 return encoder.encode(depth_frame.values().data(), keyframe);
              });
     // END depth_encoder.hpp
 
     // BEGIN constants.hpp
+    py::enum_<CameraDeviceType>(m, "CameraDeviceType")
+        .value("AzureKinect", CameraDeviceType::AzureKinect)
+        .value("IOS", CameraDeviceType::IOS)
+        .value("Undistorted", CameraDeviceType::Undistorted);
+
     py::enum_<ColorCodecType>(m, "ColorCodecType").value("VP8", ColorCodecType::VP8);
 
     py::enum_<DepthCodecType>(m, "DepthCodecType")
@@ -282,7 +288,11 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<Int32Frame>(m, "Int32Frame")
         .def_property_readonly("width", &Int32Frame::width)
         .def_property_readonly("height", &Int32Frame::height)
-        .def_property_readonly("values", [](Int32Frame& frame) { return frame.values(); });
+        .def_property_readonly("values", [](const Int32Frame& frame) {
+            py::array_t<int32_t> array(frame.values().size(), frame.values().data());
+            array = array.reshape({frame.height(), frame.width()});
+            return array;
+        });
     // END integer_frame.hpp
 
     // BEGIN math_utils.hpp
@@ -317,6 +327,21 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<YuvFrame>(m, "YuvFrame")
         .def_property_readonly("width", &YuvFrame::width)
         .def_property_readonly("height", &YuvFrame::height)
+        .def_property_readonly("y_channel", [](const YuvFrame& frame) {
+            py::array_t<uint8_t> y_array(frame.y_channel().size(), frame.y_channel().data());
+            y_array = y_array.reshape({frame.height(), frame.width()});
+            return y_array;
+        })
+        .def_property_readonly("u_channel", [](const YuvFrame& frame) {
+            py::array_t<uint8_t> u_array(frame.u_channel().size(), frame.u_channel().data());
+            u_array = u_array.reshape({frame.height() / 2, frame.width() / 2});
+            return u_array;
+        })
+        .def_property_readonly("v_channel", [](const YuvFrame& frame) {
+            py::array_t<uint8_t> v_array(frame.v_channel().size(), frame.v_channel().data());
+            v_array = v_array.reshape({frame.height() / 2, frame.width() / 2});
+            return v_array;
+        })
         .def("get_mkv_cover_sized", [](const YuvFrame& frame) {
             auto mkv_cover_sized{frame.getMkvCoverSized()};
             return YuvFrame{std::move(*mkv_cover_sized)};
