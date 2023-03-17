@@ -20,7 +20,6 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Bootstrap
-        working-directory: python
         run: python3 bootstrap.py
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -29,15 +28,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Build
-        working-directory: python
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
+          poetry run python setup.py install
 
       - name: Test
-        working-directory: python
-        run: poetry run python test_encoder.py
+        run: poetry run python test_pyrgbd.py
 
   bulid-mac:
     runs-on: macos-12
@@ -55,7 +53,6 @@ jobs:
           brew install ninja
 
       - name: Bootstrap
-        working-directory: python
         run: python3 bootstrap.py
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -64,15 +61,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Build
-        working-directory: python
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
+          poetry run python setup.py install
 
       - name: Test
-        working-directory: python
-        run: poetry run python test_encoder.py
+        run: poetry run python test_pyrgbd.py
 
 
   build-linux:
@@ -91,7 +87,6 @@ jobs:
           sudo apt-get -y install ninja-build
 
       - name: Bootstrap
-        working-directory: python
         run: python3 bootstrap.py
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -100,13 +95,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Build
-        working-directory: python
         run: |
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-          poetry run python pyrgbd/_build_librgbd_ffi.py
+          poetry run python setup.py install
 
       - name: Test
-        working-directory: python
-        run: poetry run python test_encoder.py
+        run: poetry run python test_pyrgbd.py
