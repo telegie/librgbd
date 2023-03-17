@@ -48,18 +48,18 @@ glm::vec3 MathUtils::convertQuaternionToEulerAngles(const glm::quat& quat)
     float pitch{atan2f(-rotated_z.y, roll_pitch_z.z)};
     glm::quat negative_pitch_rotation{glm::angleAxis(-pitch, glm::vec3(1.0f, 0.0f, 0.0f))};
 
-    if (abs(pitch - glm::half_pi<float>()) < 0.0001f) {
+    if (glm::abs(pitch - glm::half_pi<float>()) < 0.0001f) {
         // when pitch == pi/2 (a case of gimbal lock)
         // Rotating a unit y with pitch of pi/2 results in a unit z.
         glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};
         float yaw{atan2f(rotated_y.x, rotated_y.z)};
         return glm::vec3{glm::half_pi<float>(), yaw, 0.0f};
-    } else if(abs(pitch + glm::half_pi<float>()) < 0.0001f) {
+    } else if(glm::abs(pitch + glm::half_pi<float>()) < 0.0001f) {
         // when pitch == -pi/2 (a case of gimbal lock)
         // Rotating a unit y with pitch of pi/2 results in a negative unit z.
         glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};
         float yaw{atan2f(-rotated_y.x, -rotated_y.z)};
-        return glm::vec3{glm::half_pi<float>(), yaw, 0.0f};
+        return glm::vec3{-glm::half_pi<float>(), yaw, 0.0f};
     }
 
     glm::vec3 rotated_y{glm::rotate(quat, glm::vec3{0.0f, 1.0f, 0.0f})};

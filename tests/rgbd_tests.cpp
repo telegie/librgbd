@@ -66,8 +66,8 @@ TEST_CASE("Check Euler Angles <-> Quaternion")
         glm::quat quat1{MathUtils::convertEulerAnglesToQuaternion(eulers1)};
         glm::vec3 eulers2{MathUtils::convertQuaternionToEulerAngles(quat1)};
         glm::quat quat2{MathUtils::convertEulerAnglesToQuaternion(eulers2)};
-//        spdlog::info("eulers1: {}, eulers2: {}", glm::to_string(eulers1), glm::to_string(eulers2));
-//        spdlog::info("quat1: {}, quat2: {}", glm::to_string(quat1), glm::to_string(quat2));
+        // spdlog::info("eulers1: {}, eulers2: {}", glm::to_string(eulers1), glm::to_string(eulers2));
+        // spdlog::info("quat1: {}, quat2: {}", glm::to_string(quat1), glm::to_string(quat2));
         REQUIRE(glm::all(glm::epsilonEqual(quat1, quat2, 0.0001f)));
     }
 }
