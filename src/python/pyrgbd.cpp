@@ -1,6 +1,6 @@
+#include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 #include <rgbd/rgbd.hpp>
 
 namespace py = pybind11;
@@ -134,7 +134,7 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<DirectionTable>(m, "DirectionTable")
         .def_property_readonly("width", &DirectionTable::width)
         .def_property_readonly("height", &DirectionTable::height)
-        .def_property_readonly("directions", [](const DirectionTable& direction_table) {
+        .def("get_directions", [](const DirectionTable& direction_table) {
             auto directions{direction_table.directions()};
             py::array_t<float> array(directions.size() * 3);
             auto buffer{array.request()};
@@ -215,13 +215,13 @@ PYBIND11_MODULE(pyrgbd, m)
         .def(py::init<int64_t, bool, const Bytes&, const Bytes&>())
         .def_property_readonly("time_point_us", &FileVideoFrame::time_point_us)
         .def_property_readonly("keyframe", &FileVideoFrame::keyframe)
-        .def_property_readonly("color_bytes", &FileVideoFrame::color_bytes)
-        .def_property_readonly("depth_bytes", &FileVideoFrame::depth_bytes);
+        .def("get_color_bytes", &FileVideoFrame::color_bytes, py::return_value_policy::copy)
+        .def("get_depth_bytes", &FileVideoFrame::depth_bytes, py::return_value_policy::copy);
 
     py::class_<FileAudioFrame, FileFrame>(m, "FileAudioFrame")
         .def(py::init<int64_t, const Bytes&>())
         .def_property_readonly("time_point_us", &FileAudioFrame::time_point_us)
-        .def_property_readonly("bytes", &FileAudioFrame::bytes);
+        .def("get_bytes", &FileAudioFrame::bytes, py::return_value_policy::copy);
 
     py::class_<FileIMUFrame, FileFrame>(m, "FileIMUFrame")
         .def(py::init<int64_t,
@@ -261,20 +261,21 @@ PYBIND11_MODULE(pyrgbd, m)
             return FileTRSFrame{time_point_us, translation, rotation, scale};
         }))
         .def_property_readonly("time_point_us", &FileTRSFrame::time_point_us)
-        .def_property_readonly("translation", &FileTRSFrame::translation)
-        .def_property_readonly("rotation", &FileTRSFrame::rotation)
-        .def_property_readonly("scale", &FileTRSFrame::scale);
+        .def_property_readonly(
+            "translation", &FileTRSFrame::translation, py::return_value_policy::copy)
+        .def_property_readonly("rotation", &FileTRSFrame::rotation, py::return_value_policy::copy)
+        .def_property_readonly("scale", &FileTRSFrame::scale, py::return_value_policy::copy);
 
     py::class_<File>(m, "File")
-        .def_property_readonly("offsets", &File::offsets, py::return_value_policy::copy)
-        .def_property_readonly("info", &File::info, py::return_value_policy::copy)
-        .def_property_readonly("tracks", &File::tracks, py::return_value_policy::copy)
-        .def_property_readonly("attachments", &File::attachments, py::return_value_policy::copy)
-        .def_property_readonly("video_frames", &File::video_frames, py::return_value_policy::copy)
-        .def_property_readonly("audio_frames", &File::audio_frames, py::return_value_policy::copy)
-        .def_property_readonly("imu_frames", &File::imu_frames, py::return_value_policy::copy)
-        .def_property_readonly("trs_frames", &File::trs_frames, py::return_value_policy::copy)
-        .def_property_readonly("direction_table", &File::direction_table, py::return_value_policy::copy);
+        .def("get_offsets", &File::offsets, py::return_value_policy::copy)
+        .def("get_info", &File::info, py::return_value_policy::copy)
+        .def("get_tracks", &File::tracks, py::return_value_policy::copy)
+        .def("get_attachments", &File::attachments, py::return_value_policy::copy)
+        .def("get_video_frames", &File::video_frames, py::return_value_policy::copy)
+        .def("get_audio_frames", &File::audio_frames, py::return_value_policy::copy)
+        .def("get_imu_frames", &File::imu_frames, py::return_value_policy::copy)
+        .def("get_trs_frames", &File::trs_frames, py::return_value_policy::copy)
+        .def("get_direction_table", &File::direction_table, py::return_value_policy::copy);
     // END file.hpp
 
     // BEGIN file_bytes_builder.hpp
@@ -311,7 +312,7 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<Int32Frame>(m, "Int32Frame")
         .def_property_readonly("width", &Int32Frame::width)
         .def_property_readonly("height", &Int32Frame::height)
-        .def_property_readonly("values", [](const Int32Frame& frame) {
+        .def("get_values", [](const Int32Frame& frame) {
             py::array_t<int32_t> array(frame.values().size(), frame.values().data());
             array = array.reshape({frame.height(), frame.width()});
             return array;
@@ -338,7 +339,9 @@ PYBIND11_MODULE(pyrgbd, m)
     // END math_utils.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
-    py::class_<UndistortedCameraCalibration, CameraCalibration, std::shared_ptr<UndistortedCameraCalibration>>(m, "UndistortedCameraCalibration")
+    py::class_<UndistortedCameraCalibration,
+               CameraCalibration,
+               std::shared_ptr<UndistortedCameraCalibration>>(m, "UndistortedCameraCalibration")
         .def(py::init<int, int, int, int, float, float, float, float>())
         .def_property_readonly("fx", &UndistortedCameraCalibration::fx)
         .def_property_readonly("fy", &UndistortedCameraCalibration::fy)
@@ -351,41 +354,42 @@ PYBIND11_MODULE(pyrgbd, m)
         .def(py::init([](const py::array_t<uint8_t> y_array,
                          const py::array_t<uint8_t> u_array,
                          const py::array_t<uint8_t> v_array) {
-                py::buffer_info y_buffer{y_array.request()};
-                py::buffer_info u_buffer{u_array.request()};
-                py::buffer_info v_buffer{v_array.request()};
-                int width{gsl::narrow<int>(y_buffer.shape[1])};
-                int height{gsl::narrow<int>(y_buffer.shape[0])};
-                return YuvFrame{width,
-                                height,
-                                static_cast<uint8_t*>(y_buffer.ptr),
-                                static_cast<uint8_t*>(u_buffer.ptr),
-                                static_cast<uint8_t*>(v_buffer.ptr)};
-            })
-        )
+            py::buffer_info y_buffer{y_array.request()};
+            py::buffer_info u_buffer{u_array.request()};
+            py::buffer_info v_buffer{v_array.request()};
+            int width{gsl::narrow<int>(y_buffer.shape[1])};
+            int height{gsl::narrow<int>(y_buffer.shape[0])};
+            return YuvFrame{width,
+                            height,
+                            static_cast<uint8_t*>(y_buffer.ptr),
+                            static_cast<uint8_t*>(u_buffer.ptr),
+                            static_cast<uint8_t*>(v_buffer.ptr)};
+        }))
         .def_property_readonly("width", &YuvFrame::width)
         .def_property_readonly("height", &YuvFrame::height)
-        .def_property_readonly("y_channel", [](const YuvFrame& frame) {
-            py::array_t<uint8_t> y_array(frame.y_channel().size(), frame.y_channel().data());
-            y_array = y_array.reshape({frame.height(), frame.width()});
-            return y_array;
-        })
-        .def_property_readonly("u_channel", [](const YuvFrame& frame) {
-            py::array_t<uint8_t> u_array(frame.u_channel().size(), frame.u_channel().data());
-            u_array = u_array.reshape({frame.height() / 2, frame.width() / 2});
-            return u_array;
-        })
-        .def_property_readonly("v_channel", [](const YuvFrame& frame) {
-            py::array_t<uint8_t> v_array(frame.v_channel().size(), frame.v_channel().data());
-            v_array = v_array.reshape({frame.height() / 2, frame.width() / 2});
-            return v_array;
-        })
-        .def("get_mkv_cover_sized", [](const YuvFrame& frame) {
-            auto mkv_cover_sized{frame.getMkvCoverSized()};
-            return YuvFrame{std::move(*mkv_cover_sized)};
-        })
-        .def("get_png_bytes", [](const YuvFrame& frame) {
-            return frame.getPNGBytes();
-        });
+        .def("get_y_channel",
+             [](const YuvFrame& frame) {
+                 py::array_t<uint8_t> y_array(frame.y_channel().size(), frame.y_channel().data());
+                 y_array = y_array.reshape({frame.height(), frame.width()});
+                 return y_array;
+             })
+        .def("get_u_channel",
+             [](const YuvFrame& frame) {
+                 py::array_t<uint8_t> u_array(frame.u_channel().size(), frame.u_channel().data());
+                 u_array = u_array.reshape({frame.height() / 2, frame.width() / 2});
+                 return u_array;
+             })
+        .def("get_v_channel",
+             [](const YuvFrame& frame) {
+                 py::array_t<uint8_t> v_array(frame.v_channel().size(), frame.v_channel().data());
+                 v_array = v_array.reshape({frame.height() / 2, frame.width() / 2});
+                 return v_array;
+             })
+        .def("get_mkv_cover_sized",
+             [](const YuvFrame& frame) {
+                 auto mkv_cover_sized{frame.getMkvCoverSized()};
+                 return YuvFrame{std::move(*mkv_cover_sized)};
+             })
+        .def("get_png_bytes", [](const YuvFrame& frame) { return frame.getPNGBytes(); });
     // END yuv_frame.hpp
 }

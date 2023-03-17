@@ -27,8 +27,9 @@ def main():
     file_parser = rgbd.FileParser(video_file_path)
     file = file_parser.parse(True, True)
 
-    print(f"color codec: {file.tracks.color_track.codec}")
-    print(f"depth codec: {file.tracks.depth_track.codec}")
+    file_tracks = file.get_tracks()
+    print(f"color codec: {file_tracks.color_track.codec}")
+    print(f"depth codec: {file_tracks.depth_track.codec}")
 
     standard_calibration = rgbd.UndistortedCameraCalibration(
         1024, 1024, 512, 512, 0.5, 0.5, 0.5, 0.5
@@ -36,20 +37,22 @@ def main():
 
     file_bytes_builder = rgbd.FileBytesBuilder()
     file_bytes_builder.set_calibration(standard_calibration)
-    file_bytes_builder.set_depth_unit(file.tracks.depth_track.depth_unit)
+    file_bytes_builder.set_depth_unit(file_tracks.depth_track.depth_unit)
 
     yuv_frames = []
     depth_frames = []
-    frame_mapper = rgbd.FrameMapper(file.attachments.camera_calibration, standard_calibration)
+    file_attachments = file.get_attachments()
+    frame_mapper = rgbd.FrameMapper(file_attachments.camera_calibration, standard_calibration)
     color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
-    for video_frame in file.video_frames:
-        yuv_frame = color_decoder.decode(video_frame.color_bytes)
+    file_video_frames = file.get_video_frames()
+    for video_frame in file_video_frames:
+        yuv_frame = color_decoder.decode(video_frame.get_color_bytes())
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
 
     depth_decoder = rgbd.DepthDecoder(rgbd.DepthCodecType.TDC1)
-    for video_frame in file.video_frames:
-        depth_frame = depth_decoder.decode(video_frame.depth_bytes)
+    for video_frame in file_video_frames:
+        depth_frame = depth_decoder.decode(video_frame.get_depth_bytes())
         mapped_depth_frame = frame_mapper.map_depth_frame(depth_frame)
         depth_frames.append(mapped_depth_frame)
 
@@ -67,19 +70,19 @@ def main():
     # file_bytes_builder.set_cover_png_bytes(
     #     yuv_frames[0].get_mkv_cover_sized().get_png_bytes()
     # )
-    file_bytes_builder.set_cover_png_bytes(file.attachments.cover_png_bytes)
+    file_bytes_builder.set_cover_png_bytes(file_attachments.cover_png_bytes)
 
     color_encoder = rgbd.ColorEncoder(rgbd.ColorCodecType.VP8, color_width, color_height, 30)
     depth_encoder = rgbd.DepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500)
-    for index in range(len(file.video_frames)):
+    for index in range(len(file_video_frames)):
         print(f"index: {index}")
-        video_frame = file.video_frames[index]
+        video_frame = file_video_frames[index]
         keyframe = index % 60 == 0
 
         yuv_frame = yuv_frames[index]
         depth_frame = depth_frames[index]
         color_bytes = color_encoder.encode(yuv_frame, keyframe)
-        depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
+        depth_bytes = depth_encoder.encode(depth_frame.get_values(), keyframe)
 
         file_bytes_builder.add_video_frame(
             rgbd.FileVideoFrame(
@@ -87,15 +90,17 @@ def main():
             )
         )
 
-    for audio_frame in file.audio_frames:
+    file_audio_frames = file.get_audio_frames()
+    for audio_frame in file_audio_frames:
         file_bytes_builder.add_audio_frame(audio_frame)
 
     previous_rotation = glm.quat(1, 0, 0, 0)
     previous_time_point_us = 0
-    if len(file.imu_frames) > 0:
-        previous_time_point_us = file.imu_frames[0].time_point_us
+    file_imu_frames = file.get_imu_frames()
+    if len(file_imu_frames) > 0:
+        previous_time_point_us = file_imu_frames[0].time_point_us
 
-    for imu_frame in file.imu_frames:
+    for imu_frame in file_imu_frames:
         file_bytes_builder.add_imu_frame(imu_frame)
 
         delta_time_sec = (imu_frame.time_point_us - previous_time_point_us) / 1000.0 / 1000.0
