@@ -13,6 +13,9 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN audio_decoder.hpp
     py::class_<AudioDecoder>(m, "AudioDecoder")
         .def(py::init())
+        .def("decode", [](AudioDecoder& decoder, const Bytes& bytes) {
+            return decoder.decode({bytes.data(), bytes.size()});
+        })
         .def("decode", &AudioDecoder::decode);
     // END audio_decoder.hpp
 
@@ -49,7 +52,10 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN color_decoder.hpp
     py::class_<ColorDecoder>(m, "ColorDecoder")
         .def(py::init<ColorCodecType>())
-        .def("decode", &ColorDecoder::decode);
+        .def("decode", [](ColorDecoder& decoder, const Bytes& bytes) {
+            auto yuv_frame{decoder.decode({bytes.data(), bytes.size()})};
+            return YuvFrame{std::move(*yuv_frame)};
+        });
     // END color_decoder.hpp
 
     // BEGIN color_encoder.hpp
@@ -61,15 +67,21 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN depth_decoder.hpp
     py::class_<DepthDecoder>(m, "DepthDecoder")
         .def(py::init<DepthCodecType>())
-        .def("decode", &DepthDecoder::decode);
+        .def("decode", [](DepthDecoder& decoder, const Bytes& bytes) {
+            auto depth_frame{decoder.decode({bytes.data(), bytes.size()})};
+            return Int32Frame{std::move(*depth_frame)};
+        });
     // END depth_decoder.hpp
 
     // BEGIN depth_encoder.hpp
     py::class_<DepthEncoder>(m, "DepthEncoder")
-        .def_static("createRVLEncoder", &DepthEncoder::createRVLEncoder)
-        .def_static("createTDC1Encoder", &DepthEncoder::createTDC1Encoder)
+        .def_static("create_rvl_encoder", &DepthEncoder::createRVLEncoder)
+        .def_static("create_tdc1_encoder", &DepthEncoder::createTDC1Encoder)
         .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
-        .def("encode", &DepthEncoder::encode);
+        .def("encode",
+             [](DepthEncoder& encoder, const vector<int32_t> depth_values, bool keyframe) {
+                return encoder.encode(depth_values.data(), keyframe);
+             });
     // END depth_encoder.hpp
 
     // BEGIN constants.hpp
@@ -208,9 +220,18 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN frame_mapper.hpp
     py::class_<FrameMapper>(m, "FrameMapper")
         .def(py::init<const rgbd::CameraCalibration&, const rgbd::CameraCalibration&>())
-        .def("mapColorFrame", &FrameMapper::mapColorFrame)
-        .def("mapDepthFrame", &FrameMapper::mapDepthFrame);
+        .def("map_color_frame", &FrameMapper::mapColorFrame)
+        .def("map_depth_frame", &FrameMapper::mapDepthFrame);
     // END frame_mapper.hpp
+
+    // BEGIN integer_frame.hpp
+    py::class_<Int32Frame>(m, "Int32Frame")
+        .def_property_readonly("width", &Int32Frame::width)
+        .def_property_readonly("height", &Int32Frame::height)
+        .def_property_readonly("values", [](Int32Frame& frame) {
+            return frame.values();
+        });
+    // END integer_frame.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
     py::class_<UndistortedCameraCalibration, CameraCalibration>(m, "UndistortedCameraCalibration")
@@ -220,4 +241,10 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("cx", &UndistortedCameraCalibration::cx)
         .def_property_readonly("cy", &UndistortedCameraCalibration::cy);
     // END undistorted_camera_distortion.hpp
+
+    // BEGIN yuv_frame.hpp
+    py::class_<YuvFrame>(m, "YuvFrame")
+        .def_property_readonly("width", &YuvFrame::width)
+        .def_property_readonly("height", &YuvFrame::height);
+    // END yuv_frame.hpp
 }

@@ -43,8 +43,7 @@ def main():
     frame_mapper = rgbd.FrameMapper(file.attachments.camera_calibration, standard_calibration)
     color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
     for video_frame in file.video_frames:
-        color_bytes = video_frame.color_bytes
-        yuv_frame = color_decoder.decode(color_bytes)
+        yuv_frame = color_decoder.decode(video_frame.color_bytes)
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
 
@@ -70,26 +69,23 @@ def main():
     # )
     file_bytes_builder.set_cover_png_bytes(file.attachments.cover_png_bytes)
 
-    with rgbd.NativeColorEncoder(
-        rgbd.lib.RGBD_COLOR_CODEC_TYPE_VP8, color_width, color_height, 30
-    ) as color_encoder, rgbd.NativeDepthEncoder.create_tdc1_encoder(
-        depth_width, depth_height, 500
-    ) as depth_encoder:
-        for index in range(len(file.video_frames)):
-            print(f"index: {index}")
-            video_frame = file.video_frames[index]
-            keyframe = index % 60 == 0
+    color_encoder = rgbd.ColorEncoder(rgbd.ColorCodecType.VP8, color_width, color_height, 30)
+    depth_encoder = rgbd.DepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500)
+    for index in range(len(file.video_frames)):
+        print(f"index: {index}")
+        video_frame = file.video_frames[index]
+        keyframe = index % 60 == 0
 
-            yuv_frame = yuv_frames[index]
-            depth_frame = depth_frames[index]
-            color_bytes = color_encoder.encode(yuv_frame, keyframe)
-            depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
+        yuv_frame = yuv_frames[index]
+        depth_frame = depth_frames[index]
+        color_bytes = color_encoder.encode(yuv_frame, keyframe)
+        depth_bytes = depth_encoder.encode(depth_frame.values, keyframe)
 
-            file_bytes_builder.add_video_frame(
-                rgbd.FileVideoFrame(
-                    video_frame.time_point_us, keyframe, color_bytes, depth_bytes
-                )
+        file_bytes_builder.add_video_frame(
+            rgbd.FileVideoFrame(
+                video_frame.time_point_us, keyframe, color_bytes, depth_bytes
             )
+        )
 
     for audio_frame in file.audio_frames:
         file_bytes_builder.add_audio_frame(audio_frame)

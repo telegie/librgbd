@@ -44,11 +44,11 @@ public:
     {
         return height_;
     }
-    std::vector<T>& values() noexcept
+    vector<T>& values() noexcept
     {
         return values_;
     }
-    const std::vector<T>& values() const noexcept
+    const vector<T>& values() const noexcept
     {
         return values_;
     }
@@ -56,7 +56,7 @@ public:
 private:
     int width_;
     int height_;
-    std::vector<T> values_;
+    vector<T> values_;
 };
 
 using Int32Frame = IntegerFrame<int32_t>;
