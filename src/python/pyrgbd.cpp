@@ -68,7 +68,7 @@ PYBIND11_MODULE(pyrgbd, m)
     // END audio_frame.hpp
 
     // BEGIN camera_calibration.hpp
-    py::class_<CameraCalibration>(m, "CameraCalibration")
+    py::class_<CameraCalibration, std::shared_ptr<CameraCalibration>>(m, "CameraCalibration")
         .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
@@ -237,15 +237,15 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("scale", &FileTRSFrame::scale);
 
     py::class_<File>(m, "File")
-        .def_property_readonly("offsets", &File::offsets)
-        .def_property_readonly("info", &File::info)
-        .def_property_readonly("tracks", &File::tracks)
-        .def_property_readonly("attachments", &File::attachments)
-        .def_property_readonly("video_frames", &File::video_frames)
-        .def_property_readonly("audio_frames", &File::audio_frames)
-        .def_property_readonly("imu_frames", &File::imu_frames)
-        .def_property_readonly("trs_frames", &File::trs_frames)
-        .def_property_readonly("direction_table", &File::direction_table);
+        .def_property_readonly("offsets", &File::offsets, py::return_value_policy::copy)
+        .def_property_readonly("info", &File::info, py::return_value_policy::copy)
+        .def_property_readonly("tracks", &File::tracks, py::return_value_policy::copy)
+        .def_property_readonly("attachments", &File::attachments, py::return_value_policy::copy)
+        .def_property_readonly("video_frames", &File::video_frames, py::return_value_policy::copy)
+        .def_property_readonly("audio_frames", &File::audio_frames, py::return_value_policy::copy)
+        .def_property_readonly("imu_frames", &File::imu_frames, py::return_value_policy::copy)
+        .def_property_readonly("trs_frames", &File::trs_frames, py::return_value_policy::copy)
+        .def_property_readonly("direction_table", &File::direction_table, py::return_value_policy::copy);
     // END file.hpp
 
     // BEGIN file_bytes_builder.hpp
@@ -257,7 +257,6 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("set_depth_unit", &FileBytesBuilder::setDepthUnit)
         .def("set_calibration", &FileBytesBuilder::setCalibration)
         .def("set_cover_png_bytes", &FileBytesBuilder::setCoverPNGBytes)
-        .def("add_video_frame", &FileBytesBuilder::addVideoFrame)
         .def("add_video_frame", &FileBytesBuilder::addVideoFrame)
         .def("add_audio_frame", &FileBytesBuilder::addAudioFrame)
         .def("add_imu_frame", &FileBytesBuilder::addIMUFrame)
@@ -306,7 +305,7 @@ PYBIND11_MODULE(pyrgbd, m)
     // END math_utils.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
-    py::class_<UndistortedCameraCalibration, CameraCalibration>(m, "UndistortedCameraCalibration")
+    py::class_<UndistortedCameraCalibration, CameraCalibration, std::shared_ptr<UndistortedCameraCalibration>>(m, "UndistortedCameraCalibration")
         .def(py::init<int, int, int, int, float, float, float, float>())
         .def_property_readonly("fx", &UndistortedCameraCalibration::fx)
         .def_property_readonly("fy", &UndistortedCameraCalibration::fy)
@@ -317,6 +316,13 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN yuv_frame.hpp
     py::class_<YuvFrame>(m, "YuvFrame")
         .def_property_readonly("width", &YuvFrame::width)
-        .def_property_readonly("height", &YuvFrame::height);
+        .def_property_readonly("height", &YuvFrame::height)
+        .def("get_mkv_cover_sized", [](const YuvFrame& frame) {
+            auto mkv_cover_sized{frame.getMkvCoverSized()};
+            return YuvFrame{std::move(*mkv_cover_sized)};
+        })
+        .def("get_png_bytes", [](const YuvFrame& frame) {
+            return frame.getPNGBytes();
+        });
     // END yuv_frame.hpp
 }

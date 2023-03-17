@@ -56,23 +56,32 @@ YuvFrame::YuvFrame(const int width,
                    vector<uint8_t>&& y_channel,
                    vector<uint8_t>&& u_channel,
                    vector<uint8_t>&& v_channel) noexcept
-    : y_channel_(std::move(y_channel))
+    : width_{width}
+    , height_{height}
+    , y_channel_(std::move(y_channel))
     , u_channel_(std::move(u_channel))
     , v_channel_(std::move(v_channel))
-    , width_{width}
-    , height_{height}
 {
     Expects(y_channel_.size() == (width * height));
     Expects(u_channel_.size() == (width * height / 4));
     Expects(v_channel_.size() == (width * height / 4));
 }
 
+YuvFrame::YuvFrame(YuvFrame&& yuv_frame)
+    : width_{yuv_frame.width_}
+    , height_{yuv_frame.height_}
+    , y_channel_(std::move(yuv_frame.y_channel_))
+    , u_channel_(std::move(yuv_frame.u_channel_))
+    , v_channel_(std::move(yuv_frame.v_channel_))
+{
+}
+
 YuvFrame::YuvFrame(AVFrameHandle& av_frame)
-    : y_channel_()
+    : width_{gsl::narrow<int>(av_frame->width)}
+    , height_{gsl::narrow<int>(av_frame->height)}
+    , y_channel_()
     , u_channel_()
     , v_channel_()
-    , width_{gsl::narrow<int>(av_frame->width)}
-    , height_{gsl::narrow<int>(av_frame->height)}
 {
     y_channel_ =
         convert_channel_plane_to_bytes(av_frame->data[0], av_frame->linesize[0], width_, height_);

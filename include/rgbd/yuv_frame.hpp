@@ -24,6 +24,7 @@ public:
              vector<uint8_t>&& y_channel,
              vector<uint8_t>&& u_channel,
              vector<uint8_t>&& v_channel) noexcept;
+    YuvFrame(YuvFrame&& yuv_frame);
     YuvFrame(AVFrameHandle& av_frame);
     static unique_ptr<YuvFrame> createFromAzureKinectYuy2Buffer(
         const uint8_t* buffer, int width, int height, int stride_bytes, int downsample);
