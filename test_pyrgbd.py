@@ -43,7 +43,8 @@ def main():
     frame_mapper = rgbd.FrameMapper(file.attachments.camera_calibration, standard_calibration)
     color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
     for video_frame in file.video_frames:
-        yuv_frame = color_decoder.decode(video_frame.color_bytes)
+        color_bytes = video_frame.color_bytes
+        yuv_frame = color_decoder.decode(color_bytes)
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
 

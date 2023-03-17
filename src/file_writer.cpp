@@ -414,8 +414,7 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
     video_cluster->EnableChecksum();
 
     auto color_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto color_data_buffer{new DataBuffer{
-        reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.color_bytes().data())),
+    auto color_data_buffer{new DataBuffer{const_cast<uint8_t*>(video_frame.color_bytes().data()),
         gsl::narrow<uint32_t>(video_frame.color_bytes().size())}};
     video_cluster->AddBlockBlob(color_block_blob);
     color_block_blob->SetParent(*video_cluster);
@@ -426,8 +425,7 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
                                    video_frame.keyframe() ? nullptr : past_color_block_blob_);
 
     auto depth_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto depth_data_buffer{new DataBuffer{
-        reinterpret_cast<uint8_t*>(const_cast<byte*>(video_frame.depth_bytes().data())),
+    auto depth_data_buffer{new DataBuffer{const_cast<uint8_t*>(video_frame.depth_bytes().data()),
         gsl::narrow<uint32_t>(video_frame.depth_bytes().size())}};
     video_cluster->AddBlockBlob(depth_block_blob);
     depth_block_blob->SetParent(*video_cluster);
@@ -470,9 +468,8 @@ void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
     // const_cast is okay here since the audio_bytes will not be modified here,
     // and this lets the argument become a const one, which is helpful for the C API side.
     // For example, this makes calling the C API easier from Swift.
-    auto data_buffer{
-        new DataBuffer{reinterpret_cast<uint8_t*>(const_cast<byte*>(audio_frame.bytes().data())),
-                       gsl::narrow<uint32_t>(audio_frame.bytes().size())}};
+    auto data_buffer{new DataBuffer{const_cast<uint8_t*>(audio_frame.bytes().data()),
+                                    gsl::narrow<uint32_t>(audio_frame.bytes().size())}};
     audio_cluster->AddBlockBlob(block_blob);
     block_blob->SetParent(*audio_cluster);
     block_blob->AddFrameAuto(*writer_tracks_.audio_track, audio_cluster_timecode, *data_buffer);
@@ -570,7 +567,7 @@ void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
     trs_cluster->SetParent(segment_);
     trs_cluster->EnableChecksum();
 
-    vector<byte> translation_bytes(convert_vec3_to_bytes(trs_frame.translation()));
+    Bytes translation_bytes(convert_vec3_to_bytes(trs_frame.translation()));
 
     auto translation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto translation_data_buffer{
@@ -581,7 +578,7 @@ void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
     translation_block_blob->AddFrameAuto(
         *writer_tracks_.translation_track, trs_timecode, *translation_data_buffer);
 
-    vector<byte> rotation_bytes(convert_quat_to_bytes(trs_frame.rotation()));
+    Bytes rotation_bytes(convert_quat_to_bytes(trs_frame.rotation()));
 
     auto rotation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto rotation_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
@@ -591,7 +588,7 @@ void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
     rotation_block_blob->AddFrameAuto(
         *writer_tracks_.rotation_track, trs_timecode, *rotation_data_buffer);
 
-    vector<byte> scale_bytes(convert_vec3_to_bytes(trs_frame.scale()));
+    Bytes scale_bytes(convert_vec3_to_bytes(trs_frame.scale()));
 
     auto scale_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto scale_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),

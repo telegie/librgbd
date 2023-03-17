@@ -76,7 +76,7 @@ Bytes AVPacketHandle::getDataBytes()
 {
     Bytes data_bytes;
     for (size_t i{0}; i < shared_ptr_->size; ++i)
-        data_bytes.push_back(static_cast<byte>(shared_ptr_->data[i]));
+        data_bytes.push_back(shared_ptr_->data[i]);
     return data_bytes;
 }
 

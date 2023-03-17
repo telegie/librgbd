@@ -331,18 +331,15 @@ void rgbd_color_decoder_dtor(void* ptr)
 
 void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t vp8_frame_size)
 {
-    auto yuv_frame{static_cast<ColorDecoder*>(ptr)->decode(
-        {reinterpret_cast<const byte*>(vp8_frame_data), vp8_frame_size})};
+    auto yuv_frame{static_cast<ColorDecoder*>(ptr)->decode({vp8_frame_data, vp8_frame_size})};
     return yuv_frame.release();
 }
 //////// END COLOR DECODER ////////
 
 //////// START COLOR ENCODER ////////
-void* rgbd_color_encoder_ctor(
-    rgbdColorCodecType type, int width, int height, int framerate)
+void* rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height, int framerate)
 {
-    return new ColorEncoder{
-        static_cast<ColorCodecType>(type), width, height, framerate};
+    return new ColorEncoder{static_cast<ColorCodecType>(type), width, height, framerate};
 }
 
 void rgbd_color_encoder_dtor(void* ptr)
@@ -371,8 +368,7 @@ void rgbd_depth_decoder_dtor(void* ptr)
 
 void* rgbd_depth_decoder_decode(void* ptr, const uint8_t* depth_bytes_data, size_t depth_bytes_size)
 {
-    auto depth_frame{static_cast<DepthDecoder*>(ptr)->decode(
-        {reinterpret_cast<const byte*>(depth_bytes_data), depth_bytes_size})};
+    auto depth_frame{static_cast<DepthDecoder*>(ptr)->decode({depth_bytes_data, depth_bytes_size})};
     return depth_frame.release();
 }
 //////// END DEPTH DECODER ////////
@@ -541,8 +537,7 @@ void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 void* rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size)
 {
     Bytes bytes;
-    auto bytes_ptr{reinterpret_cast<const byte*>(bytes_data)};
-    bytes.insert(bytes.end(), &bytes_ptr[0], &bytes_ptr[byte_size]);
+    bytes.insert(bytes.end(), &bytes_data[0], &bytes_data[byte_size]);
     return new FileAudioFrame{time_point_us, bytes};
 }
 
@@ -633,9 +628,9 @@ void rgbd_file_bytes_builder_set_cover_png_bytes(void* ptr,
                                                  size_t cover_png_byte_size)
 {
     Bytes cover_png_bytes;
-    auto cover_png_bytes_ptr{reinterpret_cast<const byte*>(cover_png_bytes_data)};
-    cover_png_bytes.insert(
-        cover_png_bytes.end(), &cover_png_bytes_ptr[0], &cover_png_bytes_ptr[cover_png_byte_size]);
+    cover_png_bytes.insert(cover_png_bytes.end(),
+                           &cover_png_bytes_data[0],
+                           &cover_png_bytes_data[cover_png_byte_size]);
 
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
     file_bytes_builder->setCoverPNGBytes(cover_png_bytes);
@@ -1035,12 +1030,10 @@ void* rgbd_file_video_frame_ctor(int64_t time_point_us,
                                  size_t depth_byte_size)
 {
     Bytes color_bytes;
-    auto color_bytes_ptr{reinterpret_cast<const byte*>(color_bytes_data)};
-    color_bytes.insert(color_bytes.end(), &color_bytes_ptr[0], &color_bytes_ptr[color_byte_size]);
+    color_bytes.insert(color_bytes.end(), &color_bytes_data[0], &color_bytes_data[color_byte_size]);
 
     Bytes depth_bytes;
-    auto depth_bytes_ptr{reinterpret_cast<const byte*>(depth_bytes_data)};
-    depth_bytes.insert(depth_bytes.end(), &depth_bytes_ptr[0], &depth_bytes_ptr[depth_byte_size]);
+    depth_bytes.insert(depth_bytes.end(), &depth_bytes_data[0], &depth_bytes_data[depth_byte_size]);
 
     return new FileVideoFrame{time_point_us, keyframe, color_bytes, depth_bytes};
 }

@@ -39,7 +39,7 @@ using std::weak_ptr;
 using gsl::span;
 using nlohmann::json;
 
-using Bytes = vector<std::byte>;
+using Bytes = vector<uint8_t>;
 
 enum class CameraDeviceType : int32_t
 {

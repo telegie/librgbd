@@ -45,7 +45,7 @@ ColorDecoder::ColorDecoder(ColorCodecType type)
 }
 
 // Decode frames in vp8_frame_data.
-unique_ptr<YuvFrame> ColorDecoder::decode(span<const byte> vp8_frame)
+unique_ptr<YuvFrame> ColorDecoder::decode(span<const uint8_t> vp8_frame)
 {
     vector<unique_ptr<YuvFrame>> yuv_frames;
     /* use the parser to split the data into frames */

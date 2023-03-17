@@ -19,7 +19,7 @@ DepthDecoder::DepthDecoder(DepthCodecType depth_codec_type)
 
 }
 
-unique_ptr<Int32Frame> DepthDecoder::decode(span<const byte> bytes) noexcept
+unique_ptr<Int32Frame> DepthDecoder::decode(span<const uint8_t> bytes) noexcept
 {
     return impl_->decode(bytes);
 }

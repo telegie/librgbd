@@ -137,7 +137,7 @@ Bytes copy_data_buffer_to_bytes(DataBuffer& data_buffer)
     return bytes;
 }
 
-glm::vec3 read_vec3(const vector<byte>& bytes)
+glm::vec3 read_vec3(const Bytes& bytes)
 {
     int cursor{0};
     float x{read_from_bytes<float>(bytes, cursor)};
@@ -146,7 +146,7 @@ glm::vec3 read_vec3(const vector<byte>& bytes)
     return glm::vec3{x, y, z};
 }
 
-glm::quat read_quat(const vector<byte>& bytes)
+glm::quat read_quat(const Bytes& bytes)
 {
     int cursor{0};
     float w{read_from_bytes<float>(bytes, cursor)};

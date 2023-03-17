@@ -9,7 +9,7 @@
 
 namespace rgbd
 {
-bool is_tdc1_keyframe(span<const byte> bytes)
+bool is_tdc1_keyframe(span<const uint8_t> bytes)
 {
     int cursor{8};
     bool keyframe{read_from_bytes<int32_t>(bytes, cursor) > 0 ? true : false};
@@ -21,13 +21,13 @@ TDC1Decoder::TDC1Decoder() noexcept
 {
 }
 
-unique_ptr<Int32Frame> TDC1Decoder::decode(span<const byte> bytes) noexcept
+unique_ptr<Int32Frame> TDC1Decoder::decode(span<const uint8_t> bytes) noexcept
 {
     int cursor{0};
     int width{read_from_bytes<int32_t>(bytes, cursor)};
     int height{read_from_bytes<int32_t>(bytes, cursor)};
     bool keyframe{read_from_bytes<int32_t>(bytes, cursor) > 0 ? true : false};
-    span<const byte> encoded_depth_values{bytes.data() + cursor, bytes.size() - cursor};
+    span<const uint8_t> encoded_depth_values{bytes.data() + cursor, bytes.size() - cursor};
 
     if (previous_depth_values_.size() == 0)
         previous_depth_values_ = vector<int32_t>(static_cast<int64_t>(width) * height, 0);

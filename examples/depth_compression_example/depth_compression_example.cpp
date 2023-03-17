@@ -48,7 +48,7 @@ void run()
         Bytes tdc1_frame{encoder.encode(decoded_frame->values().data(), first)};
         tdc1_frames.push_back(tdc1_frame);
 
-        Bytes zstd_frame{ZSTD_compressBound(tdc1_frame.size())};
+        Bytes zstd_frame(ZSTD_compressBound(tdc1_frame.size()));
         size_t zstd_frame_size{ZSTD_compress(
             zstd_frame.data(), zstd_frame.size(), tdc1_frame.data(), tdc1_frame.size(), 1)};
         zstd_frame.resize(zstd_frame_size);
