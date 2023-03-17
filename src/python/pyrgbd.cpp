@@ -93,6 +93,22 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("encode", &ColorEncoder::encode);
     // END color_encoder.hpp
 
+    // BEGIN constants.hpp
+    py::enum_<CameraDeviceType>(m, "CameraDeviceType")
+        .value("AzureKinect", CameraDeviceType::AzureKinect)
+        .value("IOS", CameraDeviceType::IOS)
+        .value("Undistorted", CameraDeviceType::Undistorted);
+
+    py::enum_<ColorCodecType>(m, "ColorCodecType").value("VP8", ColorCodecType::VP8);
+
+    py::enum_<DepthCodecType>(m, "DepthCodecType")
+        .value("RVL", DepthCodecType::RVL)
+        .value("TDC1", DepthCodecType::TDC1);
+
+    m.attr("AUDIO_SAMPLE_RATE") = AUDIO_SAMPLE_RATE;
+    m.attr("AUDIO_INPUT_SAMPLES_PER_FRAME") = AUDIO_INPUT_SAMPLES_PER_FRAME;
+    // END constants.hpp
+
     // BEGIN depth_decoder.hpp
     py::class_<DepthDecoder>(m, "DepthDecoder")
         .def(py::init<DepthCodecType>())
@@ -114,22 +130,24 @@ PYBIND11_MODULE(pyrgbd, m)
              });
     // END depth_encoder.hpp
 
-    // BEGIN constants.hpp
-    py::enum_<CameraDeviceType>(m, "CameraDeviceType")
-        .value("AzureKinect", CameraDeviceType::AzureKinect)
-        .value("IOS", CameraDeviceType::IOS)
-        .value("Undistorted", CameraDeviceType::Undistorted);
-
-    py::enum_<ColorCodecType>(m, "ColorCodecType").value("VP8", ColorCodecType::VP8);
-
-    py::enum_<DepthCodecType>(m, "DepthCodecType")
-        .value("RVL", DepthCodecType::RVL)
-        .value("TDC1", DepthCodecType::TDC1);
-
-    m.attr("AUDIO_SAMPLE_RATE") = AUDIO_SAMPLE_RATE;
-    m.attr("AUDIO_INPUT_SAMPLES_PER_FRAME") = AUDIO_INPUT_SAMPLES_PER_FRAME;
-
-    // END constants.hpp
+    // BEGIN direction_table.hpp
+    py::class_<DirectionTable>(m, "DirectionTable")
+        .def_property_readonly("width", &DirectionTable::width)
+        .def_property_readonly("height", &DirectionTable::height)
+        .def_property_readonly("directions", [](const DirectionTable& direction_table) {
+            auto directions{direction_table.directions()};
+            py::array_t<float> array(directions.size() * 3);
+            auto buffer{array.request()};
+            float* ptr{static_cast<float*>(buffer.ptr)};
+            for (size_t i{0}; i < directions.size(); ++i) {
+                ptr[i * 3 + 0] = directions[i].x;
+                ptr[i * 3 + 1] = directions[i].y;
+                ptr[i * 3 + 2] = directions[i].z;
+            }
+            array = array.reshape({direction_table.height(), direction_table.width(), 3});
+            return array;
+        });
+    // END depth_encoder.hpp
 
     // BEGIN file.hpp
     py::class_<FileOffsets>(m, "FileOffsets")
