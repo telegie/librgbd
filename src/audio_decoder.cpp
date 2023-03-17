@@ -57,7 +57,7 @@ AudioDecoder::AudioDecoder()
 }
 
 // Decode frames in vp8_frame_data.
-vector<float> AudioDecoder::decode(span<const byte> opus_frame)
+vector<float> AudioDecoder::decode(span<const uint8_t> opus_frame)
 {
     vector<float> pcm_samples;
     /* use the parser to split the data into frames */

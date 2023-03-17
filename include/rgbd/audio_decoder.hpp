@@ -8,7 +8,7 @@ class AudioDecoder
 {
 public:
     AudioDecoder();
-    vector<float> decode(span<const byte> opus_frame);
+    vector<float> decode(span<const uint8_t> opus_frame);
 
 private:
     AVCodecParserContextHandle codec_parser_context_;

@@ -24,7 +24,6 @@ constexpr int MAJOR_VERSION{CMAKE_RGBD_VERSION_MAJOR};
 constexpr int MINOR_VERSION{CMAKE_RGBD_VERSION_MINOR};
 constexpr int PATCH_VERSION{CMAKE_RGBD_VERSION_PATCH};
 
-using std::byte;
 using std::list;
 using std::map;
 using std::nullopt;

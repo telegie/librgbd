@@ -214,7 +214,7 @@ void rgbd_audio_decoder_dtor(void* ptr)
 void* rgbd_audio_decoder_decode(void* ptr, const uint8_t* opus_frame_data, size_t opus_frame_size)
 {
     auto pmc_values{static_cast<AudioDecoder*>(ptr)->decode(
-        {reinterpret_cast<const std::byte*>(opus_frame_data), opus_frame_size})};
+        {opus_frame_data, opus_frame_size})};
     return new NativeFloatArray{std::move(pmc_values)};
 }
 //////// END AUDIO DECODER ////////
