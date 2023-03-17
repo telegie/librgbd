@@ -1,3 +1,7 @@
 pybind11_add_module(pyrgbd pyrgbd.cpp)
 target_link_libraries(pyrgbd PUBLIC rgbd-static)
 set_target_properties(pyrgbd PROPERTIES CXX_STANDARD 17)
+if(RGBD_OS_LINUX)
+  # Necessary to use FFmpeg which is already built with -fPIC (as position independent code)
+  target_link_options(pyrgbd PUBLIC "-Wl,-Bsymbolic")
+endif()
