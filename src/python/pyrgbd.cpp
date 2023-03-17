@@ -6,6 +6,33 @@
 namespace py = pybind11;
 using namespace rgbd;
 
+glm::quat read_py_quat(const py::object& py_quat)
+{
+    float w{py_quat.attr("w").cast<float>()};
+    float x{py_quat.attr("x").cast<float>()};
+    float y{py_quat.attr("y").cast<float>()};
+    float z{py_quat.attr("z").cast<float>()};
+    return glm::quat{w, x, y, z};
+}
+
+glm::vec3 read_py_vec3(const py::object& py_vec3)
+{
+    float x{py_vec3.attr("x").cast<float>()};
+    float y{py_vec3.attr("y").cast<float>()};
+    float z{py_vec3.attr("z").cast<float>()};
+    return glm::vec3{x, y, z};
+}
+
+py::object create_py_quat(py::module_ glm, const glm::quat& quat)
+{
+    return glm.attr("quat")(quat.w, quat.x, quat.y, quat.z);
+}
+
+py::object create_py_vec3(py::module_ glm, const glm::vec3& vec3)
+{
+    return glm.attr("vec3")(vec3.x, vec3.y, vec3.z);
+}
+
 PYBIND11_MODULE(pyrgbd, m)
 {
     m.doc() = "Library for reading and writing RGBD videos.";
@@ -13,9 +40,10 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN audio_decoder.hpp
     py::class_<AudioDecoder>(m, "AudioDecoder")
         .def(py::init())
-        .def("decode", [](AudioDecoder& decoder, const Bytes& bytes) {
-            return decoder.decode({bytes.data(), bytes.size()});
-        })
+        .def("decode",
+             [](AudioDecoder& decoder, const Bytes& bytes) {
+                 return decoder.decode({bytes.data(), bytes.size()});
+             })
         .def("decode", &AudioDecoder::decode);
     // END audio_decoder.hpp
 
@@ -80,13 +108,12 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
         .def("encode",
              [](DepthEncoder& encoder, const vector<int32_t> depth_values, bool keyframe) {
-                return encoder.encode(depth_values.data(), keyframe);
+                 return encoder.encode(depth_values.data(), keyframe);
              });
     // END depth_encoder.hpp
 
     // BEGIN constants.hpp
-    py::enum_<ColorCodecType>(m, "ColorCodecType")
-        .value("VP8", ColorCodecType::VP8);
+    py::enum_<ColorCodecType>(m, "ColorCodecType").value("VP8", ColorCodecType::VP8);
 
     py::enum_<DepthCodecType>(m, "DepthCodecType")
         .value("RVL", DepthCodecType::RVL)
@@ -168,14 +195,42 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("bytes", &FileAudioFrame::bytes);
 
     py::class_<FileIMUFrame, FileFrame>(m, "FileIMUFrame")
-        .def(py::init<int64_t, const glm::vec3&, const glm::vec3&, const glm::vec3&, const glm::vec3&>())
+        .def(py::init<int64_t,
+                      const glm::vec3&,
+                      const glm::vec3&,
+                      const glm::vec3&,
+                      const glm::vec3&>())
         .def_property_readonly("time_point_us", &FileIMUFrame::time_point_us)
-        .def_property_readonly("acceleration", &FileIMUFrame::acceleration)
-        .def_property_readonly("rotation_rate", &FileIMUFrame::rotation_rate)
-        .def_property_readonly("magnetic_field", &FileIMUFrame::magnetic_field)
-        .def_property_readonly("gravity", &FileIMUFrame::gravity);
+        .def_property_readonly("acceleration",
+                               [](const FileIMUFrame& frame) {
+                                   py::module_ glm{py::module_::import("glm")};
+                                   return create_py_vec3(glm, frame.acceleration());
+                               })
+        .def_property_readonly("rotation_rate",
+                               [](const FileIMUFrame& frame) {
+                                   py::module_ glm{py::module_::import("glm")};
+                                   return create_py_vec3(glm, frame.rotation_rate());
+                               })
+        .def_property_readonly("magnetic_field",
+                               [](const FileIMUFrame& frame) {
+                                   py::module_ glm{py::module_::import("glm")};
+                                   return create_py_vec3(glm, frame.magnetic_field());
+                               })
+        .def_property_readonly("gravity", [](const FileIMUFrame& frame) {
+            py::module_ glm{py::module_::import("glm")};
+            return create_py_vec3(glm, frame.gravity());
+        });
 
     py::class_<FileTRSFrame, FileFrame>(m, "FileTRSFrame")
+        .def(py::init([](int64_t time_point_us,
+                         const py::object& py_translation,
+                         const py::object& py_rotation,
+                         const py::object& py_scale) {
+            glm::vec3 translation{read_py_vec3(py_translation)};
+            glm::quat rotation{read_py_quat(py_rotation)};
+            glm::vec3 scale{read_py_vec3(py_scale)};
+            return FileTRSFrame{time_point_us, translation, rotation, scale};
+        }))
         .def_property_readonly("time_point_us", &FileTRSFrame::time_point_us)
         .def_property_readonly("translation", &FileTRSFrame::translation)
         .def_property_readonly("rotation", &FileTRSFrame::rotation)
@@ -228,10 +283,27 @@ PYBIND11_MODULE(pyrgbd, m)
     py::class_<Int32Frame>(m, "Int32Frame")
         .def_property_readonly("width", &Int32Frame::width)
         .def_property_readonly("height", &Int32Frame::height)
-        .def_property_readonly("values", [](Int32Frame& frame) {
-            return frame.values();
-        });
+        .def_property_readonly("values", [](Int32Frame& frame) { return frame.values(); });
     // END integer_frame.hpp
+
+    // BEGIN math_utils.hpp
+    py::class_<MathUtils>(m, "MathUtils")
+        .def_static("apply_rotation_rate_and_gravity_to_rotation",
+                    [](const py::object& py_rotation,
+                       float delta_time_sec,
+                       const py::object& py_rotation_rate,
+                       const py::object& py_gravity) {
+                        auto rotation{read_py_quat(py_rotation)};
+                        auto rotation_rate{read_py_vec3(py_rotation_rate)};
+                        auto gravity{read_py_vec3(py_gravity)};
+                        auto new_rotation{MathUtils::applyRotationRateAndGravityToRotation(
+                            rotation, delta_time_sec, rotation_rate, gravity)};
+                        py::module_ glm{py::module_::import("glm")};
+
+                        return glm.attr("quat")(
+                            new_rotation.w, new_rotation.x, new_rotation.y, new_rotation.z);
+                    });
+    // END math_utils.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
     py::class_<UndistortedCameraCalibration, CameraCalibration>(m, "UndistortedCameraCalibration")

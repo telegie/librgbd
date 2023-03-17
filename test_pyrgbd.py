@@ -99,10 +99,10 @@ def main():
         file_bytes_builder.add_imu_frame(imu_frame)
 
         delta_time_sec = (imu_frame.time_point_us - previous_time_point_us) / 1000.0 / 1000.0
-        rotation = rgbd.apply_rotation_rate_and_gravity_to_rotation(previous_rotation,
-                                                                    delta_time_sec,
-                                                                    imu_frame.rotation_rate,
-                                                                    imu_frame.gravity)
+        rotation = rgbd.MathUtils.apply_rotation_rate_and_gravity_to_rotation(previous_rotation,
+                                                                              delta_time_sec,
+                                                                              imu_frame.rotation_rate,
+                                                                              imu_frame.gravity)
         print(f"imu to rotation: {rotation}")
         file_bytes_builder.add_trs_frame(rgbd.FileTRSFrame(imu_frame.time_point_us,
                                                            glm.vec3(0, 0, 0),
@@ -114,7 +114,7 @@ def main():
     # for trs_frame in file.trs_frames:
     #     file_bytes_builder.add_trs_frame(trs_frame)
 
-    file_bytes_builder.build_to_path("tmp/test_encoder_result.mkv")
+    file_bytes_builder.build_to_path("videos/test_encoder_result.mkv")
 
 
 if __name__ == "__main__":
