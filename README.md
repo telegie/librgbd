@@ -27,4 +27,6 @@ For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp
 
 Build: CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py install
 
+Faster linux build: CMAKE_BUILD_PARALLEL_LEVEL=8 python setup.py install
+
 Test: python test_pyrgbd.py
