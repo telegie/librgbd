@@ -310,6 +310,12 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN integer_frame.hpp
     py::class_<Int32Frame>(m, "Int32Frame")
+        .def(py::init([](const py::array_t<int32_t> array) {
+            py::buffer_info buffer{array.request()};
+            int width{gsl::narrow<int>(buffer.shape[1])};
+            int height{gsl::narrow<int>(buffer.shape[0])};
+            return Int32Frame{width, height, static_cast<int32_t*>(buffer.ptr)};
+        }))
         .def_property_readonly("width", &Int32Frame::width)
         .def_property_readonly("height", &Int32Frame::height)
         .def("get_values", [](const Int32Frame& frame) {
