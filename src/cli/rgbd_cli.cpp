@@ -91,7 +91,7 @@ void split_file(const std::string& file_path)
             file_bytes_builder->setCalibration(*file->attachments().camera_calibration);
 
             color_encoder = std::make_unique<ColorEncoder>(
-                ColorCodecType::VP8, color_frame->width(), color_frame->height(), 30);
+                ColorCodecType::VP8, color_frame->width(), color_frame->height());
             depth_encoder =
                 DepthEncoder::createTDC1Encoder(depth_frame->width(), depth_frame->height(), 500);
             first = true;
@@ -133,8 +133,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                file->tracks().color_track.width,
-                               file->tracks().color_track.height,
-                               30};
+                               file->tracks().color_track.height};
     unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
         file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
 
@@ -200,8 +199,7 @@ void standardize_calibration(const std::string& file_path)
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                standard_calibration.getColorWidth(),
-                               standard_calibration.getColorHeight(),
-                               30};
+                               standard_calibration.getColorHeight()};
     unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
         standard_calibration.getDepthWidth(), standard_calibration.getDepthHeight(), 500)};
 

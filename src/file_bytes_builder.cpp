@@ -3,8 +3,7 @@
 namespace rgbd
 {
 FileBytesBuilder::FileBytesBuilder()
-    : framerate_{30}
-    , samplerate_{AUDIO_SAMPLE_RATE}
+    : sample_rate_{AUDIO_SAMPLE_RATE}
     , calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
     , depth_unit_{DEFAULT_DEPTH_UNIT}
@@ -16,14 +15,9 @@ FileBytesBuilder::FileBytesBuilder()
 {
 }
 
-void FileBytesBuilder::setFramerate(int framerate)
+void FileBytesBuilder::setSampleRate(int sample_rate)
 {
-    framerate_ = framerate;
-}
-
-void FileBytesBuilder::setSamplerate(int samplerate)
-{
-    samplerate_ = samplerate;
+    sample_rate_ = sample_rate;
 }
 
 void FileBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
@@ -111,8 +105,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
     }
 
     FileWriter file_writer{io_callback,
-                           framerate_,
-                           samplerate_,
+                           sample_rate_,
                            depth_codec_type_,
                            depth_unit_,
                            *calibration_,

@@ -51,8 +51,7 @@ class FileWriter
 {
 public:
     FileWriter(IOCallback& io_callback,
-               int framerate,
-               int samplerate,
+               int sample_rate,
                DepthCodecType depth_codec_type,
                float depth_unit,
                const CameraCalibration& calibration,

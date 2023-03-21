@@ -8,13 +8,12 @@ export class NativeColorEncoder {
   constructor(wasmModule: any,
               colorCodecType: number,
               width: number,
-              height: number,
-              framerate: number) {
+              height: number) {
     this.wasmModule = wasmModule;
     this.ptr = this.wasmModule.ccall('rgbd_color_encoder_ctor',
                                      'number',
-                                     ['number', 'number', 'number', 'number'],
-                                     [colorCodecType, width, height, framerate]);
+                                     ['number', 'number', 'number'],
+                                     [colorCodecType, width, height]);
   }
 
   close() {

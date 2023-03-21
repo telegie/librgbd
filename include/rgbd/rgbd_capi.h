@@ -50,6 +50,7 @@ extern "C"
     RGBD_INTERFACE_EXPORT int RGBD_MAJOR_VERSION();
     RGBD_INTERFACE_EXPORT int RGBD_MINOR_VERSION();
     RGBD_INTERFACE_EXPORT int RGBD_PATCH_VERSION();
+    RGBD_INTERFACE_EXPORT int RGBD_VIDEO_FRAME_RATE();
     RGBD_INTERFACE_EXPORT float RGBD_DEFAULT_DEPTH_UNIT();
     RGBD_INTERFACE_EXPORT int RGBD_AUDIO_SAMPLE_RATE();
     RGBD_INTERFACE_EXPORT int RGBD_AUDIO_INPUT_CHANNEL_COUNT();
@@ -147,8 +148,7 @@ extern "C"
     //////// END COLOR DECODER ////////
 
     //////// START COLOR ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(
-        rgbdColorCodecType type, int width, int height, int framerate);
+    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height);
     RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
     rgbd_color_encoder_encode(void* ptr, void* yuv_frame_ptr, bool keyframe);
@@ -222,8 +222,7 @@ extern "C"
     //////// START FILE BYTES BUILDER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_file_bytes_builder_ctor();
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_framerate(void* ptr, int framerate);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_samplerate(void* ptr, int samplerate);
+    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_sample_rate(void* ptr, int sample_rate);
     RGBD_INTERFACE_EXPORT void
     rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
     RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit);

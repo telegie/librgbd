@@ -9,8 +9,7 @@ class FileBytesBuilder
 {
 public:
     FileBytesBuilder();
-    void setFramerate(int framerate);
-    void setSamplerate(int samplerate);
+    void setSampleRate(int sample_rate);
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);
     void setCalibration(const CameraCalibration& calibration);
@@ -26,8 +25,7 @@ private:
     void _build(IOCallback& io_callback);
 
 private:
-    int framerate_;
-    int samplerate_;
+    int sample_rate_;
     DepthCodecType depth_codec_type_;
     float depth_unit_;
     unique_ptr<CameraCalibration> calibration_;

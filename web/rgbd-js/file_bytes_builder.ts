@@ -2,7 +2,6 @@ import { CameraCalibration } from "./camera_calibration";
 import { NativeByteArray } from "./capi_containers";
 import { DepthCodecType } from "./depth_decoder";
 import { FileVideoFrame, FileAudioFrame, FileIMUFrame, FileTRSFrame } from "./file";
-import { YuvFrame } from "./yuv_frame";
 
 export class NativeFileBytesBuilder {
   wasmModule: any;

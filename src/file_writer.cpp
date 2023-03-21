@@ -26,8 +26,7 @@ Bytes convert_quat_to_bytes(const glm::quat& q)
 }
 
 FileWriter::FileWriter(IOCallback& io_callback,
-                       int framerate,
-                       int samplerate,
+                       int sample_rate,
                        DepthCodecType depth_codec_type,
                        float depth_unit,
                        const CameraCalibration& calibration,
@@ -87,7 +86,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
         GetChild<KaxCodecID>(*writer_tracks_.color_track).SetValue("V_VP8");
 
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.color_track)
-            .SetValue(ONE_SECOND_NS / framerate);
+            .SetValue(ONE_SECOND_NS / VIDEO_FRAME_RATE);
         auto& color_video_track{GetChild<KaxTrackVideo>(*writer_tracks_.color_track)};
         GetChild<KaxVideoPixelWidth>(color_video_track).SetValue(calibration.getColorWidth());
         GetChild<KaxVideoPixelHeight>(color_video_track).SetValue(calibration.getColorHeight());
@@ -116,7 +115,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
         }
 
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.depth_track)
-            .SetValue(ONE_SECOND_NS / framerate);
+            .SetValue(ONE_SECOND_NS / VIDEO_FRAME_RATE);
 
         json codec_private_json{{"depthUnit", depth_unit}};
         string codec_private_str{codec_private_json.dump()};
@@ -168,7 +167,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
         append_bytes(opus_head_bytes, convert_to_bytes(channel_count));
         uint16_t preskip{3840};
         append_bytes(opus_head_bytes, convert_to_bytes(preskip));
-        uint32_t intput_samplerate{gsl::narrow<uint32_t>(samplerate)};
+        uint32_t intput_samplerate{gsl::narrow<uint32_t>(sample_rate)};
         append_bytes(opus_head_bytes, convert_to_bytes(intput_samplerate));
         uint16_t output_gain{0};
         append_bytes(opus_head_bytes, convert_to_bytes(output_gain));
@@ -185,10 +184,10 @@ FileWriter::FileWriter(IOCallback& io_callback,
 
         // KaxTrackDefaultDuration expects "number of nanoseconds (not scaled) per frame" here.
         GetChild<KaxTrackDefaultDuration>(*writer_tracks_.audio_track)
-            .SetValue(ONE_SECOND_NS / samplerate);
+            .SetValue(ONE_SECOND_NS / sample_rate);
         auto& audio_track_details = GetChild<KaxTrackAudio>(*writer_tracks_.audio_track);
-        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(samplerate);
-        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(samplerate);
+        GetChild<KaxAudioSamplingFreq>(audio_track_details).SetValue(sample_rate);
+        GetChild<KaxAudioOutputSamplingFreq>(audio_track_details).SetValue(sample_rate);
         GetChild<KaxAudioChannels>(audio_track_details).SetValue(AUDIO_INPUT_CHANNEL_COUNT);
         GetChild<KaxAudioBitDepth>(audio_track_details).SetValue(sizeof(float) * 8);
     }

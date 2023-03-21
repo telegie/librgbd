@@ -10,8 +10,7 @@ extern "C"
 
 namespace rgbd
 {
-ColorEncoder::ColorEncoder(
-    ColorCodecType type, int width, int height, int framerate)
+ColorEncoder::ColorEncoder(ColorCodecType type, int width, int height)
     : codec_context_{find_encoder_avcodec(type)}
     , frame_{}
     , next_pts_{0}
@@ -28,7 +27,10 @@ ColorEncoder::ColorEncoder(
 
     // Dividing by 200 leads to a similar value to Youtube's recommendations.
     // ref: https://support.google.com/youtube/answer/1722171
-    int target_bitrate_kbps{width * height / 200};
+    const int target_bitrate_kbps{width * height / 200};
+
+    // Just assume 30 FPS.
+    const int framerate{30};
 
     // setting codec_context_->rc_min_rate == codec_context_->rc_max_rate and
     // codec_context_->rc_min_rate == codec_context_->bit_rate
