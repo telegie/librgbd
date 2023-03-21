@@ -105,6 +105,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .value("RVL", DepthCodecType::RVL)
         .value("TDC1", DepthCodecType::TDC1);
 
+    m.attr("VIDEO_FRAME_RATE") = VIDEO_FRAME_RATE;
     m.attr("AUDIO_SAMPLE_RATE") = AUDIO_SAMPLE_RATE;
     m.attr("AUDIO_INPUT_SAMPLES_PER_FRAME") = AUDIO_INPUT_SAMPLES_PER_FRAME;
     // END constants.hpp
@@ -224,6 +225,17 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_bytes", &FileAudioFrame::bytes, py::return_value_policy::copy);
 
     py::class_<FileIMUFrame, FileFrame>(m, "FileIMUFrame")
+        .def(py::init([](int64_t time_point_us,
+                         const py::object& py_acceleration,
+                         const py::object& py_rotation_rate,
+                         const py::object& py_magnetic_field,
+                         const py::object& py_gravity) {
+            glm::vec3 acceleration{read_py_vec3(py_acceleration)};
+            glm::vec3 rotation_rate{read_py_vec3(py_rotation_rate)};
+            glm::vec3 magnetic_field{read_py_vec3(py_magnetic_field)};
+            glm::vec3 gravity{read_py_vec3(py_gravity)};
+            return FileIMUFrame{time_point_us, acceleration, rotation_rate, magnetic_field, gravity};
+        }))
         .def(py::init<int64_t,
                       const glm::vec3&,
                       const glm::vec3&,

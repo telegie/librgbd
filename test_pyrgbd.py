@@ -77,7 +77,7 @@ def main():
     for index in range(len(file_video_frames)):
         print(f"index: {index}")
         video_frame = file_video_frames[index]
-        keyframe = index % 60 == 0
+        keyframe = index % (rgbd.VIDEO_FRAME_RATE * 2) == 0
 
         yuv_frame = yuv_frames[index]
         depth_frame = depth_frames[index]
