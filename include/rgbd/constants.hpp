@@ -60,6 +60,7 @@ enum class DepthCodecType : int32_t
     TDC1 = 1
 };
 
+constexpr int VIDEO_FRAME_RATE{30};
 constexpr float DEFAULT_DEPTH_UNIT{0.001f};
 
 /////////////////////////////////////////////////////////////

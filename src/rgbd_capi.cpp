@@ -20,6 +20,11 @@ int RGBD_PATCH_VERSION()
     return PATCH_VERSION;
 }
 
+int RGBD_VIDEO_FRAME_RATE()
+{
+    return VIDEO_FRAME_RATE;
+}
+
 float RGBD_DEFAULT_DEPTH_UNIT()
 {
     return DEFAULT_DEPTH_UNIT;
@@ -337,9 +342,9 @@ void* rgbd_color_decoder_decode(void* ptr, const uint8_t* vp8_frame_data, size_t
 //////// END COLOR DECODER ////////
 
 //////// START COLOR ENCODER ////////
-void* rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height, int framerate)
+void* rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height)
 {
-    return new ColorEncoder{static_cast<ColorCodecType>(type), width, height, framerate};
+    return new ColorEncoder{static_cast<ColorCodecType>(type), width, height};
 }
 
 void rgbd_color_encoder_dtor(void* ptr)
@@ -592,16 +597,10 @@ void rgbd_file_bytes_builder_dtor(void* ptr)
     delete static_cast<FileBytesBuilder*>(ptr);
 }
 
-void rgbd_file_bytes_builder_set_framerate(void* ptr, int framerate)
+void rgbd_file_bytes_builder_set_sample_rate(void* ptr, int sample_rate)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    file_bytes_builder->setFramerate(framerate);
-}
-
-void rgbd_file_bytes_builder_set_samplerate(void* ptr, int samplerate)
-{
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    file_bytes_builder->setSamplerate(samplerate);
+    file_bytes_builder->setSampleRate(sample_rate);
 }
 
 void rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)

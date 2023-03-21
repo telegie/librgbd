@@ -89,7 +89,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN color_encoder.hpp
     py::class_<ColorEncoder>(m, "ColorEncoder")
-        .def(py::init<ColorCodecType, int, int, int>())
+        .def(py::init<ColorCodecType, int, int>())
         .def("encode", &ColorEncoder::encode);
     // END color_encoder.hpp
 
@@ -281,8 +281,7 @@ PYBIND11_MODULE(pyrgbd, m)
     // BEGIN file_bytes_builder.hpp
     py::class_<FileBytesBuilder>(m, "FileBytesBuilder")
         .def(py::init<>())
-        .def("set_framerate", &FileBytesBuilder::setFramerate)
-        .def("set_samplerate", &FileBytesBuilder::setSamplerate)
+        .def("set_sample_rate", &FileBytesBuilder::setSampleRate)
         .def("set_depth_codec_type", &FileBytesBuilder::setDepthCodecType)
         .def("set_depth_unit", &FileBytesBuilder::setDepthUnit)
         .def("set_calibration", &FileBytesBuilder::setCalibration)
