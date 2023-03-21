@@ -43,14 +43,14 @@ def main():
     depth_frames = []
     file_attachments = file.get_attachments()
     frame_mapper = rgbd.FrameMapper(file_attachments.camera_calibration, standard_calibration)
-    color_decoder = rgbd.ColorDecoder(rgbd.ColorCodecType.VP8)
+    color_decoder = rgbd.ColorDecoder(file_tracks.color_track.codec)
     file_video_frames = file.get_video_frames()
     for video_frame in file_video_frames:
         yuv_frame = color_decoder.decode(video_frame.get_color_bytes())
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
 
-    depth_decoder = rgbd.DepthDecoder(rgbd.DepthCodecType.TDC1)
+    depth_decoder = rgbd.DepthDecoder(file_tracks.depth_track.codec)
     for video_frame in file_video_frames:
         depth_frame = depth_decoder.decode(video_frame.get_depth_bytes())
         mapped_depth_frame = frame_mapper.map_depth_frame(depth_frame)
