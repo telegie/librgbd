@@ -332,7 +332,19 @@ PYBIND11_MODULE(pyrgbd, m)
             py::array_t<int32_t> array(frame.values().size(), frame.values().data());
             array = array.reshape({frame.height(), frame.width()});
             return array;
-        });
+        })
+        .def(py::pickle(
+            [](const Int32Frame& frame) { // dump
+                return py::make_tuple(frame.width(), frame.height(), frame.values());
+            },
+            [](py::tuple t) { // load
+                int width{t[0].cast<int>()};
+                int height{t[1].cast<int>()};
+                auto values{t[2].cast<vector<int32_t>>()};
+
+                return Int32Frame{width, height, values};
+            }
+        ));
     // END integer_frame.hpp
 
     // BEGIN math_utils.hpp
@@ -406,6 +418,26 @@ PYBIND11_MODULE(pyrgbd, m)
                  auto mkv_cover_sized{frame.getMkvCoverSized()};
                  return YuvFrame{std::move(*mkv_cover_sized)};
              })
-        .def("get_png_bytes", [](const YuvFrame& frame) { return frame.getPNGBytes(); });
+        .def("get_png_bytes", [](const YuvFrame& frame) { return frame.getPNGBytes(); })
+        .def(py::pickle(
+            [](const YuvFrame& frame) { // dump
+                return py::make_tuple(frame.width(), frame.height(),
+                                      frame.y_channel(),
+                                      frame.u_channel(),
+                                      frame.v_channel());
+            },
+            [](py::tuple t) { // load
+                int width{t[0].cast<int>()};
+                int height{t[1].cast<int>()};
+                auto y_channel{t[2].cast<vector<uint8_t>>()};
+                auto u_channel{t[3].cast<vector<uint8_t>>()};
+                auto v_channel{t[4].cast<vector<uint8_t>>()};
+
+                return YuvFrame{width, height,
+                                y_channel,
+                                u_channel,
+                                u_channel};
+            }
+        ));
     // END yuv_frame.hpp
 }

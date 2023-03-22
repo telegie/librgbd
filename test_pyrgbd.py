@@ -3,6 +3,7 @@ import requests
 import os.path
 import glm
 import base64
+import pickle
 
 
 def decode_base64url_to_long(s: str):
@@ -49,6 +50,8 @@ def main():
         yuv_frame = color_decoder.decode(video_frame.get_color_bytes())
         mapped_color_frame = frame_mapper.map_color_frame(yuv_frame)
         yuv_frames.append(mapped_color_frame)
+
+        pickle.dumps(yuv_frame)
 
     depth_decoder = rgbd.DepthDecoder(file_tracks.depth_track.codec)
     for video_frame in file_video_frames:
