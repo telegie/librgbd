@@ -21,6 +21,11 @@ public:
              const uint8_t* v_channel);
     YuvFrame(const int width,
              const int height,
+             const vector<uint8_t>& y_channel,
+             const vector<uint8_t>& u_channel,
+             const vector<uint8_t>& v_channel) noexcept;
+    YuvFrame(const int width,
+             const int height,
              vector<uint8_t>&& y_channel,
              vector<uint8_t>&& u_channel,
              vector<uint8_t>&& v_channel) noexcept;

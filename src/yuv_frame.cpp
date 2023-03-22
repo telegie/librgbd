@@ -53,6 +53,19 @@ YuvFrame::YuvFrame(const int width,
 
 YuvFrame::YuvFrame(const int width,
                    const int height,
+                   const vector<uint8_t>& y_channel,
+                   const vector<uint8_t>& u_channel,
+                   const vector<uint8_t>& v_channel) noexcept
+    : width_{width}
+    , height_{height}
+    , y_channel_{y_channel}
+    , u_channel_{u_channel}
+    , v_channel_{v_channel}
+{
+}
+
+YuvFrame::YuvFrame(const int width,
+                   const int height,
                    vector<uint8_t>&& y_channel,
                    vector<uint8_t>&& u_channel,
                    vector<uint8_t>&& v_channel) noexcept
