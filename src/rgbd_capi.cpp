@@ -852,7 +852,7 @@ void* rgbd_file_info_get_writing_app(void* ptr)
 //////// END FILE INFO ////////
 
 //////// START FILE PARSER ////////
-int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size)
+int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr, size_t data_size)
 {
     try {
         *parser_ptr_ref = new FileParser{data_ptr, data_size};

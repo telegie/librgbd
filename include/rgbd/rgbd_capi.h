@@ -308,7 +308,7 @@ extern "C"
 
     //////// START FILE PARSER ////////
     RGBD_INTERFACE_EXPORT int
-    rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, void* data_ptr, size_t data_size);
+    rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr, size_t data_size);
     RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
