@@ -16,7 +16,6 @@ DepthDecoder::DepthDecoder(DepthCodecType depth_codec_type)
         spdlog::error("Invalid depth_codec_type found in DepthDecoder::DepthDecoder: {}", depth_codec_type);
         throw std::runtime_error("Invalid depth_codec_type found in DepthDecoder::DepthDecoder");
     }
-
 }
 
 unique_ptr<Int32Frame> DepthDecoder::decode(span<const uint8_t> bytes) noexcept

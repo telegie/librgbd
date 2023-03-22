@@ -9,10 +9,6 @@ class ColorEncoder
 public:
     ColorEncoder(ColorCodecType type, int width, int height);
     Bytes encode(const YuvFrame& yuv_image, bool keyframe);
-    Bytes encode2(const uint8_t* y_channel,
-                  const uint8_t* u_channel,
-                  const uint8_t* v_channel,
-                  const bool keyframe);
     AVCodecContextHandle& codec_context()
     {
         return codec_context_;

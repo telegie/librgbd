@@ -5,23 +5,19 @@
 
 namespace rgbd
 {
-DepthEncoder::DepthEncoder(unique_ptr<DepthEncoderImpl>&& impl)
-    : impl_{std::move(impl)}
+DepthEncoder::DepthEncoder(DepthCodecType type, int width, int height)
+    : impl_{}
 {
-}
-
-unique_ptr<DepthEncoder> DepthEncoder::createRVLEncoder(int width, int height)
-{
-    auto instance{new DepthEncoder{std::make_unique<RVLEncoder>(width, height)}};
-    return unique_ptr<DepthEncoder>(instance);
-}
-
-unique_ptr<DepthEncoder>
-DepthEncoder::createTDC1Encoder(int width, int height, int depth_diff_multiplier)
-{
-    auto instance{
-        new DepthEncoder{std::make_unique<TDC1Encoder>(width, height, depth_diff_multiplier)}};
-    return unique_ptr<DepthEncoder>(instance);
+    if (type == DepthCodecType::RVL) {
+        impl_.reset(new RVLEncoder{width, height});
+    } else if (type == DepthCodecType::TDC1) {
+        // 500 as the default value.
+        const int DEPTH_DIFF_MULTIPLIER{500};
+        impl_.reset(new TDC1Encoder{width, height, DEPTH_DIFF_MULTIPLIER});
+    } else {
+        spdlog::error("Invalid type found in DepthEncoder::DepthEncoder: {}", type);
+        throw std::runtime_error("Invalid type found in DepthEncoder::DepthEncoder");
+    }
 }
 
 DepthCodecType DepthEncoder::getCodecType() noexcept

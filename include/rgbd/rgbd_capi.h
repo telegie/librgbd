@@ -148,7 +148,8 @@ extern "C"
     //////// END COLOR DECODER ////////
 
     //////// START COLOR ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_color_encoder_ctor(rgbdColorCodecType type, int width, int height);
     RGBD_INTERFACE_EXPORT void rgbd_color_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
     rgbd_color_encoder_encode(void* ptr, void* yuv_frame_ptr, bool keyframe);
@@ -162,9 +163,8 @@ extern "C"
     //////// END DEPTH DECODER ////////
 
     //////// START DEPTH ENCODER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_depth_encoder_create_rvl_encoder(int width, int height);
     RGBD_INTERFACE_EXPORT void*
-    rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier);
+    rgbd_depth_encoder_ctor(rgbdDepthCodecType type, int width, int height);
     RGBD_INTERFACE_EXPORT void rgbd_depth_encoder_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
     rgbd_depth_encoder_encode(void* ptr, const int32_t* depth_values, bool keyframe);
@@ -480,11 +480,10 @@ extern "C"
     //////// END IOS CAMERA CALIBRATION ////////
 
     //////// START MATH UTILS ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_apply_rotation_rate_and_gravity_to_rotation(void* rotation_ptr,
-                                                                                            float delta_time_sec,
-                                                                                            void* rotation_rate_ptr,
-                                                                                            void* gravity_ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_math_utils_apply_rotation_rate_and_gravity_to_rotation(
+        void* rotation_ptr, float delta_time_sec, void* rotation_rate_ptr, void* gravity_ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr);
     //////// END MATH UTILS ////////
 

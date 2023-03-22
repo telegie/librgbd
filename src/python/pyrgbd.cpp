@@ -121,8 +121,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN depth_encoder.hpp
     py::class_<DepthEncoder>(m, "DepthEncoder")
-        .def_static("create_rvl_encoder", &DepthEncoder::createRVLEncoder)
-        .def_static("create_tdc1_encoder", &DepthEncoder::createTDC1Encoder)
+        .def(py::init<DepthCodecType, int, int>())
         .def_property_readonly("codec_type", &DepthEncoder::getCodecType)
         .def("encode",
              [](DepthEncoder& encoder, const py::array_t<int32_t> depth_array, bool keyframe) {

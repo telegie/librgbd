@@ -77,7 +77,7 @@ void split_file(const std::string& file_path)
         bool first{false};
         if (chunk_index == previous_chunk_index + 1) {
             // if (file_writer)
-                // file_writer->flush();
+            // file_writer->flush();
             if (file_bytes_builder)
                 file_bytes_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
 
@@ -85,15 +85,15 @@ void split_file(const std::string& file_path)
             // FileWriterConfig writer_config;
             // writer_config.depth_codec_type = DepthCodecType::TDC1;
             // file_writer = std::make_unique<FileWriter>(
-                // output_path, *file->attachments().camera_calibration, writer_config);
+            // output_path, *file->attachments().camera_calibration, writer_config);
 
             file_bytes_builder.reset(new FileBytesBuilder);
             file_bytes_builder->setCalibration(*file->attachments().camera_calibration);
 
             color_encoder = std::make_unique<ColorEncoder>(
                 ColorCodecType::VP8, color_frame->width(), color_frame->height());
-            depth_encoder =
-                DepthEncoder::createTDC1Encoder(depth_frame->width(), depth_frame->height(), 500);
+            depth_encoder = std::make_unique<DepthEncoder>(
+                DepthCodecType::TDC1, depth_frame->width(), depth_frame->height());
             first = true;
 
             // file_writer->writeCover(*color_frame);
@@ -109,7 +109,8 @@ void split_file(const std::string& file_path)
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
         // file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
-        file_bytes_builder->addVideoFrame(FileVideoFrame{time_point_us, first, color_bytes, depth_bytes});
+        file_bytes_builder->addVideoFrame(
+            FileVideoFrame{time_point_us, first, color_bytes, depth_bytes});
     }
 
     // file_writer->flush();
@@ -131,11 +132,10 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     FileBytesBuilder file_bytes_builder;
     file_bytes_builder.setCalibration(*file->attachments().camera_calibration);
 
-    ColorEncoder color_encoder{ColorCodecType::VP8,
-                               file->tracks().color_track.width,
-                               file->tracks().color_track.height};
-    unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
-        file->tracks().depth_track.width, file->tracks().depth_track.height, 500)};
+    ColorEncoder color_encoder{
+        ColorCodecType::VP8, file->tracks().color_track.width, file->tracks().color_track.height};
+    DepthEncoder depth_encoder{
+        DepthCodecType::TDC1, file->tracks().depth_track.width, file->tracks().depth_track.height};
 
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
@@ -169,10 +169,11 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         }
 
         auto color_bytes{color_encoder.encode(*color_frame, keyframe)};
-        auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), keyframe)};
+        auto depth_bytes{depth_encoder.encode(depth_frame->values().data(), keyframe)};
 
         // file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
-        file_bytes_builder.addVideoFrame(FileVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
+        file_bytes_builder.addVideoFrame(
+            FileVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
     }
 
     // file_writer.flush();
@@ -200,8 +201,9 @@ void standardize_calibration(const std::string& file_path)
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                standard_calibration.getColorWidth(),
                                standard_calibration.getColorHeight()};
-    unique_ptr<DepthEncoder> depth_encoder{DepthEncoder::createTDC1Encoder(
-        standard_calibration.getDepthWidth(), standard_calibration.getDepthHeight(), 500)};
+    DepthEncoder depth_encoder{DepthCodecType::TDC1,
+                               standard_calibration.getDepthWidth(),
+                               standard_calibration.getDepthHeight()};
 
     ColorDecoder color_decoder{ColorCodecType::VP8};
     TDC1Decoder depth_decoder;
@@ -225,11 +227,11 @@ void standardize_calibration(const std::string& file_path)
         auto mapped_depth_frame{frame_mapper.mapDepthFrame(*depth_frame)};
 
         auto color_bytes{color_encoder.encode(*mapped_color_frame, keyframe)};
-        auto depth_bytes{depth_encoder->encode(mapped_depth_frame->values().data(), keyframe)};
+        auto depth_bytes{depth_encoder.encode(mapped_depth_frame->values().data(), keyframe)};
 
         file_bytes_builder.addVideoFrame(
             FileVideoFrame{video_time_point_us, keyframe, color_bytes, depth_bytes});
-//        spdlog::info("add video frame: {}", video_time_point_us);
+        //        spdlog::info("add video frame: {}", video_time_point_us);
 
         while (audio_frame_index < file->audio_frames().size()) {
             auto& audio_frame{file->audio_frames()[audio_frame_index]};

@@ -71,22 +71,11 @@ ColorEncoder::ColorEncoder(ColorCodecType type, int width, int height)
 
 Bytes ColorEncoder::encode(const YuvFrame& yuv_image, bool keyframe)
 {
-    return encode2(yuv_image.y_channel().data(),
-                  yuv_image.u_channel().data(),
-                  yuv_image.v_channel().data(),
-                  keyframe);
-}
-
-Bytes ColorEncoder::encode2(const uint8_t* y_channel,
-                            const uint8_t* u_channel,
-                            const uint8_t* v_channel,
-                            const bool keyframe)
-{
     for (int row{0}; row < codec_context_->height; ++row) {
         int frame_row_index{row * frame_->linesize[0]};
         int y_row_index{row * codec_context_->width};
         for (int col{0}; col < codec_context_->width; ++col) {
-            frame_->data[0][frame_row_index + col] = y_channel[y_row_index + col];
+            frame_->data[0][frame_row_index + col] = yuv_image.y_channel()[y_row_index + col];
         }
     }
 
@@ -97,8 +86,8 @@ Bytes ColorEncoder::encode2(const uint8_t* y_channel,
         int frame_v_row_index{row * frame_->linesize[2]};
         int uv_row_index{row * codec_context_->width / 2};
         for (int col{0}; col < uv_width; ++col) {
-            frame_->data[1][frame_u_row_index + col] = u_channel[uv_row_index + col];
-            frame_->data[2][frame_v_row_index + col] = v_channel[uv_row_index + col];
+            frame_->data[1][frame_u_row_index + col] = yuv_image.u_channel()[uv_row_index + col];
+            frame_->data[2][frame_v_row_index + col] = yuv_image.v_channel()[uv_row_index + col];
         }
     }
 

@@ -14,13 +14,8 @@ public:
 
 class DepthEncoder
 {
-private:
-    DepthEncoder(unique_ptr<DepthEncoderImpl>&& impl);
-
 public:
-    static unique_ptr<DepthEncoder> createRVLEncoder(int width, int height);
-    static unique_ptr<DepthEncoder>
-    createTDC1Encoder(int width, int height, int depth_diff_multiplier);
+    DepthEncoder(DepthCodecType type, int width, int height);
     DepthCodecType getCodecType() noexcept;
     Bytes encode(const int32_t* depth_values, bool keyframe) noexcept;
 

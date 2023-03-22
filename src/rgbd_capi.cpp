@@ -379,14 +379,9 @@ void* rgbd_depth_decoder_decode(void* ptr, const uint8_t* depth_bytes_data, size
 //////// END DEPTH DECODER ////////
 
 //////// START DEPTH ENCODER ////////
-void* rgbd_depth_encoder_create_rvl_encoder(int width, int height)
+void* rgbd_depth_encoder_ctor(rgbdDepthCodecType type, int width, int height)
 {
-    return DepthEncoder::createRVLEncoder(width, height).release();
-}
-
-void* rgbd_depth_encoder_create_tdc1_encoder(int width, int height, int depth_diff_multiplier)
-{
-    return DepthEncoder::createTDC1Encoder(width, height, depth_diff_multiplier).release();
+    return new DepthEncoder{static_cast<DepthCodecType>(type), width, height};
 }
 
 void rgbd_depth_encoder_dtor(void* ptr)
