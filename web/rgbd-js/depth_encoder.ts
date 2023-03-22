@@ -4,25 +4,15 @@ export class NativeDepthEncoder {
   wasmModule: any;
   ptr: number;
 
-  constructor(wasmModule: any, ptr: number) {
+  constructor(wasmModule: any,
+              depthCodecType: number,
+              width: number,
+              height: number) {
     this.wasmModule = wasmModule;
-    this.ptr = ptr;
-  }
-
-  static createRVLEncoder(wasmModule: any, width: number, height: number) {
-    const ptr = wasmModule.ccall('rgbd_depth_encoder_create_rvl_encoder',
-                                 'number',
-                                 ['number', 'number'],
-                                 [width, height]);
-    return new NativeDepthEncoder(wasmModule, ptr);
-  }
-
-  static createTDC1Encoder(wasmModule: any, width: number, height: number, depthDiffMultiplier: number) {
-    const ptr = wasmModule.ccall('rgbd_depth_encoder_create_tdc1_encoder',
-                                 'number',
-                                 ['number', 'number', 'number'],
-                                 [width, height, depthDiffMultiplier]);
-    return new NativeDepthEncoder(wasmModule, ptr);
+    this.ptr = this.wasmModule.ccall('rgbd_depth_encoder_ctor',
+                                     'number',
+                                     ['number', 'number', 'number'],
+                                     [depthCodecType, width, height]);
   }
 
   close() {
