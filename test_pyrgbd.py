@@ -73,7 +73,7 @@ def main():
     file_bytes_builder.set_cover_png_bytes(file_attachments.cover_png_bytes)
 
     color_encoder = rgbd.ColorEncoder(rgbd.ColorCodecType.VP8, color_width, color_height)
-    depth_encoder = rgbd.DepthEncoder.create_tdc1_encoder(depth_width, depth_height, 500)
+    depth_encoder = rgbd.DepthEncoder(rgbd.DepthCodecType.TDC1, depth_width, depth_height)
     for index in range(len(file_video_frames)):
         print(f"index: {index}")
         video_frame = file_video_frames[index]
