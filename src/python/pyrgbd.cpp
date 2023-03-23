@@ -273,9 +273,20 @@ PYBIND11_MODULE(pyrgbd, m)
         }))
         .def_property_readonly("time_point_us", &FileTRSFrame::time_point_us)
         .def_property_readonly(
-            "translation", &FileTRSFrame::translation, py::return_value_policy::copy)
-        .def_property_readonly("rotation", &FileTRSFrame::rotation, py::return_value_policy::copy)
-        .def_property_readonly("scale", &FileTRSFrame::scale, py::return_value_policy::copy);
+            "translation", [](const FileTRSFrame& frame) {
+                py::module_ glm{py::module_::import("glm")};
+                return create_py_vec3(glm, frame.translation());
+            })
+        .def_property_readonly(
+            "rotation", [](const FileTRSFrame& frame) {
+                py::module_ glm{py::module_::import("glm")};
+                return create_py_quat(glm, frame.rotation());
+            })
+        .def_property_readonly(
+            "scale", [](const FileTRSFrame& frame) {
+                py::module_ glm{py::module_::import("glm")};
+                return create_py_vec3(glm, frame.scale());
+            });
 
     py::class_<File>(m, "File")
         .def("get_offsets", &File::offsets, py::return_value_policy::copy)
