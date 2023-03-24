@@ -374,7 +374,24 @@ PYBIND11_MODULE(pyrgbd, m)
 
                         return glm.attr("quat")(
                             new_rotation.w, new_rotation.x, new_rotation.y, new_rotation.z);
+                    })
+        .def_static("convert_euler_angles_to_quaternion",
+                    [](const py::object& py_euler_angles) {
+                        auto euler_angles{read_py_vec3(py_euler_angles)};
+                        auto quat{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
+                        py::module_ glm{py::module_::import("glm")};
+                        return glm.attr("quat")(quat.w, quat.x, quat.y, quat.z);
+                    })
+        .def_static("compute_gravity_compensating_euler_angles",
+                    [](const py::object& py_gravity) {
+                        auto gravity{read_py_vec3(py_gravity)};
+                        auto euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
+                        py::module_ glm{py::module_::import("glm")};
+                        return glm.attr("vec3")(euler_angles.x, euler_angles.y, euler_angles.z);
                     });
+
+
+                    
     // END math_utils.hpp
 
     // BEGIN undistorted_camera_distortion.hpp

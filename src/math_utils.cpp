@@ -71,6 +71,14 @@ glm::vec3 MathUtils::convertQuaternionToEulerAngles(const glm::quat& quat)
     return glm::vec3{pitch, yaw, roll};
 }
 
+glm::vec3 MathUtils::computeGravityCompensatingEulerAngles(const glm::vec3& gravity)
+{
+    float theta{0.0f};
+    float psi{0.0f};
+    convertGravityToThetaAndPsi(gravity, theta, psi);
+    return glm::vec3{theta, 0.0f, psi};
+}
+
 // Below function convert_floor_to_gimbal_position_and_rotation is for
 // finding a pair of position and rotation that satisfies the following conditions.
 // R1. The rotation has a z-axis rotation, then an x-axis one, but no y-axis one.
@@ -109,13 +117,5 @@ void MathUtils::convertGravityToThetaAndPsi(const glm::vec3& gravity, float& the
     psi = 0.0f;
     if (glm::abs(gravity_direction.y) > 0.0001f)
         psi = glm::atan(-gravity_direction.x, -gravity_direction.y);
-}
-
-glm::vec3 MathUtils::computeGravityCompensatingEulerAngles(const glm::vec3& gravity)
-{
-    float theta{0.0f};
-    float psi{0.0f};
-    convertGravityToThetaAndPsi(gravity, theta, psi);
-    return glm::vec3{theta, 0.0f, psi};
 }
 }
