@@ -5,6 +5,7 @@
 #include "direction_table.hpp"
 
 #include <cmath>
+#include <spdlog/spdlog.h>
 
 namespace rgbd
 {
@@ -43,6 +44,10 @@ glm::vec3 DirectionTable::getDirection(const glm::vec2& uv) const
     int right_col{left_col + 1};
     int top_row{static_cast<int>(std::floor(row))};
     int bottom_row{top_row + 1};
+
+    // For vertices at the right or bottom edge.
+    right_col = glm::min(right_col, width_ - 1);
+    bottom_row = glm::min(bottom_row, height_ - 1);
 
     glm::vec3 left_top{directions_[left_col + top_row * width_]};
     glm::vec3 right_top{directions_[right_col + top_row * width_]};
