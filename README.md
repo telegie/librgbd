@@ -47,9 +47,7 @@ This library can read files exported from the Telegie and is based on librgbd.
 - python3 bootstrap.py
 - poetry shell
 - poetry install
-
-## Install
-- pip3 install -e .
+- python setup.py install
 
 ## Check
 - mypy .

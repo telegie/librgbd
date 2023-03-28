@@ -73,7 +73,8 @@ def main():
     # file_bytes_builder.set_cover_png_bytes(
     #     yuv_frames[0].get_mkv_cover_sized().get_png_bytes()
     # )
-    file_bytes_builder.set_cover_png_bytes(file_attachments.cover_png_bytes)
+    # file_bytes_builder.set_cover_png_bytes(file_attachments.cover_png_bytes)
+    file_bytes_builder.set_cover_png_bytes(None)
 
     color_encoder = rgbd.ColorEncoder(rgbd.ColorCodecType.VP8, color_width, color_height)
     depth_encoder = rgbd.DepthEncoder(rgbd.DepthCodecType.TDC1, depth_width, depth_height)

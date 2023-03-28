@@ -13,7 +13,7 @@ public:
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);
     void setCalibration(const CameraCalibration& calibration);
-    void setCoverPNGBytes(const Bytes& cover_png_bytes);
+    void setCoverPNGBytes(const optional<Bytes>& cover_png_bytes);
     void addVideoFrame(const FileVideoFrame& video_frame);
     void addAudioFrame(const FileAudioFrame& audio_frame);
     void addIMUFrame(const FileIMUFrame& imu_frame);

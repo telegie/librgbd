@@ -35,7 +35,7 @@ void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
     calibration_ = calibration.clone();
 }
 
-void FileBytesBuilder::setCoverPNGBytes(const Bytes& cover_png_bytes)
+void FileBytesBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
 {
     cover_png_bytes_ = cover_png_bytes;
 }
