@@ -7,7 +7,7 @@ from pathlib import Path
 
 def main():
     here = Path(__file__).parent.resolve()
-    subprocess.run(["python3", f"{here}/deps/libpng-binaries/build.py"] + sys.argv[1:], check=True)
+    subprocess.run(["python3", f"{here}/deps/libpng-build/build.py"] + sys.argv[1:], check=True)
     if platform.system() == "Linux":
         subprocess.run(["sudo", "apt", "install", "-y",
                         "liblzma-dev"],

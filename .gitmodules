@@ -22,9 +22,6 @@
 [submodule "deps/spdlog"]
 	path = deps/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "deps/libpng-binaries"]
-	path = deps/libpng-binaries
-	url = https://github.com/telegie/libpng-binaries.git
 [submodule "deps/zstd"]
 	path = deps/zstd
 	url = https://github.com/facebook/zstd.git

@@ -112,20 +112,20 @@ endif()
 ### JSON BEGIN ###
 
 ### LIBPNG BEGIN ###
-set(LIBPNG_BINARIES_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-binaries)
-set(LIBPNG_WIN64_DIR ${LIBPNG_BINARIES_DIR}/output/x64-windows)
+set(LIBPNG_BUILD_DIR ${PROJECT_SOURCE_DIR}/deps/libpng-build)
+set(LIBPNG_WIN64_DIR ${LIBPNG_BUILD_DIR}/output/x64-windows)
 if(RGBD_ARCH_ARM64)
-  set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/output/arm64-mac)
+  set(LIBPNG_MAC_DIR ${LIBPNG_BUILD_DIR}/output/arm64-mac)
 elseif(RGBD_ARCH_X64)
-  set(LIBPNG_MAC_DIR ${LIBPNG_BINARIES_DIR}/output/x64-mac)
+  set(LIBPNG_MAC_DIR ${LIBPNG_BUILD_DIR}/output/x64-mac)
 endif()
-set(LIBPNG_LINUX_DIR ${LIBPNG_BINARIES_DIR}/output/x64-linux)
-set(LIBPNG_IOS_DIR ${LIBPNG_BINARIES_DIR}/output/arm64-ios)
+set(LIBPNG_LINUX_DIR ${LIBPNG_BUILD_DIR}/output/x64-linux)
+set(LIBPNG_IOS_DIR ${LIBPNG_BUILD_DIR}/output/arm64-ios)
 
 # libpng requires zlib
-set(ZLIB_BINARIES_DIR ${LIBPNG_BINARIES_DIR}/zlib-binaries)
-set(ZLIB_WIN64_DIR ${ZLIB_BINARIES_DIR}/output/x64-windows)
-set(ZLIB_LINUX_DIR ${ZLIB_BINARIES_DIR}/output/x64-linux)
+set(ZLIB_BUILD_DIR ${LIBPNG_BUILD_DIR}/zlib-binaries)
+set(ZLIB_WIN64_DIR ${ZLIB_BUILD_DIR}/output/x64-windows)
+set(ZLIB_LINUX_DIR ${ZLIB_BUILD_DIR}/output/x64-linux)
 ### LIBPNG END ###
 
 ### LIBVPX BEGIN ###
