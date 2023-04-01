@@ -123,7 +123,7 @@ set(LIBPNG_LINUX_DIR ${LIBPNG_BUILD_DIR}/output/x64-linux)
 set(LIBPNG_IOS_DIR ${LIBPNG_BUILD_DIR}/output/arm64-ios)
 
 # libpng requires zlib
-set(ZLIB_BUILD_DIR ${LIBPNG_BUILD_DIR}/zlib-binaries)
+set(ZLIB_BUILD_DIR ${LIBPNG_BUILD_DIR}/zlib-build)
 set(ZLIB_WIN64_DIR ${ZLIB_BUILD_DIR}/output/x64-windows)
 set(ZLIB_LINUX_DIR ${ZLIB_BUILD_DIR}/output/x64-linux)
 ### LIBPNG END ###
