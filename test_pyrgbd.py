@@ -1,5 +1,4 @@
 import pyrgbd as rgbd
-import requests
 import os.path
 import glm
 import base64
@@ -19,6 +18,7 @@ def main():
     video_file_path = f"videos/{base64url_video_id}.mkv"
     # video_file_path = f"videos/Office.mkv"
     if not os.path.exists(video_file_path):
+        import requests
         video_id = decode_base64url_to_long(base64url_video_id)
         video_url = f"https://posts.telegie.com/v1/{video_id}/{video_id}.mkv"
         response = requests.get(video_url)

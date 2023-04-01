@@ -30,12 +30,12 @@ jobs:
       - name: Build
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
-          poetry run python setup.py install
+          pip install .
 
       - name: Test
-        run: poetry run python test_pyrgbd.py
+        run: |
+          pip install requests
+          python test_pyrgbd.py
 
   bulid-mac:
     runs-on: macos-12
@@ -63,12 +63,12 @@ jobs:
       - name: Build
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
-          poetry run python setup.py install
+          pip install .
 
       - name: Test
-        run: poetry run python test_pyrgbd.py
+        run: |
+          pip install requests
+          python test_pyrgbd.py
 
 
   build-linux:
@@ -97,9 +97,9 @@ jobs:
       - name: Build
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
-          poetry run python setup.py install
+          pip install .
 
       - name: Test
-        run: poetry run python test_pyrgbd.py
+        run: |
+          pip install requests
+          python test_pyrgbd.py
