@@ -130,6 +130,8 @@ set(ZLIB_LINUX_DIR ${ZLIB_BUILD_DIR}/output/x64-linux)
 
 ### LIBVPX BEGIN ###
 set(LIBVPX_BINARIES_DIR ${FFMPEG_BINARIES_DIR}/libvpx-binaries)
+set(LIBVPX_WIN64_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-windows)
+set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-linux)
 if(RGBD_ARCH_ARM64)
   set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/arm64-mac)
 elseif(RGBD_ARCH_X64)
@@ -141,6 +143,7 @@ set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten)
 
 ### OPUS BEGIN ###
 set(OPUS_BINARIES_DIR ${FFMPEG_BINARIES_DIR}/opus-binaries)
+set(OPUS_WIN64_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-windows)
 if(RGBD_ARCH_ARM64)
   set(OPUS_MAC_DIR ${OPUS_BINARIES_DIR}/e4d4b74/arm64-mac)
 elseif(RGBD_ARCH_X64)
@@ -151,6 +154,7 @@ set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
 ### OPUS END ###
 
 ### PYBIND11 BEGIN ###
+set(Python3_ROOT_DIR C:/Python39)
 add_subdirectory(deps/pybind11)
 ### PYBIND11 END ###
 
@@ -274,11 +278,20 @@ if(RGBD_OS_WINDOWS)
     ${LIBPNG_WIN64_DIR}/include
   )
   list(APPEND RGBD_DEPENDENCIES
-    ${FFMPEG_WIN64_DIR}/bin/avcodec.lib
-    ${FFMPEG_WIN64_DIR}/bin/avformat.lib
-    ${FFMPEG_WIN64_DIR}/bin/avutil.lib
+    ${FFMPEG_WIN64_DIR}/lib/libavcodec.a
+    ${FFMPEG_WIN64_DIR}/lib/libavformat.a
+    ${FFMPEG_WIN64_DIR}/lib/libavutil.a
+    ${LIBVPX_WIN64_DIR}/lib/x64/vpx.lib
+    ${OPUS_WIN64_DIR}/lib/opus.lib
     ${LIBPNG_WIN64_DIR}/lib/libpng16_static.lib
     ${ZLIB_WIN64_DIR}/lib/zlibstatic.lib
+    # following libraries are needed for Windows FFMpeg build
+    # ref: https://github.com/microsoft/vcpkg/issues/9571
+    # strmiids.lib is for DirectShow
+    Mfplat.lib
+    Mfuuid.lib
+    Bcrypt.lib
+    strmiids.lib
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_WINDOWS)
   if(NOT PROJECT_IS_TOP_LEVEL)
