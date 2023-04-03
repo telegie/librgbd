@@ -1,6 +1,6 @@
 #pragma once
 
-#include "file_writer.hpp"
+#include "record_writer.hpp"
 
 namespace rgbd
 {

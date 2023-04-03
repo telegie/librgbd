@@ -1,4 +1,4 @@
-#include "file_writer.hpp"
+#include "record_writer.hpp"
 
 #include "png_utils.hpp"
 

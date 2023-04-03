@@ -190,10 +190,6 @@ set(RGBD_SOURCES
   include/rgbd/depth_encoder.hpp
   include/rgbd/direction_table.hpp
   include/rgbd/ffmpeg_utils.hpp
-  include/rgbd/file.hpp
-  include/rgbd/file_bytes_builder.hpp
-  include/rgbd/file_parser.hpp
-  include/rgbd/file_writer.hpp
   include/rgbd/frame_mapper.hpp
   include/rgbd/integer_frame.hpp
   include/rgbd/ios_calibration_utils.hpp
@@ -203,6 +199,10 @@ set(RGBD_SOURCES
   include/rgbd/math_utils.hpp
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
+  include/rgbd/record.hpp
+  include/rgbd/record_bytes_builder.hpp
+  include/rgbd/record_parser.hpp
+  include/rgbd/record_writer.hpp
   include/rgbd/rgbd.hpp
   include/rgbd/rgbd_capi.h
   include/rgbd/rvl.hpp
@@ -227,10 +227,6 @@ set(RGBD_SOURCES
   src/depth_encoder.cpp
   src/direction_table.cpp
   src/ffmpeg_utils.cpp
-  src/file.cpp
-  src/file_bytes_builder.cpp
-  src/file_parser.cpp
-  src/file_writer.cpp
   src/frame_mapper.cpp
   src/integer_frame.cpp
   src/ios_calibration_utils.cpp
@@ -240,6 +236,10 @@ set(RGBD_SOURCES
   src/math_utils.cpp
   src/plane.cpp
   src/png_utils.cpp
+  src/record.cpp
+  src/record_bytes_builder.cpp
+  src/record_parser.cpp
+  src/record_writer.cpp
   src/rgbd_capi.cpp
   src/rvl.cpp
   src/rvl_decoder.cpp

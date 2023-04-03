@@ -1,4 +1,4 @@
-#include "file_bytes_builder.hpp"
+#include "record_bytes_builder.hpp"
 
 namespace rgbd
 {

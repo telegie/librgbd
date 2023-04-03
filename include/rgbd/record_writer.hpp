@@ -13,7 +13,7 @@
 #include "kinect_camera_calibration.hpp"
 #include "video_frame.hpp"
 #include "tdc1_encoder.hpp"
-#include "file.hpp"
+#include "record.hpp"
 
 #pragma warning(push)
 #pragma warning(disable : 4245 4267 4828 6387 26495 26812)
