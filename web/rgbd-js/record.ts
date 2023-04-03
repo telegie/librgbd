@@ -5,7 +5,7 @@ import { ColorCodecType } from './color_decoder';
 import { DirectionTable, NativeDirectionTable } from './direction_table';
 import { Quaternion, Vector3 } from '@math.gl/core';
 
-export class FileInfo {
+export class RecordInfo {
   timecodeScaleNs: number;
   durationUs: number;
   writingApp: string;
@@ -18,15 +18,15 @@ export class FileInfo {
     this.writingApp = writingApp;
   }
 
-  static fromNative(nativeInfo: NativeFileInfo) {
+  static fromNative(nativeInfo: NativeRecordInfo) {
     const timecodeScaleNs = nativeInfo.getTimecodeScaleNs();
     const durationUs = nativeInfo.getDurationUs();
     const writingApp = nativeInfo.getWritingApp();
-    return new FileInfo(timecodeScaleNs, durationUs, writingApp);
+    return new RecordInfo(timecodeScaleNs, durationUs, writingApp);
   }
 }
 
-export class FileVideoTrack {
+export class RecordVideoTrack {
   trackNumber: number;
   width: number;
   height: number;
@@ -39,15 +39,15 @@ export class FileVideoTrack {
     this.height = height;
   }
 
-  static fromNative(nativeFileVideoTrack: NativeFileVideoTrack) {
-    const trackNumber = nativeFileVideoTrack.getTrackNumber();
-    const width = nativeFileVideoTrack.getWidth();
-    const height = nativeFileVideoTrack.getHeight();
-    return new FileVideoTrack(trackNumber, width, height);
+  static fromNative(nativeRecordVideoTrack: NativeRecordVideoTrack) {
+    const trackNumber = nativeRecordVideoTrack.getTrackNumber();
+    const width = nativeRecordVideoTrack.getWidth();
+    const height = nativeRecordVideoTrack.getHeight();
+    return new RecordVideoTrack(trackNumber, width, height);
   }
 }
 
-export class FileColorVideoTrack extends FileVideoTrack {
+export class RecordColorVideoTrack extends RecordVideoTrack {
   codec: ColorCodecType;
 
   constructor(trackNumber: number,
@@ -58,16 +58,16 @@ export class FileColorVideoTrack extends FileVideoTrack {
     this.codec = codec;
   }
 
-  static fromNative(nativeFileColorVideoTrack: NativeFileColorVideoTrack) {
-    const trackNumber = nativeFileColorVideoTrack.getTrackNumber();
-    const width = nativeFileColorVideoTrack.getWidth();
-    const height = nativeFileColorVideoTrack.getHeight();
-    const codec = nativeFileColorVideoTrack.getCodec();
-    return new FileColorVideoTrack(trackNumber, width, height, codec);
+  static fromNative(nativeRecordColorVideoTrack: NativeRecordColorVideoTrack) {
+    const trackNumber = nativeRecordColorVideoTrack.getTrackNumber();
+    const width = nativeRecordColorVideoTrack.getWidth();
+    const height = nativeRecordColorVideoTrack.getHeight();
+    const codec = nativeRecordColorVideoTrack.getCodec();
+    return new RecordColorVideoTrack(trackNumber, width, height, codec);
   }
 }
 
-export class FileDepthVideoTrack extends FileVideoTrack {
+export class RecordDepthVideoTrack extends RecordVideoTrack {
   codec: DepthCodecType;
   depthUnit: number;
 
@@ -81,17 +81,17 @@ export class FileDepthVideoTrack extends FileVideoTrack {
     this.depthUnit = depthUnit;
   }
 
-  static fromNative(nativeFileDepthVideoTrack: NativeFileDepthVideoTrack) {
-    const trackNumber = nativeFileDepthVideoTrack.getTrackNumber();
-    const width = nativeFileDepthVideoTrack.getWidth();
-    const height = nativeFileDepthVideoTrack.getHeight();
-    const codec = nativeFileDepthVideoTrack.getCodec();
-    const depthUnit = nativeFileDepthVideoTrack.getDepthUnit();
-    return new FileDepthVideoTrack(trackNumber, width, height, codec, depthUnit);
+  static fromNative(nativeRecordDepthVideoTrack: NativeRecordDepthVideoTrack) {
+    const trackNumber = nativeRecordDepthVideoTrack.getTrackNumber();
+    const width = nativeRecordDepthVideoTrack.getWidth();
+    const height = nativeRecordDepthVideoTrack.getHeight();
+    const codec = nativeRecordDepthVideoTrack.getCodec();
+    const depthUnit = nativeRecordDepthVideoTrack.getDepthUnit();
+    return new RecordDepthVideoTrack(trackNumber, width, height, codec, depthUnit);
   }
 }
 
-export class FileAudioTrack {
+export class RecordAudioTrack {
   trackNumber: number;
   samplingFrequency: number;
 
@@ -101,44 +101,44 @@ export class FileAudioTrack {
     this.samplingFrequency = samplingFrequency;
   }
 
-  static fromNative(nativeFileAudioTrack: NativeFileAudioTrack) {
-    const trackNumber = nativeFileAudioTrack.getTrackNumber();
-    const samplingFrequency = nativeFileAudioTrack.getSamplingFrequency();
-    return new FileAudioTrack(trackNumber, samplingFrequency);
+  static fromNative(nativeRecordAudioTrack: NativeRecordAudioTrack) {
+    const trackNumber = nativeRecordAudioTrack.getTrackNumber();
+    const samplingFrequency = nativeRecordAudioTrack.getSamplingFrequency();
+    return new RecordAudioTrack(trackNumber, samplingFrequency);
   }
 }
 
-export class FileTracks {
-  colorTrack: FileColorVideoTrack;
-  depthTrack: FileDepthVideoTrack;
-  audioTrack: FileAudioTrack;
+export class RecordTracks {
+  colorTrack: RecordColorVideoTrack;
+  depthTrack: RecordDepthVideoTrack;
+  audioTrack: RecordAudioTrack;
 
-  constructor(colorTrack: FileColorVideoTrack,
-              depthTrack: FileDepthVideoTrack,
-              audioTrack: FileAudioTrack) {
+  constructor(colorTrack: RecordColorVideoTrack,
+              depthTrack: RecordDepthVideoTrack,
+              audioTrack: RecordAudioTrack) {
     this.colorTrack = colorTrack;
     this.depthTrack = depthTrack;
     this.audioTrack = audioTrack;
   }
 
-  static fromNative(nativeFileTracks: NativeFileTracks) {
-    const nativeColorTrack = nativeFileTracks.getColorTrack()
-    const colorTrack = FileColorVideoTrack.fromNative(nativeColorTrack);
+  static fromNative(nativeRecordTracks: NativeRecordTracks) {
+    const nativeColorTrack = nativeRecordTracks.getColorTrack()
+    const colorTrack = RecordColorVideoTrack.fromNative(nativeColorTrack);
     nativeColorTrack.close();
 
-    const nativeDepthTrack = nativeFileTracks.getDepthTrack();
-    const depthTrack = FileDepthVideoTrack.fromNative(nativeDepthTrack);
+    const nativeDepthTrack = nativeRecordTracks.getDepthTrack();
+    const depthTrack = RecordDepthVideoTrack.fromNative(nativeDepthTrack);
     nativeDepthTrack.close();
 
-    const nativeAudioTrack = nativeFileTracks.getAudioTrack();
-    const audioTrack = FileAudioTrack.fromNative(nativeAudioTrack);
+    const nativeAudioTrack = nativeRecordTracks.getAudioTrack();
+    const audioTrack = RecordAudioTrack.fromNative(nativeAudioTrack);
     nativeAudioTrack.close();
 
-    return new FileTracks(colorTrack, depthTrack, audioTrack);
+    return new RecordTracks(colorTrack, depthTrack, audioTrack);
   }
 }
 
-export class FileAttachments {
+export class RecordAttachments {
   calibration: CameraCalibration;
   coverPngBytes: Uint8Array | null;
 
@@ -148,17 +148,17 @@ export class FileAttachments {
     this.coverPngBytes = coverPngBytes;
   }
 
-  static fromNative(nativeFileAttachments: NativeFileAttachments) {
-    const nativeCalibration = nativeFileAttachments.getCameraCalibration();
+  static fromNative(nativeRecordAttachments: NativeRecordAttachments) {
+    const nativeCalibration = nativeRecordAttachments.getCameraCalibration();
     const calibration = CameraCalibration.fromNative(nativeCalibration);
     nativeCalibration.close();
 
-    const coverPngBytes = nativeFileAttachments.getCoverPNGBytes();
-    return new FileAttachments(calibration, coverPngBytes);
+    const coverPngBytes = nativeRecordAttachments.getCoverPNGBytes();
+    return new RecordAttachments(calibration, coverPngBytes);
   }
 }
 
-export class FileVideoFrame {
+export class RecordVideoFrame {
   timePointUs: number;
   keyframe: boolean;
   colorBytes: Uint8Array;
@@ -174,12 +174,12 @@ export class FileVideoFrame {
     this.depthBytes = depthBytes;
   }
 
-  static fromNative(nativeFileVideoFrame: NativeFileVideoFrame) {
-    const timePointUs = nativeFileVideoFrame.getTimePointUs();
-    const keyframe = nativeFileVideoFrame.getKeyframe();
-    const colorBytes = nativeFileVideoFrame.getColorBytes();
-    const depthBytes = nativeFileVideoFrame.getDepthBytes();
-    return new FileVideoFrame(timePointUs, keyframe, colorBytes, depthBytes);
+  static fromNative(nativeRecordVideoFrame: NativeRecordVideoFrame) {
+    const timePointUs = nativeRecordVideoFrame.getTimePointUs();
+    const keyframe = nativeRecordVideoFrame.getKeyframe();
+    const colorBytes = nativeRecordVideoFrame.getColorBytes();
+    const depthBytes = nativeRecordVideoFrame.getDepthBytes();
+    return new RecordVideoFrame(timePointUs, keyframe, colorBytes, depthBytes);
   }
 
   toNative(wasmModule: any) {
@@ -196,11 +196,11 @@ export class FileVideoFrame {
     wasmModule._free(colorBytesPtr);
     wasmModule._free(depthBytesPtr);
 
-    return new NativeFileVideoFrame(wasmModule, ptr, true);
+    return new NativeRecordVideoFrame(wasmModule, ptr, true);
   }
 }
 
-export class FileAudioFrame {
+export class RecordAudioFrame {
   timePointUs: number;
   bytes: Uint8Array;
 
@@ -209,10 +209,10 @@ export class FileAudioFrame {
     this.bytes = bytes;
   }
 
-  static fromNative(nativeFileAudioFrame: NativeFileAudioFrame) {
-    const timePointUs = nativeFileAudioFrame.getTimePointUs();
-    const bytes = nativeFileAudioFrame.getBytes();
-    return new FileAudioFrame(timePointUs, bytes);
+  static fromNative(nativeRecordAudioFrame: NativeRecordAudioFrame) {
+    const timePointUs = nativeRecordAudioFrame.getTimePointUs();
+    const bytes = nativeRecordAudioFrame.getBytes();
+    return new RecordAudioFrame(timePointUs, bytes);
   }
 
   toNative(wasmModule: any) {
@@ -224,11 +224,11 @@ export class FileAudioFrame {
                                  [this.timePointUs, bytesPtr, this.bytes.byteLength]);
     wasmModule._free(bytesPtr);
 
-    return new NativeFileAudioFrame(wasmModule, ptr, true);
+    return new NativeRecordAudioFrame(wasmModule, ptr, true);
   }
 }
 
-export class FileIMUFrame {
+export class RecordIMUFrame {
   timePointUs: number;
   acceleration: Vector3;
   rotationRate: Vector3;
@@ -247,20 +247,20 @@ export class FileIMUFrame {
     this.gravity = gravity;
   }
 
-  static fromNative(nativeFileIMUFrame: NativeFileIMUFrame) {
-    const timePointUs = nativeFileIMUFrame.getTimePointUs();
-    const acceleration = nativeFileIMUFrame.getAcceleration();
-    const rotationRate = nativeFileIMUFrame.getRotationRate();
-    const magneticField = nativeFileIMUFrame.getMagneticField();
-    const gravity = nativeFileIMUFrame.getGravity();
-    return new FileIMUFrame(timePointUs,
+  static fromNative(nativeRecordIMUFrame: NativeRecordIMUFrame) {
+    const timePointUs = nativeRecordIMUFrame.getTimePointUs();
+    const acceleration = nativeRecordIMUFrame.getAcceleration();
+    const rotationRate = nativeRecordIMUFrame.getRotationRate();
+    const magneticField = nativeRecordIMUFrame.getMagneticField();
+    const gravity = nativeRecordIMUFrame.getGravity();
+    return new RecordIMUFrame(timePointUs,
                             acceleration,
                             rotationRate,
                             magneticField,
                             gravity)
   }
 
-  toNative(wasmModule: any): NativeFileIMUFrame {
+  toNative(wasmModule: any): NativeRecordIMUFrame {
     const ptr = wasmModule.ccall('rgbd_record_imu_frame_ctor_wasm',
                                  'number',
                                  ['number',
@@ -274,11 +274,11 @@ export class FileIMUFrame {
                                   this.magneticField.x, this.magneticField.y, this.magneticField.z,
                                   this.gravity.x, this.gravity.y, this.gravity.z]);
 
-    return new NativeFileIMUFrame(wasmModule, ptr, true);
+    return new NativeRecordIMUFrame(wasmModule, ptr, true);
   }
 }
 
-export class FileTRSFrame {
+export class RecordTRSFrame {
   timePointUs: number;
   translation: Vector3;
   rotation: Quaternion;
@@ -294,15 +294,15 @@ export class FileTRSFrame {
     this.scale = scale;
   }
 
-  static fromNative(nativeFileTRSFrame: NativeFileTRSFrame) {
-    const timePointUs = nativeFileTRSFrame.getTimePointUs();
-    const translation = nativeFileTRSFrame.getTranslation();
-    const rotation = nativeFileTRSFrame.getRotation();
-    const scale = nativeFileTRSFrame.getScale();
-    return new FileTRSFrame(timePointUs, translation, rotation, scale);
+  static fromNative(nativeRecordTRSFrame: NativeRecordTRSFrame) {
+    const timePointUs = nativeRecordTRSFrame.getTimePointUs();
+    const translation = nativeRecordTRSFrame.getTranslation();
+    const rotation = nativeRecordTRSFrame.getRotation();
+    const scale = nativeRecordTRSFrame.getScale();
+    return new RecordTRSFrame(timePointUs, translation, rotation, scale);
   }
 
-  toNative(wasmModule: any): NativeFileTRSFrame {
+  toNative(wasmModule: any): NativeRecordTRSFrame {
     const ptr = wasmModule.ccall('rgbd_record_trs_frame_ctor_wasm',
                                  'number',
                                  ['number',
@@ -314,27 +314,27 @@ export class FileTRSFrame {
                                   this.rotation.w, this.rotation.x, this.rotation.y, this.rotation.z,
                                   this.scale.x, this.scale.y, this.scale.z]);
 
-    return new NativeFileTRSFrame(wasmModule, ptr, true);
+    return new NativeRecordTRSFrame(wasmModule, ptr, true);
   }
 }
 
-export class File {
-  info: FileInfo;
-  tracks: FileTracks;
-  attachments: FileAttachments;
-  videoFrames: FileVideoFrame[];
-  audioFrames: FileAudioFrame[];
-  imuFrames: FileIMUFrame[];
-  trsFrames: FileTRSFrame[];
+export class Record {
+  info: RecordInfo;
+  tracks: RecordTracks;
+  attachments: RecordAttachments;
+  videoFrames: RecordVideoFrame[];
+  audioFrames: RecordAudioFrame[];
+  imuFrames: RecordIMUFrame[];
+  trsFrames: RecordTRSFrame[];
   directionTable: DirectionTable | null;
 
-  constructor(info: FileInfo,
-              tracks: FileTracks,
-              attachments: FileAttachments,
-              videoFrames: FileVideoFrame[],
-              audioFrames: FileAudioFrame[],
-              imuFrames: FileIMUFrame[],
-              trsFrames: FileTRSFrame[],
+  constructor(info: RecordInfo,
+              tracks: RecordTracks,
+              attachments: RecordAttachments,
+              videoFrames: RecordVideoFrame[],
+              audioFrames: RecordAudioFrame[],
+              imuFrames: RecordIMUFrame[],
+              trsFrames: RecordTRSFrame[],
               directionTable: DirectionTable | null) {
     this.info = info;
     this.tracks = tracks;
@@ -346,69 +346,69 @@ export class File {
     this.directionTable = directionTable;
   }
 
-  static fromNative(nativeFile: NativeFile) {
-    const nativeInfo = nativeFile.getInfo();
-    const info = FileInfo.fromNative(nativeInfo);
+  static fromNative(nativeRecord: NativeRecord) {
+    const nativeInfo = nativeRecord.getInfo();
+    const info = RecordInfo.fromNative(nativeInfo);
     nativeInfo.close();
 
-    const nativeTracks = nativeFile.getTracks();
-    const tracks = FileTracks.fromNative(nativeTracks);
+    const nativeTracks = nativeRecord.getTracks();
+    const tracks = RecordTracks.fromNative(nativeTracks);
     nativeTracks.close();
 
-    const nativeAttachments = nativeFile.getAttachments();
-    const attachments = FileAttachments.fromNative(nativeAttachments);
+    const nativeAttachments = nativeRecord.getAttachments();
+    const attachments = RecordAttachments.fromNative(nativeAttachments);
     nativeAttachments.close();
 
-    let videoFrames: FileVideoFrame[] = [];
-    const videoFrameCount = nativeFile.getVideoFrameCount();
+    let videoFrames: RecordVideoFrame[] = [];
+    const videoFrameCount = nativeRecord.getVideoFrameCount();
     for (let i = 0; i < videoFrameCount; i++) {
-      const nativeVideoFrame = nativeFile.getVideoFrame(i);
-      videoFrames.push(FileVideoFrame.fromNative(nativeVideoFrame));
+      const nativeVideoFrame = nativeRecord.getVideoFrame(i);
+      videoFrames.push(RecordVideoFrame.fromNative(nativeVideoFrame));
       nativeVideoFrame.close();
     }
 
-    let audioFrames: FileAudioFrame[] = [];
-    const audioFrameCount = nativeFile.getAudioFrameCount();
+    let audioFrames: RecordAudioFrame[] = [];
+    const audioFrameCount = nativeRecord.getAudioFrameCount();
     for (let i = 0; i < audioFrameCount; i++) {
-      const nativeAudioFrame = nativeFile.getAudioFrame(i);
-      audioFrames.push(FileAudioFrame.fromNative(nativeAudioFrame));
+      const nativeAudioFrame = nativeRecord.getAudioFrame(i);
+      audioFrames.push(RecordAudioFrame.fromNative(nativeAudioFrame));
       nativeAudioFrame.close();
     }
 
-    let imuFrames: FileIMUFrame[] = [];
-    const imuFrameCount = nativeFile.getIMUFrameCount();
+    let imuFrames: RecordIMUFrame[] = [];
+    const imuFrameCount = nativeRecord.getIMUFrameCount();
     for (let i = 0; i < imuFrameCount; i++) {
-      const nativeIMUFrame = nativeFile.getIMUFrame(i);
-      imuFrames.push(FileIMUFrame.fromNative(nativeIMUFrame));
+      const nativeIMUFrame = nativeRecord.getIMUFrame(i);
+      imuFrames.push(RecordIMUFrame.fromNative(nativeIMUFrame));
       nativeIMUFrame.close();
     }
 
-    let trsFrames: FileTRSFrame[] = [];
-    const trsFrameCount = nativeFile.getTRSFrameCount();
+    let trsFrames: RecordTRSFrame[] = [];
+    const trsFrameCount = nativeRecord.getTRSFrameCount();
     for (let i = 0; i < trsFrameCount; i++) {
-      const nativeTRSFrame = nativeFile.getTRSFrame(i);
-      trsFrames.push(FileTRSFrame.fromNative(nativeTRSFrame));
+      const nativeTRSFrame = nativeRecord.getTRSFrame(i);
+      trsFrames.push(RecordTRSFrame.fromNative(nativeTRSFrame));
       nativeTRSFrame.close();
     }
 
     let directionTable: DirectionTable | null = null;
-    if (nativeFile.hasDirectionTable()) {
-      const nativeDirectionTable = nativeFile.getDirectionTable();
+    if (nativeRecord.hasDirectionTable()) {
+      const nativeDirectionTable = nativeRecord.getDirectionTable();
       directionTable = DirectionTable.fromNative(nativeDirectionTable);
     }
     
-    return new File(info, tracks, attachments,
+    return new Record(info, tracks, attachments,
       videoFrames, audioFrames, imuFrames, trsFrames, directionTable);
   }
 
   // This function does a shallow copy.
-  clone(): File {
-    return new File(this.info, this.tracks, this.attachments,
+  clone(): Record {
+    return new Record(this.info, this.tracks, this.attachments,
       this.videoFrames, this.audioFrames, this.imuFrames, this.trsFrames, this.directionTable);
   }
 }
 
-export class NativeFileInfo {
+export class NativeRecordInfo {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -441,7 +441,7 @@ export class NativeFileInfo {
   }
 }
 
-export class NativeFileVideoTrack {
+export class NativeRecordVideoTrack {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -470,7 +470,7 @@ export class NativeFileVideoTrack {
   }
 }
 
-export class NativeFileColorVideoTrack extends NativeFileVideoTrack {
+export class NativeRecordColorVideoTrack extends NativeRecordVideoTrack {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
@@ -480,7 +480,7 @@ export class NativeFileColorVideoTrack extends NativeFileVideoTrack {
   }
 }
 
-export class NativeFileDepthVideoTrack extends NativeFileVideoTrack {
+export class NativeRecordDepthVideoTrack extends NativeRecordVideoTrack {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
@@ -494,7 +494,7 @@ export class NativeFileDepthVideoTrack extends NativeFileVideoTrack {
   }
 }
 
-export class NativeFileAudioTrack {
+export class NativeRecordAudioTrack {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -519,7 +519,7 @@ export class NativeFileAudioTrack {
   }
 }
 
-export class NativeFileTracks {
+export class NativeRecordTracks {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -535,23 +535,23 @@ export class NativeFileTracks {
       this.wasmModule.ccall('rgbd_record_tracks_dtor', null, ['number'], [this.ptr]);
   }
 
-  getColorTrack(): NativeFileColorVideoTrack {
+  getColorTrack(): NativeRecordColorVideoTrack {
     const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_color_track', 'number', ['number'], [this.ptr]);
-    return new NativeFileColorVideoTrack(this.wasmModule, trackPtr, false);
+    return new NativeRecordColorVideoTrack(this.wasmModule, trackPtr, false);
   }
 
-  getDepthTrack(): NativeFileDepthVideoTrack {
+  getDepthTrack(): NativeRecordDepthVideoTrack {
     const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_depth_track', 'number', ['number'], [this.ptr]);
-    return new NativeFileDepthVideoTrack(this.wasmModule, trackPtr, false);
+    return new NativeRecordDepthVideoTrack(this.wasmModule, trackPtr, false);
   }
 
-  getAudioTrack(): NativeFileAudioTrack {
+  getAudioTrack(): NativeRecordAudioTrack {
     const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_audio_track', 'number', ['number'], [this.ptr]);
-    return new NativeFileAudioTrack(this.wasmModule, trackPtr, false);
+    return new NativeRecordAudioTrack(this.wasmModule, trackPtr, false);
   }
 }
 
-export class NativeFileAttachments {
+export class NativeRecordAttachments {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -584,7 +584,7 @@ export class NativeFileAttachments {
   }
 }
 
-export class NativeFileVideoFrame {
+export class NativeRecordVideoFrame {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -627,7 +627,7 @@ export class NativeFileVideoFrame {
   }
 }
 
-export class NativeFileAudioFrame {
+export class NativeRecordAudioFrame {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -657,7 +657,7 @@ export class NativeFileAudioFrame {
   }
 }
 
-export class NativeFileIMUFrame {
+export class NativeRecordIMUFrame {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -706,7 +706,7 @@ export class NativeFileIMUFrame {
   }
 }
 
-export class NativeFileTRSFrame {
+export class NativeRecordTRSFrame {
   wasmModule: any;
   ptr: number;
   owner: boolean;
@@ -749,7 +749,7 @@ export class NativeFileTRSFrame {
   }
 }
 
-export class NativeFile {
+export class NativeRecord {
   wasmModule: any;
   ptr: number;
 
@@ -762,55 +762,55 @@ export class NativeFile {
     this.wasmModule.ccall('rgbd_record_dtor', null, ['number'], [this.ptr]);
   }
 
-  getInfo(): NativeFileInfo {
+  getInfo(): NativeRecordInfo {
     const infoPtr = this.wasmModule.ccall('rgbd_record_get_info', 'number', ['number'], [this.ptr]);
-    return new NativeFileInfo(this.wasmModule, infoPtr, false);
+    return new NativeRecordInfo(this.wasmModule, infoPtr, false);
   }
 
-  getTracks(): NativeFileTracks {
+  getTracks(): NativeRecordTracks {
     const tracksPtr = this.wasmModule.ccall('rgbd_record_get_tracks', 'number', ['number'], [this.ptr]);
-    return new NativeFileTracks(this.wasmModule, tracksPtr, false);
+    return new NativeRecordTracks(this.wasmModule, tracksPtr, false);
   }
 
-  getAttachments(): NativeFileAttachments {
+  getAttachments(): NativeRecordAttachments {
     const attachmentsPtr = this.wasmModule.ccall('rgbd_record_get_attachments', 'number', ['number'], [this.ptr]);
-    return new NativeFileAttachments(this.wasmModule, attachmentsPtr, false);
+    return new NativeRecordAttachments(this.wasmModule, attachmentsPtr, false);
   }
 
   getVideoFrameCount(): number {
     return this.wasmModule.ccall('rgbd_record_get_video_frame_count', 'number', ['number'], [this.ptr]);
   }
 
-  getVideoFrame(index: number): NativeFileVideoFrame {
+  getVideoFrame(index: number): NativeRecordVideoFrame {
     const videoFramePtr = this.wasmModule.ccall('rgbd_record_get_video_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeFileVideoFrame(this.wasmModule, videoFramePtr, false);
+    return new NativeRecordVideoFrame(this.wasmModule, videoFramePtr, false);
   }
 
   getAudioFrameCount(): number {
     return this.wasmModule.ccall('rgbd_record_get_audio_frame_count', 'number', ['number'], [this.ptr]);
   }
 
-  getAudioFrame(index: number): NativeFileAudioFrame {
+  getAudioFrame(index: number): NativeRecordAudioFrame {
     const audioFramePtr = this.wasmModule.ccall('rgbd_record_get_audio_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeFileAudioFrame(this.wasmModule, audioFramePtr, false);
+    return new NativeRecordAudioFrame(this.wasmModule, audioFramePtr, false);
   }
 
   getIMUFrameCount(): number {
     return this.wasmModule.ccall('rgbd_record_get_imu_frame_count', 'number', ['number'], [this.ptr]);
   }
 
-  getIMUFrame(index: number): NativeFileIMUFrame {
+  getIMUFrame(index: number): NativeRecordIMUFrame {
     const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_imu_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeFileIMUFrame(this.wasmModule, imuFramePtr, false);
+    return new NativeRecordIMUFrame(this.wasmModule, imuFramePtr, false);
   }
 
   getTRSFrameCount(): number {
     return this.wasmModule.ccall('rgbd_record_get_trs_frame_count', 'number', ['number'], [this.ptr]);
   }
 
-  getTRSFrame(index: number): NativeFileTRSFrame {
+  getTRSFrame(index: number): NativeRecordTRSFrame {
     const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_trs_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeFileTRSFrame(this.wasmModule, imuFramePtr, false);
+    return new NativeRecordTRSFrame(this.wasmModule, imuFramePtr, false);
   }
 
   hasDirectionTable(): boolean {

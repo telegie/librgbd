@@ -1,7 +1,7 @@
-import { NativeFile } from './file';
+import { NativeRecord } from './record';
 import { PointerByReference } from './pointer_by_reference';
 
-export class NativeFileParser {
+export class NativeRecordParser {
   wasmModule: any;
   ptr: number;
   dataPtr: number;
@@ -29,11 +29,11 @@ export class NativeFileParser {
     this.wasmModule._free(this.dataPtr);
   }
 
-  parse(withFrames: boolean, withDirections: boolean): NativeFile {
+  parse(withFrames: boolean, withDirections: boolean): NativeRecord {
     const filePtr = this.wasmModule.ccall('rgbd_record_parser_parse',
                                           'number',
                                           ['number', 'boolean', 'boolean'],
                                           [this.ptr, withFrames, withDirections]);
-    return new NativeFile(this.wasmModule, filePtr);
+    return new NativeRecord(this.wasmModule, filePtr);
   }
 }
