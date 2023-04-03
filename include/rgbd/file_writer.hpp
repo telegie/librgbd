@@ -56,10 +56,10 @@ public:
                float depth_unit,
                const CameraCalibration& calibration,
                const optional<Bytes>& cover_png_bytes);
-    void writeVideoFrame(const FileVideoFrame& video_frame);
-    void writeAudioFrame(const FileAudioFrame& audio_frame);
-    void writeIMUFrame(const FileIMUFrame& imu_frame);
-    void writeTRSFrame(const FileTRSFrame& trs_frame);
+    void writeVideoFrame(const RecordVideoFrame& video_frame);
+    void writeAudioFrame(const RecordAudioFrame& audio_frame);
+    void writeIMUFrame(const RecordIMUFrame& imu_frame);
+    void writeTRSFrame(const RecordTRSFrame& trs_frame);
     void flush();
 
 private:

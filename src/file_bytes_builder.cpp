@@ -40,22 +40,22 @@ void FileBytesBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
     cover_png_bytes_ = cover_png_bytes;
 }
 
-void FileBytesBuilder::addVideoFrame(const FileVideoFrame& video_frame)
+void FileBytesBuilder::addVideoFrame(const RecordVideoFrame& video_frame)
 {
     video_frames_.push_back(video_frame);
 }
 
-void FileBytesBuilder::addAudioFrame(const FileAudioFrame& audio_frame)
+void FileBytesBuilder::addAudioFrame(const RecordAudioFrame& audio_frame)
 {
     audio_frames_.push_back(audio_frame);
 }
 
-void FileBytesBuilder::addIMUFrame(const FileIMUFrame& imu_frame)
+void FileBytesBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
 {
     imu_frames_.push_back(imu_frame);
 }
 
-void FileBytesBuilder::addTRSFrame(const FileTRSFrame& trs_frame)
+void FileBytesBuilder::addTRSFrame(const RecordTRSFrame& trs_frame)
 {
     trs_frames_.push_back(trs_frame);
 }
@@ -81,22 +81,22 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
 {
     sort(video_frames_.begin(),
          video_frames_.end(),
-         [](const FileVideoFrame& lhs, const FileVideoFrame& rhs) {
+         [](const RecordVideoFrame& lhs, const RecordVideoFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
     sort(audio_frames_.begin(),
          audio_frames_.end(),
-         [](const FileAudioFrame& lhs, const FileAudioFrame& rhs) {
+         [](const RecordAudioFrame& lhs, const RecordAudioFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
     sort(imu_frames_.begin(),
          imu_frames_.end(),
-         [](const FileIMUFrame& lhs, const FileIMUFrame& rhs) {
+         [](const RecordIMUFrame& lhs, const RecordIMUFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
     sort(trs_frames_.begin(),
          trs_frames_.end(),
-         [](const FileTRSFrame& lhs, const FileTRSFrame& rhs) {
+         [](const RecordTRSFrame& lhs, const RecordTRSFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
 
@@ -137,7 +137,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
             // Write if it is before the current video frame.
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeAudioFrame(FileAudioFrame{audio_time_point_us, audio_frame.bytes()});
+            file_writer.writeAudioFrame(RecordAudioFrame{audio_time_point_us, audio_frame.bytes()});
             ++audio_frame_index;
         }
         while (imu_frame_index < imu_frames_.size()) {
@@ -149,7 +149,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
             }
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeIMUFrame(FileIMUFrame{imu_time_point_us,
+            file_writer.writeIMUFrame(RecordIMUFrame{imu_time_point_us,
                                                    imu_frame.acceleration(),
                                                    imu_frame.rotation_rate(),
                                                    imu_frame.magnetic_field(),
@@ -165,7 +165,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
             }
             if (trs_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeTRSFrame(FileTRSFrame{trs_time_point_us,
+            file_writer.writeTRSFrame(RecordTRSFrame{trs_time_point_us,
                                                    trs_frame.translation(),
                                                    trs_frame.rotation(),
                                                    trs_frame.scale()});

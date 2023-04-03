@@ -150,80 +150,80 @@ PYBIND11_MODULE(pyrgbd, m)
     // END depth_encoder.hpp
 
     // BEGIN file.hpp
-    py::class_<FileOffsets>(m, "FileOffsets")
+    py::class_<RecordOffsets>(m, "FileOffsets")
         .def(py::init())
-        .def_readwrite("segment_info_offset", &FileOffsets::segment_info_offset)
-        .def_readwrite("tracks_offset", &FileOffsets::tracks_offset)
-        .def_readwrite("attachments_offset", &FileOffsets::attachments_offset)
-        .def_readwrite("first_cluster_offset", &FileOffsets::first_cluster_offset);
+        .def_readwrite("segment_info_offset", &RecordOffsets::segment_info_offset)
+        .def_readwrite("tracks_offset", &RecordOffsets::tracks_offset)
+        .def_readwrite("attachments_offset", &RecordOffsets::attachments_offset)
+        .def_readwrite("first_cluster_offset", &RecordOffsets::first_cluster_offset);
 
-    py::class_<FileInfo>(m, "FileInfo")
+    py::class_<RecordInfo>(m, "FileInfo")
         .def(py::init())
-        .def_readwrite("timecode_scale_ns", &FileInfo::timecode_scale_ns)
-        .def_readwrite("duration_us", &FileInfo::duration_us)
-        .def_readwrite("writing_app", &FileInfo::writing_app);
+        .def_readwrite("timecode_scale_ns", &RecordInfo::timecode_scale_ns)
+        .def_readwrite("duration_us", &RecordInfo::duration_us)
+        .def_readwrite("writing_app", &RecordInfo::writing_app);
 
-    py::class_<FileVideoTrack>(m, "FileVideoTrack")
+    py::class_<RecordVideoTrack>(m, "FileVideoTrack")
         .def(py::init())
-        .def_readwrite("track_number", &FileVideoTrack::track_number)
-        .def_readwrite("default_duration_ns", &FileVideoTrack::default_duration_ns)
-        .def_readwrite("width", &FileVideoTrack::width)
-        .def_readwrite("height", &FileVideoTrack::height);
+        .def_readwrite("track_number", &RecordVideoTrack::track_number)
+        .def_readwrite("default_duration_ns", &RecordVideoTrack::default_duration_ns)
+        .def_readwrite("width", &RecordVideoTrack::width)
+        .def_readwrite("height", &RecordVideoTrack::height);
 
-    py::class_<FileColorVideoTrack, FileVideoTrack>(m, "FileColorVideoTrack")
+    py::class_<RecordColorVideoTrack, RecordVideoTrack>(m, "FileColorVideoTrack")
         .def(py::init())
-        .def_readwrite("codec", &FileColorVideoTrack::codec);
+        .def_readwrite("codec", &RecordColorVideoTrack::codec);
 
-    py::class_<FileDepthVideoTrack, FileVideoTrack>(m, "FileDepthVideoTrack")
+    py::class_<RecordDepthVideoTrack, RecordVideoTrack>(m, "FileDepthVideoTrack")
         .def(py::init())
-        .def_readwrite("codec", &FileDepthVideoTrack::codec)
-        .def_readwrite("depth_unit", &FileDepthVideoTrack::depth_unit);
+        .def_readwrite("codec", &RecordDepthVideoTrack::codec)
+        .def_readwrite("depth_unit", &RecordDepthVideoTrack::depth_unit);
 
-    py::class_<FileAudioTrack>(m, "FileAudioTrack")
+    py::class_<RecordAudioTrack>(m, "FileAudioTrack")
         .def(py::init())
-        .def_readwrite("track_number", &FileAudioTrack::track_number)
-        .def_readwrite("sampling_frequency", &FileAudioTrack::sampling_frequency);
+        .def_readwrite("track_number", &RecordAudioTrack::track_number)
+        .def_readwrite("sampling_frequency", &RecordAudioTrack::sampling_frequency);
 
-    py::class_<FileTracks>(m, "FileTracks")
+    py::class_<RecordTracks>(m, "FileTracks")
         .def(py::init())
-        .def_readwrite("color_track", &FileTracks::color_track)
-        .def_readwrite("depth_track", &FileTracks::depth_track)
-        .def_readwrite("audio_track", &FileTracks::audio_track)
-        .def_readwrite("floor_track_number", &FileTracks::floor_track_number)
-        .def_readwrite("acceleration_track_number", &FileTracks::acceleration_track_number)
-        .def_readwrite("rotation_rate_track_number", &FileTracks::rotation_rate_track_number)
-        .def_readwrite("magnetic_field_track_number", &FileTracks::magnetic_field_track_number)
-        .def_readwrite("gravity_track_number", &FileTracks::gravity_track_number)
-        .def_readwrite("translation_track_number", &FileTracks::translation_track_number)
-        .def_readwrite("rotation_track_number", &FileTracks::rotation_track_number)
-        .def_readwrite("scale_track_number", &FileTracks::scale_track_number);
+        .def_readwrite("color_track", &RecordTracks::color_track)
+        .def_readwrite("depth_track", &RecordTracks::depth_track)
+        .def_readwrite("audio_track", &RecordTracks::audio_track)
+        .def_readwrite("floor_track_number", &RecordTracks::floor_track_number)
+        .def_readwrite("acceleration_track_number", &RecordTracks::acceleration_track_number)
+        .def_readwrite("rotation_rate_track_number", &RecordTracks::rotation_rate_track_number)
+        .def_readwrite("magnetic_field_track_number", &RecordTracks::magnetic_field_track_number)
+        .def_readwrite("gravity_track_number", &RecordTracks::gravity_track_number)
+        .def_readwrite("translation_track_number", &RecordTracks::translation_track_number)
+        .def_readwrite("rotation_track_number", &RecordTracks::rotation_track_number)
+        .def_readwrite("scale_track_number", &RecordTracks::scale_track_number);
 
-    py::class_<FileAttachments>(m, "FileAttachments")
+    py::class_<RecordAttachments>(m, "FileAttachments")
         .def(py::init())
-        .def_readwrite("camera_calibration", &FileAttachments::camera_calibration)
-        .def_readwrite("cover_png_bytes", &FileAttachments::cover_png_bytes);
+        .def_readwrite("camera_calibration", &RecordAttachments::camera_calibration)
+        .def_readwrite("cover_png_bytes", &RecordAttachments::cover_png_bytes);
 
-    py::enum_<FileFrameType>(m, "FileFrameType")
-        .value("Video", FileFrameType::Video)
-        .value("Audio", FileFrameType::Audio)
-        .value("IMU", FileFrameType::IMU)
-        .value("TRS", FileFrameType::TRS);
+    py::enum_<RecordFrameType>(m, "FileFrameType")
+        .value("Video", RecordFrameType::Video)
+        .value("Audio", RecordFrameType::Audio)
+        .value("IMU", RecordFrameType::IMU)
+        .value("TRS", RecordFrameType::TRS);
 
-    py::class_<FileFrame>(m, "FileFrame").def("getType", &FileFrame::getType);
+    py::class_<RecordFrame>(m, "FileFrame").def("getType", &RecordFrame::getType);
 
-    py::class_<FileVideoFrame, FileFrame>(m, "FileVideoFrame")
+    py::class_<RecordVideoFrame, RecordFrame>(m, "FileVideoFrame")
         .def(py::init<int64_t, bool, const Bytes&, const Bytes&>())
-        .def_property_readonly("time_point_us", &FileVideoFrame::time_point_us)
-        .def_property_readonly("keyframe", &FileVideoFrame::keyframe)
-        .def("get_color_bytes", &FileVideoFrame::color_bytes, py::return_value_policy::copy)
-        .def("get_depth_bytes", &FileVideoFrame::depth_bytes, py::return_value_policy::copy);
+        .def_property_readonly("time_point_us", &RecordVideoFrame::time_point_us)
+        .def_property_readonly("keyframe", &RecordVideoFrame::keyframe)
+        .def("get_color_bytes", &RecordVideoFrame::color_bytes, py::return_value_policy::copy)
+        .def("get_depth_bytes", &RecordVideoFrame::depth_bytes, py::return_value_policy::copy);
 
-    py::class_<FileAudioFrame, FileFrame>(m, "FileAudioFrame")
+    py::class_<RecordAudioFrame, RecordFrame>(m, "FileAudioFrame")
         .def(py::init<int64_t, const Bytes&>())
-        .def_property_readonly("time_point_us", &FileAudioFrame::time_point_us)
-        .def("get_bytes", &FileAudioFrame::bytes, py::return_value_policy::copy);
+        .def_property_readonly("time_point_us", &RecordAudioFrame::time_point_us)
+        .def("get_bytes", &RecordAudioFrame::bytes, py::return_value_policy::copy);
 
-    py::class_<FileIMUFrame, FileFrame>(m, "FileIMUFrame")
+    py::class_<RecordIMUFrame, RecordFrame>(m, "FileIMUFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_acceleration,
                          const py::object& py_rotation_rate,
@@ -233,35 +233,35 @@ PYBIND11_MODULE(pyrgbd, m)
             glm::vec3 rotation_rate{read_py_vec3(py_rotation_rate)};
             glm::vec3 magnetic_field{read_py_vec3(py_magnetic_field)};
             glm::vec3 gravity{read_py_vec3(py_gravity)};
-            return FileIMUFrame{time_point_us, acceleration, rotation_rate, magnetic_field, gravity};
+            return RecordIMUFrame{time_point_us, acceleration, rotation_rate, magnetic_field, gravity};
         }))
         .def(py::init<int64_t,
                       const glm::vec3&,
                       const glm::vec3&,
                       const glm::vec3&,
                       const glm::vec3&>())
-        .def_property_readonly("time_point_us", &FileIMUFrame::time_point_us)
+        .def_property_readonly("time_point_us", &RecordIMUFrame::time_point_us)
         .def_property_readonly("acceleration",
-                               [](const FileIMUFrame& frame) {
+                               [](const RecordIMUFrame& frame) {
                                    py::module_ glm{py::module_::import("glm")};
                                    return create_py_vec3(glm, frame.acceleration());
                                })
         .def_property_readonly("rotation_rate",
-                               [](const FileIMUFrame& frame) {
+                               [](const RecordIMUFrame& frame) {
                                    py::module_ glm{py::module_::import("glm")};
                                    return create_py_vec3(glm, frame.rotation_rate());
                                })
         .def_property_readonly("magnetic_field",
-                               [](const FileIMUFrame& frame) {
+                               [](const RecordIMUFrame& frame) {
                                    py::module_ glm{py::module_::import("glm")};
                                    return create_py_vec3(glm, frame.magnetic_field());
                                })
-        .def_property_readonly("gravity", [](const FileIMUFrame& frame) {
+        .def_property_readonly("gravity", [](const RecordIMUFrame& frame) {
             py::module_ glm{py::module_::import("glm")};
             return create_py_vec3(glm, frame.gravity());
         });
 
-    py::class_<FileTRSFrame, FileFrame>(m, "FileTRSFrame")
+    py::class_<RecordTRSFrame, RecordFrame>(m, "FileTRSFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_translation,
                          const py::object& py_rotation,
@@ -269,35 +269,35 @@ PYBIND11_MODULE(pyrgbd, m)
             glm::vec3 translation{read_py_vec3(py_translation)};
             glm::quat rotation{read_py_quat(py_rotation)};
             glm::vec3 scale{read_py_vec3(py_scale)};
-            return FileTRSFrame{time_point_us, translation, rotation, scale};
+            return RecordTRSFrame{time_point_us, translation, rotation, scale};
         }))
-        .def_property_readonly("time_point_us", &FileTRSFrame::time_point_us)
+        .def_property_readonly("time_point_us", &RecordTRSFrame::time_point_us)
         .def_property_readonly(
-            "translation", [](const FileTRSFrame& frame) {
+            "translation", [](const RecordTRSFrame& frame) {
                 py::module_ glm{py::module_::import("glm")};
                 return create_py_vec3(glm, frame.translation());
             })
         .def_property_readonly(
-            "rotation", [](const FileTRSFrame& frame) {
+            "rotation", [](const RecordTRSFrame& frame) {
                 py::module_ glm{py::module_::import("glm")};
                 return create_py_quat(glm, frame.rotation());
             })
         .def_property_readonly(
-            "scale", [](const FileTRSFrame& frame) {
+            "scale", [](const RecordTRSFrame& frame) {
                 py::module_ glm{py::module_::import("glm")};
                 return create_py_vec3(glm, frame.scale());
             });
 
-    py::class_<File>(m, "File")
-        .def("get_offsets", &File::offsets, py::return_value_policy::copy)
-        .def("get_info", &File::info, py::return_value_policy::copy)
-        .def("get_tracks", &File::tracks, py::return_value_policy::copy)
-        .def("get_attachments", &File::attachments, py::return_value_policy::copy)
-        .def("get_video_frames", &File::video_frames, py::return_value_policy::copy)
-        .def("get_audio_frames", &File::audio_frames, py::return_value_policy::copy)
-        .def("get_imu_frames", &File::imu_frames, py::return_value_policy::copy)
-        .def("get_trs_frames", &File::trs_frames, py::return_value_policy::copy)
-        .def("get_direction_table", &File::direction_table, py::return_value_policy::copy);
+    py::class_<Record>(m, "File")
+        .def("get_offsets", &Record::offsets, py::return_value_policy::copy)
+        .def("get_info", &Record::info, py::return_value_policy::copy)
+        .def("get_tracks", &Record::tracks, py::return_value_policy::copy)
+        .def("get_attachments", &Record::attachments, py::return_value_policy::copy)
+        .def("get_video_frames", &Record::video_frames, py::return_value_policy::copy)
+        .def("get_audio_frames", &Record::audio_frames, py::return_value_policy::copy)
+        .def("get_imu_frames", &Record::imu_frames, py::return_value_policy::copy)
+        .def("get_trs_frames", &Record::trs_frames, py::return_value_policy::copy)
+        .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
     // END file.hpp
 
     // BEGIN file_bytes_builder.hpp

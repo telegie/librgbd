@@ -15,27 +15,27 @@ public:
 
 private:
     void parseExceptClusters();
-    optional<const FileInfo> parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info);
-    optional<const FileOffsets> parseOffsets(unique_ptr<libmatroska::KaxSegment>& segment);
-    optional<const FileTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
-    optional<const FileAttachments>
+    optional<const RecordInfo> parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info);
+    optional<const RecordOffsets> parseOffsets(unique_ptr<libmatroska::KaxSegment>& segment);
+    optional<const RecordTracks> parseTracks(unique_ptr<libmatroska::KaxTracks>& tracks);
+    optional<const RecordAttachments>
     parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments);
-    FileFrame* parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster);
-    void parseAllClusters(vector<FileVideoFrame>& video_frames,
-                          vector<FileAudioFrame>& audio_frames,
-                          vector<FileIMUFrame>& imu_frames,
-                          vector<FileTRSFrame>& trs_frames);
+    RecordFrame* parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster);
+    void parseAllClusters(vector<RecordVideoFrame>& video_frames,
+                          vector<RecordAudioFrame>& audio_frames,
+                          vector<RecordIMUFrame>& imu_frames,
+                          vector<RecordTRSFrame>& trs_frames);
 
 public:
-    unique_ptr<File> parse(bool with_frames, bool with_directions);
+    unique_ptr<Record> parse(bool with_frames, bool with_directions);
 
 private:
     unique_ptr<libebml::IOCallback> input_;
     EbmlStream stream_;
     unique_ptr<libmatroska::KaxSegment> kax_segment_;
-    optional<FileOffsets> file_offsets_;
-    optional<FileInfo> file_info_;
-    optional<FileTracks> file_tracks_;
-    optional<FileAttachments> file_attachments_;
+    optional<RecordOffsets> file_offsets_;
+    optional<RecordInfo> file_info_;
+    optional<RecordTracks> file_tracks_;
+    optional<RecordAttachments> file_attachments_;
 };
 } // namespace rgbd

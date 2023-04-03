@@ -28,7 +28,7 @@
 
 namespace rgbd
 {
-struct FileOffsets
+struct RecordOffsets
 {
     int64_t segment_info_offset;
     int64_t tracks_offset;
@@ -36,14 +36,14 @@ struct FileOffsets
     int64_t first_cluster_offset;
 };
 
-struct FileInfo
+struct RecordInfo
 {
     uint64_t timecode_scale_ns;
     double duration_us;
     string writing_app;
 };
 
-struct FileVideoTrack
+struct RecordVideoTrack
 {
     int track_number;
     uint64_t default_duration_ns;
@@ -51,28 +51,28 @@ struct FileVideoTrack
     int height;
 };
 
-struct FileColorVideoTrack : public FileVideoTrack
+struct RecordColorVideoTrack : public RecordVideoTrack
 {
     ColorCodecType codec;
 };
 
-struct FileDepthVideoTrack : public FileVideoTrack
+struct RecordDepthVideoTrack : public RecordVideoTrack
 {
     DepthCodecType codec;
     float depth_unit;
 };
 
-struct FileAudioTrack
+struct RecordAudioTrack
 {
     int track_number;
     double sampling_frequency;
 };
 
-struct FileTracks
+struct RecordTracks
 {
-    FileColorVideoTrack color_track;
-    FileDepthVideoTrack depth_track;
-    FileAudioTrack audio_track;
+    RecordColorVideoTrack color_track;
+    RecordDepthVideoTrack depth_track;
+    RecordAudioTrack audio_track;
     optional<int> floor_track_number;
     optional<int> acceleration_track_number;
     optional<int> rotation_rate_track_number;
@@ -83,14 +83,14 @@ struct FileTracks
     optional<int> scale_track_number;
 };
 
-struct FileAttachments
+struct RecordAttachments
 {
     shared_ptr<CameraCalibration> camera_calibration;
     // There may be no cover.png in some early (before v25) files
     optional<Bytes> cover_png_bytes;
 };
 
-enum class FileFrameType
+enum class RecordFrameType
 {
     Video = 0,
     Audio = 1,
@@ -98,29 +98,29 @@ enum class FileFrameType
     TRS = 3
 };
 
-class FileFrame
+class RecordFrame
 {
 public:
-    virtual ~FileFrame() {}
-    virtual FileFrameType getType() = 0;
+    virtual ~RecordFrame() {}
+    virtual RecordFrameType getType() = 0;
 };
 
-class FileVideoFrame : public FileFrame
+class RecordVideoFrame : public RecordFrame
 {
 public:
-    FileVideoFrame(int64_t time_point_us,
-                   bool keyframe,
-                   const Bytes& color_bytes,
-                   const Bytes& depth_bytes)
+    RecordVideoFrame(int64_t time_point_us,
+                     bool keyframe,
+                     const Bytes& color_bytes,
+                     const Bytes& depth_bytes)
         : time_point_us_{time_point_us}
         , keyframe_{keyframe}
         , color_bytes_{color_bytes}
         , depth_bytes_{depth_bytes}
     {
     }
-    FileFrameType getType()
+    RecordFrameType getType()
     {
-        return FileFrameType::Video;
+        return RecordFrameType::Video;
     }
     int64_t time_point_us() const noexcept
     {
@@ -146,18 +146,18 @@ private:
     Bytes depth_bytes_;
 };
 
-class FileAudioFrame : public FileFrame
+class RecordAudioFrame : public RecordFrame
 {
 public:
-    FileAudioFrame(int64_t time_point_us,
-                   const Bytes& bytes)
+    RecordAudioFrame(int64_t time_point_us,
+                     const Bytes& bytes)
         : time_point_us_{time_point_us}
         , bytes_{bytes}
     {
     }
-    FileFrameType getType()
+    RecordFrameType getType()
     {
-        return FileFrameType::Audio;
+        return RecordFrameType::Audio;
     }
     int64_t time_point_us() const noexcept
     {
@@ -173,10 +173,10 @@ private:
     Bytes bytes_;
 };
 
-class FileIMUFrame : public FileFrame
+class RecordIMUFrame : public RecordFrame
 {
 public:
-    FileIMUFrame(int64_t time_point_us,
+    RecordIMUFrame(int64_t time_point_us,
                  const glm::vec3& acceleration,
                  const glm::vec3& rotation_rate,
                  const glm::vec3& magnetic_field,
@@ -188,9 +188,9 @@ public:
         , gravity_{gravity}
     {
     }
-    FileFrameType getType()
+    RecordFrameType getType()
     {
-        return FileFrameType::IMU;
+        return RecordFrameType::IMU;
     }
     int64_t time_point_us() const noexcept
     {
@@ -221,10 +221,10 @@ private:
     glm::vec3 gravity_;
 };
 
-class FileTRSFrame : public FileFrame
+class RecordTRSFrame : public RecordFrame
 {
 public:
-    FileTRSFrame(int64_t time_point_us,
+    RecordTRSFrame(int64_t time_point_us,
                  const glm::vec3& translation,
                  const glm::quat& rotation,
                  const glm::vec3& scale)
@@ -234,9 +234,9 @@ public:
         , scale_{scale}
     {
     }
-    FileFrameType getType()
+    RecordFrameType getType()
     {
-        return FileFrameType::TRS;
+        return RecordFrameType::TRS;
     }
     int64_t time_point_us() const noexcept
     {
@@ -262,17 +262,17 @@ private:
     glm::vec3 scale_;
 };
 
-class File
+class Record
 {
 public:
-    File(const FileOffsets& offsets,
-         const FileInfo& info,
-         const FileTracks& tracks,
-         const FileAttachments& attachments,
-         vector<FileVideoFrame>&& video_frames,
-         vector<FileAudioFrame>&& audio_frames,
-         vector<FileIMUFrame>&& imu_frames,
-         vector<FileTRSFrame>&& trs_frames,
+    Record(const RecordOffsets& offsets,
+         const RecordInfo& info,
+         const RecordTracks& tracks,
+         const RecordAttachments& attachments,
+         vector<RecordVideoFrame>&& video_frames,
+         vector<RecordAudioFrame>&& audio_frames,
+         vector<RecordIMUFrame>&& imu_frames,
+         vector<RecordTRSFrame>&& trs_frames,
          optional<DirectionTable>&& direction_table)
         : offsets_{offsets}
         , info_{info}
@@ -285,35 +285,35 @@ public:
         , direction_table_{std::move(direction_table)}
     {
     }
-    FileOffsets& offsets() noexcept
+    RecordOffsets& offsets() noexcept
     {
         return offsets_;
     }
-    FileInfo& info() noexcept
+    RecordInfo& info() noexcept
     {
         return info_;
     }
-    FileTracks& tracks() noexcept
+    RecordTracks& tracks() noexcept
     {
         return tracks_;
     }
-    FileAttachments& attachments() noexcept
+    RecordAttachments& attachments() noexcept
     {
         return attachments_;
     }
-    vector<FileVideoFrame>& video_frames() noexcept
+    vector<RecordVideoFrame>& video_frames() noexcept
     {
         return video_frames_;
     }
-    vector<FileAudioFrame>& audio_frames() noexcept
+    vector<RecordAudioFrame>& audio_frames() noexcept
     {
         return audio_frames_;
     }
-    vector<FileIMUFrame>& imu_frames() noexcept
+    vector<RecordIMUFrame>& imu_frames() noexcept
     {
         return imu_frames_;
     }
-    vector<FileTRSFrame>& trs_frames() noexcept
+    vector<RecordTRSFrame>& trs_frames() noexcept
     {
         return trs_frames_;
     }
@@ -323,14 +323,14 @@ public:
     }
 
 private:
-    FileOffsets offsets_;
-    FileInfo info_;
-    FileTracks tracks_;
-    FileAttachments attachments_;
-    vector<FileVideoFrame> video_frames_;
-    vector<FileAudioFrame> audio_frames_;
-    vector<FileIMUFrame> imu_frames_;
-    vector<FileTRSFrame> trs_frames_;
+    RecordOffsets offsets_;
+    RecordInfo info_;
+    RecordTracks tracks_;
+    RecordAttachments attachments_;
+    vector<RecordVideoFrame> video_frames_;
+    vector<RecordAudioFrame> audio_frames_;
+    vector<RecordIMUFrame> imu_frames_;
+    vector<RecordTRSFrame> trs_frames_;
     optional<DirectionTable> direction_table_;
 };
 } // namespace rgbd

@@ -394,7 +394,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
     }
 }
 
-void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
+void FileWriter::writeVideoFrame(const RecordVideoFrame& video_frame)
 {
     int64_t time_point_ns{video_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -442,7 +442,7 @@ void FileWriter::writeVideoFrame(const FileVideoFrame& video_frame)
     last_timecode_ = video_timecode;
 }
 
-void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
+void FileWriter::writeAudioFrame(const RecordAudioFrame& audio_frame)
 {
     int64_t time_point_ns{audio_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -479,7 +479,7 @@ void FileWriter::writeAudioFrame(const FileAudioFrame& audio_frame)
     last_timecode_ = audio_cluster_timecode;
 }
 
-void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
+void FileWriter::writeIMUFrame(const RecordIMUFrame& imu_frame)
 {
     int64_t time_point_ns{imu_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -547,7 +547,7 @@ void FileWriter::writeIMUFrame(const FileIMUFrame& imu_frame)
     last_timecode_ = imu_timecode;
 }
 
-void FileWriter::writeTRSFrame(const FileTRSFrame& trs_frame)
+void FileWriter::writeTRSFrame(const RecordTRSFrame& trs_frame)
 {
     int64_t time_point_ns{trs_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {

@@ -110,7 +110,7 @@ void split_file(const std::string& file_path)
 
         // file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
         file_bytes_builder->addVideoFrame(
-            FileVideoFrame{time_point_us, first, color_bytes, depth_bytes});
+            RecordVideoFrame{time_point_us, first, color_bytes, depth_bytes});
     }
 
     // file_writer->flush();
@@ -173,7 +173,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
         // file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
         file_bytes_builder.addVideoFrame(
-            FileVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
+            RecordVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
     }
 
     // file_writer.flush();
@@ -230,7 +230,7 @@ void standardize_calibration(const std::string& file_path)
         auto depth_bytes{depth_encoder.encode(mapped_depth_frame->values().data(), keyframe)};
 
         file_bytes_builder.addVideoFrame(
-            FileVideoFrame{video_time_point_us, keyframe, color_bytes, depth_bytes});
+            RecordVideoFrame{video_time_point_us, keyframe, color_bytes, depth_bytes});
         //        spdlog::info("add video frame: {}", video_time_point_us);
 
         while (audio_frame_index < file->audio_frames().size()) {

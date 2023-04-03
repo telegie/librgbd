@@ -233,7 +233,7 @@ void FileParser::parseExceptClusters()
     file_attachments_ = parseAttachments(attachments);
 }
 
-optional<const FileInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info)
+optional<const RecordInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info)
 {
     auto kax_timecode_scale{FindChild<KaxTimecodeScale>(*kax_info)};
     if (!kax_timecode_scale) {
@@ -251,14 +251,14 @@ optional<const FileInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo>&
         return nullopt;
     }
 
-    FileInfo file_info;
+    RecordInfo file_info;
     file_info.timecode_scale_ns = kax_timecode_scale->GetValue();
     file_info.duration_us = kax_duration->GetValue();
     file_info.writing_app = kax_writing_app->GetValue().GetUTF8();
     return file_info;
 }
 
-optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& segment)
+optional<const RecordOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& segment)
 {
     optional<int64_t> segment_info_offset{nullopt};
     optional<int64_t> tracks_offset{nullopt};
@@ -268,7 +268,7 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& seg
     auto element{next_child(*input_, stream_, kax_segment_.get())};
     while (element != nullptr) {
         if (segment_info_offset && tracks_offset && attachments_offset && first_cluster_offset) {
-            FileOffsets offsets;
+            RecordOffsets offsets;
             offsets.segment_info_offset = *segment_info_offset;
             offsets.tracks_offset = *tracks_offset;
             offsets.attachments_offset = *attachments_offset;
@@ -317,11 +317,11 @@ optional<const FileOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& seg
     return nullopt;
 }
 
-optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
+optional<const RecordTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
 {
-    optional<FileColorVideoTrack> color_track{nullopt};
-    optional<FileDepthVideoTrack> depth_track{nullopt};
-    optional<FileAudioTrack> audio_track{nullopt};
+    optional<RecordColorVideoTrack> color_track{nullopt};
+    optional<RecordDepthVideoTrack> depth_track{nullopt};
+    optional<RecordAudioTrack> audio_track{nullopt};
     optional<int> floor_track_number{nullopt};
     optional<int> acceleration_track_number{nullopt};
     optional<int> rotation_rate_track_number{nullopt};
@@ -348,7 +348,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 uint64_t width{GetChild<KaxVideoPixelWidth>(track_video).GetValue()};
                 uint64_t height{GetChild<KaxVideoPixelHeight>(track_video).GetValue()};
 
-                color_track = FileColorVideoTrack{};
+                color_track = RecordColorVideoTrack{};
                 color_track->track_number = gsl::narrow<int>(track_number);
                 if (codec_id == "V_VP8") {
                     color_track->codec = ColorCodecType::VP8;
@@ -380,7 +380,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                     depth_unit = codec_private_json["depthUnit"].get<float>();
                 }
 
-                depth_track = FileDepthVideoTrack{};
+                depth_track = RecordDepthVideoTrack{};
                 depth_track->track_number = gsl::narrow<int>(track_number);
                 if (codec_id == "V_RVL") {
                     depth_track->codec = DepthCodecType::RVL;
@@ -399,7 +399,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
                 auto& track_audio{GetChild<KaxTrackAudio>(*track_entry)};
                 double sampling_freq{GetChild<KaxAudioSamplingFreq>(track_audio).GetValue()};
 
-                audio_track = FileAudioTrack{};
+                audio_track = RecordAudioTrack{};
                 audio_track->track_number = gsl::narrow<int>(track_number);
                 audio_track->sampling_frequency = sampling_freq;
             } else if (track_name == "FLOOR") {
@@ -429,7 +429,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     if (!color_track || !depth_track || !audio_track)
         return nullopt;
 
-    FileTracks file_tracks;
+    RecordTracks file_tracks;
     file_tracks.color_track = *color_track;
     file_tracks.depth_track = *depth_track;
     file_tracks.audio_track = *audio_track;
@@ -445,7 +445,7 @@ optional<const FileTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks
     return file_tracks;
 }
 
-optional<const FileAttachments>
+optional<const RecordAttachments>
 FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments)
 {
     shared_ptr<CameraCalibration> camera_calibration;
@@ -494,14 +494,14 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
     if (!camera_calibration)
         return nullopt;
 
-    FileAttachments file_attachments;
+    RecordAttachments file_attachments;
     file_attachments.camera_calibration = camera_calibration;
     file_attachments.cover_png_bytes = cover_png_bytes;
 
     return file_attachments;
 }
 
-FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster)
+RecordFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster)
 {
     if (read_element<KaxCluster>(stream_, cluster.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
@@ -586,12 +586,12 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
     if (color_bytes.size() > 0) {
         if (!keyframe)
             throw std::runtime_error("Failed to find keyframe info.");
-        return new FileVideoFrame{
+        return new RecordVideoFrame{
             time_point_us, *keyframe, color_bytes, depth_bytes};
     }
 
     if (audio_bytes.size() > 0) {
-        return new FileAudioFrame{time_point_us, audio_bytes};
+        return new RecordAudioFrame{time_point_us, audio_bytes};
     }
 
     if (acceleration) {
@@ -602,7 +602,7 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         if (!gravity)
             throw std::runtime_error{"Failed to find gravity"};
 
-        return new FileIMUFrame{
+        return new RecordIMUFrame{
             time_point_us, *acceleration, *rotation_rate, *magnetic_field, *gravity};
     }
 
@@ -612,16 +612,16 @@ FileFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster
         if (!scale)
             throw std::runtime_error("Failed to find scale");
 
-        return new FileTRSFrame{time_point_us, *translation, *rotation, *scale};
+        return new RecordTRSFrame{time_point_us, *translation, *rotation, *scale};
     }
 
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
 }
 
-void FileParser::parseAllClusters(vector<FileVideoFrame>& video_frames,
-                                  vector<FileAudioFrame>& audio_frames,
-                                  vector<FileIMUFrame>& imu_frames,
-                                  vector<FileTRSFrame>& trs_frames)
+void FileParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
+                                  vector<RecordAudioFrame>& audio_frames,
+                                  vector<RecordIMUFrame>& imu_frames,
+                                  vector<RecordTRSFrame>& trs_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
@@ -633,23 +633,23 @@ void FileParser::parseAllClusters(vector<FileVideoFrame>& video_frames,
         auto frame{parseCluster(cluster)};
         cluster = find_next<KaxCluster>(stream_, true);
         switch (frame->getType()) {
-        case FileFrameType::Video: {
-            auto video_frame{dynamic_cast<FileVideoFrame*>(frame)};
+        case RecordFrameType::Video: {
+            auto video_frame{dynamic_cast<RecordVideoFrame*>(frame)};
             video_frames.push_back(std::move(*video_frame));
             break;
         }
-        case FileFrameType::Audio: {
-            auto audio_frame{dynamic_cast<FileAudioFrame*>(frame)};
+        case RecordFrameType::Audio: {
+            auto audio_frame{dynamic_cast<RecordAudioFrame*>(frame)};
             audio_frames.push_back(std::move(*audio_frame));
             break;
         }
-        case FileFrameType::IMU: {
-            auto imu_frame{dynamic_cast<FileIMUFrame*>(frame)};
+        case RecordFrameType::IMU: {
+            auto imu_frame{dynamic_cast<RecordIMUFrame*>(frame)};
             imu_frames.push_back(std::move(*imu_frame));
             break;
         }
-        case FileFrameType::TRS: {
-            auto trs_frame{dynamic_cast<FileTRSFrame*>(frame)};
+        case RecordFrameType::TRS: {
+            auto trs_frame{dynamic_cast<RecordTRSFrame*>(frame)};
             trs_frames.push_back(std::move(*trs_frame));
             break;
         }
@@ -659,12 +659,12 @@ void FileParser::parseAllClusters(vector<FileVideoFrame>& video_frames,
     }
 }
 
-unique_ptr<File> FileParser::parse(bool with_frames, bool with_directions)
+unique_ptr<Record> FileParser::parse(bool with_frames, bool with_directions)
 {
-    vector<FileVideoFrame> video_frames;
-    vector<FileAudioFrame> audio_frames;
-    vector<FileIMUFrame> imu_frames;
-    vector<FileTRSFrame> trs_frames;
+    vector<RecordVideoFrame> video_frames;
+    vector<RecordAudioFrame> audio_frames;
+    vector<RecordIMUFrame> imu_frames;
+    vector<RecordTRSFrame> trs_frames;
     if (with_frames)
         parseAllClusters(video_frames, audio_frames, imu_frames, trs_frames);
 
@@ -672,7 +672,7 @@ unique_ptr<File> FileParser::parse(bool with_frames, bool with_directions)
     if (with_directions)
         direction_table = DirectionTable{*file_attachments_->camera_calibration};
 
-    return std::make_unique<File>(*file_offsets_,
+    return std::make_unique<Record>(*file_offsets_,
                                   *file_info_,
                                   *file_tracks_,
                                   *file_attachments_,

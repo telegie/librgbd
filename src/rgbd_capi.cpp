@@ -435,98 +435,98 @@ float rgbd_direction_table_get_direction_z(void* ptr, size_t index)
 //////// START FILE ////////
 void rgbd_file_dtor(void* ptr)
 {
-    delete static_cast<File*>(ptr);
+    delete static_cast<Record*>(ptr);
 }
 
 void* rgbd_file_get_info(void* ptr)
 {
-    return &(static_cast<File*>(ptr)->info());
+    return &(static_cast<Record*>(ptr)->info());
 }
 
 void* rgbd_file_get_tracks(void* ptr)
 {
-    return &(static_cast<File*>(ptr)->tracks());
+    return &(static_cast<Record*>(ptr)->tracks());
 }
 
 void* rgbd_file_get_attachments(void* ptr)
 {
-    return &(static_cast<File*>(ptr)->attachments());
+    return &(static_cast<Record*>(ptr)->attachments());
 }
 
 size_t rgbd_file_get_video_frame_count(void* ptr)
 {
-    return static_cast<File*>(ptr)->video_frames().size();
+    return static_cast<Record*>(ptr)->video_frames().size();
 }
 
 void* rgbd_file_get_video_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<File*>(ptr)};
+    auto file{static_cast<Record*>(ptr)};
     auto& video_frame{file->video_frames()[index]};
     return &video_frame;
 }
 
 size_t rgbd_file_get_audio_frame_count(void* ptr)
 {
-    return static_cast<File*>(ptr)->audio_frames().size();
+    return static_cast<Record*>(ptr)->audio_frames().size();
 }
 
 void* rgbd_file_get_audio_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<File*>(ptr)};
+    auto file{static_cast<Record*>(ptr)};
     auto& audio_frame{file->audio_frames()[index]};
     return &audio_frame;
 }
 
 size_t rgbd_file_get_imu_frame_count(void* ptr)
 {
-    return static_cast<File*>(ptr)->imu_frames().size();
+    return static_cast<Record*>(ptr)->imu_frames().size();
 }
 
 void* rgbd_file_get_imu_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<File*>(ptr)};
+    auto file{static_cast<Record*>(ptr)};
     auto& imu_frame{file->imu_frames()[index]};
     return &imu_frame;
 }
 
 size_t rgbd_file_get_trs_frame_count(void* ptr)
 {
-    return static_cast<File*>(ptr)->trs_frames().size();
+    return static_cast<Record*>(ptr)->trs_frames().size();
 }
 
 void* rgbd_file_get_trs_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<File*>(ptr)};
+    auto file{static_cast<Record*>(ptr)};
     auto& trs_frame{file->trs_frames()[index]};
     return &trs_frame;
 }
 
 bool rgbd_file_has_direction_table(void* ptr)
 {
-    return static_cast<File*>(ptr)->direction_table().has_value();
+    return static_cast<Record*>(ptr)->direction_table().has_value();
 }
 
 void* rgbd_file_get_direction_table(void* ptr)
 {
-    return &(static_cast<File*>(ptr)->direction_table().value());
+    return &(static_cast<Record*>(ptr)->direction_table().value());
 }
 //////// END FILE ////////
 
 //////// START FILE ATTACHMENTS ////////
 void rgbd_file_attachments_dtor(void* ptr)
 {
-    delete static_cast<FileAttachments*>(ptr);
+    delete static_cast<RecordAttachments*>(ptr);
 }
 
 void* rgbd_file_attachments_get_camera_calibration(void* ptr)
 {
-    auto file_attachments{static_cast<FileAttachments*>(ptr)};
+    auto file_attachments{static_cast<RecordAttachments*>(ptr)};
     return file_attachments->camera_calibration.get();
 }
 
 void* rgbd_file_attachments_get_cover_png_bytes(void* ptr)
 {
-    auto file_attachments{static_cast<FileAttachments*>(ptr)};
+    auto file_attachments{static_cast<RecordAttachments*>(ptr)};
     if (!file_attachments->cover_png_bytes)
         return nullptr;
     return new NativeByteArray{*file_attachments->cover_png_bytes};
@@ -538,7 +538,7 @@ void* rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_dat
 {
     Bytes bytes;
     bytes.insert(bytes.end(), &bytes_data[0], &bytes_data[byte_size]);
-    return new FileAudioFrame{time_point_us, bytes};
+    return new RecordAudioFrame{time_point_us, bytes};
 }
 
 void* rgbd_file_audio_frame_ctor_wasm(int time_point_us,
@@ -550,34 +550,34 @@ void* rgbd_file_audio_frame_ctor_wasm(int time_point_us,
 
 void rgbd_file_audio_frame_dtor(void* ptr)
 {
-    delete static_cast<FileAudioFrame*>(ptr);
+    delete static_cast<RecordAudioFrame*>(ptr);
 }
 
 int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<FileAudioFrame*>(ptr)->time_point_us();
+    return static_cast<RecordAudioFrame*>(ptr)->time_point_us();
 }
 
 void* rgbd_file_audio_frame_get_bytes(void* ptr)
 {
-    return new NativeByteArray{static_cast<FileAudioFrame*>(ptr)->bytes()};
+    return new NativeByteArray{static_cast<RecordAudioFrame*>(ptr)->bytes()};
 }
 //////// END FILE AUDIO FRAME ////////
 
 //////// START FILE AUDIO TRACK ////////
 void rgbd_file_audio_track_dtor(void* ptr)
 {
-    delete static_cast<FileAudioTrack*>(ptr);
+    delete static_cast<RecordAudioTrack*>(ptr);
 }
 
 int rgbd_file_audio_track_get_track_number(void* ptr)
 {
-    return static_cast<FileAudioTrack*>(ptr)->track_number;
+    return static_cast<RecordAudioTrack*>(ptr)->track_number;
 }
 
 double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 {
-    return static_cast<FileAudioTrack*>(ptr)->sampling_frequency;
+    return static_cast<RecordAudioTrack*>(ptr)->sampling_frequency;
 }
 //////// END FILE AUDIO TRACK ////////
 
@@ -633,28 +633,28 @@ void rgbd_file_bytes_builder_set_cover_png_bytes(void* ptr,
 void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto video_frame{static_cast<FileVideoFrame*>(video_frame_ptr)};
+    auto video_frame{static_cast<RecordVideoFrame*>(video_frame_ptr)};
     file_bytes_builder->addVideoFrame(*video_frame);
 }
 
 void rgbd_file_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto audio_frame{static_cast<FileAudioFrame*>(audio_frame_ptr)};
+    auto audio_frame{static_cast<RecordAudioFrame*>(audio_frame_ptr)};
     file_bytes_builder->addAudioFrame(*audio_frame);
 }
 
 void rgbd_file_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto imu_frame{static_cast<FileIMUFrame*>(imu_frame_ptr)};
+    auto imu_frame{static_cast<RecordIMUFrame*>(imu_frame_ptr)};
     file_bytes_builder->addIMUFrame(*imu_frame);
 }
 
 void rgbd_file_bytes_builder_add_trs_frame(void* ptr, void* trs_frame_ptr)
 {
     auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
-    auto trs_frame{static_cast<FileTRSFrame*>(trs_frame_ptr)};
+    auto trs_frame{static_cast<RecordTRSFrame*>(trs_frame_ptr)};
     file_bytes_builder->addTRSFrame(*trs_frame);
 }
 
@@ -674,7 +674,7 @@ void rgbd_file_bytes_builder_build_to_path(void* ptr, const char* path)
 //////// START FILE COLOR VIDEO TRACK ////////
 rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr)
 {
-    auto file_video_track{static_cast<FileColorVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<RecordColorVideoTrack*>(ptr)};
     return static_cast<rgbdColorCodecType>(file_video_track->codec);
 }
 //////// END FILE COLOR VIDEO TRACK ////////
@@ -682,25 +682,25 @@ rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr)
 //////// START FILE DEPTH VIDEO TRACK ////////
 rgbdDepthCodecType rgbd_file_depth_video_track_get_codec(void* ptr)
 {
-    auto file_video_track{static_cast<FileDepthVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<RecordDepthVideoTrack*>(ptr)};
     return static_cast<rgbdDepthCodecType>(file_video_track->codec);
 }
 
 float rgbd_file_depth_video_track_get_depth_unit(void* ptr)
 {
-    return static_cast<FileDepthVideoTrack*>(ptr)->depth_unit;
+    return static_cast<RecordDepthVideoTrack*>(ptr)->depth_unit;
 }
 //////// END FILE DEPTH VIDEO TRACK ////////
 
 //////// START FILE FRAME ////////
 void rgbd_file_frame_dtor(void* ptr)
 {
-    delete static_cast<FileFrame*>(ptr);
+    delete static_cast<RecordFrame*>(ptr);
 }
 
 rgbdFileFrameType rgbd_file_frame_get_type(void* ptr)
 {
-    auto type{static_cast<FileFrame*>(ptr)->getType()};
+    auto type{static_cast<RecordFrame*>(ptr)->getType()};
     return static_cast<rgbdFileFrameType>(type);
 }
 //////// END FILE FRAME ////////
@@ -720,7 +720,7 @@ void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
                                float gravity_y,
                                float gravity_z)
 {
-    return new FileIMUFrame{time_point_us,
+    return new RecordIMUFrame{time_point_us,
                             glm::vec3{acceleration_x, acceleration_y, acceleration_z},
                             glm::vec3{rotation_rate_x, rotation_rate_y, rotation_rate_z},
                             glm::vec3{magnetic_field_x, magnetic_field_y, magnetic_field_z},
@@ -758,95 +758,95 @@ void* rgbd_file_imu_frame_ctor_wasm(int time_point_us,
 
 void rgbd_file_imu_frame_dtor(void* ptr)
 {
-    delete static_cast<FileIMUFrame*>(ptr);
+    delete static_cast<RecordIMUFrame*>(ptr);
 }
 
 int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->time_point_us();
+    return static_cast<RecordIMUFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_imu_frame_get_acceleration_x(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->acceleration().x;
+    return static_cast<RecordIMUFrame*>(ptr)->acceleration().x;
 }
 
 float rgbd_file_imu_frame_get_acceleration_y(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->acceleration().y;
+    return static_cast<RecordIMUFrame*>(ptr)->acceleration().y;
 }
 
 float rgbd_file_imu_frame_get_acceleration_z(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->acceleration().z;
+    return static_cast<RecordIMUFrame*>(ptr)->acceleration().z;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_x(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().x;
+    return static_cast<RecordIMUFrame*>(ptr)->rotation_rate().x;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_y(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().y;
+    return static_cast<RecordIMUFrame*>(ptr)->rotation_rate().y;
 }
 
 float rgbd_file_imu_frame_get_rotation_rate_z(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->rotation_rate().z;
+    return static_cast<RecordIMUFrame*>(ptr)->rotation_rate().z;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_x(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().x;
+    return static_cast<RecordIMUFrame*>(ptr)->magnetic_field().x;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_y(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().y;
+    return static_cast<RecordIMUFrame*>(ptr)->magnetic_field().y;
 }
 
 float rgbd_file_imu_frame_get_magnetic_field_z(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->magnetic_field().z;
+    return static_cast<RecordIMUFrame*>(ptr)->magnetic_field().z;
 }
 float rgbd_file_imu_frame_get_gravity_x(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->gravity().x;
+    return static_cast<RecordIMUFrame*>(ptr)->gravity().x;
 }
 
 float rgbd_file_imu_frame_get_gravity_y(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->gravity().y;
+    return static_cast<RecordIMUFrame*>(ptr)->gravity().y;
 }
 
 float rgbd_file_imu_frame_get_gravity_z(void* ptr)
 {
-    return static_cast<FileIMUFrame*>(ptr)->gravity().z;
+    return static_cast<RecordIMUFrame*>(ptr)->gravity().z;
 }
 //////// END FILE IMU FRAME ////////
 
 //////// START FILE INFO ////////
 void rgbd_file_info_dtor(void* ptr)
 {
-    delete static_cast<FileInfo*>(ptr);
+    delete static_cast<RecordInfo*>(ptr);
 }
 
 uint64_t rgbd_file_info_get_timecode_scale_ns(void* ptr)
 {
-    auto file_info{static_cast<FileInfo*>(ptr)};
+    auto file_info{static_cast<RecordInfo*>(ptr)};
     return file_info->timecode_scale_ns;
 }
 
 double rgbd_file_info_get_duration_us(void* ptr)
 {
-    auto file_info{static_cast<FileInfo*>(ptr)};
+    auto file_info{static_cast<RecordInfo*>(ptr)};
     return file_info->duration_us;
 }
 
 void* rgbd_file_info_get_writing_app(void* ptr)
 {
-    auto file_info{static_cast<FileInfo*>(ptr)};
+    auto file_info{static_cast<RecordInfo*>(ptr)};
     return new NativeString{file_info->writing_app};
 }
 //////// END FILE INFO ////////
@@ -888,24 +888,24 @@ void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions)
 //////// START FILE TRACKS ////////
 void rgbd_file_tracks_dtor(void* ptr)
 {
-    delete static_cast<FileTracks*>(ptr);
+    delete static_cast<RecordTracks*>(ptr);
 }
 
 void* rgbd_file_tracks_get_color_track(void* ptr)
 {
-    auto file_tracks{static_cast<FileTracks*>(ptr)};
+    auto file_tracks{static_cast<RecordTracks*>(ptr)};
     return &file_tracks->color_track;
 }
 
 void* rgbd_file_tracks_get_depth_track(void* ptr)
 {
-    auto file_tracks{static_cast<FileTracks*>(ptr)};
+    auto file_tracks{static_cast<RecordTracks*>(ptr)};
     return &file_tracks->depth_track;
 }
 
 void* rgbd_file_tracks_get_audio_track(void* ptr)
 {
-    auto file_tracks{static_cast<FileTracks*>(ptr)};
+    auto file_tracks{static_cast<RecordTracks*>(ptr)};
     return &(file_tracks->audio_track);
 }
 //////// START FILE TRACKS ////////
@@ -923,7 +923,7 @@ void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
                                float scale_y,
                                float scale_z)
 {
-    return new FileTRSFrame{time_point_us,
+    return new RecordTRSFrame{time_point_us,
                             glm::vec3{translation_x, translation_y, translation_z},
                             glm::quat{rotation_w, rotation_x, rotation_y, rotation_z},
                             glm::vec3{scale_x, scale_y, scale_z}};
@@ -956,62 +956,62 @@ void* rgbd_file_trs_frame_ctor_wasm(int time_point_us,
 
 void rgbd_file_trs_frame_dtor(void* ptr)
 {
-    delete static_cast<FileTRSFrame*>(ptr);
+    delete static_cast<RecordTRSFrame*>(ptr);
 }
 
 int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->time_point_us();
+    return static_cast<RecordTRSFrame*>(ptr)->time_point_us();
 }
 
 float rgbd_file_trs_frame_get_translation_x(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->translation().x;
+    return static_cast<RecordTRSFrame*>(ptr)->translation().x;
 }
 
 float rgbd_file_trs_frame_get_translation_y(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->translation().y;
+    return static_cast<RecordTRSFrame*>(ptr)->translation().y;
 }
 
 float rgbd_file_trs_frame_get_translation_z(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->translation().z;
+    return static_cast<RecordTRSFrame*>(ptr)->translation().z;
 }
 
 float rgbd_file_trs_frame_get_rotation_w(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->rotation().w;
+    return static_cast<RecordTRSFrame*>(ptr)->rotation().w;
 }
 
 float rgbd_file_trs_frame_get_rotation_x(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->rotation().x;
+    return static_cast<RecordTRSFrame*>(ptr)->rotation().x;
 }
 
 float rgbd_file_trs_frame_get_rotation_y(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->rotation().y;
+    return static_cast<RecordTRSFrame*>(ptr)->rotation().y;
 }
 
 float rgbd_file_trs_frame_get_rotation_z(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->rotation().z;
+    return static_cast<RecordTRSFrame*>(ptr)->rotation().z;
 }
 
 float rgbd_file_trs_frame_get_scale_x(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->scale().x;
+    return static_cast<RecordTRSFrame*>(ptr)->scale().x;
 }
 
 float rgbd_file_trs_frame_get_scale_y(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->scale().y;
+    return static_cast<RecordTRSFrame*>(ptr)->scale().y;
 }
 
 float rgbd_file_trs_frame_get_scale_z(void* ptr)
 {
-    return static_cast<FileTRSFrame*>(ptr)->scale().z;
+    return static_cast<RecordTRSFrame*>(ptr)->scale().z;
 }
 //////// END FILE TRS FRAME ////////
 
@@ -1029,7 +1029,7 @@ void* rgbd_file_video_frame_ctor(int64_t time_point_us,
     Bytes depth_bytes;
     depth_bytes.insert(depth_bytes.end(), &depth_bytes_data[0], &depth_bytes_data[depth_byte_size]);
 
-    return new FileVideoFrame{time_point_us, keyframe, color_bytes, depth_bytes};
+    return new RecordVideoFrame{time_point_us, keyframe, color_bytes, depth_bytes};
 }
 
 void* rgbd_file_video_frame_ctor_wasm(int time_point_us,
@@ -1049,51 +1049,51 @@ void* rgbd_file_video_frame_ctor_wasm(int time_point_us,
 
 void rgbd_file_video_frame_dtor(void* ptr)
 {
-    delete static_cast<FileVideoFrame*>(ptr);
+    delete static_cast<RecordVideoFrame*>(ptr);
 }
 
 int64_t rgbd_file_video_frame_get_time_point_us(void* ptr)
 {
-    return static_cast<FileVideoFrame*>(ptr)->time_point_us();
+    return static_cast<RecordVideoFrame*>(ptr)->time_point_us();
 }
 
 bool rgbd_file_video_frame_get_keyframe(void* ptr)
 {
-    return static_cast<FileVideoFrame*>(ptr)->keyframe();
+    return static_cast<RecordVideoFrame*>(ptr)->keyframe();
 }
 
 void* rgbd_file_video_frame_get_color_bytes(void* ptr)
 {
-    return new NativeByteArray{static_cast<FileVideoFrame*>(ptr)->color_bytes()};
+    return new NativeByteArray{static_cast<RecordVideoFrame*>(ptr)->color_bytes()};
 }
 
 void* rgbd_file_video_frame_get_depth_bytes(void* ptr)
 {
-    return new NativeByteArray{static_cast<FileVideoFrame*>(ptr)->depth_bytes()};
+    return new NativeByteArray{static_cast<RecordVideoFrame*>(ptr)->depth_bytes()};
 }
 //////// END FILE VIDEO FRAME ////////
 
 //////// START FILE VIDEO TRACK ////////
 void rgbd_file_video_track_dtor(void* ptr)
 {
-    delete static_cast<FileVideoTrack*>(ptr);
+    delete static_cast<RecordVideoTrack*>(ptr);
 }
 
 int rgbd_file_video_track_get_track_number(void* ptr)
 {
-    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<RecordVideoTrack*>(ptr)};
     return file_video_track->track_number;
 }
 
 int rgbd_file_video_track_get_width(void* ptr)
 {
-    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<RecordVideoTrack*>(ptr)};
     return file_video_track->width;
 }
 
 int rgbd_file_video_track_get_height(void* ptr)
 {
-    auto file_video_track{static_cast<FileVideoTrack*>(ptr)};
+    auto file_video_track{static_cast<RecordVideoTrack*>(ptr)};
     return file_video_track->height;
 }
 //////// START FILE VIDEO TRACK ////////
