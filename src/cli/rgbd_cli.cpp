@@ -14,7 +14,7 @@ void print_help(const cxxopts::Options& options)
 
 void print_file_info(std::ostream& out, const std::string& file_path)
 {
-    FileParser parser{file_path};
+    RecordParser parser{file_path};
     auto file{parser.parse(false, false)};
     size_t color_byte_size{0};
     size_t depth_byte_size{0};
@@ -38,7 +38,7 @@ void print_file_info(std::ostream& out, const std::string& file_path)
 
 void extract_cover(const std::string& file_path)
 {
-    FileParser parser{file_path};
+    RecordParser parser{file_path};
     auto file{parser.parse(false, false)};
     auto& cover_png_bytes{file->attachments().cover_png_bytes};
     if (!cover_png_bytes) {
@@ -53,12 +53,12 @@ void extract_cover(const std::string& file_path)
 
 void split_file(const std::string& file_path)
 {
-    FileParser parser{file_path};
+    RecordParser parser{file_path};
     auto file{parser.parse(false, false)};
     auto& video_frames{file->video_frames()};
 
     int previous_chunk_index{-1};
-    unique_ptr<FileBytesBuilder> file_bytes_builder;
+    unique_ptr<RecordBytesBuilder> file_bytes_builder;
     unique_ptr<ColorEncoder> color_encoder;
     unique_ptr<DepthEncoder> depth_encoder;
 
@@ -87,7 +87,7 @@ void split_file(const std::string& file_path)
             // file_writer = std::make_unique<FileWriter>(
             // output_path, *file->attachments().camera_calibration, writer_config);
 
-            file_bytes_builder.reset(new FileBytesBuilder);
+            file_bytes_builder.reset(new RecordBytesBuilder);
             file_bytes_builder->setCalibration(*file->attachments().camera_calibration);
 
             color_encoder = std::make_unique<ColorEncoder>(
@@ -121,7 +121,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 {
     int64_t from_us{static_cast<int64_t>(from_sec * 1000000)};
     int64_t to_us{static_cast<int64_t>(to_sec * 1000000)};
-    FileParser parser{file_path};
+    RecordParser parser{file_path};
     auto file{parser.parse(true, true)};
     auto& video_frames{file->video_frames()};
 
@@ -129,7 +129,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     // FileWriterConfig writer_config;
     // writer_config.depth_codec_type = DepthCodecType::TDC1;
     // FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
-    FileBytesBuilder file_bytes_builder;
+    RecordBytesBuilder file_bytes_builder;
     file_bytes_builder.setCalibration(*file->attachments().camera_calibration);
 
     ColorEncoder color_encoder{
@@ -182,7 +182,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
 
 void standardize_calibration(const std::string& file_path)
 {
-    FileParser parser{file_path};
+    RecordParser parser{file_path};
     auto file{parser.parse(true, true)};
     auto& video_frames{file->video_frames()};
 
@@ -195,7 +195,7 @@ void standardize_calibration(const std::string& file_path)
 
     FrameMapper frame_mapper{original_calibration, standard_calibration};
 
-    FileBytesBuilder file_bytes_builder;
+    RecordBytesBuilder file_bytes_builder;
     file_bytes_builder.setCalibration(standard_calibration);
 
     ColorEncoder color_encoder{ColorCodecType::VP8,

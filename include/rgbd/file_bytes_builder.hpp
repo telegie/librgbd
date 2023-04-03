@@ -5,10 +5,10 @@
 namespace rgbd
 {
 // FileWriterHelper is to make using FileWriter easier.
-class FileBytesBuilder
+class RecordBytesBuilder
 {
 public:
-    FileBytesBuilder();
+    RecordBytesBuilder();
     void setSampleRate(int sample_rate);
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);

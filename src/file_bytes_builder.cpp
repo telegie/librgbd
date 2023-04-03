@@ -2,7 +2,7 @@
 
 namespace rgbd
 {
-FileBytesBuilder::FileBytesBuilder()
+RecordBytesBuilder::RecordBytesBuilder()
     : sample_rate_{AUDIO_SAMPLE_RATE}
     , calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
@@ -15,52 +15,52 @@ FileBytesBuilder::FileBytesBuilder()
 {
 }
 
-void FileBytesBuilder::setSampleRate(int sample_rate)
+void RecordBytesBuilder::setSampleRate(int sample_rate)
 {
     sample_rate_ = sample_rate;
 }
 
-void FileBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
+void RecordBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
 {
     depth_codec_type_ = depth_codec_type;
 }
 
-void FileBytesBuilder::setDepthUnit(float depth_unit)
+void RecordBytesBuilder::setDepthUnit(float depth_unit)
 {
     depth_unit_ = depth_unit;
 }
 
-void FileBytesBuilder::setCalibration(const CameraCalibration& calibration)
+void RecordBytesBuilder::setCalibration(const CameraCalibration& calibration)
 {
     calibration_ = calibration.clone();
 }
 
-void FileBytesBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
+void RecordBytesBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
 {
     cover_png_bytes_ = cover_png_bytes;
 }
 
-void FileBytesBuilder::addVideoFrame(const RecordVideoFrame& video_frame)
+void RecordBytesBuilder::addVideoFrame(const RecordVideoFrame& video_frame)
 {
     video_frames_.push_back(video_frame);
 }
 
-void FileBytesBuilder::addAudioFrame(const RecordAudioFrame& audio_frame)
+void RecordBytesBuilder::addAudioFrame(const RecordAudioFrame& audio_frame)
 {
     audio_frames_.push_back(audio_frame);
 }
 
-void FileBytesBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
+void RecordBytesBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
 {
     imu_frames_.push_back(imu_frame);
 }
 
-void FileBytesBuilder::addTRSFrame(const RecordTRSFrame& trs_frame)
+void RecordBytesBuilder::addTRSFrame(const RecordTRSFrame& trs_frame)
 {
     trs_frames_.push_back(trs_frame);
 }
 
-Bytes FileBytesBuilder::build()
+Bytes RecordBytesBuilder::build()
 {
     MemIOCallback io_callback;
     _build(io_callback);
@@ -71,13 +71,13 @@ Bytes FileBytesBuilder::build()
     return bytes;
 }
 
-void FileBytesBuilder::buildToPath(const std::string& path)
+void RecordBytesBuilder::buildToPath(const std::string& path)
 {
     StdIOCallback io_callback{path.c_str(), MODE_CREATE};
     _build(io_callback);
 }
 
-void FileBytesBuilder::_build(IOCallback& io_callback)
+void RecordBytesBuilder::_build(IOCallback& io_callback)
 {
     sort(video_frames_.begin(),
          video_frames_.end(),
@@ -104,7 +104,7 @@ void FileBytesBuilder::_build(IOCallback& io_callback)
         throw std::runtime_error("No CameraCalibration found from FileWriterHelper");
     }
 
-    FileWriter file_writer{io_callback,
+    RecordWriter file_writer{io_callback,
                            sample_rate_,
                            depth_codec_type_,
                            depth_unit_,

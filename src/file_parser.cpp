@@ -156,7 +156,7 @@ glm::quat read_quat(const Bytes& bytes)
     return glm::quat{w, x, y, z};
 }
 
-FileParser::FileParser(const void* ptr, size_t size)
+RecordParser::RecordParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
     , kax_segment_{}
@@ -168,7 +168,7 @@ FileParser::FileParser(const void* ptr, size_t size)
     parseExceptClusters();
 }
 
-FileParser::FileParser(const string& file_path)
+RecordParser::RecordParser(const string& file_path)
     : input_{new StdIOCallback{file_path.c_str(), open_mode::MODE_READ}}
     , stream_{*input_}
     , kax_segment_{}
@@ -180,7 +180,7 @@ FileParser::FileParser(const string& file_path)
     parseExceptClusters();
 }
 
-void FileParser::parseExceptClusters()
+void RecordParser::parseExceptClusters()
 {
     auto head{find_next<EbmlHead>(stream_)};
     if (!head)
@@ -233,7 +233,7 @@ void FileParser::parseExceptClusters()
     file_attachments_ = parseAttachments(attachments);
 }
 
-optional<const RecordInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info)
+optional<const RecordInfo> RecordParser::parseInfo(unique_ptr<libmatroska::KaxInfo>& kax_info)
 {
     auto kax_timecode_scale{FindChild<KaxTimecodeScale>(*kax_info)};
     if (!kax_timecode_scale) {
@@ -258,7 +258,7 @@ optional<const RecordInfo> FileParser::parseInfo(unique_ptr<libmatroska::KaxInfo
     return file_info;
 }
 
-optional<const RecordOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& segment)
+optional<const RecordOffsets> RecordParser::parseOffsets(unique_ptr<KaxSegment>& segment)
 {
     optional<int64_t> segment_info_offset{nullopt};
     optional<int64_t> tracks_offset{nullopt};
@@ -317,7 +317,7 @@ optional<const RecordOffsets> FileParser::parseOffsets(unique_ptr<KaxSegment>& s
     return nullopt;
 }
 
-optional<const RecordTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& tracks)
+optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tracks)
 {
     optional<RecordColorVideoTrack> color_track{nullopt};
     optional<RecordDepthVideoTrack> depth_track{nullopt};
@@ -446,7 +446,7 @@ optional<const RecordTracks> FileParser::parseTracks(unique_ptr<KaxTracks>& trac
 }
 
 optional<const RecordAttachments>
-FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments)
+RecordParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachments)
 {
     shared_ptr<CameraCalibration> camera_calibration;
     optional<Bytes> cover_png_bytes;
@@ -501,7 +501,7 @@ FileParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachment
     return file_attachments;
 }
 
-RecordFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster)
+RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& cluster)
 {
     if (read_element<KaxCluster>(stream_, cluster.get()) == nullptr)
         throw std::runtime_error{"Failed reading cluster"};
@@ -618,7 +618,7 @@ RecordFrame* FileParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clust
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
 }
 
-void FileParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
+void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
                                   vector<RecordAudioFrame>& audio_frames,
                                   vector<RecordIMUFrame>& imu_frames,
                                   vector<RecordTRSFrame>& trs_frames)
@@ -659,7 +659,7 @@ void FileParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
     }
 }
 
-unique_ptr<Record> FileParser::parse(bool with_frames, bool with_directions)
+unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
 {
     vector<RecordVideoFrame> video_frames;
     vector<RecordAudioFrame> audio_frames;

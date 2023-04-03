@@ -33,7 +33,7 @@
 
 namespace rgbd
 {
-struct FileWriterTracks
+struct RecordWriterTracks
 {
     libmatroska::KaxTrackEntry* color_track{nullptr};
     libmatroska::KaxTrackEntry* depth_track{nullptr};
@@ -47,15 +47,15 @@ struct FileWriterTracks
     libmatroska::KaxTrackEntry* scale_track{nullptr};
 };
 
-class FileWriter
+class RecordWriter
 {
 public:
-    FileWriter(IOCallback& io_callback,
-               int sample_rate,
-               DepthCodecType depth_codec_type,
-               float depth_unit,
-               const CameraCalibration& calibration,
-               const optional<Bytes>& cover_png_bytes);
+    RecordWriter(IOCallback& io_callback,
+                 int sample_rate,
+                 DepthCodecType depth_codec_type,
+                 float depth_unit,
+                 const CameraCalibration& calibration,
+                 const optional<Bytes>& cover_png_bytes);
     void writeVideoFrame(const RecordVideoFrame& video_frame);
     void writeAudioFrame(const RecordAudioFrame& audio_frame);
     void writeIMUFrame(const RecordIMUFrame& imu_frame);
@@ -67,7 +67,7 @@ private:
     libmatroska::KaxSegment segment_;
     EbmlVoid seek_head_placeholder_;
     EbmlVoid segment_info_placeholder_;
-    FileWriterTracks writer_tracks_;
+    RecordWriterTracks writer_tracks_;
     libmatroska::KaxBlockBlob* past_color_block_blob_;
     libmatroska::KaxBlockBlob* past_depth_block_blob_;
     int64_t last_timecode_;

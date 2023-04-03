@@ -7,11 +7,11 @@
 namespace rgbd
 {
 
-class FileParser
+class RecordParser
 {
 public:
-    FileParser(const void* ptr, size_t size);
-    FileParser(const string& file_path);
+    RecordParser(const void* ptr, size_t size);
+    RecordParser(const string& file_path);
 
 private:
     void parseExceptClusters();

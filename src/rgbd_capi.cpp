@@ -584,35 +584,35 @@ double rgbd_file_audio_track_get_sampling_frequency(void* ptr)
 //////// START FILE BYTES BUILDER ////////
 void* rgbd_file_bytes_builder_ctor()
 {
-    return new FileBytesBuilder;
+    return new RecordBytesBuilder;
 }
 
 void rgbd_file_bytes_builder_dtor(void* ptr)
 {
-    delete static_cast<FileBytesBuilder*>(ptr);
+    delete static_cast<RecordBytesBuilder*>(ptr);
 }
 
 void rgbd_file_bytes_builder_set_sample_rate(void* ptr, int sample_rate)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     file_bytes_builder->setSampleRate(sample_rate);
 }
 
 void rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     file_bytes_builder->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
 }
 
 void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     file_bytes_builder->setDepthUnit(depth_unit);
 }
 
 void rgbd_file_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
     file_bytes_builder->setCalibration(*calibration);
 }
@@ -626,47 +626,47 @@ void rgbd_file_bytes_builder_set_cover_png_bytes(void* ptr,
                            &cover_png_bytes_data[0],
                            &cover_png_bytes_data[cover_png_byte_size]);
 
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     file_bytes_builder->setCoverPNGBytes(cover_png_bytes);
 }
 
 void rgbd_file_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     auto video_frame{static_cast<RecordVideoFrame*>(video_frame_ptr)};
     file_bytes_builder->addVideoFrame(*video_frame);
 }
 
 void rgbd_file_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     auto audio_frame{static_cast<RecordAudioFrame*>(audio_frame_ptr)};
     file_bytes_builder->addAudioFrame(*audio_frame);
 }
 
 void rgbd_file_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     auto imu_frame{static_cast<RecordIMUFrame*>(imu_frame_ptr)};
     file_bytes_builder->addIMUFrame(*imu_frame);
 }
 
 void rgbd_file_bytes_builder_add_trs_frame(void* ptr, void* trs_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     auto trs_frame{static_cast<RecordTRSFrame*>(trs_frame_ptr)};
     file_bytes_builder->addTRSFrame(*trs_frame);
 }
 
 void* rgbd_file_bytes_builder_build(void* ptr)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     return new NativeByteArray{file_bytes_builder->build()};
 }
 
 void rgbd_file_bytes_builder_build_to_path(void* ptr, const char* path)
 {
-    auto file_bytes_builder{static_cast<FileBytesBuilder*>(ptr)};
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
     file_bytes_builder->buildToPath(path);
 }
 //////// END FILE BYTES BUILDER ////////
@@ -855,7 +855,7 @@ void* rgbd_file_info_get_writing_app(void* ptr)
 int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr, size_t data_size)
 {
     try {
-        *parser_ptr_ref = new FileParser{data_ptr, data_size};
+        *parser_ptr_ref = new RecordParser{data_ptr, data_size};
         return 0;
     } catch (std::runtime_error e) {
         spdlog::error("error from rgbd_file_parser_ctor_from_data: {}", e.what());
@@ -866,7 +866,7 @@ int rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr,
 void* rgbd_file_parser_ctor_from_path(const char* file_path)
 {
     try {
-        return new FileParser{file_path};
+        return new RecordParser{file_path};
     } catch (std::runtime_error e) {
         spdlog::error("error from rgbd_file_parser_ctor: {}", e.what());
         return nullptr;
@@ -875,12 +875,12 @@ void* rgbd_file_parser_ctor_from_path(const char* file_path)
 
 void rgbd_file_parser_dtor(void* ptr)
 {
-    delete static_cast<FileParser*>(ptr);
+    delete static_cast<RecordParser*>(ptr);
 }
 
 void* rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions)
 {
-    auto file_parser{static_cast<FileParser*>(ptr)};
+    auto file_parser{static_cast<RecordParser*>(ptr)};
     return file_parser->parse(with_frames, with_directions).release();
 }
 //////// END FILE PARSER ////////

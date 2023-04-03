@@ -301,25 +301,25 @@ PYBIND11_MODULE(pyrgbd, m)
     // END file.hpp
 
     // BEGIN file_bytes_builder.hpp
-    py::class_<FileBytesBuilder>(m, "FileBytesBuilder")
+    py::class_<RecordBytesBuilder>(m, "FileBytesBuilder")
         .def(py::init<>())
-        .def("set_sample_rate", &FileBytesBuilder::setSampleRate)
-        .def("set_depth_codec_type", &FileBytesBuilder::setDepthCodecType)
-        .def("set_depth_unit", &FileBytesBuilder::setDepthUnit)
-        .def("set_calibration", &FileBytesBuilder::setCalibration)
-        .def("set_cover_png_bytes", &FileBytesBuilder::setCoverPNGBytes)
-        .def("add_video_frame", &FileBytesBuilder::addVideoFrame)
-        .def("add_audio_frame", &FileBytesBuilder::addAudioFrame)
-        .def("add_imu_frame", &FileBytesBuilder::addIMUFrame)
-        .def("add_trs_frame", &FileBytesBuilder::addTRSFrame)
-        .def("build", &FileBytesBuilder::build)
-        .def("build_to_path", &FileBytesBuilder::buildToPath);
+        .def("set_sample_rate", &RecordBytesBuilder::setSampleRate)
+        .def("set_depth_codec_type", &RecordBytesBuilder::setDepthCodecType)
+        .def("set_depth_unit", &RecordBytesBuilder::setDepthUnit)
+        .def("set_calibration", &RecordBytesBuilder::setCalibration)
+        .def("set_cover_png_bytes", &RecordBytesBuilder::setCoverPNGBytes)
+        .def("add_video_frame", &RecordBytesBuilder::addVideoFrame)
+        .def("add_audio_frame", &RecordBytesBuilder::addAudioFrame)
+        .def("add_imu_frame", &RecordBytesBuilder::addIMUFrame)
+        .def("add_trs_frame", &RecordBytesBuilder::addTRSFrame)
+        .def("build", &RecordBytesBuilder::build)
+        .def("build_to_path", &RecordBytesBuilder::buildToPath);
     // END file_bytes_builder.hpp
 
     // BEGIN file_parser.hpp
-    py::class_<FileParser>(m, "FileParser")
+    py::class_<RecordParser>(m, "FileParser")
         .def(py::init<const string&>())
-        .def("parse", &FileParser::parse);
+        .def("parse", &RecordParser::parse);
     // END file_parser.hpp
 
     // BEGIN frame_mapper.hpp

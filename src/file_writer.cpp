@@ -25,7 +25,7 @@ Bytes convert_quat_to_bytes(const glm::quat& q)
     return bytes;
 }
 
-FileWriter::FileWriter(IOCallback& io_callback,
+RecordWriter::RecordWriter(IOCallback& io_callback,
                        int sample_rate,
                        DepthCodecType depth_codec_type,
                        float depth_unit,
@@ -394,7 +394,7 @@ FileWriter::FileWriter(IOCallback& io_callback,
     }
 }
 
-void FileWriter::writeVideoFrame(const RecordVideoFrame& video_frame)
+void RecordWriter::writeVideoFrame(const RecordVideoFrame& video_frame)
 {
     int64_t time_point_ns{video_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -442,7 +442,7 @@ void FileWriter::writeVideoFrame(const RecordVideoFrame& video_frame)
     last_timecode_ = video_timecode;
 }
 
-void FileWriter::writeAudioFrame(const RecordAudioFrame& audio_frame)
+void RecordWriter::writeAudioFrame(const RecordAudioFrame& audio_frame)
 {
     int64_t time_point_ns{audio_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -479,7 +479,7 @@ void FileWriter::writeAudioFrame(const RecordAudioFrame& audio_frame)
     last_timecode_ = audio_cluster_timecode;
 }
 
-void FileWriter::writeIMUFrame(const RecordIMUFrame& imu_frame)
+void RecordWriter::writeIMUFrame(const RecordIMUFrame& imu_frame)
 {
     int64_t time_point_ns{imu_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -547,7 +547,7 @@ void FileWriter::writeIMUFrame(const RecordIMUFrame& imu_frame)
     last_timecode_ = imu_timecode;
 }
 
-void FileWriter::writeTRSFrame(const RecordTRSFrame& trs_frame)
+void RecordWriter::writeTRSFrame(const RecordTRSFrame& trs_frame)
 {
     int64_t time_point_ns{trs_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
@@ -602,7 +602,7 @@ void FileWriter::writeTRSFrame(const RecordTRSFrame& trs_frame)
     last_timecode_ = trs_timecode;
 }
 
-void FileWriter::flush()
+void RecordWriter::flush()
 {
     {
         auto duration{gsl::narrow<uint64_t>(last_timecode_ / MATROSKA_TIMESCALE_NS)};
