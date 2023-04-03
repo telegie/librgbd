@@ -41,9 +41,9 @@ extern "C"
 
     typedef enum
     {
-        RGBD_FILE_FRAME_TYPE_VIDEO = 0,
-        RGBD_FILE_FRAME_TYPE_AUDIO = 1
-    } rgbdFileFrameType;
+        RGBD_RECORD_FRAME_TYPE_VIDEO = 0,
+        RGBD_RECORD_FRAME_TYPE_AUDIO = 1
+    } rgbdRecordFrameType;
     //////// END ENUMS ////////
 
     //////// START CONSTANTS ////////
@@ -180,211 +180,44 @@ extern "C"
     RGBD_INTERFACE_EXPORT float rgbd_direction_table_get_direction_z(void* ptr, size_t index);
     //////// END DIRECTION TABLE ////////
 
-    //////// START FILE ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_info(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_tracks(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_attachments(void* ptr);
-    RGBD_INTERFACE_EXPORT size_t rgbd_file_get_video_frame_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_video_frame(void* ptr, size_t index);
-    RGBD_INTERFACE_EXPORT size_t rgbd_file_get_audio_frame_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_audio_frame(void* ptr, size_t index);
-    RGBD_INTERFACE_EXPORT size_t rgbd_file_get_imu_frame_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_imu_frame(void* ptr, size_t index);
-    RGBD_INTERFACE_EXPORT size_t rgbd_file_get_trs_frame_count(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_trs_frame(void* ptr, size_t index);
-    RGBD_INTERFACE_EXPORT bool rgbd_file_has_direction_table(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_get_direction_table(void* ptr);
-    //////// END FILE ////////
+    //////// START RECORD ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_info(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_tracks(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_attachments(void* ptr);
+    RGBD_INTERFACE_EXPORT size_t rgbd_record_get_video_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_video_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_record_get_audio_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_audio_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_record_get_imu_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_imu_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_record_get_trs_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_trs_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT bool rgbd_record_has_direction_table(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_direction_table(void* ptr);
+    //////// END RECORD ////////
 
-    //////// START FILE ATTACHMENTS ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_attachments_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_attachments_get_camera_calibration(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_attachments_get_cover_png_bytes(void* ptr);
-    //////// END FILE ATTACHMENTS ////////
+    //////// START RECORD ATTACHMENTS ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_attachments_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_attachments_get_camera_calibration(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_attachments_get_cover_png_bytes(void* ptr);
+    //////// END RECORD ATTACHMENTS ////////
 
-    //////// START FILE AUDIO FRAME ////////
+    //////// START RECORD AUDIO FRAME ////////
     RGBD_INTERFACE_EXPORT void*
-    rgbd_file_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size);
+    rgbd_record_audio_frame_ctor(int64_t time_point_us, const uint8_t* bytes_data, size_t byte_size);
     RGBD_INTERFACE_EXPORT void*
-    rgbd_file_audio_frame_ctor_wasm(int time_point_us, const uint8_t* bytes_data, size_t byte_size);
-    RGBD_INTERFACE_EXPORT void rgbd_file_audio_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_audio_frame_get_time_point_us(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_audio_frame_get_bytes(void* ptr);
-    //////// END FILE AUDIO FRAME ////////
+    rgbd_record_audio_frame_ctor_wasm(int time_point_us, const uint8_t* bytes_data, size_t byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_record_audio_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_record_audio_frame_get_time_point_us(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_audio_frame_get_bytes(void* ptr);
+    //////// END RECORD AUDIO FRAME ////////
 
-    //////// START FILE AUDIO TRACK ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_audio_track_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_file_audio_track_get_track_number(void* ptr);
-    RGBD_INTERFACE_EXPORT double rgbd_file_audio_track_get_sampling_frequency(void* ptr);
-    //////// END FILE AUDIO TRACK ////////
-
-    //////// START FILE BYTES BUILDER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_bytes_builder_ctor();
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_sample_rate(void* ptr, int sample_rate);
-    RGBD_INTERFACE_EXPORT void
-    rgbd_file_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_depth_unit(void* ptr, float depth_unit);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_calibration(void* ptr,
-                                                                       void* calibration_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_set_cover_png_bytes(
-        void* ptr, const uint8_t* cover_png_bytes_data, size_t cover_png_byte_size);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_video_frame(void* ptr,
-                                                                       void* video_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_audio_frame(void* ptr,
-                                                                       void* audio_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_imu_frame(void* ptr,
-                                                                     void* imu_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_add_trs_frame(void* ptr,
-                                                                     void* trs_frame_ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_bytes_builder_build(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_file_bytes_builder_build_to_path(void* ptr, const char* path);
-    //////// END FILE WRITER HELPER ////////
-
-    //////// START FILE COLOR VIDEO TRACK ////////
-    RGBD_INTERFACE_EXPORT rgbdColorCodecType rgbd_file_color_video_track_get_codec(void* ptr);
-    //////// END FILE COLOR VIDEO TRACK ////////
-
-    //////// START FILE DEPTH VIDEO TRACK ////////
-    RGBD_INTERFACE_EXPORT rgbdDepthCodecType rgbd_file_depth_video_track_get_codec(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_depth_video_track_get_depth_unit(void* ptr);
-    //////// END FILE DEPTH VIDEO TRACK ////////
-
-    //////// START FILE FRAME ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT rgbdFileFrameType rgbd_file_frame_get_type(void* ptr);
-    //////// END FILE FRAME ////////
-
-    //////// START FILE IMU FRAME ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_imu_frame_ctor(int64_t time_point_us,
-                                                         float acceleration_x,
-                                                         float acceleration_y,
-                                                         float acceleration_z,
-                                                         float rotation_rate_x,
-                                                         float rotation_rate_y,
-                                                         float rotation_rate_z,
-                                                         float magnetic_field_x,
-                                                         float magnetic_field_y,
-                                                         float magnetic_field_z,
-                                                         float gravity_x,
-                                                         float gravity_y,
-                                                         float gravity_z);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_imu_frame_ctor_wasm(int time_point_us,
-                                                              float acceleration_x,
-                                                              float acceleration_y,
-                                                              float acceleration_z,
-                                                              float rotation_rate_x,
-                                                              float rotation_rate_y,
-                                                              float rotation_rate_z,
-                                                              float magnetic_field_x,
-                                                              float magnetic_field_y,
-                                                              float magnetic_field_z,
-                                                              float gravity_x,
-                                                              float gravity_y,
-                                                              float gravity_z);
-    RGBD_INTERFACE_EXPORT void rgbd_file_imu_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_imu_frame_get_time_point_us(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_acceleration_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_rotation_rate_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_rotation_rate_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_rotation_rate_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_magnetic_field_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_magnetic_field_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_magnetic_field_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_gravity_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_gravity_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_imu_frame_get_gravity_z(void* ptr);
-    //////// END FILE IMU FRAME ////////
-
-    //////// START FILE INFO ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_info_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT uint64_t rgbd_file_info_get_timecode_scale_ns(void* ptr);
-    RGBD_INTERFACE_EXPORT double rgbd_file_info_get_duration_us(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_info_get_writing_app(void* ptr);
-    //////// END FILE INFO ////////
-
-    //////// START FILE PARSER ////////
-    RGBD_INTERFACE_EXPORT int
-    rgbd_file_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr, size_t data_size);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_parser_ctor_from_path(const char* file_path);
-    RGBD_INTERFACE_EXPORT void rgbd_file_parser_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void*
-    rgbd_file_parser_parse(void* ptr, bool with_frames, bool with_directions);
-    //////// END FILE PARSER ////////
-
-    //////// START FILE TRACKS ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_tracks_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_color_track(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_depth_track(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_tracks_get_audio_track(void* ptr);
-    //////// START FILE TRACKS ////////
-
-    //////// START FILE TRS FRAME ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_trs_frame_ctor(int64_t time_point_us,
-                                                         float translation_x,
-                                                         float translation_y,
-                                                         float translation_z,
-                                                         float rotation_w,
-                                                         float rotation_x,
-                                                         float rotation_y,
-                                                         float rotation_z,
-                                                         float scale_x,
-                                                         float scale_y,
-                                                         float scale_z);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_trs_frame_ctor_wasm(int time_point_us,
-                                                              float translation_x,
-                                                              float translation_y,
-                                                              float translation_z,
-                                                              float rotation_w,
-                                                              float rotation_x,
-                                                              float rotation_y,
-                                                              float rotation_z,
-                                                              float scale_x,
-                                                              float scale_y,
-                                                              float scale_z);
-    RGBD_INTERFACE_EXPORT void rgbd_file_trs_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_trs_frame_get_time_point_us(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_translation_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_w(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_rotation_z(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_x(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_y(void* ptr);
-    RGBD_INTERFACE_EXPORT float rgbd_file_trs_frame_get_scale_z(void* ptr);
-    //////// END FILE TRS FRAME ////////
-
-    //////// START FILE VIDEO FRAME ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_ctor(int64_t time_point_us,
-                                                           bool keyframe,
-                                                           const uint8_t* color_bytes_data,
-                                                           size_t color_byte_size,
-                                                           const uint8_t* depth_bytes_data,
-                                                           size_t depth_byte_size);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_ctor_wasm(int time_point_us,
-                                                                bool keyframe,
-                                                                const uint8_t* color_bytes_data,
-                                                                size_t color_byte_size,
-                                                                const uint8_t* depth_bytes_data,
-                                                                size_t depth_byte_size);
-    RGBD_INTERFACE_EXPORT void rgbd_file_video_frame_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int64_t rgbd_file_video_frame_get_time_point_us(void* ptr);
-    RGBD_INTERFACE_EXPORT bool rgbd_file_video_frame_get_keyframe(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_color_bytes(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_file_video_frame_get_depth_bytes(void* ptr);
-    //////// END FILE VIDEO FRAME ////////
-
-    //////// START FILE VIDEO TRACK ////////
-    RGBD_INTERFACE_EXPORT void rgbd_file_video_track_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_track_number(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_width(void* ptr);
-    RGBD_INTERFACE_EXPORT int rgbd_file_video_track_get_height(void* ptr);
-    //////// START FILE VIDEO TRACK ////////
+    //////// START RECORD AUDIO TRACK ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_audio_track_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_record_audio_track_get_track_number(void* ptr);
+    RGBD_INTERFACE_EXPORT double rgbd_record_audio_track_get_sampling_frequency(void* ptr);
+    //////// END RECORD AUDIO TRACK ////////
 
     //////// START FRAME MAPPER ////////
     RGBD_INTERFACE_EXPORT void* rgbd_frame_mapper_ctor(void* src_calibration,
@@ -486,6 +319,173 @@ extern "C"
     rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr);
     //////// END MATH UTILS ////////
+
+    //////// START RECORD BYTES BUILDER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_sample_rate(void* ptr, int sample_rate);
+    RGBD_INTERFACE_EXPORT void
+    rgbd_record_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_depth_unit(void* ptr, float depth_unit);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_calibration(void* ptr,
+                                                                       void* calibration_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_cover_png_bytes(
+        void* ptr, const uint8_t* cover_png_bytes_data, size_t cover_png_byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_video_frame(void* ptr,
+                                                                       void* video_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_audio_frame(void* ptr,
+                                                                       void* audio_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_imu_frame(void* ptr,
+                                                                     void* imu_frame_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_trs_frame(void* ptr,
+                                                                     void* trs_frame_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_build(void* ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path);
+    //////// END RECORD WRITER HELPER ////////
+
+    //////// START RECORD COLOR VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT rgbdColorCodecType rgbd_record_color_video_track_get_codec(void* ptr);
+    //////// END RECORD COLOR VIDEO TRACK ////////
+
+    //////// START RECORD DEPTH VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT rgbdDepthCodecType rgbd_record_depth_video_track_get_codec(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_depth_video_track_get_depth_unit(void* ptr);
+    //////// END RECORD DEPTH VIDEO TRACK ////////
+
+    //////// START RECORD FRAME ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT rgbdRecordFrameType rgbd_record_frame_get_type(void* ptr);
+    //////// END RECORD FRAME ////////
+
+    //////// START RECORD IMU FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_imu_frame_ctor(int64_t time_point_us,
+                                                         float acceleration_x,
+                                                         float acceleration_y,
+                                                         float acceleration_z,
+                                                         float rotation_rate_x,
+                                                         float rotation_rate_y,
+                                                         float rotation_rate_z,
+                                                         float magnetic_field_x,
+                                                         float magnetic_field_y,
+                                                         float magnetic_field_z,
+                                                         float gravity_x,
+                                                         float gravity_y,
+                                                         float gravity_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_imu_frame_ctor_wasm(int time_point_us,
+                                                              float acceleration_x,
+                                                              float acceleration_y,
+                                                              float acceleration_z,
+                                                              float rotation_rate_x,
+                                                              float rotation_rate_y,
+                                                              float rotation_rate_z,
+                                                              float magnetic_field_x,
+                                                              float magnetic_field_y,
+                                                              float magnetic_field_z,
+                                                              float gravity_x,
+                                                              float gravity_y,
+                                                              float gravity_z);
+    RGBD_INTERFACE_EXPORT void rgbd_record_imu_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_record_imu_frame_get_time_point_us(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_acceleration_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_acceleration_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_acceleration_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_rotation_rate_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_rotation_rate_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_rotation_rate_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_magnetic_field_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_magnetic_field_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_magnetic_field_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_gravity_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_gravity_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_imu_frame_get_gravity_z(void* ptr);
+    //////// END RECORD IMU FRAME ////////
+
+    //////// START RECORD INFO ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_info_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT uint64_t rgbd_record_info_get_timecode_scale_ns(void* ptr);
+    RGBD_INTERFACE_EXPORT double rgbd_record_info_get_duration_us(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_info_get_writing_app(void* ptr);
+    //////// END RECORD INFO ////////
+
+    //////// START RECORD PARSER ////////
+    RGBD_INTERFACE_EXPORT int
+    rgbd_record_parser_ctor_from_data(void** parser_ptr_ref, const void* data_ptr, size_t data_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_parser_ctor_from_path(const char* file_path);
+    RGBD_INTERFACE_EXPORT void rgbd_record_parser_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void*
+    rgbd_record_parser_parse(void* ptr, bool with_frames, bool with_directions);
+    //////// END RECORD PARSER ////////
+
+    //////// START RECORD TRACKS ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_tracks_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_tracks_get_color_track(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_tracks_get_depth_track(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_tracks_get_audio_track(void* ptr);
+    //////// START RECORD TRACKS ////////
+
+    //////// START RECORD TRS FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_trs_frame_ctor(int64_t time_point_us,
+                                                         float translation_x,
+                                                         float translation_y,
+                                                         float translation_z,
+                                                         float rotation_w,
+                                                         float rotation_x,
+                                                         float rotation_y,
+                                                         float rotation_z,
+                                                         float scale_x,
+                                                         float scale_y,
+                                                         float scale_z);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_trs_frame_ctor_wasm(int time_point_us,
+                                                              float translation_x,
+                                                              float translation_y,
+                                                              float translation_z,
+                                                              float rotation_w,
+                                                              float rotation_x,
+                                                              float rotation_y,
+                                                              float rotation_z,
+                                                              float scale_x,
+                                                              float scale_y,
+                                                              float scale_z);
+    RGBD_INTERFACE_EXPORT void rgbd_record_trs_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_record_trs_frame_get_time_point_us(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_translation_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_translation_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_translation_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_rotation_w(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_rotation_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_rotation_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_rotation_z(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_scale_x(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_scale_y(void* ptr);
+    RGBD_INTERFACE_EXPORT float rgbd_record_trs_frame_get_scale_z(void* ptr);
+    //////// END RECORD TRS FRAME ////////
+
+    //////// START RECORD VIDEO FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_video_frame_ctor(int64_t time_point_us,
+                                                           bool keyframe,
+                                                           const uint8_t* color_bytes_data,
+                                                           size_t color_byte_size,
+                                                           const uint8_t* depth_bytes_data,
+                                                           size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_video_frame_ctor_wasm(int time_point_us,
+                                                                bool keyframe,
+                                                                const uint8_t* color_bytes_data,
+                                                                size_t color_byte_size,
+                                                                const uint8_t* depth_bytes_data,
+                                                                size_t depth_byte_size);
+    RGBD_INTERFACE_EXPORT void rgbd_record_video_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_record_video_frame_get_time_point_us(void* ptr);
+    RGBD_INTERFACE_EXPORT bool rgbd_record_video_frame_get_keyframe(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_video_frame_get_color_bytes(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_video_frame_get_depth_bytes(void* ptr);
+    //////// END RECORD VIDEO FRAME ////////
+
+    //////// START RECORD VIDEO TRACK ////////
+    RGBD_INTERFACE_EXPORT void rgbd_record_video_track_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_record_video_track_get_track_number(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_record_video_track_get_width(void* ptr);
+    RGBD_INTERFACE_EXPORT int rgbd_record_video_track_get_height(void* ptr);
+    //////// START RECORD VIDEO TRACK ////////
 
     //////// START UNDISTORTED CAMERA CALIBRATION ////////
     RGBD_INTERFACE_EXPORT void* rgbd_undistorted_camera_calibration_ctor(int color_width,
