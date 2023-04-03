@@ -187,7 +187,7 @@ export class FileVideoFrame {
     const depthBytesPtr = wasmModule._malloc(this.depthBytes.byteLength);
     wasmModule.HEAPU8.set(this.colorBytes, colorBytesPtr);
     wasmModule.HEAPU8.set(this.depthBytes, depthBytesPtr);
-    const ptr = wasmModule.ccall('rgbd_file_video_frame_ctor_wasm',
+    const ptr = wasmModule.ccall('rgbd_record_video_frame_ctor_wasm',
                                  'number',
                                  ['number', 'number', 'number', 'number', 'number', 'number'],
                                  [this.timePointUs, this.keyframe,
@@ -218,7 +218,7 @@ export class FileAudioFrame {
   toNative(wasmModule: any) {
     const bytesPtr = wasmModule._malloc(this.bytes.byteLength);
     wasmModule.HEAPU8.set(this.bytes, bytesPtr);
-    const ptr = wasmModule.ccall('rgbd_file_audio_frame_ctor_wasm',
+    const ptr = wasmModule.ccall('rgbd_record_audio_frame_ctor_wasm',
                                  'number',
                                  ['number', 'number', 'number'],
                                  [this.timePointUs, bytesPtr, this.bytes.byteLength]);
@@ -261,7 +261,7 @@ export class FileIMUFrame {
   }
 
   toNative(wasmModule: any): NativeFileIMUFrame {
-    const ptr = wasmModule.ccall('rgbd_file_imu_frame_ctor_wasm',
+    const ptr = wasmModule.ccall('rgbd_record_imu_frame_ctor_wasm',
                                  'number',
                                  ['number',
                                   'number', 'number', 'number',
@@ -303,7 +303,7 @@ export class FileTRSFrame {
   }
 
   toNative(wasmModule: any): NativeFileTRSFrame {
-    const ptr = wasmModule.ccall('rgbd_file_trs_frame_ctor_wasm',
+    const ptr = wasmModule.ccall('rgbd_record_trs_frame_ctor_wasm',
                                  'number',
                                  ['number',
                                   'number', 'number', 'number',
@@ -421,19 +421,19 @@ export class NativeFileInfo {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_info_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_info_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimecodeScaleNs(): number {
-    return this.wasmModule.ccall('rgbd_file_info_get_timecode_scale_ns', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_info_get_timecode_scale_ns', 'number', ['number'], [this.ptr]);
   }
 
   getDurationUs(): number {
-    return this.wasmModule.ccall('rgbd_file_info_get_duration_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_info_get_duration_us', 'number', ['number'], [this.ptr]);
   }
 
   getWritingApp(): string {
-    const nativeStrPtr = this.wasmModule.ccall('rgbd_file_info_get_writing_app', 'string', ['number'], [this.ptr]);
+    const nativeStrPtr = this.wasmModule.ccall('rgbd_record_info_get_writing_app', 'string', ['number'], [this.ptr]);
     const nativeStr = new NativeString(this.wasmModule, nativeStrPtr);
     const writingApp = nativeStr.toString();
     nativeStr.close();
@@ -454,19 +454,19 @@ export class NativeFileVideoTrack {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_video_track_dtor', 'null', ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_video_track_dtor', 'null', ['number'], [this.ptr]);
   }
 
   getTrackNumber(): number {
-    return this.wasmModule.ccall('rgbd_file_video_track_get_track_number', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_video_track_get_track_number', 'number', ['number'], [this.ptr]);
   }
 
   getWidth(): number {
-    return this.wasmModule.ccall('rgbd_file_video_track_get_width', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_video_track_get_width', 'number', ['number'], [this.ptr]);
   }
 
   getHeight(): number {
-    return this.wasmModule.ccall('rgbd_file_video_track_get_height', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_video_track_get_height', 'number', ['number'], [this.ptr]);
   }
 }
 
@@ -476,7 +476,7 @@ export class NativeFileColorVideoTrack extends NativeFileVideoTrack {
   }
 
   getCodec(): ColorCodecType {
-    return this.wasmModule.ccall('rgbd_file_color_video_track_get_codec', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_color_video_track_get_codec', 'number', ['number'], [this.ptr]);
   }
 }
 
@@ -486,11 +486,11 @@ export class NativeFileDepthVideoTrack extends NativeFileVideoTrack {
   }
 
   getCodec(): DepthCodecType {
-    return this.wasmModule.ccall('rgbd_file_depth_video_track_get_codec', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_depth_video_track_get_codec', 'number', ['number'], [this.ptr]);
   }
 
   getDepthUnit(): number {
-    return this.wasmModule.ccall('rgbd_file_depth_video_track_get_depth_unit', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_depth_video_track_get_depth_unit', 'number', ['number'], [this.ptr]);
   }
 }
 
@@ -507,15 +507,15 @@ export class NativeFileAudioTrack {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_audio_track_dtor', 'null', ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_audio_track_dtor', 'null', ['number'], [this.ptr]);
   }
 
   getTrackNumber(): number {
-    return this.wasmModule.ccall('rgbd_file_audio_track_get_track_number', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_audio_track_get_track_number', 'number', ['number'], [this.ptr]);
   }
 
   getSamplingFrequency(): number {
-    return this.wasmModule.ccall('rgbd_file_audio_track_get_sampling_frequency', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_audio_track_get_sampling_frequency', 'number', ['number'], [this.ptr]);
   }
 }
 
@@ -532,21 +532,21 @@ export class NativeFileTracks {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_tracks_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_tracks_dtor', null, ['number'], [this.ptr]);
   }
 
   getColorTrack(): NativeFileColorVideoTrack {
-    const trackPtr = this.wasmModule.ccall('rgbd_file_tracks_get_color_track', 'number', ['number'], [this.ptr]);
+    const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_color_track', 'number', ['number'], [this.ptr]);
     return new NativeFileColorVideoTrack(this.wasmModule, trackPtr, false);
   }
 
   getDepthTrack(): NativeFileDepthVideoTrack {
-    const trackPtr = this.wasmModule.ccall('rgbd_file_tracks_get_depth_track', 'number', ['number'], [this.ptr]);
+    const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_depth_track', 'number', ['number'], [this.ptr]);
     return new NativeFileDepthVideoTrack(this.wasmModule, trackPtr, false);
   }
 
   getAudioTrack(): NativeFileAudioTrack {
-    const trackPtr = this.wasmModule.ccall('rgbd_file_tracks_get_audio_track', 'number', ['number'], [this.ptr]);
+    const trackPtr = this.wasmModule.ccall('rgbd_record_tracks_get_audio_track', 'number', ['number'], [this.ptr]);
     return new NativeFileAudioTrack(this.wasmModule, trackPtr, false);
   }
 }
@@ -564,16 +564,16 @@ export class NativeFileAttachments {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_attachments_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_attachments_dtor', null, ['number'], [this.ptr]);
   }
 
   getCameraCalibration(): NativeCameraCalibration {
-    const calibrationPtr = this.wasmModule.ccall('rgbd_file_attachments_get_camera_calibration', 'number', ['number'], [this.ptr]);
+    const calibrationPtr = this.wasmModule.ccall('rgbd_record_attachments_get_camera_calibration', 'number', ['number'], [this.ptr]);
     return NativeCameraCalibration.create(this.wasmModule, calibrationPtr, false);
   }
 
   getCoverPNGBytes(): Uint8Array | null {
-    const bytesPtr = this.wasmModule.ccall('rgbd_file_attachments_get_cover_png_bytes', 'number', ['number'], [this.ptr]);
+    const bytesPtr = this.wasmModule.ccall('rgbd_record_attachments_get_cover_png_bytes', 'number', ['number'], [this.ptr]);
     if (bytesPtr == 0)
       return null;
 
@@ -597,19 +597,19 @@ export class NativeFileVideoFrame {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_video_frame_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_video_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
-    return this.wasmModule.ccall('rgbd_file_video_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_video_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getKeyframe(): boolean {
-    return this.wasmModule.ccall('rgbd_file_video_frame_get_keyframe', 'boolean', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_video_frame_get_keyframe', 'boolean', ['number'], [this.ptr]);
   }
 
   getColorBytes(): Uint8Array {
-    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_file_video_frame_get_color_bytes', 'number', ['number'], [this.ptr]);
+    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_record_video_frame_get_color_bytes', 'number', ['number'], [this.ptr]);
     const nativeByteArray = new NativeByteArray(this.wasmModule, nativeByteArrayPtr);
     const byteArray = nativeByteArray.toArray();
     nativeByteArray.close();
@@ -618,7 +618,7 @@ export class NativeFileVideoFrame {
   }
 
   getDepthBytes(): Uint8Array {
-    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_file_video_frame_get_depth_bytes', 'number', ['number'], [this.ptr]);
+    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_record_video_frame_get_depth_bytes', 'number', ['number'], [this.ptr]);
     const nativeByteArray = new NativeByteArray(this.wasmModule, nativeByteArrayPtr);
     const byteArray = nativeByteArray.toArray();
     nativeByteArray.close();
@@ -640,15 +640,15 @@ export class NativeFileAudioFrame {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_audio_frame_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_audio_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
-    return this.wasmModule.ccall('rgbd_file_audio_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_audio_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getBytes(): Uint8Array {
-    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_file_audio_frame_get_bytes', 'number', ['number'], [this.ptr]);
+    const nativeByteArrayPtr = this.wasmModule.ccall('rgbd_record_audio_frame_get_bytes', 'number', ['number'], [this.ptr]);
     const nativeByteArray = new NativeByteArray(this.wasmModule, nativeByteArrayPtr);
     const byteArray = nativeByteArray.toArray();
     nativeByteArray.close();
@@ -670,38 +670,38 @@ export class NativeFileIMUFrame {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_imu_frame_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_imu_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
-    return this.wasmModule.ccall('rgbd_file_imu_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_imu_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getAcceleration(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_imu_frame_get_acceleration_x', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 
   getRotationRate(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_imu_frame_get_rotation_rate_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_imu_frame_get_rotation_rate_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_imu_frame_get_rotation_rate_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_imu_frame_get_rotation_rate_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_imu_frame_get_rotation_rate_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_imu_frame_get_rotation_rate_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 
   getMagneticField(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_imu_frame_get_magnetic_field_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_imu_frame_get_magnetic_field_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_imu_frame_get_magnetic_field_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_imu_frame_get_magnetic_field_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_imu_frame_get_magnetic_field_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_imu_frame_get_magnetic_field_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 
   getGravity(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_imu_frame_get_gravity_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_imu_frame_get_gravity_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_imu_frame_get_gravity_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_imu_frame_get_gravity_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_imu_frame_get_gravity_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_imu_frame_get_gravity_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 }
@@ -719,32 +719,32 @@ export class NativeFileTRSFrame {
 
   close() {
     if (this.owner)
-      this.wasmModule.ccall('rgbd_file_trs_frame_dtor', null, ['number'], [this.ptr]);
+      this.wasmModule.ccall('rgbd_record_trs_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
-    return this.wasmModule.ccall('rgbd_file_trs_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_trs_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getTranslation(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_trs_frame_get_translation_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_trs_frame_get_translation_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_trs_frame_get_translation_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 
   getRotation(): Quaternion {
-    const w  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_w', 'number', ['number'], [this.ptr]);
-    const x  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_trs_frame_get_rotation_z', 'number', ['number'], [this.ptr]);
+    const w  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_w', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_z', 'number', ['number'], [this.ptr]);
     return new Quaternion(x, y, z, w);
   }
 
   getScale(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_file_trs_frame_get_scale_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_file_trs_frame_get_scale_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_file_trs_frame_get_scale_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 }
@@ -759,66 +759,66 @@ export class NativeFile {
   }
 
   close() {
-    this.wasmModule.ccall('rgbd_file_dtor', null, ['number'], [this.ptr]);
+    this.wasmModule.ccall('rgbd_record_dtor', null, ['number'], [this.ptr]);
   }
 
   getInfo(): NativeFileInfo {
-    const infoPtr = this.wasmModule.ccall('rgbd_file_get_info', 'number', ['number'], [this.ptr]);
+    const infoPtr = this.wasmModule.ccall('rgbd_record_get_info', 'number', ['number'], [this.ptr]);
     return new NativeFileInfo(this.wasmModule, infoPtr, false);
   }
 
   getTracks(): NativeFileTracks {
-    const tracksPtr = this.wasmModule.ccall('rgbd_file_get_tracks', 'number', ['number'], [this.ptr]);
+    const tracksPtr = this.wasmModule.ccall('rgbd_record_get_tracks', 'number', ['number'], [this.ptr]);
     return new NativeFileTracks(this.wasmModule, tracksPtr, false);
   }
 
   getAttachments(): NativeFileAttachments {
-    const attachmentsPtr = this.wasmModule.ccall('rgbd_file_get_attachments', 'number', ['number'], [this.ptr]);
+    const attachmentsPtr = this.wasmModule.ccall('rgbd_record_get_attachments', 'number', ['number'], [this.ptr]);
     return new NativeFileAttachments(this.wasmModule, attachmentsPtr, false);
   }
 
   getVideoFrameCount(): number {
-    return this.wasmModule.ccall('rgbd_file_get_video_frame_count', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_get_video_frame_count', 'number', ['number'], [this.ptr]);
   }
 
   getVideoFrame(index: number): NativeFileVideoFrame {
-    const videoFramePtr = this.wasmModule.ccall('rgbd_file_get_video_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    const videoFramePtr = this.wasmModule.ccall('rgbd_record_get_video_frame', 'number', ['number', 'number'], [this.ptr, index]);
     return new NativeFileVideoFrame(this.wasmModule, videoFramePtr, false);
   }
 
   getAudioFrameCount(): number {
-    return this.wasmModule.ccall('rgbd_file_get_audio_frame_count', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_get_audio_frame_count', 'number', ['number'], [this.ptr]);
   }
 
   getAudioFrame(index: number): NativeFileAudioFrame {
-    const audioFramePtr = this.wasmModule.ccall('rgbd_file_get_audio_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    const audioFramePtr = this.wasmModule.ccall('rgbd_record_get_audio_frame', 'number', ['number', 'number'], [this.ptr, index]);
     return new NativeFileAudioFrame(this.wasmModule, audioFramePtr, false);
   }
 
   getIMUFrameCount(): number {
-    return this.wasmModule.ccall('rgbd_file_get_imu_frame_count', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_get_imu_frame_count', 'number', ['number'], [this.ptr]);
   }
 
   getIMUFrame(index: number): NativeFileIMUFrame {
-    const imuFramePtr = this.wasmModule.ccall('rgbd_file_get_imu_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_imu_frame', 'number', ['number', 'number'], [this.ptr, index]);
     return new NativeFileIMUFrame(this.wasmModule, imuFramePtr, false);
   }
 
   getTRSFrameCount(): number {
-    return this.wasmModule.ccall('rgbd_file_get_trs_frame_count', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_get_trs_frame_count', 'number', ['number'], [this.ptr]);
   }
 
   getTRSFrame(index: number): NativeFileTRSFrame {
-    const imuFramePtr = this.wasmModule.ccall('rgbd_file_get_trs_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_trs_frame', 'number', ['number', 'number'], [this.ptr, index]);
     return new NativeFileTRSFrame(this.wasmModule, imuFramePtr, false);
   }
 
   hasDirectionTable(): boolean {
-    return this.wasmModule.ccall('rgbd_file_has_direction_table', 'boolean', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_has_direction_table', 'boolean', ['number'], [this.ptr]);
   }
 
   getDirectionTable(): NativeDirectionTable {
-    const directionTablePtr = this.wasmModule.ccall('rgbd_file_get_direction_table', 'number', ['number'], [this.ptr]);
+    const directionTablePtr = this.wasmModule.ccall('rgbd_record_get_direction_table', 'number', ['number'], [this.ptr]);
     return new NativeDirectionTable(this.wasmModule, directionTablePtr, false);
   }
 }
