@@ -149,42 +149,42 @@ PYBIND11_MODULE(pyrgbd, m)
         });
     // END depth_encoder.hpp
 
-    // BEGIN file.hpp
-    py::class_<RecordOffsets>(m, "FileOffsets")
+    // BEGIN record.hpp
+    py::class_<RecordOffsets>(m, "RecordOffsets")
         .def(py::init())
         .def_readwrite("segment_info_offset", &RecordOffsets::segment_info_offset)
         .def_readwrite("tracks_offset", &RecordOffsets::tracks_offset)
         .def_readwrite("attachments_offset", &RecordOffsets::attachments_offset)
         .def_readwrite("first_cluster_offset", &RecordOffsets::first_cluster_offset);
 
-    py::class_<RecordInfo>(m, "FileInfo")
+    py::class_<RecordInfo>(m, "RecordInfo")
         .def(py::init())
         .def_readwrite("timecode_scale_ns", &RecordInfo::timecode_scale_ns)
         .def_readwrite("duration_us", &RecordInfo::duration_us)
         .def_readwrite("writing_app", &RecordInfo::writing_app);
 
-    py::class_<RecordVideoTrack>(m, "FileVideoTrack")
+    py::class_<RecordVideoTrack>(m, "RecordVideoTrack")
         .def(py::init())
         .def_readwrite("track_number", &RecordVideoTrack::track_number)
         .def_readwrite("default_duration_ns", &RecordVideoTrack::default_duration_ns)
         .def_readwrite("width", &RecordVideoTrack::width)
         .def_readwrite("height", &RecordVideoTrack::height);
 
-    py::class_<RecordColorVideoTrack, RecordVideoTrack>(m, "FileColorVideoTrack")
+    py::class_<RecordColorVideoTrack, RecordVideoTrack>(m, "RecordColorVideoTrack")
         .def(py::init())
         .def_readwrite("codec", &RecordColorVideoTrack::codec);
 
-    py::class_<RecordDepthVideoTrack, RecordVideoTrack>(m, "FileDepthVideoTrack")
+    py::class_<RecordDepthVideoTrack, RecordVideoTrack>(m, "RecordDepthVideoTrack")
         .def(py::init())
         .def_readwrite("codec", &RecordDepthVideoTrack::codec)
         .def_readwrite("depth_unit", &RecordDepthVideoTrack::depth_unit);
 
-    py::class_<RecordAudioTrack>(m, "FileAudioTrack")
+    py::class_<RecordAudioTrack>(m, "RecordAudioTrack")
         .def(py::init())
         .def_readwrite("track_number", &RecordAudioTrack::track_number)
         .def_readwrite("sampling_frequency", &RecordAudioTrack::sampling_frequency);
 
-    py::class_<RecordTracks>(m, "FileTracks")
+    py::class_<RecordTracks>(m, "RecordTracks")
         .def(py::init())
         .def_readwrite("color_track", &RecordTracks::color_track)
         .def_readwrite("depth_track", &RecordTracks::depth_track)
@@ -198,32 +198,32 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_readwrite("rotation_track_number", &RecordTracks::rotation_track_number)
         .def_readwrite("scale_track_number", &RecordTracks::scale_track_number);
 
-    py::class_<RecordAttachments>(m, "FileAttachments")
+    py::class_<RecordAttachments>(m, "RecordAttachments")
         .def(py::init())
         .def_readwrite("camera_calibration", &RecordAttachments::camera_calibration)
         .def_readwrite("cover_png_bytes", &RecordAttachments::cover_png_bytes);
 
-    py::enum_<RecordFrameType>(m, "FileFrameType")
+    py::enum_<RecordFrameType>(m, "RecordFrameType")
         .value("Video", RecordFrameType::Video)
         .value("Audio", RecordFrameType::Audio)
         .value("IMU", RecordFrameType::IMU)
         .value("TRS", RecordFrameType::TRS);
 
-    py::class_<RecordFrame>(m, "FileFrame").def("getType", &RecordFrame::getType);
+    py::class_<RecordFrame>(m, "RecordFrame").def("getType", &RecordFrame::getType);
 
-    py::class_<RecordVideoFrame, RecordFrame>(m, "FileVideoFrame")
+    py::class_<RecordVideoFrame, RecordFrame>(m, "RecordVideoFrame")
         .def(py::init<int64_t, bool, const Bytes&, const Bytes&>())
         .def_property_readonly("time_point_us", &RecordVideoFrame::time_point_us)
         .def_property_readonly("keyframe", &RecordVideoFrame::keyframe)
         .def("get_color_bytes", &RecordVideoFrame::color_bytes, py::return_value_policy::copy)
         .def("get_depth_bytes", &RecordVideoFrame::depth_bytes, py::return_value_policy::copy);
 
-    py::class_<RecordAudioFrame, RecordFrame>(m, "FileAudioFrame")
+    py::class_<RecordAudioFrame, RecordFrame>(m, "RecordAudioFrame")
         .def(py::init<int64_t, const Bytes&>())
         .def_property_readonly("time_point_us", &RecordAudioFrame::time_point_us)
         .def("get_bytes", &RecordAudioFrame::bytes, py::return_value_policy::copy);
 
-    py::class_<RecordIMUFrame, RecordFrame>(m, "FileIMUFrame")
+    py::class_<RecordIMUFrame, RecordFrame>(m, "RecordIMUFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_acceleration,
                          const py::object& py_rotation_rate,
@@ -261,7 +261,7 @@ PYBIND11_MODULE(pyrgbd, m)
             return create_py_vec3(glm, frame.gravity());
         });
 
-    py::class_<RecordTRSFrame, RecordFrame>(m, "FileTRSFrame")
+    py::class_<RecordTRSFrame, RecordFrame>(m, "RecordTRSFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_translation,
                          const py::object& py_rotation,
@@ -288,7 +288,7 @@ PYBIND11_MODULE(pyrgbd, m)
                 return create_py_vec3(glm, frame.scale());
             });
 
-    py::class_<Record>(m, "File")
+    py::class_<Record>(m, "Record")
         .def("get_offsets", &Record::offsets, py::return_value_policy::copy)
         .def("get_info", &Record::info, py::return_value_policy::copy)
         .def("get_tracks", &Record::tracks, py::return_value_policy::copy)
@@ -298,10 +298,10 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_imu_frames", &Record::imu_frames, py::return_value_policy::copy)
         .def("get_trs_frames", &Record::trs_frames, py::return_value_policy::copy)
         .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
-    // END file.hpp
+    // END record.hpp
 
-    // BEGIN file_bytes_builder.hpp
-    py::class_<RecordBytesBuilder>(m, "FileBytesBuilder")
+    // BEGIN record_bytes_builder.hpp
+    py::class_<RecordBytesBuilder>(m, "RecordBytesBuilder")
         .def(py::init<>())
         .def("set_sample_rate", &RecordBytesBuilder::setSampleRate)
         .def("set_depth_codec_type", &RecordBytesBuilder::setDepthCodecType)
@@ -314,13 +314,13 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("add_trs_frame", &RecordBytesBuilder::addTRSFrame)
         .def("build", &RecordBytesBuilder::build)
         .def("build_to_path", &RecordBytesBuilder::buildToPath);
-    // END file_bytes_builder.hpp
+    // END record_bytes_builder.hpp
 
-    // BEGIN file_parser.hpp
-    py::class_<RecordParser>(m, "FileParser")
+    // BEGIN record_parser.hpp
+    py::class_<RecordParser>(m, "RecordParser")
         .def(py::init<const string&>())
         .def("parse", &RecordParser::parse);
-    // END file_parser.hpp
+    // END record_parser.hpp
 
     // BEGIN frame_mapper.hpp
     py::class_<FrameMapper>(m, "FrameMapper")
