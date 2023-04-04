@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 project(librgbd)
 
+option(NO_PYBIND "Disable building python bindings using pybind" OFF)
+
 set(RGBD_VERSION_MAJOR 0)
 set(RGBD_VERSION_MINOR 1)
 set(RGBD_VERSION_PATCH 0)
@@ -154,8 +156,9 @@ set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
 ### OPUS END ###
 
 ### PYBIND11 BEGIN ###
-set(Python3_ROOT_DIR C:/Python39)
-add_subdirectory(deps/pybind11)
+if(NOT NO_PYBIND)
+  add_subdirectory(deps/pybind11)
+endif()
 ### PYBIND11 END ###
 
 ### SPDLOG BEGIN ###
@@ -394,7 +397,9 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   add_subdirectory(examples/depth_compression_example)
   add_subdirectory(examples/minimum_example)
   add_subdirectory(src/cli)
-  add_subdirectory(src/python)
+  if(NOT NO_PYBIND)
+    add_subdirectory(src/python)
+  endif()
 endif()
 
 if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)

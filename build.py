@@ -27,16 +27,20 @@ def build_x64_windows_binaries():
                    check=True)
 
 
-def build_arm64_mac_binaries():
+def build_arm64_mac_binaries(disable_pybind):
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/arm64-mac"
+
+    cmake_args = []
+    if disable_pybind:
+        cmake_args += ["-DNO_PYBIND=ON"]
 
     subprocess.run(["cmake",
                     "-S", here,
                     "-B", build_path,
                     "-G", "Ninja",
                     "-D", "CMAKE_OSX_ARCHITECTURES=arm64",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/arm64-mac"],
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/arm64-mac"] + cmake_args,
                    check=True)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
@@ -74,15 +78,19 @@ def merge_mac_binaries():
                    check=True)
 
 
-def build_x64_linux_binaries():
+def build_x64_linux_binaries(disable_pybind):
     here = Path(__file__).parent.resolve()
     build_path = f"{here}/build/x64-linux"
+
+    cmake_args = []
+    if disable_pybind:
+        cmake_args += ["-DNO_PYBIND=ON"]
 
     subprocess.run(["cmake",
                     "-S", here,
                     "-B", build_path,
                     "-G", "Ninja",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux"])
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux"] + cmake_args)
     subprocess.run(["ninja"], cwd=build_path, check=True)
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
 
@@ -92,6 +100,7 @@ def build_x64_linux_binaries():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rebuild", action="store_true")
+    parser.add_argument("--disable-pybind", action="store_true")
     parser_args, _ = parser.parse_known_args()
 
     here = Path(__file__).parent.resolve()
@@ -105,14 +114,14 @@ def main():
         return
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            build_arm64_mac_binaries()
+            build_arm64_mac_binaries(parser_args.disable_pybind)
             build_x64_mac_binaries()
             merge_mac_binaries()
         elif platform.machine() == "x86_64":
             build_x64_mac_binaries()
         return
     elif platform.system() == "Linux":
-        build_x64_linux_binaries()
+        build_x64_linux_binaries(parser_args.disable_pybind)
         return
 
     raise Exception(f"librgbd build not supported.")
