@@ -1,3 +1,4 @@
+import { NativeObject } from './native_object';
 import { NativeByteArray } from './capi_containers';
 
 export function AUDIO_INPUT_SAMPLES_PER_FRAME(wasmModule: any) {
@@ -25,16 +26,12 @@ export class AudioEncoderFrame {
   }
 }
 
-class NativeAudioEncoderFrame {
-  wasmModule: any;
-  ptr: number;
-
+class NativeAudioEncoderFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_audio_encoder_frame_dtor', null, ['number'], [this.ptr]);
   }
 
@@ -57,16 +54,13 @@ class NativeAudioEncoderFrame {
   }
 }
 
-export class NativeAudioEncoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeAudioEncoder extends NativeObject {
   constructor(wasmModule: any) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_audio_encoder_ctor', 'number', [], []);
+    const ptr = wasmModule.ccall('rgbd_audio_encoder_ctor', 'number', [], []);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_audio_encoder_dtor', null, ['number'], [this.ptr]);
   }
 

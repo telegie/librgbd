@@ -1,4 +1,5 @@
 import { NativeInt32Array } from './capi_containers';
+import { NativeObject } from './native_object';
 
 export class Int32Frame {
   width: number;
@@ -33,16 +34,12 @@ export class Int32Frame {
   }
 }
 
-export class NativeInt32Frame {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeInt32Frame extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_int32_frame_dtor', null, ['number'], [this.ptr]);
   }
 

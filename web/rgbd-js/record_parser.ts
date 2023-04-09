@@ -1,13 +1,11 @@
 import { NativeRecord } from './record';
 import { PointerByReference } from './pointer_by_reference';
+import { NativeObject } from './native_object';
 
-export class NativeRecordParser {
-  wasmModule: any;
-  ptr: number;
+export class NativeRecordParser extends NativeObject {
   dataPtr: number;
 
   constructor(wasmModule: any, data: Uint8Array) {
-    this.wasmModule = wasmModule;
     const parserPtrRef = new PointerByReference(wasmModule);
     const dataPtr = wasmModule._malloc(data.byteLength);
     wasmModule.HEAPU8.set(data, dataPtr);
@@ -19,12 +17,14 @@ export class NativeRecordParser {
     if (result < 0)
       throw new Error('Failed to createFileParserFromData');
 
-    this.ptr = parserPtr;
+    const ptr = parserPtr;
+
+    super(wasmModule, ptr, true);
     // Need to keep this dataPtr alive to read the data using the parser.
     this.dataPtr = dataPtr;
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_record_parser_dtor', null, ['number'], [this.ptr]);
     this.wasmModule._free(this.dataPtr);
   }

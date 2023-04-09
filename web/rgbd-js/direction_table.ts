@@ -1,19 +1,13 @@
 import { Vector3 } from "@math.gl/core";
+import { NativeObject } from "./native_object";
 
-export class NativeDirectionTable {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeDirectionTable extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_direction_table_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_direction_table_dtor', null, ['number'], [this.ptr]);
   }
 
   getWidth(): number {

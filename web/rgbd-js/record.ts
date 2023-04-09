@@ -4,6 +4,7 @@ import { DepthCodecType } from './depth_decoder';
 import { ColorCodecType } from './color_decoder';
 import { DirectionTable, NativeDirectionTable } from './direction_table';
 import { Quaternion, Vector3 } from '@math.gl/core';
+import { NativeObject } from './native_object';
 
 export class RecordInfo {
   timecodeScaleNs: number;
@@ -408,20 +409,13 @@ export class Record {
   }
 }
 
-export class NativeRecordInfo {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordInfo extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_info_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_info_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimecodeScaleNs(): number {
@@ -441,20 +435,13 @@ export class NativeRecordInfo {
   }
 }
 
-export class NativeRecordVideoTrack {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordVideoTrack extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_video_track_dtor', 'null', ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_video_track_dtor', 'null', ['number'], [this.ptr]);
   }
 
   getTrackNumber(): number {
@@ -494,20 +481,13 @@ export class NativeRecordDepthVideoTrack extends NativeRecordVideoTrack {
   }
 }
 
-export class NativeRecordAudioTrack {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordAudioTrack extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_audio_track_dtor', 'null', ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_audio_track_dtor', 'null', ['number'], [this.ptr]);
   }
 
   getTrackNumber(): number {
@@ -519,20 +499,13 @@ export class NativeRecordAudioTrack {
   }
 }
 
-export class NativeRecordTracks {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordTracks extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_tracks_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_tracks_dtor', null, ['number'], [this.ptr]);
   }
 
   getColorTrack(): NativeRecordColorVideoTrack {
@@ -551,20 +524,13 @@ export class NativeRecordTracks {
   }
 }
 
-export class NativeRecordAttachments {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordAttachments extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_attachments_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_attachments_dtor', null, ['number'], [this.ptr]);
   }
 
   getCameraCalibration(): NativeCameraCalibration {
@@ -584,20 +550,13 @@ export class NativeRecordAttachments {
   }
 }
 
-export class NativeRecordVideoFrame {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordVideoFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_video_frame_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_video_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
@@ -627,20 +586,13 @@ export class NativeRecordVideoFrame {
   }
 }
 
-export class NativeRecordAudioFrame {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordAudioFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_audio_frame_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_audio_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
@@ -657,20 +609,13 @@ export class NativeRecordAudioFrame {
   }
 }
 
-export class NativeRecordIMUFrame {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordIMUFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_imu_frame_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_imu_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
@@ -706,20 +651,13 @@ export class NativeRecordIMUFrame {
   }
 }
 
-export class NativeRecordTRSFrame {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeRecordTRSFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
-    this.owner = owner;
+    super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
-      this.wasmModule.ccall('rgbd_record_trs_frame_dtor', null, ['number'], [this.ptr]);
+  delete() {
+    this.wasmModule.ccall('rgbd_record_trs_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
@@ -749,16 +687,12 @@ export class NativeRecordTRSFrame {
   }
 }
 
-export class NativeRecord {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeRecord extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_record_dtor', null, ['number'], [this.ptr]);
   }
 

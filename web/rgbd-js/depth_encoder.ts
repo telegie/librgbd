@@ -1,21 +1,19 @@
 import { NativeByteArray } from './capi_containers';
+import { NativeObject } from './native_object';
 
-export class NativeDepthEncoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeDepthEncoder extends NativeObject {
   constructor(wasmModule: any,
               depthCodecType: number,
               width: number,
               height: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_depth_encoder_ctor',
+    const ptr = wasmModule.ccall('rgbd_depth_encoder_ctor',
                                      'number',
                                      ['number', 'number', 'number'],
                                      [depthCodecType, width, height]);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_depth_encoder_dtor', null, ['number'], [this.ptr]);
   }
 

@@ -1,19 +1,17 @@
+import { NativeObject } from './native_object';
 import { NativeYuvFrame, YuvFrame } from './yuv_frame';
 
 export enum ColorCodecType {
   VP8 = 0
 }
 
-export class NativeColorDecoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeColorDecoder extends NativeObject {
   constructor(wasmModule: any, colorCodecType: ColorCodecType) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_color_decoder_ctor', 'number', ['number'], [colorCodecType]);
+    const ptr = wasmModule.ccall('rgbd_color_decoder_ctor', 'number', ['number'], [colorCodecType]);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_color_decoder_dtor', null, ['number'], [this.ptr]);
   }
 

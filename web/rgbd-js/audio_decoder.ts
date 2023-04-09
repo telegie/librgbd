@@ -1,15 +1,13 @@
+import { NativeObject } from './native_object';
 import { NativeFloatArray } from './capi_containers';
 
-export class NativeAudioDecoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeAudioDecoder extends NativeObject {
   constructor(wasmModule: any) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_audio_decoder_ctor', 'number', [], []);
+    const ptr = wasmModule.ccall('rgbd_audio_decoder_ctor', 'number', [], []);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_audio_decoder_dtor', null, ['number'], [this.ptr]);
   }
 

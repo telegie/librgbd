@@ -1,4 +1,5 @@
 import { NativeByteArray, NativeUInt8Array } from './capi_containers';
+import { NativeObject } from './native_object';
 
 export class YuvFrame {
   yChannel: Uint8Array;
@@ -63,16 +64,12 @@ export class YuvFrame {
   }
 }
 
-export class NativeYuvFrame {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeYuvFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_yuv_frame_dtor', null, ['number'], [this.ptr]);
   }
 

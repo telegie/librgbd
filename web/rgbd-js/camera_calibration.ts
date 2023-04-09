@@ -1,5 +1,6 @@
 import RGBD from '../rgbd';
 import { NativeFloatArray } from './capi_containers';
+import { NativeObject } from './native_object';
 
 export enum CameraDeviceType {
   AZURE_KINECT = 0,
@@ -282,23 +283,16 @@ export class UndistortedCameraCalibration extends CameraCalibration {
   }
 }
 
-export class NativeCameraCalibration {
-  wasmModule: any;
-  ptr: number;
-  owner: boolean;
-
+export class NativeCameraCalibration extends NativeObject {
   // Do not directly use this init.
   // An instance created directly using this won't contain the class type
   // information of the C++ instance.
   // Use create() instead.
   constructor(wasmModule: any, ptr: number, owner: boolean) {
-      this.wasmModule = wasmModule;
-      this.ptr = ptr;
-      this.owner = owner;
+      super(wasmModule, ptr, owner);
   }
 
-  close() {
-    if (this.owner)
+  delete() {
       this.wasmModule.ccall('rgbd_camera_calibration_dtor', null, ['number'], [this.ptr]);
   }
 

@@ -11,7 +11,7 @@ export * from './direction_table';
 export * from './frame_mapper';
 export * from './integer_frame';
 export * from "./math_utils";
-// export * from './plane';
+export * from './native_object';
 export * from './pointer_by_reference';
 export * from './record_bytes_builder';
 export * from './record_parser';

@@ -1,15 +1,12 @@
 import { Quaternion, Vector3 } from '@math.gl/core';
+import { NativeObject } from './native_object';
 
-export class NativeByteArray {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeByteArray extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = ptr;
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_native_byte_array_dtor', null, ['number'], [this.ptr]);
   }
 

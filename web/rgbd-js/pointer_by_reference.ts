@@ -1,14 +1,13 @@
-// Represents a void** in C.
-export class PointerByReference {
-  wasmModule: any;
-  ptr: number;
+import { NativeObject } from "./native_object";
 
+// Represents a void** in C.
+export class PointerByReference extends NativeObject {
   constructor(wasmModule: any) {
-    this.wasmModule = wasmModule;
-    this.ptr = wasmModule.ccall('rgbd_pointer_by_reference_ctor', 'number', [], []);
+    const ptr = wasmModule.ccall('rgbd_pointer_by_reference_ctor', 'number', [], []);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_pointer_by_reference_dtor', null, ['number'], [this.ptr]);
   }
 

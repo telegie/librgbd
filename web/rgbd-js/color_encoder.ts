@@ -1,22 +1,20 @@
 import { NativeByteArray } from './capi_containers';
+import { NativeObject } from './native_object';
 import { YuvFrame } from './yuv_frame';
 
-export class NativeColorEncoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeColorEncoder extends NativeObject {
   constructor(wasmModule: any,
               colorCodecType: number,
               width: number,
               height: number) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_color_encoder_ctor',
-                                     'number',
-                                     ['number', 'number', 'number'],
-                                     [colorCodecType, width, height]);
+    const ptr = wasmModule.ccall('rgbd_color_encoder_ctor',
+                                 'number',
+                                 ['number', 'number', 'number'],
+                                 [colorCodecType, width, height]);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_color_encoder_dtor', null, ['number'], [this.ptr]);
   }
 

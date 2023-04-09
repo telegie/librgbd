@@ -1,20 +1,18 @@
 import { Int32Frame, NativeInt32Frame } from './integer_frame';
+import { NativeObject } from './native_object';
 
 export enum DepthCodecType {
   RVL = 0,
   TDC1 = 1
 }
 
-export class NativeDepthDecoder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeDepthDecoder extends NativeObject {
   constructor(wasmModule: any, depthCodecType: DepthCodecType) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_depth_decoder_ctor', 'number', ['number'], [depthCodecType]);
+    const ptr = wasmModule.ccall('rgbd_depth_decoder_ctor', 'number', ['number'], [depthCodecType]);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_depth_decoder_dtor', null, ['number'], [this.ptr]);
   }
 

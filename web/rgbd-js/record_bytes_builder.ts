@@ -1,18 +1,16 @@
 import { CameraCalibration } from "./camera_calibration";
 import { NativeByteArray } from "./capi_containers";
 import { DepthCodecType } from "./depth_decoder";
+import { NativeObject } from "./native_object";
 import { RecordVideoFrame, RecordAudioFrame, RecordIMUFrame, RecordTRSFrame } from "./record";
 
-export class NativeRecordBytesBuilder {
-  wasmModule: any;
-  ptr: number;
-
+export class NativeRecordBytesBuilder extends NativeObject {
   constructor(wasmModule: any) {
-    this.wasmModule = wasmModule;
-    this.ptr = this.wasmModule.ccall('rgbd_record_bytes_builder_ctor', 'number', [], []);
+    const ptr = wasmModule.ccall('rgbd_record_bytes_builder_ctor', 'number', [], []);
+    super(wasmModule, ptr, true);
   }
 
-  close() {
+  delete() {
     this.wasmModule.ccall('rgbd_record_bytes_builder_dtor', null, ['number'], [this.ptr]);
   }
 
