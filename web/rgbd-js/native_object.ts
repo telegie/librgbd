@@ -18,7 +18,7 @@ export class NativeObject {
   close() {
     if (this.owner && !closed) {
       this.delete();
-      closed = true;
+      this.closed = true;
     }
   }
 }
