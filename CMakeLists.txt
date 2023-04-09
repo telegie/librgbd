@@ -333,8 +333,7 @@ elseif(RGBD_OS_LINUX)
     ${LIBVPX_LINUX_DIR}/lib/libvpx.a
     ${OPUS_LINUX_DIR}/lib/libopus.a
     ${LIBPNG_LINUX_DIR}/lib/libpng.a
-    ${ZLIB_LINUX_DIR}/lib/libz.a 
-    -llzma
+    ${ZLIB_LINUX_DIR}/lib/libz.a
   )
   list(APPEND RgbdCompileDefinitions CMAKE_RGBD_OS_LINUX)
 elseif(RGBD_OS_IOS)

@@ -8,10 +8,6 @@ from pathlib import Path
 def main():
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/deps/libpng-build/build.py"] + sys.argv[1:], check=True)
-    if platform.system() == "Linux":
-        subprocess.run(["apt", "install", "-y",
-                        "liblzma-dev"],
-                       check=True)
 
 
 if __name__ == "__main__":
