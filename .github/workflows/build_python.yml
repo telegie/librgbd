@@ -35,7 +35,7 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python test_pyrgbd.py
+          python pyrgbd_example.py
 
   bulid-mac:
     runs-on: macos-12
@@ -68,7 +68,7 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python test_pyrgbd.py
+          python pyrgbd_example.py
 
 
   build-linux:
@@ -102,4 +102,4 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python test_pyrgbd.py
+          python pyrgbd_example.py
