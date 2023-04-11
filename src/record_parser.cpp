@@ -314,6 +314,11 @@ optional<const RecordOffsets> RecordParser::parseOffsets(unique_ptr<KaxSegment>&
         element = next_child(*input_, stream_, segment.get());
     }
 
+    
+    spdlog::info("has segment_info_offset: {}", segment_info_offset.has_value());
+    spdlog::info("has tracks_offset: {}", tracks_offset.has_value());
+    spdlog::info("has attachments_offset: {}", attachments_offset.has_value());
+    spdlog::info("has first_cluster_offset: {}", first_cluster_offset.has_value());
     return nullopt;
 }
 

@@ -101,7 +101,7 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
          });
 
     if (!calibration_) {
-        throw std::runtime_error("No CameraCalibration found from FileWriterHelper");
+        throw std::runtime_error("No CameraCalibration found from RecordBytesBuilder");
     }
 
     RecordWriter file_writer{io_callback,
@@ -112,7 +112,7 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
                            cover_png_bytes_};
 
     if (video_frames_.size() == 0) {
-        spdlog::info("No video frame found from FileWriterHelper.");
+        spdlog::info("No video frame found from RecordBytesBuilder.");
         file_writer.flush();
         return;
     }
@@ -171,7 +171,6 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
                                                    trs_frame.scale()});
             ++trs_frame_index;
         }
-
         file_writer.writeVideoFrame(video_frame);
     }
 
