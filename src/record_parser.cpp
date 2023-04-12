@@ -526,7 +526,6 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
     optional<glm::vec3> gravity{nullopt};
     optional<glm::vec3> translation{nullopt};
     optional<glm::quat> rotation{nullopt};
-    optional<glm::vec3> scale{nullopt};
 
     for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
@@ -572,12 +571,9 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
                 translation = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->rotation_track_number) {
                 rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
-            } else if (track_number == file_tracks_->scale_track_number) {
-                scale = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else {
                 // There might be some obsolete tracks in a file,
-                // so don't throw an error but just ignore.
-                spdlog::warn("Invalid track number from simple_block");
+                // spdlog::debug("Invalid track number from simple_block");
             }
         } else {
             throw std::runtime_error{"Invalid element from KaxCluster"};
@@ -614,10 +610,8 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
     if (translation) {
         if (!rotation)
             throw std::runtime_error("Failed to find rotation");
-        if (!scale)
-            throw std::runtime_error("Failed to find scale");
 
-        return new RecordTRSFrame{time_point_us, *translation, *rotation, *scale};
+        return new RecordPoseFrame{time_point_us, *translation, *rotation};
     }
 
     throw std::runtime_error{"No frame from FileParser::parseCluster"};
@@ -626,7 +620,7 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
 void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
                                   vector<RecordAudioFrame>& audio_frames,
                                   vector<RecordIMUFrame>& imu_frames,
-                                  vector<RecordTRSFrame>& trs_frames)
+                                  vector<RecordPoseFrame>& pose_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
@@ -654,8 +648,8 @@ void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
             break;
         }
         case RecordFrameType::TRS: {
-            auto trs_frame{dynamic_cast<RecordTRSFrame*>(frame)};
-            trs_frames.push_back(std::move(*trs_frame));
+            auto pose_frame{dynamic_cast<RecordPoseFrame*>(frame)};
+            pose_frames.push_back(std::move(*pose_frame));
             break;
         }
         default:
@@ -669,9 +663,9 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
     vector<RecordVideoFrame> video_frames;
     vector<RecordAudioFrame> audio_frames;
     vector<RecordIMUFrame> imu_frames;
-    vector<RecordTRSFrame> trs_frames;
+    vector<RecordPoseFrame> pose_frames;
     if (with_frames)
-        parseAllClusters(video_frames, audio_frames, imu_frames, trs_frames);
+        parseAllClusters(video_frames, audio_frames, imu_frames, pose_frames);
 
     optional<DirectionTable> direction_table;
     if (with_directions)
@@ -684,7 +678,7 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
                                   std::move(video_frames),
                                   std::move(audio_frames),
                                   std::move(imu_frames),
-                                  std::move(trs_frames),
+                                  std::move(pose_frames),
                                   std::move(direction_table));
 }
 } // namespace rgbd

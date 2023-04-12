@@ -793,16 +793,16 @@ void* rgbd_record_get_imu_frame(void* ptr, size_t index)
     return &imu_frame;
 }
 
-size_t rgbd_record_get_trs_frame_count(void* ptr)
+size_t rgbd_record_get_pose_frame_count(void* ptr)
 {
-    return static_cast<Record*>(ptr)->trs_frames().size();
+    return static_cast<Record*>(ptr)->pose_frames().size();
 }
 
-void* rgbd_record_get_trs_frame(void* ptr, size_t index)
+void* rgbd_record_get_pose_frame(void* ptr, size_t index)
 {
     auto file{static_cast<Record*>(ptr)};
-    auto& trs_frame{file->trs_frames()[index]};
-    return &trs_frame;
+    auto& pose_frame{file->pose_frames()[index]};
+    return &pose_frame;
 }
 
 bool rgbd_record_has_direction_table(void* ptr)
@@ -955,11 +955,11 @@ void rgbd_record_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
     file_bytes_builder->addIMUFrame(*imu_frame);
 }
 
-void rgbd_record_bytes_builder_add_trs_frame(void* ptr, void* trs_frame_ptr)
+void rgbd_record_bytes_builder_add_pose_frame(void* ptr, void* pose_frame_ptr)
 {
     auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    auto trs_frame{static_cast<RecordTRSFrame*>(trs_frame_ptr)};
-    file_bytes_builder->addTRSFrame(*trs_frame);
+    auto pose_frame{static_cast<RecordPoseFrame*>(pose_frame_ptr)};
+    file_bytes_builder->addPoseFrame(*pose_frame);
 }
 
 void* rgbd_record_bytes_builder_build(void* ptr)
@@ -1189,6 +1189,86 @@ void* rgbd_record_parser_parse(void* ptr, bool with_frames, bool with_directions
 }
 //////// END RECORD PARSER ////////
 
+//////// START RECORD POSE FRAME ////////
+void* rgbd_record_pose_frame_ctor(int64_t time_point_us,
+                                  float translation_x,
+                                  float translation_y,
+                                  float translation_z,
+                                  float rotation_w,
+                                  float rotation_x,
+                                  float rotation_y,
+                                  float rotation_z)
+{
+    return new RecordPoseFrame{time_point_us,
+                               glm::vec3{translation_x, translation_y, translation_z},
+                               glm::quat{rotation_w, rotation_x, rotation_y, rotation_z}};
+}
+
+void* rgbd_record_pose_frame_ctor_wasm(int time_point_us,
+                                       float translation_x,
+                                       float translation_y,
+                                       float translation_z,
+                                       float rotation_w,
+                                       float rotation_x,
+                                       float rotation_y,
+                                       float rotation_z)
+{
+    return rgbd_record_pose_frame_ctor(time_point_us,
+                                       translation_x,
+                                       translation_y,
+                                       translation_z,
+                                       rotation_w,
+                                       rotation_x,
+                                       rotation_y,
+                                       rotation_z);
+}
+
+void rgbd_record_pose_frame_dtor(void* ptr)
+{
+    delete static_cast<RecordPoseFrame*>(ptr);
+}
+
+int64_t rgbd_record_pose_frame_get_time_point_us(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->time_point_us();
+}
+
+float rgbd_record_pose_frame_get_translation_x(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->translation().x;
+}
+
+float rgbd_record_pose_frame_get_translation_y(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->translation().y;
+}
+
+float rgbd_record_pose_frame_get_translation_z(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->translation().z;
+}
+
+float rgbd_record_pose_frame_get_rotation_w(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->rotation().w;
+}
+
+float rgbd_record_pose_frame_get_rotation_x(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->rotation().x;
+}
+
+float rgbd_record_pose_frame_get_rotation_y(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->rotation().y;
+}
+
+float rgbd_record_pose_frame_get_rotation_z(void* ptr)
+{
+    return static_cast<RecordPoseFrame*>(ptr)->rotation().z;
+}
+//////// END RECORD POSE FRAME ////////
+
 //////// START RECORD TRACKS ////////
 void rgbd_record_tracks_dtor(void* ptr)
 {
@@ -1213,111 +1293,6 @@ void* rgbd_record_tracks_get_audio_track(void* ptr)
     return &(file_tracks->audio_track);
 }
 //////// START RECORD TRACKS ////////
-
-//////// START RECORD TRS FRAME ////////
-void* rgbd_record_trs_frame_ctor(int64_t time_point_us,
-                               float translation_x,
-                               float translation_y,
-                               float translation_z,
-                               float rotation_w,
-                               float rotation_x,
-                               float rotation_y,
-                               float rotation_z,
-                               float scale_x,
-                               float scale_y,
-                               float scale_z)
-{
-    return new RecordTRSFrame{time_point_us,
-                              glm::vec3{translation_x, translation_y, translation_z},
-                              glm::quat{rotation_w, rotation_x, rotation_y, rotation_z},
-                              glm::vec3{scale_x, scale_y, scale_z}};
-}
-
-void* rgbd_record_trs_frame_ctor_wasm(int time_point_us,
-                                    float translation_x,
-                                    float translation_y,
-                                    float translation_z,
-                                    float rotation_w,
-                                    float rotation_x,
-                                    float rotation_y,
-                                    float rotation_z,
-                                    float scale_x,
-                                    float scale_y,
-                                    float scale_z)
-{
-    return rgbd_record_trs_frame_ctor(time_point_us,
-                                    translation_x,
-                                    translation_y,
-                                    translation_z,
-                                    rotation_w,
-                                    rotation_x,
-                                    rotation_y,
-                                    rotation_z,
-                                    scale_x,
-                                    scale_y,
-                                    scale_z);
-}
-
-void rgbd_record_trs_frame_dtor(void* ptr)
-{
-    delete static_cast<RecordTRSFrame*>(ptr);
-}
-
-int64_t rgbd_record_trs_frame_get_time_point_us(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->time_point_us();
-}
-
-float rgbd_record_trs_frame_get_translation_x(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->translation().x;
-}
-
-float rgbd_record_trs_frame_get_translation_y(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->translation().y;
-}
-
-float rgbd_record_trs_frame_get_translation_z(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->translation().z;
-}
-
-float rgbd_record_trs_frame_get_rotation_w(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->rotation().w;
-}
-
-float rgbd_record_trs_frame_get_rotation_x(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->rotation().x;
-}
-
-float rgbd_record_trs_frame_get_rotation_y(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->rotation().y;
-}
-
-float rgbd_record_trs_frame_get_rotation_z(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->rotation().z;
-}
-
-float rgbd_record_trs_frame_get_scale_x(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->scale().x;
-}
-
-float rgbd_record_trs_frame_get_scale_y(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->scale().y;
-}
-
-float rgbd_record_trs_frame_get_scale_z(void* ptr)
-{
-    return static_cast<RecordTRSFrame*>(ptr)->scale().z;
-}
-//////// END RECORD TRS FRAME ////////
 
 //////// START RECORD VIDEO FRAME ////////
 void* rgbd_record_video_frame_ctor(int64_t time_point_us,

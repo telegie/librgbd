@@ -113,15 +113,14 @@ def main():
                                                                               imu_frame.rotation_rate,
                                                                               imu_frame.gravity)
         print(f"imu to rotation: {rotation}")
-        record_bytes_builder.add_trs_frame(rgbd.RecordTRSFrame(imu_frame.time_point_us,
-                                                           glm.vec3(0, 0, 0),
-                                                           rotation,
-                                                           glm.vec3(1, 1, 1)))
+        record_bytes_builder.add_pose_frame(rgbd.RecordPoseFrame(imu_frame.time_point_us,
+                                                                 glm.vec3(0, 0, 0),
+                                                                 rotation))
         previous_rotation = rotation
         previous_time_point_us = imu_frame.time_point_us
 
-    # for trs_frame in record.trs_frames:
-    #     record_bytes_builder.add_trs_frame(trs_frame)
+    # for pose_frame in record.pose_frames:
+    #     record_bytes_builder.add_pose_frame(pose_frame)
 
     record_bytes_builder.build_to_path("videos/test_encoder_result.mkv")
 

@@ -17,7 +17,7 @@ public:
     void addVideoFrame(const RecordVideoFrame& video_frame);
     void addAudioFrame(const RecordAudioFrame& audio_frame);
     void addIMUFrame(const RecordIMUFrame& imu_frame);
-    void addTRSFrame(const RecordTRSFrame& trs_frame);
+    void addPoseFrame(const RecordPoseFrame& pose_frame);
     Bytes build();
     void buildToPath(const std::string& path);
 
@@ -33,6 +33,6 @@ private:
     vector<RecordVideoFrame> video_frames_;
     vector<RecordAudioFrame> audio_frames_;
     vector<RecordIMUFrame> imu_frames_;
-    vector<RecordTRSFrame> trs_frames_;
+    vector<RecordPoseFrame> pose_frames_;
 };
 }

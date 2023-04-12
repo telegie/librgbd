@@ -261,31 +261,24 @@ PYBIND11_MODULE(pyrgbd, m)
             return create_py_vec3(glm, frame.gravity());
         });
 
-    py::class_<RecordTRSFrame, RecordFrame>(m, "RecordTRSFrame")
+    py::class_<RecordPoseFrame, RecordFrame>(m, "RecordTRSFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_translation,
-                         const py::object& py_rotation,
-                         const py::object& py_scale) {
+                         const py::object& py_rotation) {
             glm::vec3 translation{read_py_vec3(py_translation)};
             glm::quat rotation{read_py_quat(py_rotation)};
-            glm::vec3 scale{read_py_vec3(py_scale)};
-            return RecordTRSFrame{time_point_us, translation, rotation, scale};
+            return RecordPoseFrame{time_point_us, translation, rotation};
         }))
-        .def_property_readonly("time_point_us", &RecordTRSFrame::time_point_us)
+        .def_property_readonly("time_point_us", &RecordPoseFrame::time_point_us)
         .def_property_readonly(
-            "translation", [](const RecordTRSFrame& frame) {
+            "translation", [](const RecordPoseFrame& frame) {
                 py::module_ glm{py::module_::import("glm")};
                 return create_py_vec3(glm, frame.translation());
             })
         .def_property_readonly(
-            "rotation", [](const RecordTRSFrame& frame) {
+            "rotation", [](const RecordPoseFrame& frame) {
                 py::module_ glm{py::module_::import("glm")};
                 return create_py_quat(glm, frame.rotation());
-            })
-        .def_property_readonly(
-            "scale", [](const RecordTRSFrame& frame) {
-                py::module_ glm{py::module_::import("glm")};
-                return create_py_vec3(glm, frame.scale());
             });
 
     py::class_<Record>(m, "Record")
@@ -296,7 +289,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_video_frames", &Record::video_frames, py::return_value_policy::copy)
         .def("get_audio_frames", &Record::audio_frames, py::return_value_policy::copy)
         .def("get_imu_frames", &Record::imu_frames, py::return_value_policy::copy)
-        .def("get_trs_frames", &Record::trs_frames, py::return_value_policy::copy)
+        .def("get_pose_frames", &Record::pose_frames, py::return_value_policy::copy)
         .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
     // END record.hpp
 
@@ -311,7 +304,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("add_video_frame", &RecordBytesBuilder::addVideoFrame)
         .def("add_audio_frame", &RecordBytesBuilder::addAudioFrame)
         .def("add_imu_frame", &RecordBytesBuilder::addIMUFrame)
-        .def("add_trs_frame", &RecordBytesBuilder::addTRSFrame)
+        .def("add_pose_frame", &RecordBytesBuilder::addPoseFrame)
         .def("build", &RecordBytesBuilder::build)
         .def("build_to_path", &RecordBytesBuilder::buildToPath);
     // END record_bytes_builder.hpp

@@ -44,7 +44,6 @@ struct RecordWriterTracks
     libmatroska::KaxTrackEntry* gravity_track{nullptr};
     libmatroska::KaxTrackEntry* translation_track{nullptr};
     libmatroska::KaxTrackEntry* rotation_track{nullptr};
-    libmatroska::KaxTrackEntry* scale_track{nullptr};
 };
 
 class RecordWriter
@@ -59,7 +58,7 @@ public:
     void writeVideoFrame(const RecordVideoFrame& video_frame);
     void writeAudioFrame(const RecordAudioFrame& audio_frame);
     void writeIMUFrame(const RecordIMUFrame& imu_frame);
-    void writeTRSFrame(const RecordTRSFrame& trs_frame);
+    void writePoseFrame(const RecordPoseFrame& pose_frame);
     void flush();
 
 private:

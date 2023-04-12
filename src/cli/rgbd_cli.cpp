@@ -210,7 +210,7 @@ void standardize_calibration(const std::string& file_path)
     bool first{true};
     int audio_frame_index{0};
     int imu_frame_index{0};
-    int trs_frame_index{0};
+    int pose_frame_index{0};
     for (auto& video_frame : video_frames) {
         auto video_time_point_us{video_frame.time_point_us()};
         auto color_frame{color_decoder.decode(video_frame.color_bytes())};
@@ -247,12 +247,12 @@ void standardize_calibration(const std::string& file_path)
             file_bytes_builder.addIMUFrame(imu_frame);
             ++imu_frame_index;
         }
-        while (trs_frame_index < file->trs_frames().size()) {
-            auto& trs_frame{file->trs_frames()[trs_frame_index]};
-            if (trs_frame.time_point_us() > video_time_point_us)
+        while (pose_frame_index < file->pose_frames().size()) {
+            auto& pose_frame{file->pose_frames()[pose_frame_index]};
+            if (pose_frame.time_point_us() > video_time_point_us)
                 break;
-            file_bytes_builder.addTRSFrame(trs_frame);
-            ++trs_frame_index;
+            file_bytes_builder.addPoseFrame(pose_frame);
+            ++pose_frame_index;
         }
     }
 

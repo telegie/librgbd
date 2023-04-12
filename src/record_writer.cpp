@@ -296,22 +296,6 @@ RecordWriter::RecordWriter(IOCallback& io_callback,
         GetChild<KaxCodecID>(*writer_tracks_.rotation_track).SetValue("S_ROTATION");
     }
     //
-    // init scale_track_
-    //
-    {
-        auto& tracks{GetChild<KaxTracks>(segment_)};
-        writer_tracks_.scale_track = new KaxTrackEntry;
-        tracks.PushElement(
-            *writer_tracks_.scale_track); // Track will be freed when the file is closed.
-        writer_tracks_.scale_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
-
-        GetChild<KaxTrackNumber>(*writer_tracks_.scale_track).SetValue(SCALE_TRACK_NUMBER);
-        GetChild<KaxTrackUID>(*writer_tracks_.scale_track).SetValue(distribution(generator));
-        GetChild<KaxTrackType>(*writer_tracks_.scale_track).SetValue(track_subtitle);
-        GetChild<KaxTrackName>(*writer_tracks_.scale_track).SetValueUTF8("SCALE");
-        GetChild<KaxCodecID>(*writer_tracks_.scale_track).SetValue("S_SCALE");
-    }
-    //
     // calibration
     //
     {
@@ -547,59 +531,50 @@ void RecordWriter::writeIMUFrame(const RecordIMUFrame& imu_frame)
     last_timecode_ = imu_timecode;
 }
 
-void RecordWriter::writeTRSFrame(const RecordTRSFrame& trs_frame)
+void RecordWriter::writePoseFrame(const RecordPoseFrame& pose_frame)
 {
-    int64_t time_point_ns{trs_frame.time_point_us() * 1000};
+    int64_t time_point_ns{pose_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
         spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.",
                       time_point_ns);
         return;
     }
 
-    auto trs_timecode{gsl::narrow<uint64_t>(time_point_ns)};
+    auto pose_timecode{gsl::narrow<uint64_t>(time_point_ns)};
 
     auto& cues{GetChild<KaxCues>(segment_)};
 
-    auto trs_cluster{new KaxCluster};
-    segment_.PushElement(*trs_cluster);
-    trs_cluster->InitTimecode(trs_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
-    trs_cluster->SetParent(segment_);
-    trs_cluster->EnableChecksum();
+    auto pose_cluster{new KaxCluster};
+    segment_.PushElement(*pose_cluster);
+    pose_cluster->InitTimecode(pose_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
+    pose_cluster->SetParent(segment_);
+    pose_cluster->EnableChecksum();
 
-    Bytes translation_bytes(convert_vec3_to_bytes(trs_frame.translation()));
+    Bytes translation_bytes(convert_vec3_to_bytes(pose_frame.translation()));
 
     auto translation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto translation_data_buffer{
         new DataBuffer{reinterpret_cast<uint8_t*>(translation_bytes.data()),
                        gsl::narrow<uint32_t>(translation_bytes.size())}};
-    trs_cluster->AddBlockBlob(translation_block_blob);
-    translation_block_blob->SetParent(*trs_cluster);
+    pose_cluster->AddBlockBlob(translation_block_blob);
+    translation_block_blob->SetParent(*pose_cluster);
     translation_block_blob->AddFrameAuto(
-        *writer_tracks_.translation_track, trs_timecode, *translation_data_buffer);
+        *writer_tracks_.translation_track, pose_timecode, *translation_data_buffer);
 
-    Bytes rotation_bytes(convert_quat_to_bytes(trs_frame.rotation()));
+    Bytes rotation_bytes(convert_quat_to_bytes(pose_frame.rotation()));
 
     auto rotation_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
     auto rotation_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(rotation_bytes.data()),
                                              gsl::narrow<uint32_t>(rotation_bytes.size())}};
-    trs_cluster->AddBlockBlob(rotation_block_blob);
-    rotation_block_blob->SetParent(*trs_cluster);
+    pose_cluster->AddBlockBlob(rotation_block_blob);
+    rotation_block_blob->SetParent(*pose_cluster);
     rotation_block_blob->AddFrameAuto(
-        *writer_tracks_.rotation_track, trs_timecode, *rotation_data_buffer);
+        *writer_tracks_.rotation_track, pose_timecode, *rotation_data_buffer);
 
-    Bytes scale_bytes(convert_vec3_to_bytes(trs_frame.scale()));
+    pose_cluster->Render(io_callback_, cues);
+    pose_cluster->ReleaseFrames();
 
-    auto scale_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
-    auto scale_data_buffer{new DataBuffer{reinterpret_cast<uint8_t*>(scale_bytes.data()),
-                                          gsl::narrow<uint32_t>(scale_bytes.size())}};
-    trs_cluster->AddBlockBlob(scale_block_blob);
-    scale_block_blob->SetParent(*trs_cluster);
-    scale_block_blob->AddFrameAuto(*writer_tracks_.scale_track, trs_timecode, *scale_data_buffer);
-
-    trs_cluster->Render(io_callback_, cues);
-    trs_cluster->ReleaseFrames();
-
-    last_timecode_ = trs_timecode;
+    last_timecode_ = pose_timecode;
 }
 
 void RecordWriter::flush()

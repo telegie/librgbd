@@ -11,7 +11,7 @@ RecordBytesBuilder::RecordBytesBuilder()
     , video_frames_{}
     , audio_frames_{}
     , imu_frames_{}
-    , trs_frames_{}
+    , pose_frames_{}
 {
 }
 
@@ -55,9 +55,9 @@ void RecordBytesBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
     imu_frames_.push_back(imu_frame);
 }
 
-void RecordBytesBuilder::addTRSFrame(const RecordTRSFrame& trs_frame)
+void RecordBytesBuilder::addPoseFrame(const RecordPoseFrame& pose_frame)
 {
-    trs_frames_.push_back(trs_frame);
+    pose_frames_.push_back(pose_frame);
 }
 
 Bytes RecordBytesBuilder::build()
@@ -94,9 +94,9 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
          [](const RecordIMUFrame& lhs, const RecordIMUFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
-    sort(trs_frames_.begin(),
-         trs_frames_.end(),
-         [](const RecordTRSFrame& lhs, const RecordTRSFrame& rhs) {
+    sort(pose_frames_.begin(),
+         pose_frames_.end(),
+         [](const RecordPoseFrame& lhs, const RecordPoseFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
 
@@ -122,7 +122,7 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
 
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};
-    size_t trs_frame_index{0};
+    size_t pose_frame_index{0};
     for (auto& video_frame : video_frames_) {
         int64_t video_time_point_us{video_frame.time_point_us()};
 
@@ -156,20 +156,19 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
                                                    imu_frame.gravity()});
             ++imu_frame_index;
         }
-        while (trs_frame_index < trs_frames_.size()) {
-            auto& trs_frame{trs_frames_[trs_frame_index]};
-            int64_t trs_time_point_us{trs_frame.time_point_us() - initial_video_time_point};
-            if (trs_time_point_us < 0) {
-                ++trs_frame_index;
+        while (pose_frame_index < pose_frames_.size()) {
+            auto& pose_frame{pose_frames_[pose_frame_index]};
+            int64_t pose_time_point_us{pose_frame.time_point_us() - initial_video_time_point};
+            if (pose_time_point_us < 0) {
+                ++pose_frame_index;
                 continue;
             }
-            if (trs_frame.time_point_us() > video_time_point_us)
+            if (pose_frame.time_point_us() > video_time_point_us)
                 break;
-            file_writer.writeTRSFrame(RecordTRSFrame{trs_time_point_us,
-                                                   trs_frame.translation(),
-                                                   trs_frame.rotation(),
-                                                   trs_frame.scale()});
-            ++trs_frame_index;
+            file_writer.writePoseFrame(RecordPoseFrame{pose_time_point_us,
+                                                       pose_frame.translation(),
+                                                       pose_frame.rotation()});
+            ++pose_frame_index;
         }
         file_writer.writeVideoFrame(video_frame);
     }

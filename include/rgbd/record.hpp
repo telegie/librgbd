@@ -221,17 +221,15 @@ private:
     glm::vec3 gravity_;
 };
 
-class RecordTRSFrame : public RecordFrame
+class RecordPoseFrame : public RecordFrame
 {
 public:
-    RecordTRSFrame(int64_t time_point_us,
-                 const glm::vec3& translation,
-                 const glm::quat& rotation,
-                 const glm::vec3& scale)
+    RecordPoseFrame(int64_t time_point_us,
+                    const glm::vec3& translation,
+                    const glm::quat& rotation)
         : time_point_us_{time_point_us}
         , translation_{translation}
         , rotation_{rotation}
-        , scale_{scale}
     {
     }
     RecordFrameType getType()
@@ -250,16 +248,11 @@ public:
     {
         return rotation_;
     }
-    const glm::vec3& scale() const noexcept
-    {
-        return scale_;
-    }
 
 private:
     int64_t time_point_us_;
     glm::vec3 translation_;
     glm::quat rotation_;
-    glm::vec3 scale_;
 };
 
 class Record
@@ -272,7 +265,7 @@ public:
          vector<RecordVideoFrame>&& video_frames,
          vector<RecordAudioFrame>&& audio_frames,
          vector<RecordIMUFrame>&& imu_frames,
-         vector<RecordTRSFrame>&& trs_frames,
+         vector<RecordPoseFrame>&& pose_frames,
          optional<DirectionTable>&& direction_table)
         : offsets_{offsets}
         , info_{info}
@@ -281,7 +274,7 @@ public:
         , video_frames_{std::move(video_frames)}
         , audio_frames_{std::move(audio_frames)}
         , imu_frames_{std::move(imu_frames)}
-        , trs_frames_{std::move(trs_frames)}
+        , pose_frames_{std::move(pose_frames)}
         , direction_table_{std::move(direction_table)}
     {
     }
@@ -313,9 +306,9 @@ public:
     {
         return imu_frames_;
     }
-    vector<RecordTRSFrame>& trs_frames() noexcept
+    vector<RecordPoseFrame>& pose_frames() noexcept
     {
-        return trs_frames_;
+        return pose_frames_;
     }
     optional<DirectionTable>& direction_table() noexcept
     {
@@ -330,7 +323,7 @@ private:
     vector<RecordVideoFrame> video_frames_;
     vector<RecordAudioFrame> audio_frames_;
     vector<RecordIMUFrame> imu_frames_;
-    vector<RecordTRSFrame> trs_frames_;
+    vector<RecordPoseFrame> pose_frames_;
     optional<DirectionTable> direction_table_;
 };
 } // namespace rgbd
