@@ -2,7 +2,7 @@ import { CameraCalibration } from "./camera_calibration";
 import { NativeByteArray } from "./capi_containers";
 import { DepthCodecType } from "./depth_decoder";
 import { NativeObject } from "./native_object";
-import { RecordVideoFrame, RecordAudioFrame, RecordIMUFrame, RecordTRSFrame } from "./record";
+import { RecordVideoFrame, RecordAudioFrame, RecordIMUFrame, RecordPoseFrame } from "./record";
 
 export class NativeRecordBytesBuilder extends NativeObject {
   constructor(wasmModule: any) {
@@ -56,10 +56,10 @@ export class NativeRecordBytesBuilder extends NativeObject {
     nativeIMUFrame.close();
   }
 
-  addTRSFrame(trsFrame: RecordTRSFrame) {
-    const nativeTRSFrame = trsFrame.toNative(this.wasmModule);
-    this.wasmModule.ccall('rgbd_record_bytes_builder_add_trs_frame', null, ['number', 'number'], [this.ptr, nativeTRSFrame.ptr]);
-    nativeTRSFrame.close();
+  addPoseFrame(poseFrame: RecordPoseFrame) {
+    const nativePoseFrame = poseFrame.toNative(this.wasmModule);
+    this.wasmModule.ccall('rgbd_record_bytes_builder_add_pose_frame', null, ['number', 'number'], [this.ptr, nativePoseFrame.ptr]);
+    nativePoseFrame.close();
   }
 
   build(): Uint8Array {

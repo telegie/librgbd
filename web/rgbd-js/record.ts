@@ -279,43 +279,37 @@ export class RecordIMUFrame {
   }
 }
 
-export class RecordTRSFrame {
+export class RecordPoseFrame {
   timePointUs: number;
   translation: Vector3;
   rotation: Quaternion;
-  scale: Vector3;
 
   constructor(timePointUs: number,
               translation: Vector3,
-              rotation: Quaternion,
-              scale: Vector3) {
+              rotation: Quaternion) {
     this.timePointUs = timePointUs;
     this.translation = translation;
     this.rotation = rotation;
-    this.scale = scale;
   }
 
-  static fromNative(nativeRecordTRSFrame: NativeRecordTRSFrame) {
-    const timePointUs = nativeRecordTRSFrame.getTimePointUs();
-    const translation = nativeRecordTRSFrame.getTranslation();
-    const rotation = nativeRecordTRSFrame.getRotation();
-    const scale = nativeRecordTRSFrame.getScale();
-    return new RecordTRSFrame(timePointUs, translation, rotation, scale);
+  static fromNative(nativeRecordPoseFrame: NativeRecordPoseFrame) {
+    const timePointUs = nativeRecordPoseFrame.getTimePointUs();
+    const translation = nativeRecordPoseFrame.getTranslation();
+    const rotation = nativeRecordPoseFrame.getRotation();
+    return new RecordPoseFrame(timePointUs, translation, rotation);
   }
 
-  toNative(wasmModule: any): NativeRecordTRSFrame {
-    const ptr = wasmModule.ccall('rgbd_record_trs_frame_ctor_wasm',
+  toNative(wasmModule: any): NativeRecordPoseFrame {
+    const ptr = wasmModule.ccall('rgbd_record_pose_frame_ctor_wasm',
                                  'number',
                                  ['number',
                                   'number', 'number', 'number',
-                                  'number', 'number', 'number', 'number',
-                                  'number', 'number', 'number'],
+                                  'number', 'number', 'number', 'number'],
                                  [this.timePointUs,
                                   this.translation.x, this.translation.y, this.translation.z,
-                                  this.rotation.w, this.rotation.x, this.rotation.y, this.rotation.z,
-                                  this.scale.x, this.scale.y, this.scale.z]);
+                                  this.rotation.w, this.rotation.x, this.rotation.y, this.rotation.z]);
 
-    return new NativeRecordTRSFrame(wasmModule, ptr, true);
+    return new NativeRecordPoseFrame(wasmModule, ptr, true);
   }
 }
 
@@ -326,7 +320,7 @@ export class Record {
   videoFrames: RecordVideoFrame[];
   audioFrames: RecordAudioFrame[];
   imuFrames: RecordIMUFrame[];
-  trsFrames: RecordTRSFrame[];
+  poseFrames: RecordPoseFrame[];
   directionTable: DirectionTable | null;
 
   constructor(info: RecordInfo,
@@ -335,7 +329,7 @@ export class Record {
               videoFrames: RecordVideoFrame[],
               audioFrames: RecordAudioFrame[],
               imuFrames: RecordIMUFrame[],
-              trsFrames: RecordTRSFrame[],
+              poseFrames: RecordPoseFrame[],
               directionTable: DirectionTable | null) {
     this.info = info;
     this.tracks = tracks;
@@ -343,7 +337,7 @@ export class Record {
     this.videoFrames = videoFrames;
     this.audioFrames = audioFrames;
     this.imuFrames = imuFrames;
-    this.trsFrames = trsFrames;
+    this.poseFrames = poseFrames;
     this.directionTable = directionTable;
   }
 
@@ -384,12 +378,12 @@ export class Record {
       nativeIMUFrame.close();
     }
 
-    let trsFrames: RecordTRSFrame[] = [];
-    const trsFrameCount = nativeRecord.getTRSFrameCount();
-    for (let i = 0; i < trsFrameCount; i++) {
-      const nativeTRSFrame = nativeRecord.getTRSFrame(i);
-      trsFrames.push(RecordTRSFrame.fromNative(nativeTRSFrame));
-      nativeTRSFrame.close();
+    let poseFrames: RecordPoseFrame[] = [];
+    const poseFrameCount = nativeRecord.getPoseFrameCount();
+    for (let i = 0; i < poseFrameCount; i++) {
+      const nativePoseFrame = nativeRecord.getPoseFrame(i);
+      poseFrames.push(RecordPoseFrame.fromNative(nativePoseFrame));
+      nativePoseFrame.close();
     }
 
     let directionTable: DirectionTable | null = null;
@@ -399,13 +393,13 @@ export class Record {
     }
     
     return new Record(info, tracks, attachments,
-      videoFrames, audioFrames, imuFrames, trsFrames, directionTable);
+      videoFrames, audioFrames, imuFrames, poseFrames, directionTable);
   }
 
   // This function does a shallow copy.
   clone(): Record {
     return new Record(this.info, this.tracks, this.attachments,
-      this.videoFrames, this.audioFrames, this.imuFrames, this.trsFrames, this.directionTable);
+      this.videoFrames, this.audioFrames, this.imuFrames, this.poseFrames, this.directionTable);
   }
 }
 
@@ -651,39 +645,32 @@ export class NativeRecordIMUFrame extends NativeObject {
   }
 }
 
-export class NativeRecordTRSFrame extends NativeObject {
+export class NativeRecordPoseFrame extends NativeObject {
   constructor(wasmModule: any, ptr: number, owner: boolean) {
     super(wasmModule, ptr, owner);
   }
 
   delete() {
-    this.wasmModule.ccall('rgbd_record_trs_frame_dtor', null, ['number'], [this.ptr]);
+    this.wasmModule.ccall('rgbd_record_pose_frame_dtor', null, ['number'], [this.ptr]);
   }
 
   getTimePointUs(): number {
-    return this.wasmModule.ccall('rgbd_record_trs_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+    return this.wasmModule.ccall('rgbd_record_pose_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
   }
 
   getTranslation(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_translation_z', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_pose_frame_get_translation_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_pose_frame_get_translation_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_pose_frame_get_translation_z', 'number', ['number'], [this.ptr]);
     return new Vector3(x, y, z);
   }
 
   getRotation(): Quaternion {
-    const w  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_w', 'number', ['number'], [this.ptr]);
-    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_rotation_z', 'number', ['number'], [this.ptr]);
+    const w  = this.wasmModule.ccall('rgbd_record_pose_frame_get_rotation_w', 'number', ['number'], [this.ptr]);
+    const x  = this.wasmModule.ccall('rgbd_record_pose_frame_get_rotation_x', 'number', ['number'], [this.ptr]);
+    const y  = this.wasmModule.ccall('rgbd_record_pose_frame_get_rotation_y', 'number', ['number'], [this.ptr]);
+    const z  = this.wasmModule.ccall('rgbd_record_pose_frame_get_rotation_z', 'number', ['number'], [this.ptr]);
     return new Quaternion(x, y, z, w);
-  }
-
-  getScale(): Vector3 {
-    const x  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_x', 'number', ['number'], [this.ptr]);
-    const y  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_y', 'number', ['number'], [this.ptr]);
-    const z  = this.wasmModule.ccall('rgbd_record_trs_frame_get_scale_z', 'number', ['number'], [this.ptr]);
-    return new Vector3(x, y, z);
   }
 }
 
@@ -738,13 +725,13 @@ export class NativeRecord extends NativeObject {
     return new NativeRecordIMUFrame(this.wasmModule, imuFramePtr, false);
   }
 
-  getTRSFrameCount(): number {
-    return this.wasmModule.ccall('rgbd_record_get_trs_frame_count', 'number', ['number'], [this.ptr]);
+  getPoseFrameCount(): number {
+    return this.wasmModule.ccall('rgbd_record_get_pose_frame_count', 'number', ['number'], [this.ptr]);
   }
 
-  getTRSFrame(index: number): NativeRecordTRSFrame {
-    const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_trs_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeRecordTRSFrame(this.wasmModule, imuFramePtr, false);
+  getPoseFrame(index: number): NativeRecordPoseFrame {
+    const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_pose_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    return new NativeRecordPoseFrame(this.wasmModule, imuFramePtr, false);
   }
 
   hasDirectionTable(): boolean {
