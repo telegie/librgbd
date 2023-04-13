@@ -581,6 +581,7 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
             } else if (track_number == file_tracks_->rotation_track_number) {
                 rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->calibration_track_number) {
+                global_timecode = block_global_timecode;
                 Bytes bytes{copy_data_buffer_to_bytes(data_buffer)};
                 vector<char> calibration_vector(bytes.size());
                 memcpy(calibration_vector.data(), bytes.data(), bytes.size());
