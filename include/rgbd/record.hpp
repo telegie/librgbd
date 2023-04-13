@@ -73,7 +73,6 @@ struct RecordTracks
     RecordColorVideoTrack color_track;
     RecordDepthVideoTrack depth_track;
     RecordAudioTrack audio_track;
-    optional<int> floor_track_number;
     optional<int> acceleration_track_number;
     optional<int> rotation_rate_track_number;
     optional<int> magnetic_field_track_number;

@@ -348,7 +348,6 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     optional<RecordColorVideoTrack> color_track{nullopt};
     optional<RecordDepthVideoTrack> depth_track{nullopt};
     optional<RecordAudioTrack> audio_track{nullopt};
-    optional<int> floor_track_number{nullopt};
     optional<int> acceleration_track_number{nullopt};
     optional<int> rotation_rate_track_number{nullopt};
     optional<int> magnetic_field_track_number{nullopt};
@@ -429,7 +428,7 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
                 audio_track->track_number = gsl::narrow<int>(track_number);
                 audio_track->sampling_frequency = sampling_freq;
             } else if (track_name == "FLOOR") {
-                floor_track_number = gsl::narrow<int>(track_number);
+                // Floor track is no longer used.
             } else if (track_name == "ACCELERATION") {
                 acceleration_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "ROTATION_RATE") {
@@ -442,6 +441,8 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
                 translation_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "ROTATION") {
                 rotation_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "SCALE") {
+                // Scale track is no longer used.
             } else if (track_name == "CALIBRATION") {
                 calibration_track_number = gsl::narrow<int>(track_number);
             } else {
@@ -459,7 +460,6 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     file_tracks.color_track = *color_track;
     file_tracks.depth_track = *depth_track;
     file_tracks.audio_track = *audio_track;
-    file_tracks.floor_track_number = floor_track_number;
     file_tracks.acceleration_track_number = acceleration_track_number;
     file_tracks.rotation_rate_track_number = rotation_rate_track_number;
     file_tracks.magnetic_field_track_number = magnetic_field_track_number;
@@ -522,7 +522,6 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
     optional<bool> keyframe{nullopt};
     Bytes color_bytes;
     Bytes depth_bytes;
-    optional<Plane> floor{nullopt};
     Bytes audio_bytes;
     optional<glm::vec3> acceleration{nullopt};
     optional<glm::vec3> rotation_rate{nullopt};
@@ -560,8 +559,6 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
             } else if (track_number == file_tracks_->audio_track.track_number) {
                 global_timecode = block_global_timecode;
                 audio_bytes = copy_data_buffer_to_bytes(data_buffer);
-            } else if (track_number == file_tracks_->floor_track_number) {
-                floor = Plane::fromBytes(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->acceleration_track_number) {
                 global_timecode = block_global_timecode;
                 acceleration = read_vec3(copy_data_buffer_to_bytes(data_buffer));
