@@ -975,6 +975,20 @@ void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path)
 }
 //////// END RECORD BYTES BUILDER ////////
 
+//////// START RECORD CALIBRATION FRAME ////////
+void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
+                                         void* camera_calibration_ptr)
+{
+    auto calibration{static_cast<CameraCalibration*>(camera_calibration_ptr)};
+    return new RecordCalibrationFrame{time_point_us,  calibration->clone()};
+}
+
+void rgbd_record_calibration_frame_dtor(void* ptr)
+{
+    delete static_cast<RecordCalibrationFrame*>(ptr);
+}
+//////// END RECORD CALIBRATION FRAME ////////
+
 //////// START RECORD COLOR VIDEO TRACK ////////
 rgbdColorCodecType rgbd_record_color_video_track_get_codec(void* ptr)
 {

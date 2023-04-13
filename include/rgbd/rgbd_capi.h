@@ -341,7 +341,13 @@ extern "C"
                                                                      void* pose_frame_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_build(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path);
-    //////// END RECORD WRITER HELPER ////////
+    //////// END RECORD BYTES BUILDER ////////
+
+    //////// START RECORD CALIBRATION FRAME ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
+                                                                   void* camera_calibration_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_calibration_frame_dtor(void* ptr);
+    //////// END RECORD CALIBRATION FRAME ////////
 
     //////// START RECORD COLOR VIDEO TRACK ////////
     RGBD_INTERFACE_EXPORT rgbdColorCodecType rgbd_record_color_video_track_get_codec(void* ptr);
