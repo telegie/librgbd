@@ -196,7 +196,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_readwrite("gravity_track_number", &RecordTracks::gravity_track_number)
         .def_readwrite("translation_track_number", &RecordTracks::translation_track_number)
         .def_readwrite("rotation_track_number", &RecordTracks::rotation_track_number)
-        .def_readwrite("scale_track_number", &RecordTracks::scale_track_number);
+        .def_readwrite("calibration_track_number", &RecordTracks::calibration_track_number);
 
     py::class_<RecordAttachments>(m, "RecordAttachments")
         .def(py::init())
@@ -281,6 +281,14 @@ PYBIND11_MODULE(pyrgbd, m)
                 return create_py_quat(glm, frame.rotation());
             });
 
+    py::class_<RecordCalibrationFrame, RecordFrame>(m, "RecordCalibrationFrame")
+        .def(py::init<int64_t, shared_ptr<CameraCalibration>>())
+        .def_property_readonly("time_point_us", &RecordCalibrationFrame::time_point_us)
+        .def_property_readonly(
+            "camera_calibration", [](const RecordCalibrationFrame& frame) {
+                return frame.camera_calibration();
+            });
+
     py::class_<Record>(m, "Record")
         .def("get_offsets", &Record::offsets, py::return_value_policy::copy)
         .def("get_info", &Record::info, py::return_value_policy::copy)
@@ -290,6 +298,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_audio_frames", &Record::audio_frames, py::return_value_policy::copy)
         .def("get_imu_frames", &Record::imu_frames, py::return_value_policy::copy)
         .def("get_pose_frames", &Record::pose_frames, py::return_value_policy::copy)
+        .def("get_calibration_frames", &Record::calibration_frames, py::return_value_policy::copy)
         .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
     // END record.hpp
 
@@ -305,6 +314,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("add_audio_frame", &RecordBytesBuilder::addAudioFrame)
         .def("add_imu_frame", &RecordBytesBuilder::addIMUFrame)
         .def("add_pose_frame", &RecordBytesBuilder::addPoseFrame)
+        .def("add_calibration_frame", &RecordBytesBuilder::addCalibrationFrame)
         .def("build", &RecordBytesBuilder::build)
         .def("build_to_path", &RecordBytesBuilder::buildToPath);
     // END record_bytes_builder.hpp

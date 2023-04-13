@@ -80,7 +80,6 @@ struct RecordTracks
     optional<int> gravity_track_number;
     optional<int> translation_track_number;
     optional<int> rotation_track_number;
-    optional<int> scale_track_number;
     optional<int> calibration_track_number;
 };
 
@@ -273,10 +272,6 @@ public:
     int64_t time_point_us() const noexcept
     {
         return time_point_us_;
-    }
-    shared_ptr<CameraCalibration>& camera_calibration() noexcept
-    {
-        return camera_calibration_;
     }
     const shared_ptr<CameraCalibration>& camera_calibration() const noexcept
     {

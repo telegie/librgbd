@@ -355,7 +355,6 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     optional<int> gravity_track_number{nullopt};
     optional<int> translation_track_number{nullopt};
     optional<int> rotation_track_number{nullopt};
-    optional<int> scale_track_number{nullopt};
     optional<int> calibration_track_number{nullopt};
 
     for (EbmlElement* e : tracks->GetElementList()) {
@@ -443,8 +442,6 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
                 translation_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "ROTATION") {
                 rotation_track_number = gsl::narrow<int>(track_number);
-            } else if (track_name == "SCALE") {
-                scale_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "CALIBRATION") {
                 calibration_track_number = gsl::narrow<int>(track_number);
             } else {
@@ -469,7 +466,6 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     file_tracks.gravity_track_number = gravity_track_number;
     file_tracks.translation_track_number = translation_track_number;
     file_tracks.rotation_track_number = rotation_track_number;
-    file_tracks.scale_track_number = scale_track_number;
     file_tracks.calibration_track_number = calibration_track_number;
 
     return file_tracks;
