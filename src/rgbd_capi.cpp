@@ -962,6 +962,13 @@ void rgbd_record_bytes_builder_add_pose_frame(void* ptr, void* pose_frame_ptr)
     file_bytes_builder->addPoseFrame(*pose_frame);
 }
 
+void rgbd_record_bytes_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr)
+{
+    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto calibration_frame{static_cast<RecordCalibrationFrame*>(calibration_frame_ptr)};
+    file_bytes_builder->addCalibrationFrame(*calibration_frame);
+}
+
 void* rgbd_record_bytes_builder_build(void* ptr)
 {
     auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
@@ -986,6 +993,18 @@ void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
 void rgbd_record_calibration_frame_dtor(void* ptr)
 {
     delete static_cast<RecordCalibrationFrame*>(ptr);
+}
+
+int64_t rgbd_record_calibration_frame_get_time_point_us(void* ptr)
+{
+    auto record_calibration_frame{static_cast<RecordCalibrationFrame*>(ptr)};
+    return record_calibration_frame->time_point_us();
+}
+
+void* rgbd_record_calibration_frame_get_camera_calibration(void* ptr)
+{
+    auto record_calibration_frame{static_cast<RecordCalibrationFrame*>(ptr)};
+    return record_calibration_frame->camera_calibration().get();
 }
 //////// END RECORD CALIBRATION FRAME ////////
 

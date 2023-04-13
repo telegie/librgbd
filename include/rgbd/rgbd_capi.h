@@ -332,13 +332,15 @@ extern "C"
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_cover_png_bytes(
         void* ptr, const uint8_t* cover_png_bytes_data, size_t cover_png_byte_size);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_video_frame(void* ptr,
-                                                                       void* video_frame_ptr);
+                                                                         void* video_frame_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_audio_frame(void* ptr,
-                                                                       void* audio_frame_ptr);
+                                                                         void* audio_frame_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_imu_frame(void* ptr,
-                                                                     void* imu_frame_ptr);
+                                                                       void* imu_frame_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_pose_frame(void* ptr,
-                                                                     void* pose_frame_ptr);
+                                                                        void* pose_frame_ptr);
+    RGBD_INTERFACE_EXPORT void
+    rgbd_record_bytes_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_build(void* ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path);
     //////// END RECORD BYTES BUILDER ////////
@@ -347,6 +349,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
                                                                    void* camera_calibration_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_calibration_frame_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT int64_t rgbd_record_calibration_frame_get_time_point_us(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_get_camera_calibration(void* ptr);
     //////// END RECORD CALIBRATION FRAME ////////
 
     //////// START RECORD COLOR VIDEO TRACK ////////

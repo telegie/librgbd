@@ -81,7 +81,7 @@ struct RecordTracks
     optional<int> translation_track_number;
     optional<int> rotation_track_number;
     optional<int> scale_track_number;
-    optional<int> camera_calibration_track_number;
+    optional<int> calibration_track_number;
 };
 
 struct RecordAttachments

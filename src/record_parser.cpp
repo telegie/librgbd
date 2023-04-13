@@ -335,6 +335,7 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     optional<int> translation_track_number{nullopt};
     optional<int> rotation_track_number{nullopt};
     optional<int> scale_track_number{nullopt};
+    optional<int> calibration_track_number{nullopt};
 
     for (EbmlElement* e : tracks->GetElementList()) {
         if (EbmlId(*e) == KaxTrackEntry::ClassInfos.GlobalId) {
@@ -423,6 +424,8 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
                 rotation_track_number = gsl::narrow<int>(track_number);
             } else if (track_name == "SCALE") {
                 scale_track_number = gsl::narrow<int>(track_number);
+            } else if (track_name == "CALIBRATION") {
+                calibration_track_number = gsl::narrow<int>(track_number);
             } else {
                 spdlog::error("Invalid track_name: {}", track_name);
             }
@@ -446,6 +449,7 @@ optional<const RecordTracks> RecordParser::parseTracks(unique_ptr<KaxTracks>& tr
     file_tracks.translation_track_number = translation_track_number;
     file_tracks.rotation_track_number = rotation_track_number;
     file_tracks.scale_track_number = scale_track_number;
+    file_tracks.calibration_track_number = calibration_track_number;
 
     return file_tracks;
 }
@@ -614,13 +618,14 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
         return new RecordPoseFrame{time_point_us, *translation, *rotation};
     }
 
-    throw std::runtime_error{"No frame from FileParser::parseCluster"};
+    spdlog::warn("No frame made from cluster. Maybe a frame from the future.");
+    return nullptr;
 }
 
 void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
-                                  vector<RecordAudioFrame>& audio_frames,
-                                  vector<RecordIMUFrame>& imu_frames,
-                                  vector<RecordPoseFrame>& pose_frames)
+                                    vector<RecordAudioFrame>& audio_frames,
+                                    vector<RecordIMUFrame>& imu_frames,
+                                    vector<RecordPoseFrame>& pose_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
@@ -631,6 +636,10 @@ void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
     while (cluster != nullptr) {
         auto frame{parseCluster(cluster)};
         cluster = find_next<KaxCluster>(stream_, true);
+
+        if (!frame)
+            continue;
+
         switch (frame->getType()) {
         case RecordFrameType::Video: {
             auto video_frame{dynamic_cast<RecordVideoFrame*>(frame)};
