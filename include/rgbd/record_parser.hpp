@@ -24,7 +24,8 @@ private:
     void parseAllClusters(vector<RecordVideoFrame>& video_frames,
                           vector<RecordAudioFrame>& audio_frames,
                           vector<RecordIMUFrame>& imu_frames,
-                          vector<RecordPoseFrame>& trs_frames);
+                          vector<RecordPoseFrame>& trs_frames,
+                          vector<RecordCalibrationFrame>& calibration_frames);
 
 public:
     unique_ptr<Record> parse(bool with_frames, bool with_directions);

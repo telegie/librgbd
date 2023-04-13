@@ -156,6 +156,27 @@ glm::quat read_quat(const Bytes& bytes)
     return glm::quat{w, x, y, z};
 }
 
+shared_ptr<CameraCalibration> read_camera_calibration(string calibration_str)
+{
+    // Brace initialization of json behaves differently in gcc than in clang.
+    // Do not use brace initialization.
+    // reference: https://github.com/nlohmann/json/issues/2339
+    json calibration_json(json::parse(calibration_str));
+    string calibration_type{calibration_json["calibrationType"].get<string>()};
+    if (calibration_type == "azureKinect") {
+        return shared_ptr<CameraCalibration>(new KinectCameraCalibration{
+            KinectCameraCalibration::fromJson(calibration_json)});
+    } else if (calibration_type == "ios") {
+        return shared_ptr<CameraCalibration>(
+            new IosCameraCalibration{IosCameraCalibration::fromJson(calibration_json)});
+    } else if (calibration_type == "undistorted") {
+        return shared_ptr<CameraCalibration>(
+            new UndistortedCameraCalibration{UndistortedCameraCalibration::fromJson(calibration_json)});
+    } else {
+        throw std::runtime_error("Invalid calibration_type");
+    }
+}
+
 RecordParser::RecordParser(const void* ptr, size_t size)
     : input_{new MemReadIOCallback{ptr, size}}
     , stream_{*input_}
@@ -472,24 +493,7 @@ RecordParser::parseAttachments(unique_ptr<libmatroska::KaxAttachments>& attachme
                 vector<char> calibration_vector(file_data.GetSize());
                 memcpy(calibration_vector.data(), file_data.GetBuffer(), file_data.GetSize());
                 string calibration_str{calibration_vector.begin(), calibration_vector.end()};
-                // Brace initialization of json behaves differently in gcc than in clang.
-                // Do not use brace initialization.
-                // reference: https://github.com/nlohmann/json/issues/2339
-                json calibration_json(json::parse(calibration_str));
-
-                string calibration_type{calibration_json["calibrationType"].get<string>()};
-                if (calibration_type == "azureKinect") {
-                    camera_calibration = shared_ptr<CameraCalibration>(new KinectCameraCalibration{
-                        KinectCameraCalibration::fromJson(calibration_json)});
-                } else if (calibration_type == "ios") {
-                    camera_calibration = shared_ptr<CameraCalibration>(
-                        new IosCameraCalibration{IosCameraCalibration::fromJson(calibration_json)});
-                } else if (calibration_type == "undistorted") {
-                    camera_calibration = shared_ptr<CameraCalibration>(
-                        new UndistortedCameraCalibration{UndistortedCameraCalibration::fromJson(calibration_json)});
-                } else {
-                    throw std::runtime_error("Invalid calibration_type");
-                }
+                camera_calibration = read_camera_calibration(calibration_str);
             } else if (file_name == "cover.png") {
                 auto& file_data{GetChild<KaxFileData>(*attached_file)};
                 cover_png_bytes = Bytes(file_data.GetSize());
@@ -530,6 +534,7 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
     optional<glm::vec3> gravity{nullopt};
     optional<glm::vec3> translation{nullopt};
     optional<glm::quat> rotation{nullopt};
+    shared_ptr<CameraCalibration> camera_calibration{nullptr};
 
     for (EbmlElement* e : cluster->GetElementList()) {
         EbmlId id{*e};
@@ -575,6 +580,12 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
                 translation = read_vec3(copy_data_buffer_to_bytes(data_buffer));
             } else if (track_number == file_tracks_->rotation_track_number) {
                 rotation = read_quat(copy_data_buffer_to_bytes(data_buffer));
+            } else if (track_number == file_tracks_->calibration_track_number) {
+                Bytes bytes{copy_data_buffer_to_bytes(data_buffer)};
+                vector<char> calibration_vector(bytes.size());
+                memcpy(calibration_vector.data(), bytes.data(), bytes.size());
+                string calibration_str{calibration_vector.begin(), calibration_vector.end()};
+                camera_calibration = read_camera_calibration(calibration_str);
             } else {
                 // There might be some obsolete tracks in a file,
                 // spdlog::debug("Invalid track number from simple_block");
@@ -618,6 +629,10 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
         return new RecordPoseFrame{time_point_us, *translation, *rotation};
     }
 
+    if (camera_calibration) { 
+        return new RecordCalibrationFrame(time_point_us, camera_calibration);
+    }
+
     spdlog::warn("No frame made from cluster. Maybe a frame from the future.");
     return nullptr;
 }
@@ -625,7 +640,8 @@ RecordFrame* RecordParser::parseCluster(unique_ptr<libmatroska::KaxCluster>& clu
 void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
                                     vector<RecordAudioFrame>& audio_frames,
                                     vector<RecordIMUFrame>& imu_frames,
-                                    vector<RecordPoseFrame>& pose_frames)
+                                    vector<RecordPoseFrame>& pose_frames,
+                                    vector<RecordCalibrationFrame>& calibration_frames)
 {
     auto cluster{read_offset<KaxCluster>(
         *input_, stream_, *kax_segment_, file_offsets_->first_cluster_offset)};
@@ -661,6 +677,11 @@ void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
             pose_frames.push_back(std::move(*pose_frame));
             break;
         }
+        case RecordFrameType::Calibration: {
+            auto calibration_frame{dynamic_cast<RecordCalibrationFrame*>(frame)};
+            calibration_frames.push_back(std::move(*calibration_frame));
+            break;
+        }
         default:
             throw std::runtime_error{"Invalid FileFrameType found in FileParser::parseAllClusters"};
         }
@@ -673,8 +694,9 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
     vector<RecordAudioFrame> audio_frames;
     vector<RecordIMUFrame> imu_frames;
     vector<RecordPoseFrame> pose_frames;
+    vector<RecordCalibrationFrame> calibration_frames;
     if (with_frames)
-        parseAllClusters(video_frames, audio_frames, imu_frames, pose_frames);
+        parseAllClusters(video_frames, audio_frames, imu_frames, pose_frames, calibration_frames);
 
     optional<DirectionTable> direction_table;
     if (with_directions)
@@ -688,6 +710,7 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
                                   std::move(audio_frames),
                                   std::move(imu_frames),
                                   std::move(pose_frames),
+                                  std::move(calibration_frames),
                                   std::move(direction_table));
 }
 } // namespace rgbd

@@ -313,6 +313,35 @@ export class RecordPoseFrame {
   }
 }
 
+export class RecordCalibrationFrame {
+  timePointUs: number;
+  cameraCalibration: CameraCalibration;
+
+  constructor(timePointUs: number,
+              cameraCalibration: CameraCalibration) {
+    this.timePointUs = timePointUs;
+    this.cameraCalibration = cameraCalibration;
+  }
+
+  static fromNative(nativeRecordCalibrationFrame: NativeRecordCalibrationFrame) {
+    const timePointUs = nativeRecordCalibrationFrame.getTimePointUs();
+    const nativeCalibration = nativeRecordCalibrationFrame.getCameraCalibration();
+    const calibration = CameraCalibration.fromNative(nativeCalibration);
+    nativeCalibration.close();
+
+    return new RecordCalibrationFrame(timePointUs, calibration);
+  }
+
+  toNative(wasmModule: any): NativeRecordCalibrationFrame {
+    const ptr = wasmModule.ccall('rgbd_record_calibration_frame_ctor_wasm',
+                                 'number',
+                                 ['number', 'number'],
+                                 [this.timePointUs, this.cameraCalibration]);
+
+    return new NativeRecordCalibrationFrame(wasmModule, ptr, true);
+  }
+}
+
 export class Record {
   info: RecordInfo;
   tracks: RecordTracks;
@@ -321,6 +350,7 @@ export class Record {
   audioFrames: RecordAudioFrame[];
   imuFrames: RecordIMUFrame[];
   poseFrames: RecordPoseFrame[];
+  calibrationFrames: RecordCalibrationFrame[];
   directionTable: DirectionTable | null;
 
   constructor(info: RecordInfo,
@@ -330,6 +360,7 @@ export class Record {
               audioFrames: RecordAudioFrame[],
               imuFrames: RecordIMUFrame[],
               poseFrames: RecordPoseFrame[],
+              calibrationFrames: RecordCalibrationFrame[],
               directionTable: DirectionTable | null) {
     this.info = info;
     this.tracks = tracks;
@@ -338,6 +369,7 @@ export class Record {
     this.audioFrames = audioFrames;
     this.imuFrames = imuFrames;
     this.poseFrames = poseFrames;
+    this.calibrationFrames = calibrationFrames;
     this.directionTable = directionTable;
   }
 
@@ -386,6 +418,14 @@ export class Record {
       nativePoseFrame.close();
     }
 
+    let calibrationFrames: RecordCalibrationFrame[] = [];
+    const calibrationFrameCount = nativeRecord.getCalibrationFrameCount();
+    for (let i = 0; i < calibrationFrameCount; i++) {
+      const nativeCalibrationFrame = nativeRecord.getCalibrationFrame(i);
+      calibrationFrames.push(RecordCalibrationFrame.fromNative(nativeCalibrationFrame));
+      nativeCalibrationFrame.close();
+    }
+
     let directionTable: DirectionTable | null = null;
     if (nativeRecord.hasDirectionTable()) {
       const nativeDirectionTable = nativeRecord.getDirectionTable();
@@ -393,13 +433,13 @@ export class Record {
     }
     
     return new Record(info, tracks, attachments,
-      videoFrames, audioFrames, imuFrames, poseFrames, directionTable);
+      videoFrames, audioFrames, imuFrames, poseFrames, calibrationFrames, directionTable);
   }
 
   // This function does a shallow copy.
   clone(): Record {
     return new Record(this.info, this.tracks, this.attachments,
-      this.videoFrames, this.audioFrames, this.imuFrames, this.poseFrames, this.directionTable);
+      this.videoFrames, this.audioFrames, this.imuFrames, this.poseFrames, this.calibrationFrames, this.directionTable);
   }
 }
 
@@ -674,6 +714,25 @@ export class NativeRecordPoseFrame extends NativeObject {
   }
 }
 
+export class NativeRecordCalibrationFrame extends NativeObject {
+  constructor(wasmModule: any, ptr: number, owner: boolean) {
+    super(wasmModule, ptr, owner);
+  }
+
+  delete() {
+    this.wasmModule.ccall('rgbd_record_calibration_frame_dtor', null, ['number'], [this.ptr]);
+  }
+
+  getTimePointUs(): number {
+    return this.wasmModule.ccall('rgbd_record_calibration_frame_get_time_point_us', 'number', ['number'], [this.ptr]);
+  }
+
+  getCameraCalibration(): NativeCameraCalibration {
+    const calibrationPtr = this.wasmModule.ccall('rgbd_record_calibration_frame_get_camera_calibration', 'number', ['number'], [this.ptr]);
+    return NativeCameraCalibration.create(this.wasmModule, calibrationPtr, false);
+  }
+}
+
 export class NativeRecord extends NativeObject {
   constructor(wasmModule: any, ptr: number) {
     super(wasmModule, ptr, true);
@@ -730,8 +789,17 @@ export class NativeRecord extends NativeObject {
   }
 
   getPoseFrame(index: number): NativeRecordPoseFrame {
-    const imuFramePtr = this.wasmModule.ccall('rgbd_record_get_pose_frame', 'number', ['number', 'number'], [this.ptr, index]);
-    return new NativeRecordPoseFrame(this.wasmModule, imuFramePtr, false);
+    const poseFramePtr = this.wasmModule.ccall('rgbd_record_get_pose_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    return new NativeRecordPoseFrame(this.wasmModule, poseFramePtr, false);
+  }
+
+  getCalibrationFrameCount(): number {
+    return this.wasmModule.ccall('rgbd_record_get_calibration_frame_count', 'number', ['number'], [this.ptr]);
+  }
+
+  getCalibrationFrame(index: number): NativeRecordCalibrationFrame {
+    const calibrationFramePtr = this.wasmModule.ccall('rgbd_record_get_calibration_frame', 'number', ['number', 'number'], [this.ptr, index]);
+    return new NativeRecordCalibrationFrame(this.wasmModule, calibrationFramePtr, false);
   }
 
   hasDirectionTable(): boolean {

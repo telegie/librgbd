@@ -193,6 +193,8 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_record_get_imu_frame(void* ptr, size_t index);
     RGBD_INTERFACE_EXPORT size_t rgbd_record_get_pose_frame_count(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_get_pose_frame(void* ptr, size_t index);
+    RGBD_INTERFACE_EXPORT size_t rgbd_record_get_calibration_frame_count(void* ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_get_calibration_frame(void* ptr, size_t index);
     RGBD_INTERFACE_EXPORT bool rgbd_record_has_direction_table(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_get_direction_table(void* ptr);
     //////// END RECORD ////////
@@ -348,6 +350,8 @@ extern "C"
     //////// START RECORD CALIBRATION FRAME ////////
     RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
                                                                    void* camera_calibration_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_ctor_wasm(int time_point_us,
+                                                                        void* camera_calibration_ptr);
     RGBD_INTERFACE_EXPORT void rgbd_record_calibration_frame_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT int64_t rgbd_record_calibration_frame_get_time_point_us(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_get_camera_calibration(void* ptr);

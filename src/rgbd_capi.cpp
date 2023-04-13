@@ -764,8 +764,8 @@ size_t rgbd_record_get_video_frame_count(void* ptr)
 
 void* rgbd_record_get_video_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<Record*>(ptr)};
-    auto& video_frame{file->video_frames()[index]};
+    auto record{static_cast<Record*>(ptr)};
+    auto& video_frame{record->video_frames()[index]};
     return &video_frame;
 }
 
@@ -776,8 +776,8 @@ size_t rgbd_record_get_audio_frame_count(void* ptr)
 
 void* rgbd_record_get_audio_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<Record*>(ptr)};
-    auto& audio_frame{file->audio_frames()[index]};
+    auto record{static_cast<Record*>(ptr)};
+    auto& audio_frame{record->audio_frames()[index]};
     return &audio_frame;
 }
 
@@ -788,8 +788,8 @@ size_t rgbd_record_get_imu_frame_count(void* ptr)
 
 void* rgbd_record_get_imu_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<Record*>(ptr)};
-    auto& imu_frame{file->imu_frames()[index]};
+    auto record{static_cast<Record*>(ptr)};
+    auto& imu_frame{record->imu_frames()[index]};
     return &imu_frame;
 }
 
@@ -800,9 +800,21 @@ size_t rgbd_record_get_pose_frame_count(void* ptr)
 
 void* rgbd_record_get_pose_frame(void* ptr, size_t index)
 {
-    auto file{static_cast<Record*>(ptr)};
-    auto& pose_frame{file->pose_frames()[index]};
+    auto record{static_cast<Record*>(ptr)};
+    auto& pose_frame{record->pose_frames()[index]};
     return &pose_frame;
+}
+
+size_t rgbd_record_get_calibration_frame_count(void* ptr)
+{
+    return static_cast<Record*>(ptr)->calibration_frames().size();
+}
+
+void* rgbd_record_get_calibration_frame(void* ptr, size_t index)
+{
+    auto record{static_cast<Record*>(ptr)};
+    auto& calibration_frame{record->calibration_frames()[index]};
+    return &calibration_frame;
 }
 
 bool rgbd_record_has_direction_table(void* ptr)
@@ -985,6 +997,13 @@ void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path)
 //////// START RECORD CALIBRATION FRAME ////////
 void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,
                                          void* camera_calibration_ptr)
+{
+    auto calibration{static_cast<CameraCalibration*>(camera_calibration_ptr)};
+    return new RecordCalibrationFrame{time_point_us,  calibration->clone()};
+}
+
+void* rgbd_record_calibration_frame_ctor_wasm(int time_point_us,
+                                              void* camera_calibration_ptr)
 {
     auto calibration{static_cast<CameraCalibration*>(camera_calibration_ptr)};
     return new RecordCalibrationFrame{time_point_us,  calibration->clone()};

@@ -299,6 +299,7 @@ public:
          vector<RecordAudioFrame>&& audio_frames,
          vector<RecordIMUFrame>&& imu_frames,
          vector<RecordPoseFrame>&& pose_frames,
+         vector<RecordCalibrationFrame>&& calibration_frames,
          optional<DirectionTable>&& direction_table)
         : offsets_{offsets}
         , info_{info}
@@ -308,6 +309,7 @@ public:
         , audio_frames_{std::move(audio_frames)}
         , imu_frames_{std::move(imu_frames)}
         , pose_frames_{std::move(pose_frames)}
+        , calibration_frames_{std::move(calibration_frames)}
         , direction_table_{std::move(direction_table)}
     {
     }
