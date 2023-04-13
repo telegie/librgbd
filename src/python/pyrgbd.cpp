@@ -207,7 +207,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .value("Video", RecordFrameType::Video)
         .value("Audio", RecordFrameType::Audio)
         .value("IMU", RecordFrameType::IMU)
-        .value("TRS", RecordFrameType::TRS);
+        .value("Pose", RecordFrameType::Pose);
 
     py::class_<RecordFrame>(m, "RecordFrame").def("getType", &RecordFrame::getType);
 
@@ -261,7 +261,7 @@ PYBIND11_MODULE(pyrgbd, m)
             return create_py_vec3(glm, frame.gravity());
         });
 
-    py::class_<RecordPoseFrame, RecordFrame>(m, "RecordTRSFrame")
+    py::class_<RecordPoseFrame, RecordFrame>(m, "RecordPoseFrame")
         .def(py::init([](int64_t time_point_us,
                          const py::object& py_translation,
                          const py::object& py_rotation) {

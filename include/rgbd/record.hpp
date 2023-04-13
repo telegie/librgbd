@@ -95,7 +95,7 @@ enum class RecordFrameType
     Video = 0,
     Audio = 1,
     IMU = 2,
-    TRS = 3
+    Pose = 3
 };
 
 class RecordFrame
@@ -234,7 +234,7 @@ public:
     }
     RecordFrameType getType()
     {
-        return RecordFrameType::TRS;
+        return RecordFrameType::Pose;
     }
     int64_t time_point_us() const noexcept
     {

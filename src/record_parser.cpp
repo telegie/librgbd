@@ -647,7 +647,7 @@ void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
             imu_frames.push_back(std::move(*imu_frame));
             break;
         }
-        case RecordFrameType::TRS: {
+        case RecordFrameType::Pose: {
             auto pose_frame{dynamic_cast<RecordPoseFrame*>(frame)};
             pose_frames.push_back(std::move(*pose_frame));
             break;
