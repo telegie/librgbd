@@ -56,7 +56,7 @@ json UndistortedCameraCalibration::toJson() const noexcept
                 {"cy", cy_}};
 }
 
-CameraCalibrationType UndistortedCameraCalibration::getCameraCalibrationType() const noexcept
+CameraCalibrationType UndistortedCameraCalibration::getType() const noexcept
 {
     return CameraCalibrationType::Undistorted;
 }

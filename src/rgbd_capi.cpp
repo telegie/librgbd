@@ -288,9 +288,9 @@ void rgbd_camera_calibration_dtor(void* ptr)
     delete static_cast<const CameraCalibration*>(ptr);
 }
 
-rgbdCameraCalibrationType rgbd_camera_calibration_get_camera_device_type(void* ptr)
+rgbdCameraCalibrationType rgbd_camera_calibration_get_type(void* ptr)
 {
-    auto camera_device_type{static_cast<CameraCalibration*>(ptr)->getCameraCalibrationType()};
+    auto camera_device_type{static_cast<CameraCalibration*>(ptr)->getType()};
     return static_cast<rgbdCameraCalibrationType>(camera_device_type);
 }
 

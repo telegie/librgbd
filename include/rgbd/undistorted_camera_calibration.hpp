@@ -19,7 +19,7 @@ public:
     unique_ptr<CameraCalibration> clone() const noexcept;
     static UndistortedCameraCalibration fromJson(const json& json);
     json toJson() const noexcept;
-    CameraCalibrationType getCameraCalibrationType() const noexcept;
+    CameraCalibrationType getType() const noexcept;
     int getColorWidth() const noexcept;
     int getColorHeight() const noexcept;
     int getDepthWidth() const noexcept;

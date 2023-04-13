@@ -175,7 +175,7 @@ json IosCameraCalibration::toJson() const noexcept
                 {"inverseLensDistortionLookupTable", inverse_lens_distortion_lookup_table_}};
 }
 
-CameraCalibrationType IosCameraCalibration::getCameraCalibrationType() const noexcept
+CameraCalibrationType IosCameraCalibration::getType() const noexcept
 {
     return CameraCalibrationType::IOS;
 }

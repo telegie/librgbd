@@ -69,7 +69,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN camera_calibration.hpp
     py::class_<CameraCalibration, std::shared_ptr<CameraCalibration>>(m, "CameraCalibration")
-        .def_property_readonly("camera_device_type", &CameraCalibration::getCameraCalibrationType)
+        .def_property_readonly("camera_device_type", &CameraCalibration::getType)
         .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
