@@ -67,7 +67,7 @@ RecordWriter::RecordWriter(IOCallback& io_callback,
     constexpr uint64_t GRAVITY_TRACK_NUMBER{7};
     constexpr uint64_t TRANSLATION_TRACK_NUMBER{8};
     constexpr uint64_t ROTATION_TRACK_NUMBER{9};
-    constexpr uint64_t SCALE_TRACK_NUMBER{10};
+    constexpr uint64_t CALIBRATION_TRACK_NUMBER{10};
     //
     // init color_track_
     //
@@ -296,7 +296,23 @@ RecordWriter::RecordWriter(IOCallback& io_callback,
         GetChild<KaxCodecID>(*writer_tracks_.rotation_track).SetValue("S_ROTATION");
     }
     //
-    // calibration
+    // init calibration_track_
+    //
+    {
+        auto& tracks{GetChild<KaxTracks>(segment_)};
+        writer_tracks_.calibration_track = new KaxTrackEntry;
+        tracks.PushElement(
+            *writer_tracks_.calibration_track); // Track will be freed when the file is closed.
+        writer_tracks_.calibration_track->SetGlobalTimecodeScale(MATROSKA_TIMESCALE_NS);
+
+        GetChild<KaxTrackNumber>(*writer_tracks_.calibration_track).SetValue(CALIBRATION_TRACK_NUMBER);
+        GetChild<KaxTrackUID>(*writer_tracks_.calibration_track).SetValue(distribution(generator));
+        GetChild<KaxTrackType>(*writer_tracks_.calibration_track).SetValue(track_subtitle);
+        GetChild<KaxTrackName>(*writer_tracks_.calibration_track).SetValueUTF8("CALIBRATION");
+        GetChild<KaxCodecID>(*writer_tracks_.calibration_track).SetValue("S_CALIBRATION");
+    }
+    //
+    // init calibration as attachment
     //
     {
         auto& attachments{GetChild<KaxAttachments>(segment_)};
@@ -307,13 +323,13 @@ RecordWriter::RecordWriter(IOCallback& io_callback,
         GetChild<KaxFileUID>(*calibration_attached_file).SetValue(distribution(generator));
 
         string calibration_str{calibration.toJson().dump()};
-        std::vector<char> calibration_vector(calibration_str.begin(), calibration_str.end());
+        std::vector<char> calibration_chars(calibration_str.begin(), calibration_str.end());
         GetChild<KaxFileData>(*calibration_attached_file)
-            .CopyBuffer(reinterpret_cast<binary*>(calibration_vector.data()),
-                        gsl::narrow<uint32_t>(calibration_vector.size()));
+            .CopyBuffer(reinterpret_cast<binary*>(calibration_chars.data()),
+                        gsl::narrow<uint32_t>(calibration_chars.size()));
     }
     //
-    // cover
+    // init cover as attachment
     //
     if (cover_png_bytes)
     {
@@ -535,7 +551,7 @@ void RecordWriter::writePoseFrame(const RecordPoseFrame& pose_frame)
 {
     int64_t time_point_ns{pose_frame.time_point_us() * 1000};
     if (time_point_ns < 0) {
-        spdlog::error("FileWriter::writeTRSFrame: time_point_ns ({}) should not be negative.",
+        spdlog::error("FileWriter::writePoseFrame: time_point_ns ({}) should not be negative.",
                       time_point_ns);
         return;
     }
@@ -575,6 +591,43 @@ void RecordWriter::writePoseFrame(const RecordPoseFrame& pose_frame)
     pose_cluster->ReleaseFrames();
 
     last_timecode_ = pose_timecode;
+}
+
+void RecordWriter::writeCalibrationFrame(const RecordCalibrationFrame& calibration_frame)
+{
+    int64_t time_point_ns{calibration_frame.time_point_us() * 1000};
+    if (time_point_ns < 0) {
+        spdlog::error("FileWriter::writeCalibrationFrame: time_point_ns ({}) should not be negative.",
+                      time_point_ns);
+        return;
+    }
+
+    auto calibration_timecode{gsl::narrow<uint64_t>(time_point_ns)};
+
+    auto& cues{GetChild<KaxCues>(segment_)};
+
+    auto calibration_cluster{new KaxCluster};
+    segment_.PushElement(*calibration_cluster);
+    calibration_cluster->InitTimecode(calibration_timecode / MATROSKA_TIMESCALE_NS, MATROSKA_TIMESCALE_NS);
+    calibration_cluster->SetParent(segment_);
+    calibration_cluster->EnableChecksum();
+
+    string calibration_str{calibration_frame.camera_calibration()->toJson().dump()};
+    std::vector<char> calibration_chars(calibration_str.begin(), calibration_str.end());
+
+    auto calibration_block_blob{new KaxBlockBlob(BLOCK_BLOB_ALWAYS_SIMPLE)};
+    auto calibration_data_buffer{
+        new DataBuffer{reinterpret_cast<uint8_t*>(calibration_chars.data()),
+                       gsl::narrow<uint32_t>(calibration_chars.size())}};
+    calibration_cluster->AddBlockBlob(calibration_block_blob);
+    calibration_block_blob->SetParent(*calibration_cluster);
+    calibration_block_blob->AddFrameAuto(
+        *writer_tracks_.calibration_track, calibration_timecode, *calibration_data_buffer);
+
+    calibration_cluster->Render(io_callback_, cues);
+    calibration_cluster->ReleaseFrames();
+
+    last_timecode_ = calibration_timecode;
 }
 
 void RecordWriter::flush()

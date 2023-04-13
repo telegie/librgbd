@@ -81,6 +81,7 @@ struct RecordTracks
     optional<int> translation_track_number;
     optional<int> rotation_track_number;
     optional<int> scale_track_number;
+    optional<int> camera_calibration_track_number;
 };
 
 struct RecordAttachments
@@ -95,7 +96,8 @@ enum class RecordFrameType
     Video = 0,
     Audio = 1,
     IMU = 2,
-    Pose = 3
+    Pose = 3,
+    Calibration = 4,
 };
 
 class RecordFrame
@@ -255,6 +257,37 @@ private:
     glm::quat rotation_;
 };
 
+class RecordCalibrationFrame : public RecordFrame
+{
+public:
+    RecordCalibrationFrame(int64_t time_point_us,
+                           shared_ptr<CameraCalibration> camera_calibration)
+        : time_point_us_{time_point_us}
+        , camera_calibration_{camera_calibration}
+    {
+    }
+    RecordFrameType getType()
+    {
+        return RecordFrameType::Calibration;
+    }
+    int64_t time_point_us() const noexcept
+    {
+        return time_point_us_;
+    }
+    shared_ptr<CameraCalibration>& camera_calibration() noexcept
+    {
+        return camera_calibration_;
+    }
+    const shared_ptr<CameraCalibration>& camera_calibration() const noexcept
+    {
+        return camera_calibration_;
+    }
+
+private:
+    int64_t time_point_us_;
+    shared_ptr<CameraCalibration> camera_calibration_;
+};
+
 class Record
 {
 public:
@@ -310,6 +343,10 @@ public:
     {
         return pose_frames_;
     }
+    vector<RecordCalibrationFrame>& calibration_frames() noexcept
+    {
+        return calibration_frames_;
+    }
     optional<DirectionTable>& direction_table() noexcept
     {
         return direction_table_;
@@ -324,6 +361,7 @@ private:
     vector<RecordAudioFrame> audio_frames_;
     vector<RecordIMUFrame> imu_frames_;
     vector<RecordPoseFrame> pose_frames_;
+    vector<RecordCalibrationFrame> calibration_frames_;
     optional<DirectionTable> direction_table_;
 };
 } // namespace rgbd

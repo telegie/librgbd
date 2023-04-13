@@ -12,6 +12,7 @@ RecordBytesBuilder::RecordBytesBuilder()
     , audio_frames_{}
     , imu_frames_{}
     , pose_frames_{}
+    , calibration_frames_{}
 {
 }
 
@@ -60,6 +61,11 @@ void RecordBytesBuilder::addPoseFrame(const RecordPoseFrame& pose_frame)
     pose_frames_.push_back(pose_frame);
 }
 
+void RecordBytesBuilder::addCalibrationFrame(const RecordCalibrationFrame& calibration_frame)
+{
+    calibration_frames_.push_back(calibration_frame);
+}
+
 Bytes RecordBytesBuilder::build()
 {
     MemIOCallback io_callback;
@@ -99,6 +105,11 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
          [](const RecordPoseFrame& lhs, const RecordPoseFrame& rhs) {
              return lhs.time_point_us() < rhs.time_point_us();
          });
+    sort(calibration_frames_.begin(),
+         calibration_frames_.end(),
+         [](const RecordCalibrationFrame& lhs, const RecordCalibrationFrame& rhs) {
+             return lhs.time_point_us() < rhs.time_point_us();
+         });
 
     if (!calibration_) {
         throw std::runtime_error("No CameraCalibration found from RecordBytesBuilder");
@@ -123,6 +134,7 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
     size_t audio_frame_index{0};
     size_t imu_frame_index{0};
     size_t pose_frame_index{0};
+    size_t calibration_frame_index{0};
     for (auto& video_frame : video_frames_) {
         int64_t video_time_point_us{video_frame.time_point_us()};
 
@@ -169,6 +181,19 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
                                                        pose_frame.translation(),
                                                        pose_frame.rotation()});
             ++pose_frame_index;
+        }
+        while (calibration_frame_index < calibration_frames_.size()) {
+            auto& calibration_frame{calibration_frames_[calibration_frame_index]};
+            int64_t calibration_time_point_us{calibration_frame.time_point_us() - initial_video_time_point};
+            if (calibration_time_point_us < 0) {
+                ++calibration_frame_index;
+                continue;
+            }
+            if (calibration_frame.time_point_us() > video_time_point_us)
+                break;
+            file_writer.writeCalibrationFrame(RecordCalibrationFrame{calibration_time_point_us,
+                                                                     calibration_frame.camera_calibration()});
+            ++calibration_frame_index;
         }
         file_writer.writeVideoFrame(video_frame);
     }

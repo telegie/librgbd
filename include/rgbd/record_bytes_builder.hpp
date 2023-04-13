@@ -18,6 +18,7 @@ public:
     void addAudioFrame(const RecordAudioFrame& audio_frame);
     void addIMUFrame(const RecordIMUFrame& imu_frame);
     void addPoseFrame(const RecordPoseFrame& pose_frame);
+    void addCalibrationFrame(const RecordCalibrationFrame& calibration_frame);
     Bytes build();
     void buildToPath(const std::string& path);
 
@@ -34,5 +35,6 @@ private:
     vector<RecordAudioFrame> audio_frames_;
     vector<RecordIMUFrame> imu_frames_;
     vector<RecordPoseFrame> pose_frames_;
+    vector<RecordCalibrationFrame> calibration_frames_;
 };
 }
