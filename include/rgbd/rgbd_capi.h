@@ -26,7 +26,7 @@ extern "C"
         RGBD_CAMERA_DEVICE_TYPE_AZURE_KINECT = 0,
         RGBD_CAMERA_DEVICE_TYPE_IOS = 1,
         RGBD_CAMERA_DEVICE_TYPE_UNDISTORTED = 2
-    } rgbdCameraDeviceType;
+    } rgbdCameraCalibrationType;
 
     typedef enum
     {
@@ -130,7 +130,7 @@ extern "C"
 
     //////// START CAMERA CALIBRATION ////////
     RGBD_INTERFACE_EXPORT void rgbd_camera_calibration_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT rgbdCameraDeviceType
+    RGBD_INTERFACE_EXPORT rgbdCameraCalibrationType
     rgbd_camera_calibration_get_camera_device_type(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_camera_calibration_get_color_width(void* ptr);
     RGBD_INTERFACE_EXPORT int rgbd_camera_calibration_get_color_height(void* ptr);

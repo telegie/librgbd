@@ -11,7 +11,7 @@ public:
     virtual ~CameraCalibration() {}
     virtual unique_ptr<CameraCalibration> clone() const noexcept = 0;
     virtual json toJson() const noexcept = 0;
-    virtual CameraDeviceType getCameraDeviceType() const noexcept = 0;
+    virtual CameraCalibrationType getCameraCalibrationType() const noexcept = 0;
     virtual int getColorWidth() const noexcept = 0;
     virtual int getColorHeight() const noexcept = 0;
     virtual int getDepthWidth() const noexcept = 0;

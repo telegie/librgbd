@@ -32,8 +32,8 @@ void print_file_info(std::ostream& out, const std::string& file_path)
     out << fmt::format("Color height: {}\n", file->tracks().depth_track.height);
     out << fmt::format("Depth byte size: {} KB\n", depth_byte_size / 1024);
 
-    auto device_type{file->attachments().camera_calibration->getCameraDeviceType()};
-    out << fmt::format("Camera Device Type: {}\n", stringify_camera_device_type(device_type));
+    auto device_type{file->attachments().camera_calibration->getCameraCalibrationType()};
+    out << fmt::format("Camera Device Type: {}\n", stringify_camera_calibration_type(device_type));
 }
 
 void extract_cover(const std::string& file_path)

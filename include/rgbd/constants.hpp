@@ -40,14 +40,14 @@ using nlohmann::json;
 
 using Bytes = vector<uint8_t>;
 
-enum class CameraDeviceType : int32_t
+enum class CameraCalibrationType : int32_t
 {
     AzureKinect = 0,
     IOS = 1,
     Undistorted = 2
 };
 
-string stringify_camera_device_type(const CameraDeviceType& camera_device_type);
+string stringify_camera_calibration_type(const CameraCalibrationType& camera_calibration_type);
 
 enum class ColorCodecType : int32_t
 {

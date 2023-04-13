@@ -69,7 +69,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN camera_calibration.hpp
     py::class_<CameraCalibration, std::shared_ptr<CameraCalibration>>(m, "CameraCalibration")
-        .def_property_readonly("camera_device_type", &CameraCalibration::getCameraDeviceType)
+        .def_property_readonly("camera_device_type", &CameraCalibration::getCameraCalibrationType)
         .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
@@ -94,10 +94,10 @@ PYBIND11_MODULE(pyrgbd, m)
     // END color_encoder.hpp
 
     // BEGIN constants.hpp
-    py::enum_<CameraDeviceType>(m, "CameraDeviceType")
-        .value("AzureKinect", CameraDeviceType::AzureKinect)
-        .value("IOS", CameraDeviceType::IOS)
-        .value("Undistorted", CameraDeviceType::Undistorted);
+    py::enum_<CameraCalibrationType>(m, "CameraCalibrationType")
+        .value("AzureKinect", CameraCalibrationType::AzureKinect)
+        .value("IOS", CameraCalibrationType::IOS)
+        .value("Undistorted", CameraCalibrationType::Undistorted);
 
     py::enum_<ColorCodecType>(m, "ColorCodecType").value("VP8", ColorCodecType::VP8);
 

@@ -2,17 +2,18 @@
 
 namespace rgbd
 {
-string stringify_camera_device_type(const CameraDeviceType& camera_device_type)
+string stringify_camera_calibration_type(const CameraCalibrationType& camera_calibration_type)
 {
-    switch (camera_device_type) {
-    case CameraDeviceType::AzureKinect:
+    switch (camera_calibration_type) {
+    case CameraCalibrationType::AzureKinect:
         return "AzureKinect";
-    case CameraDeviceType::IOS:
+    case CameraCalibrationType::IOS:
         return "IOS";
-    case CameraDeviceType::Undistorted:
+    case CameraCalibrationType::Undistorted:
         return "Undistorted";
     }
-    throw std::runtime_error(fmt::format(
-        "Invalid CameraDeviceType ({}) in stringify_camera_device_type.", camera_device_type));
+    throw std::runtime_error(
+        fmt::format("Invalid CameraCalibrationType ({}) in stringify_camera_calibration_type.",
+                    camera_calibration_type));
 }
-}
+} // namespace rgbd

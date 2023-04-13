@@ -34,7 +34,7 @@ public:
     static KinectCameraCalibration fromJson(const json& json);
     Bytes toBytes() const noexcept;
     json toJson() const noexcept;
-    CameraDeviceType getCameraDeviceType() const noexcept;
+    CameraCalibrationType getCameraCalibrationType() const noexcept;
     int getColorWidth() const noexcept;
     int getColorHeight() const noexcept;
     int getDepthWidth() const noexcept;

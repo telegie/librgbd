@@ -202,9 +202,9 @@ json KinectCameraCalibration::toJson() const noexcept
                 {"maxRadiusForProjection", max_radius_for_projection_}};
 }
 
-CameraDeviceType KinectCameraCalibration::getCameraDeviceType() const noexcept
+CameraCalibrationType KinectCameraCalibration::getCameraCalibrationType() const noexcept
 {
-    return CameraDeviceType::AzureKinect;
+    return CameraCalibrationType::AzureKinect;
 }
 
 int KinectCameraCalibration::getColorWidth() const noexcept

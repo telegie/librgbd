@@ -175,9 +175,9 @@ json IosCameraCalibration::toJson() const noexcept
                 {"inverseLensDistortionLookupTable", inverse_lens_distortion_lookup_table_}};
 }
 
-CameraDeviceType IosCameraCalibration::getCameraDeviceType() const noexcept
+CameraCalibrationType IosCameraCalibration::getCameraCalibrationType() const noexcept
 {
-    return CameraDeviceType::IOS;
+    return CameraCalibrationType::IOS;
 }
 
 int IosCameraCalibration::getColorWidth() const noexcept
