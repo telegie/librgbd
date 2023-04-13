@@ -2,25 +2,25 @@ import RGBD from '../rgbd';
 import { NativeFloatArray } from './capi_containers';
 import { NativeObject } from './native_object';
 
-export enum CameraDeviceType {
+export enum CameraCalibrationType {
   AZURE_KINECT = 0,
   IOS = 1,
   UNDISTORTED = 2
 }
 
 export class CameraCalibration {
-  cameraDeviceType: CameraDeviceType;
+  cameraCalibrationType: CameraCalibrationType;
   colorWidth: number;
   colorHeight: number;
   depthWidth: number;
   depthHeight: number;
 
-  constructor(cameraDeviceType: CameraDeviceType,
+  constructor(cameraCalibrationType: CameraCalibrationType,
               colorWidth: number,
               colorHeight: number,
               depthWidth: number,
               depthHeight: number) {
-    this.cameraDeviceType = cameraDeviceType;
+    this.cameraCalibrationType = cameraCalibrationType;
     this.colorWidth = colorWidth;
     this.colorHeight = colorHeight;
     this.depthWidth = depthWidth;
@@ -28,13 +28,13 @@ export class CameraCalibration {
   }
 
   static fromNative(nativeCameraCalibration: NativeCameraCalibration) {
-    const cameraDeviceType = nativeCameraCalibration.getCameraDeviceType();
-    switch(cameraDeviceType) {
-      case CameraDeviceType.AZURE_KINECT:
+    const cameraCalibrationType = nativeCameraCalibration.getType();
+    switch(cameraCalibrationType) {
+      case CameraCalibrationType.AZURE_KINECT:
         return KinectCameraCalibration.fromNative(nativeCameraCalibration as NativeKinectCameraCalibration);
-      case CameraDeviceType.IOS:
+      case CameraCalibrationType.IOS:
         return IosCameraCalibration.fromNative(nativeCameraCalibration as NativeIosCameraCalibration);
-      case CameraDeviceType.UNDISTORTED:
+      case CameraCalibrationType.UNDISTORTED:
         return UndistortedCameraCalibration.fromNative(nativeCameraCalibration as NativeUndistortedCameraCalibration);
     }
     throw Error('Failed to infer device type in fromNative.create');
@@ -72,7 +72,7 @@ export class KinectCameraCalibration extends CameraCalibration {
               codx: number, cody: number,
               p1: number, p2: number,
               maxRadiusForProjection: number) {
-    super(CameraDeviceType.AZURE_KINECT, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(CameraCalibrationType.AZURE_KINECT, colorWidth, colorHeight, depthWidth, depthHeight);
     this.resolutionWidth = resolutionWidth;
     this.resolutionHeight = resolutionHeight;
     this.cx = cx;
@@ -93,9 +93,9 @@ export class KinectCameraCalibration extends CameraCalibration {
   }
 
   static fromNative(nativeKinectCameraCalibration: NativeKinectCameraCalibration) {
-    const cameraDeviceType = nativeKinectCameraCalibration.getCameraDeviceType();
-    if (cameraDeviceType !== CameraDeviceType.AZURE_KINECT)
-      throw new Error("cameraDeviceType !== CameraDeviceType.AZURE_KINECT");
+    const cameraCalibrationType = nativeKinectCameraCalibration.getType();
+    if (cameraCalibrationType !== CameraCalibrationType.AZURE_KINECT)
+      throw new Error("cameraCalibrationType !== CameraCalibrationType.AZURE_KINECT");
     const colorWidth = nativeKinectCameraCalibration.getColorWidth();
     const colorHeight = nativeKinectCameraCalibration.getColorHeight();
     const depthWidth = nativeKinectCameraCalibration.getDepthWidth();
@@ -166,7 +166,7 @@ export class IosCameraCalibration extends CameraCalibration {
               lensDistortionCenterX: number, lensDistortionCenterY: number,
               lensDistortionLookupTable: Float32Array,
               inverseLensDistortionLookupTable: Float32Array) {
-    super(CameraDeviceType.IOS, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(CameraCalibrationType.IOS, colorWidth, colorHeight, depthWidth, depthHeight);
     this.fx = fx;
     this.fy = fy;
     this.ox = ox;
@@ -180,9 +180,9 @@ export class IosCameraCalibration extends CameraCalibration {
   }
 
   static fromNative(nativeIosCameraCalibration: NativeIosCameraCalibration) {
-    const cameraDeviceType = nativeIosCameraCalibration.getCameraDeviceType();
-    if (cameraDeviceType !== CameraDeviceType.IOS)
-      throw new Error("cameraDeviceType !== CameraDeviceType.IOS");
+    const cameraCalibrationType = nativeIosCameraCalibration.getType();
+    if (cameraCalibrationType !== CameraCalibrationType.IOS)
+      throw new Error("cameraCalibrationType !== CameraCalibrationType.IOS");
     const colorWidth = nativeIosCameraCalibration.getColorWidth();
     const colorHeight = nativeIosCameraCalibration.getColorHeight();
     const depthWidth = nativeIosCameraCalibration.getDepthWidth();
@@ -244,7 +244,7 @@ export class UndistortedCameraCalibration extends CameraCalibration {
   constructor(colorWidth: number, colorHeight: number,
               depthWidth: number, depthHeight: number,
               fx: number, fy: number, cx: number, cy: number) {
-    super(RGBD.CameraDeviceType.UNDISTORTED, colorWidth, colorHeight, depthWidth, depthHeight);
+    super(RGBD.CameraCalibrationType.UNDISTORTED, colorWidth, colorHeight, depthWidth, depthHeight);
     this.fx = fx;
     this.fy = fy;
     this.cx = cx;
@@ -252,9 +252,9 @@ export class UndistortedCameraCalibration extends CameraCalibration {
   }
 
   static fromNative(nativeUndistortedCameraCalibration: NativeUndistortedCameraCalibration) {
-    const cameraDeviceType = nativeUndistortedCameraCalibration.getCameraDeviceType();
-    if (cameraDeviceType !== CameraDeviceType.UNDISTORTED)
-      throw new Error("cameraDeviceType !== CameraDeviceType.UNDISTORTED");
+    const cameraCalibrationType = nativeUndistortedCameraCalibration.getType();
+    if (cameraCalibrationType !== CameraCalibrationType.UNDISTORTED)
+      throw new Error("cameraCalibrationType !== CameraCalibrationType.UNDISTORTED");
     const colorWidth = nativeUndistortedCameraCalibration.getColorWidth();
     const colorHeight = nativeUndistortedCameraCalibration.getColorHeight();
     const depthWidth = nativeUndistortedCameraCalibration.getDepthWidth();
@@ -299,21 +299,21 @@ export class NativeCameraCalibration extends NativeObject {
   // Use this instead of the raw init to create an instance
   // containing the class information matching its corresponding C++ instance.
   static create(wasmModule: any, ptr: number, owner: boolean) {
-    const cameraDeviceType = wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [ptr]);
+    const cameraCalibrationType = wasmModule.ccall('rgbd_camera_calibration_get_type', 'number', ['number'], [ptr]);
 
-    switch (cameraDeviceType) {
-      case CameraDeviceType.AZURE_KINECT:
+    switch (cameraCalibrationType) {
+      case CameraCalibrationType.AZURE_KINECT:
         return new NativeKinectCameraCalibration(wasmModule, ptr, owner)
-      case CameraDeviceType.IOS:
+      case CameraCalibrationType.IOS:
         return new NativeIosCameraCalibration(wasmModule, ptr, owner)
-      case CameraDeviceType.UNDISTORTED:
+      case CameraCalibrationType.UNDISTORTED:
         return new NativeUndistortedCameraCalibration(wasmModule, ptr, owner)
     }
     throw Error('not supported camera device type found')
   }
 
-  getCameraDeviceType(): CameraDeviceType {
-    return this.wasmModule.ccall('rgbd_camera_calibration_get_camera_device_type', 'number', ['number'], [this.ptr]);
+  getType(): CameraCalibrationType {
+    return this.wasmModule.ccall('rgbd_camera_calibration_get_type', 'number', ['number'], [this.ptr]);
   }
 
   getColorWidth(): number {
