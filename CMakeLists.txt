@@ -405,7 +405,7 @@ if(RGBD_OS_WINDOWS OR RGBD_OS_MAC OR RGBD_OS_LINUX)
   install(TARGETS rgbd-shared DESTINATION bin)
   install(TARGETS rgbd-static DESTINATION lib)
   install(TARGETS rgbd-cli DESTINATION bin)
-  install(FILES ${CMAKE_SOURCE_DIR}/include/rgbd/rgbd_capi.h
+  install(FILES ${PROJECT_SOURCE_DIR}/include/rgbd/rgbd_capi.h
           DESTINATION include/rgbd)
 endif()
 
