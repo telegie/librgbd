@@ -149,6 +149,93 @@ PYBIND11_MODULE(pyrgbd, m)
         });
     // END depth_encoder.hpp
 
+    // BEGIN frame_mapper.hpp
+    py::class_<FrameMapper>(m, "FrameMapper")
+        .def(py::init<const rgbd::CameraCalibration&, const rgbd::CameraCalibration&>())
+        .def("map_color_frame", &FrameMapper::mapColorFrame)
+        .def("map_depth_frame", &FrameMapper::mapDepthFrame);
+    // END frame_mapper.hpp
+
+    // BEGIN integer_frame.hpp
+    py::class_<Int32Frame>(m, "Int32Frame")
+        .def(py::init([](const py::array_t<int32_t> array) {
+            py::buffer_info buffer{array.request()};
+            int width{gsl::narrow<int>(buffer.shape[1])};
+            int height{gsl::narrow<int>(buffer.shape[0])};
+            return Int32Frame{width, height, static_cast<int32_t*>(buffer.ptr)};
+        }))
+        .def_property_readonly("width", &Int32Frame::width)
+        .def_property_readonly("height", &Int32Frame::height)
+        .def("get_values", [](const Int32Frame& frame) {
+            py::array_t<int32_t> array(frame.values().size(), frame.values().data());
+            array = array.reshape({frame.height(), frame.width()});
+            return array;
+        })
+        .def(py::pickle(
+            [](const Int32Frame& frame) { // dump
+                return py::make_tuple(frame.width(), frame.height(), frame.values());
+            },
+            [](py::tuple t) { // load
+                int width{t[0].cast<int>()};
+                int height{t[1].cast<int>()};
+                auto values{t[2].cast<vector<int32_t>>()};
+
+                return Int32Frame{width, height, values};
+            }
+        ));
+    // END integer_frame.hpp
+
+    // BEGIN ios_camera_distortion.hpp
+    py::class_<IosCameraCalibration,
+               CameraCalibration,
+               std::shared_ptr<IosCameraCalibration>>(m, "IosCameraCalibration")
+        .def(py::init<int, int, int, int, float, float, float, float, float, float, float, float, span<const float>, span<const float>>())
+        .def_property_readonly("fx", &IosCameraCalibration::fx)
+        .def_property_readonly("fy", &IosCameraCalibration::fy)
+        .def_property_readonly("ox", &IosCameraCalibration::ox)
+        .def_property_readonly("oy", &IosCameraCalibration::oy)
+        .def_property_readonly("reference_dimension_width", &IosCameraCalibration::reference_dimension_width)
+        .def_property_readonly("reference_dimension_height", &IosCameraCalibration::reference_dimension_height)
+        .def_property_readonly("lens_distortion_center_x", &IosCameraCalibration::lens_distortion_center_x)
+        .def_property_readonly("lens_distortion_center_y", &IosCameraCalibration::lens_distortion_center_y);
+    // END undistorted_camera_distortion.hpp
+
+    // BEGIN math_utils.hpp
+    py::class_<MathUtils>(m, "MathUtils")
+        .def_static("apply_rotation_rate_and_gravity_to_rotation",
+                    [](const py::object& py_rotation,
+                       float delta_time_sec,
+                       const py::object& py_rotation_rate,
+                       const py::object& py_gravity) {
+                        auto rotation{read_py_quat(py_rotation)};
+                        auto rotation_rate{read_py_vec3(py_rotation_rate)};
+                        auto gravity{read_py_vec3(py_gravity)};
+                        auto new_rotation{MathUtils::applyRotationRateAndGravityToRotation(
+                            rotation, delta_time_sec, rotation_rate, gravity)};
+                        py::module_ glm{py::module_::import("glm")};
+
+                        return glm.attr("quat")(
+                            new_rotation.w, new_rotation.x, new_rotation.y, new_rotation.z);
+                    })
+        .def_static("convert_euler_angles_to_quaternion",
+                    [](const py::object& py_euler_angles) {
+                        auto euler_angles{read_py_vec3(py_euler_angles)};
+                        auto quat{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
+                        py::module_ glm{py::module_::import("glm")};
+                        return glm.attr("quat")(quat.w, quat.x, quat.y, quat.z);
+                    })
+        .def_static("compute_gravity_compensating_euler_angles",
+                    [](const py::object& py_gravity) {
+                        auto gravity{read_py_vec3(py_gravity)};
+                        auto euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
+                        py::module_ glm{py::module_::import("glm")};
+                        return glm.attr("vec3")(euler_angles.x, euler_angles.y, euler_angles.z);
+                    });
+
+
+                    
+    // END math_utils.hpp
+
     // BEGIN record.hpp
     py::class_<RecordOffsets>(m, "RecordOffsets")
         .def(py::init())
@@ -323,93 +410,6 @@ PYBIND11_MODULE(pyrgbd, m)
         .def(py::init<const string&>())
         .def("parse", &RecordParser::parse);
     // END record_parser.hpp
-
-    // BEGIN frame_mapper.hpp
-    py::class_<FrameMapper>(m, "FrameMapper")
-        .def(py::init<const rgbd::CameraCalibration&, const rgbd::CameraCalibration&>())
-        .def("map_color_frame", &FrameMapper::mapColorFrame)
-        .def("map_depth_frame", &FrameMapper::mapDepthFrame);
-    // END frame_mapper.hpp
-
-    // BEGIN integer_frame.hpp
-    py::class_<Int32Frame>(m, "Int32Frame")
-        .def(py::init([](const py::array_t<int32_t> array) {
-            py::buffer_info buffer{array.request()};
-            int width{gsl::narrow<int>(buffer.shape[1])};
-            int height{gsl::narrow<int>(buffer.shape[0])};
-            return Int32Frame{width, height, static_cast<int32_t*>(buffer.ptr)};
-        }))
-        .def_property_readonly("width", &Int32Frame::width)
-        .def_property_readonly("height", &Int32Frame::height)
-        .def("get_values", [](const Int32Frame& frame) {
-            py::array_t<int32_t> array(frame.values().size(), frame.values().data());
-            array = array.reshape({frame.height(), frame.width()});
-            return array;
-        })
-        .def(py::pickle(
-            [](const Int32Frame& frame) { // dump
-                return py::make_tuple(frame.width(), frame.height(), frame.values());
-            },
-            [](py::tuple t) { // load
-                int width{t[0].cast<int>()};
-                int height{t[1].cast<int>()};
-                auto values{t[2].cast<vector<int32_t>>()};
-
-                return Int32Frame{width, height, values};
-            }
-        ));
-    // END integer_frame.hpp
-
-    // BEGIN ios_camera_distortion.hpp
-    py::class_<IosCameraCalibration,
-               CameraCalibration,
-               std::shared_ptr<IosCameraCalibration>>(m, "IosCameraCalibration")
-        .def(py::init<int, int, int, int, float, float, float, float, float, float, float, float, span<const float>, span<const float>>())
-        .def_property_readonly("fx", &IosCameraCalibration::fx)
-        .def_property_readonly("fy", &IosCameraCalibration::fy)
-        .def_property_readonly("ox", &IosCameraCalibration::ox)
-        .def_property_readonly("oy", &IosCameraCalibration::oy)
-        .def_property_readonly("reference_dimension_width", &IosCameraCalibration::reference_dimension_width)
-        .def_property_readonly("reference_dimension_height", &IosCameraCalibration::reference_dimension_height)
-        .def_property_readonly("lens_distortion_center_x", &IosCameraCalibration::lens_distortion_center_x)
-        .def_property_readonly("lens_distortion_center_y", &IosCameraCalibration::lens_distortion_center_y);
-    // END undistorted_camera_distortion.hpp
-
-    // BEGIN math_utils.hpp
-    py::class_<MathUtils>(m, "MathUtils")
-        .def_static("apply_rotation_rate_and_gravity_to_rotation",
-                    [](const py::object& py_rotation,
-                       float delta_time_sec,
-                       const py::object& py_rotation_rate,
-                       const py::object& py_gravity) {
-                        auto rotation{read_py_quat(py_rotation)};
-                        auto rotation_rate{read_py_vec3(py_rotation_rate)};
-                        auto gravity{read_py_vec3(py_gravity)};
-                        auto new_rotation{MathUtils::applyRotationRateAndGravityToRotation(
-                            rotation, delta_time_sec, rotation_rate, gravity)};
-                        py::module_ glm{py::module_::import("glm")};
-
-                        return glm.attr("quat")(
-                            new_rotation.w, new_rotation.x, new_rotation.y, new_rotation.z);
-                    })
-        .def_static("convert_euler_angles_to_quaternion",
-                    [](const py::object& py_euler_angles) {
-                        auto euler_angles{read_py_vec3(py_euler_angles)};
-                        auto quat{MathUtils::convertEulerAnglesToQuaternion(euler_angles)};
-                        py::module_ glm{py::module_::import("glm")};
-                        return glm.attr("quat")(quat.w, quat.x, quat.y, quat.z);
-                    })
-        .def_static("compute_gravity_compensating_euler_angles",
-                    [](const py::object& py_gravity) {
-                        auto gravity{read_py_vec3(py_gravity)};
-                        auto euler_angles{MathUtils::computeGravityCompensatingEulerAngles(gravity)};
-                        py::module_ glm{py::module_::import("glm")};
-                        return glm.attr("vec3")(euler_angles.x, euler_angles.y, euler_angles.z);
-                    });
-
-
-                    
-    // END math_utils.hpp
 
     // BEGIN undistorted_camera_distortion.hpp
     py::class_<UndistortedCameraCalibration,
