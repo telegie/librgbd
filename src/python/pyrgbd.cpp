@@ -69,7 +69,7 @@ PYBIND11_MODULE(pyrgbd, m)
 
     // BEGIN camera_calibration.hpp
     py::class_<CameraCalibration, std::shared_ptr<CameraCalibration>>(m, "CameraCalibration")
-        .def_property_readonly("camera_calibration_type", &CameraCalibration::getType)
+        .def_property_readonly("type", &CameraCalibration::getType)
         .def_property_readonly("color_width", &CameraCalibration::getColorWidth)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
@@ -359,6 +359,21 @@ PYBIND11_MODULE(pyrgbd, m)
             }
         ));
     // END integer_frame.hpp
+
+    // BEGIN ios_camera_distortion.hpp
+    py::class_<IosCameraCalibration,
+               CameraCalibration,
+               std::shared_ptr<IosCameraCalibration>>(m, "IosCameraCalibration")
+        .def(py::init<int, int, int, int, float, float, float, float, float, float, float, float, span<const float>, span<const float>>())
+        .def_property_readonly("fx", &IosCameraCalibration::fx)
+        .def_property_readonly("fy", &IosCameraCalibration::fy)
+        .def_property_readonly("ox", &IosCameraCalibration::ox)
+        .def_property_readonly("oy", &IosCameraCalibration::oy)
+        .def_property_readonly("reference_dimension_width", &IosCameraCalibration::reference_dimension_width)
+        .def_property_readonly("reference_dimension_height", &IosCameraCalibration::reference_dimension_height)
+        .def_property_readonly("lens_distortion_center_x", &IosCameraCalibration::lens_distortion_center_x)
+        .def_property_readonly("lens_distortion_center_y", &IosCameraCalibration::lens_distortion_center_y);
+    // END undistorted_camera_distortion.hpp
 
     // BEGIN math_utils.hpp
     py::class_<MathUtils>(m, "MathUtils")
