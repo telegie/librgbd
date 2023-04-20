@@ -99,8 +99,8 @@ def build_x64_linux_binaries(disable_pybind):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--rebuild", action="store_true")
-    parser.add_argument("--disable-pybind", action="store_true")
+    parser.add_argument("--rebuild", action="store_true", default=False)
+    parser.add_argument("--disable-pybind", action="store_true", default=False)
     args = parser.parse_args()
 
     here = Path(__file__).parent.resolve()
