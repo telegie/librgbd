@@ -24,7 +24,7 @@ skip = [
     "pp*",
     "*-win32",
     "*linux*",
-    "*win_amd64*,
+    "*win_amd64*",
     "*musllinux*",
     "*linux_i686",
     "*linux_aarch64",
