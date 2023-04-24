@@ -33,18 +33,17 @@ environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
 manylinux-x86_64-image = "manylinux_2_28"
 
 before-build = [
-    "git submodule update --init --recursive",
     "pip install ninja",
     "python3 bootstrap.py"
 ]
 build-verbosity = 3
 
-[[tool.cibuildwheel.overrides]]
-select = "*win_amd64*"
-before-build = [
-    "git submodule update --init --recursive",
-    "python3 bootstrap.py"
-]
+# [[tool.cibuildwheel.overrides]]
+# select = "*win_amd64*"
+# before-build = [
+#     "git submodule update --init --recursive",
+#     "python3 bootstrap.py"
+# ]
 
 [build-system]
 requires = ["setuptools", "wheel", "cmake", "ninja"]

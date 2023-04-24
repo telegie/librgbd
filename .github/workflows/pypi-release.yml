@@ -17,9 +17,9 @@ jobs:
         with:
           submodules: recursive
 
-    - name: Add msbuild to PATH
-      if: runner.os == 'Windows'
-      uses: microsoft/setup-msbuild@v1.1
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.1
