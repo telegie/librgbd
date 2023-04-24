@@ -12,17 +12,17 @@ jobs:
         os: [ubuntu-22.04, windows-2022, macos-12]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+    - name: Add msbuild to PATH
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v1.1
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.12.1
-        # env:
-        #   CIBW_SOME_OPTION: value
-        #    ...
-        # with:
-        #   package-dir: .
-        #   output-dir: wheelhouse
-        #   config-file: "{package}/pyproject.toml"
 
       # - uses: actions/upload-artifact@v3
       #   with:
