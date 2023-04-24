@@ -39,6 +39,13 @@ before-build = [
 ]
 build-verbosity = 3
 
+[[tool.cibuildwheel.overrides]]
+select = "*win_amd64*"
+before-build = [
+    "git submodule update --init --recursive",
+    "python3 bootstrap.py"
+]
+
 [build-system]
 requires = ["setuptools", "wheel", "cmake", "ninja"]
 build-backend = "setuptools.build_meta"
