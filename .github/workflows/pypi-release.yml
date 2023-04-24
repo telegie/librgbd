@@ -1,0 +1,29 @@
+name: Build
+on:
+  push:
+    branches:
+      - pypi-release
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, windows-2022, macos-12]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.12.1
+        # env:
+        #   CIBW_SOME_OPTION: value
+        #    ...
+        # with:
+        #   package-dir: .
+        #   output-dir: wheelhouse
+        #   config-file: "{package}/pyproject.toml"
+
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     path: ./wheelhouse/*.whl

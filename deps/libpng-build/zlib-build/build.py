@@ -62,7 +62,8 @@ def build_x64_linux_binaries():
                     "-S", f"{here}/zlib",
                     "-B", f"{here}/build/x64-linux",
                     "-G", "Ninja",
-                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux"],
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux",
+                    "-D", "CMAKE_C_FLAGS=-fPIC"],
                    check=True)
     subprocess.run(["ninja"], cwd=f"{here}/build/x64-linux", check=True)
     subprocess.run(["ninja", "install"], cwd=f"{here}/build/x64-linux", check=True)
