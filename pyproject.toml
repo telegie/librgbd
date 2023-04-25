@@ -15,22 +15,22 @@ requests = "^2.28.2"
 
 [tool.cibuildwheel]
 build = ["cp311-*", "*-macosx_x86_64", "*-manylinux_x86_64"]
-# skip = [
-#     "cp36-*",
-#     "cp37-*",
-#     "cp38-*",
-#     "cp39-*",
-#     "cp310*",
-#     "pp*",
-#     "*-win32",
-#     "*-win_amd64",
-#     "*-win_arm64",
-#     "*musllinux*",
-#     "*linux_i686",
-#     "*linux_aarch64",
-#     "*linux_ppc64le",
-#     "*linux_s390x",
-# ]
+skip = [
+#    "cp36-*",
+#    "cp37-*",
+#    "cp38-*",
+#    "cp39-*",
+#    "cp310*",
+#    "pp*",
+    "*-win32",
+    "*-win_amd64",
+    "*-win_arm64",
+    "*musllinux*",
+    "*linux_i686",
+    "*linux_aarch64",
+    "*linux_ppc64le",
+    "*linux_s390x",
+]
 environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
 manylinux-x86_64-image = "manylinux_2_28"
 
