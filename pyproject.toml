@@ -23,6 +23,7 @@ skip = [
     "cp310*",
     "pp*",
     "*-win32",
+    "*-win_amd64",
     "*musllinux*",
     "*linux_i686",
     "*linux_aarch64",
