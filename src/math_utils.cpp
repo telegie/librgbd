@@ -118,4 +118,42 @@ void MathUtils::convertGravityToThetaAndPsi(const glm::vec3& gravity, float& the
     if (glm::abs(gravity_direction.y) > 0.0001f)
         psi = glm::atan(-gravity_direction.x, -gravity_direction.y);
 }
+
+void MathUtils::convertRGBToYuv420(int width,
+                                   int height,
+                                   uint8_t* r_channel,
+                                   uint8_t* g_channel,
+                                   uint8_t* b_channel,
+                                   uint8_t* y_channel,
+                                   uint8_t* u_channel,
+                                   uint8_t* v_channel)
+{
+    // refernece: https://learn.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#converting-rgb888-to-yuv-444
+    int size{width * height};
+    for (int index{0}; index < size; ++index)
+        y_channel[index] = ((66 * r_channel[index] + 129 * g_channel[index] + 25 * b_channel[index] + 128) >> 8) + 16;
+
+    int uv_width{width / 2};
+    int uv_height{height / 2};
+    for (int uv_row{0}; uv_row < uv_height; ++uv_row) {
+        int row{uv_row + uv_row};
+        for (int uv_col{0}; uv_col < uv_width; ++uv_col) {
+            int col{uv_col + uv_col};
+            int uv_index{uv_col + uv_row * uv_width};
+            int index{col + row * width};
+            u_channel[uv_index] = ((-38 * r_channel[index] - 74 * g_channel[index] + 112 * b_channel[index] + 128) >> 8) + 128;
+            v_channel[uv_index] = ((112 * r_channel[index] - 94 * g_channel[index] - 18 * b_channel[index] + 128) >> 8) + 128;
+        }
+    }
+
+    // spdlog::info("width: {}, height: {}", width, height);
+    // int size{width * height};
+    // for (int index{0}; index < size; ++index) {
+    //     y_channel[index] = 128;
+    // }
+    // for (int index{0}; index < (size / 4); ++index) {
+    //     u_channel[index] = 255;
+    //     v_channel[index] = 0;
+    // }
+}
 }
