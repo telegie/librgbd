@@ -18,9 +18,6 @@ build = ["cp311-*", "*-macosx_x86_64", "*-manylinux_x86_64"]
 skip = [
     "cp36-*",
     "cp37-*",
-    "cp38-*",
-    "cp39-*",
-    "cp310*",
     "pp*",
     "*-win32",
     "*-win_amd64",
