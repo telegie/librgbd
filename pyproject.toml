@@ -16,8 +16,8 @@ requests = "^2.28.2"
 [tool.cibuildwheel]
 build = ["cp311-*", "*-macosx_x86_64", "*-manylinux_x86_64"]
 skip = [
-    "cp36-*",
-    "cp37-*",
+#    "cp36-*",
+#    "cp37-*",
     "pp*",
     "*-win32",
     "*-win_amd64",
