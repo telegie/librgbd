@@ -132,6 +132,7 @@ setup(
     name="pyrgbd",
     version="0.1.0",
     description="Library for reading and writing RGBD videos.",
+    long_description_content_type="test",
     ext_modules=[CMakeExtension("pyrgbd")],
     cmdclass={"build_ext": CMakeBuild},
     install_requires=["numpy", "pyglm"]
