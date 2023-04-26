@@ -130,8 +130,12 @@ void MathUtils::convertRGBToYuv420(int width,
 {
     // refernece: https://learn.microsoft.com/en-us/windows/win32/medfound/recommended-8-bit-yuv-formats-for-video-rendering#converting-rgb888-to-yuv-444
     int size{width * height};
-    for (int index{0}; index < size; ++index)
-        y_channel[index] = ((66 * r_channel[index] + 129 * g_channel[index] + 25 * b_channel[index] + 128) >> 8) + 16;
+    for (int index{0}; index < size; ++index) {
+        int r{r_channel[index]};
+        int g{g_channel[index]};
+        int b{b_channel[index]};
+        y_channel[index] = ((66 * r + 129 * g + 25 * b + 128) >> 8) + 16;
+    }
 
     int uv_width{width / 2};
     int uv_height{height / 2};
@@ -141,19 +145,12 @@ void MathUtils::convertRGBToYuv420(int width,
             int col{uv_col + uv_col};
             int uv_index{uv_col + uv_row * uv_width};
             int index{col + row * width};
-            u_channel[uv_index] = ((-38 * r_channel[index] - 74 * g_channel[index] + 112 * b_channel[index] + 128) >> 8) + 128;
-            v_channel[uv_index] = ((112 * r_channel[index] - 94 * g_channel[index] - 18 * b_channel[index] + 128) >> 8) + 128;
+            int r{r_channel[index]};
+            int g{g_channel[index]};
+            int b{b_channel[index]};
+            u_channel[uv_index] = ((-38 * r - 74 * g + 112 * b + 128) >> 8) + 128;
+            v_channel[uv_index] = ((112 * r - 94 * g - 18 * b + 128) >> 8) + 128;
         }
     }
-
-    // spdlog::info("width: {}, height: {}", width, height);
-    // int size{width * height};
-    // for (int index{0}; index < size; ++index) {
-    //     y_channel[index] = 128;
-    // }
-    // for (int index{0}; index < (size / 4); ++index) {
-    //     u_channel[index] = 255;
-    //     v_channel[index] = 0;
-    // }
 }
 }
