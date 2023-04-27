@@ -37,7 +37,7 @@ jobs:
   upload_pypi:
     needs: build_wheels
     runs-on: ubuntu-22.04
-    if: github.event_name == 'push'
+    if: github.event_name == 'release' && github.event.action == 'published' && github.event.release.name == 'pypi-push'
     steps:
       - uses: actions/download-artifact@v3
         with:

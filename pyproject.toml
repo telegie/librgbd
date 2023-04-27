@@ -20,11 +20,10 @@ skip = [
     "cp37-*",
     "cp38-*",
     "cp39-*",
-#    "cp310-*",
-#    "cp311-*",
+    "cp310-*",
+    "cp311-*",
     "pp*",
     "*-win32",
-    "*linux", # skip all linux until tests pass
     "*-win_amd64",
     "*-win_arm64",
     "*musllinux*",
