@@ -320,6 +320,14 @@ extern "C"
     RGBD_INTERFACE_EXPORT void*
     rgbd_math_utils_convert_euler_angles_to_quaternion(void* euler_angles_ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_math_utils_convert_rgb_to_yuv420(int width,
+                                                                     int height,
+                                                                     uint8_t* r_channel,
+                                                                     uint8_t* g_channel,
+                                                                     uint8_t* b_channel,
+                                                                     uint8_t* y_channel,
+                                                                     uint8_t* u_channel,
+                                                                     uint8_t* v_channel);
     //////// END MATH UTILS ////////
 
     //////// START RECORD BYTES BUILDER ////////

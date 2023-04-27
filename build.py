@@ -99,14 +99,14 @@ def build_x64_linux_binaries(disable_pybind):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--rebuild", action="store_true")
-    parser.add_argument("--disable-pybind", action="store_true")
-    parser_args, _ = parser.parse_known_args()
+    parser.add_argument("--rebuild", action="store_true", default=False)
+    parser.add_argument("--disable-pybind", action="store_true", default=False)
+    args = parser.parse_args()
 
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/bootstrap.py"] + sys.argv[1:], check=True)
     build_path = Path(f"{here}/build")
-    if parser_args.rebuild and build_path.exists():
+    if args.rebuild and build_path.exists():
         shutil.rmtree(build_path)
 
     if platform.system() == "Windows":
@@ -114,14 +114,14 @@ def main():
         return
     elif platform.system() == "Darwin":
         if platform.machine() == "arm64":
-            build_arm64_mac_binaries(parser_args.disable_pybind)
+            build_arm64_mac_binaries(args.disable_pybind)
             build_x64_mac_binaries()
             merge_mac_binaries()
         elif platform.machine() == "x86_64":
             build_x64_mac_binaries()
         return
     elif platform.system() == "Linux":
-        build_x64_linux_binaries(parser_args.disable_pybind)
+        build_x64_linux_binaries(args.disable_pybind)
         return
 
     raise Exception(f"librgbd build not supported.")

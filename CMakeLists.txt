@@ -213,6 +213,7 @@ set(RGBD_SOURCES
   include/rgbd/rvl_encoder.hpp
   include/rgbd/tdc1_decoder.hpp
   include/rgbd/tdc1_encoder.hpp
+  include/rgbd/time.hpp
   include/rgbd/undistorted_camera_calibration.hpp
   include/rgbd/video_folder.hpp
   include/rgbd/video_frame.hpp
@@ -249,6 +250,7 @@ set(RGBD_SOURCES
   src/rvl_encoder.cpp
   src/tdc1_decoder.cpp
   src/tdc1_encoder.cpp
+  src/time.cpp
   src/undistorted_camera_calibration.cpp
   src/video_folder.cpp
   src/video_frame.cpp
@@ -273,6 +275,7 @@ set(RgbdCompileDefinitions
   CMAKE_RGBD_VERSION_MINOR=${RGBD_VERSION_MINOR}
   CMAKE_RGBD_VERSION_PATCH=${RGBD_VERSION_PATCH}
   CMAKE_RGBD_VIDEOS_DIR="${PROJECT_SOURCE_DIR}/videos"
+  GLM_FORCE_SILENT_WARNINGS
 )
 
 if(RGBD_OS_WINDOWS)

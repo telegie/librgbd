@@ -734,6 +734,20 @@ void* rgbd_math_utils_convert_quaternion_to_euler_angles(void* quat_ptr)
     glm::vec3 euler_angles{MathUtils::convertQuaternionToEulerAngles(*quat)};
     return new NativeVector3{euler_angles};
 }
+
+void rgbd_math_utils_convert_rgb_to_yuv420(int width,
+                                           int height,
+                                           uint8_t* r_channel,
+                                           uint8_t* g_channel,
+                                           uint8_t* b_channel,
+                                           uint8_t* y_channel,
+                                           uint8_t* u_channel,
+                                           uint8_t* v_channel)
+{
+    MathUtils::convertRGBToYuv420(width, height,
+                                  r_channel, g_channel, b_channel,
+                                  y_channel, u_channel, v_channel);
+}
 //////// END MATH UTILS ////////
 
 //////// START RECORD ////////
