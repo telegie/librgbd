@@ -99,6 +99,9 @@ class CMakeBuild(build_ext):
                 build_args += ["--config", cfg]
 
         if sys.platform.startswith("darwin"):
+            # Allow C++17 and above
+            cmake_args += ["-DCMAKE_OSX_DEPLOYMENT_TARGET=10.15"]
+            
             # Cross-compile support for macOS - respect ARCHFLAGS if set
             archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
             if archs:
@@ -120,15 +123,17 @@ class CMakeBuild(build_ext):
         subprocess.run(
             ["cmake", ext.sourcedir, *cmake_args], cwd=build_temp, check=True
         )
+
         subprocess.run(
             ["cmake", "--build", ".", *build_args], cwd=build_temp, check=True
         )
 
-
 setup(
     name="pyrgbd",
-    version="0.1.0",
+    version="0.1.1",
     description="Library for reading and writing RGBD videos.",
+    long_description_content_type="text/markdown",
+    long_description="README",
     ext_modules=[CMakeExtension("pyrgbd")],
     cmdclass={"build_ext": CMakeBuild},
     install_requires=["numpy", "pyglm"]

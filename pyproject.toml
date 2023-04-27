@@ -10,9 +10,35 @@ python = "^3.9.0"
 numpy = "^1.23.2"
 pyglm = "^2.6.0"
 
-
 [tool.poetry.group.dev.dependencies]
 requests = "^2.28.2"
+
+[tool.cibuildwheel]
+build = ["cp311-*", "*-macosx_x86_64", "*-manylinux_x86_64"]
+skip = [
+#### Do not skip any python versions until they start breaking
+#    "cp36-*",
+#    "cp37-*",
+#    "cp38-*",
+#    "cp39-*",
+#    "cp310-*",
+#    "cp311-*",
+    "pp*",
+    "*-win32",
+    "*-win_amd64",
+    "*-win_arm64",
+    "*musllinux*",
+    "*linux_i686",
+    "*linux_aarch64",
+    "*linux_ppc64le",
+    "*linux_s390x",
+]
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
+manylinux-x86_64-image = "manylinux_2_28"
+before-build = [
+    "pip install ninja",
+    "python3 bootstrap.py --rebuild"
+]
 
 [build-system]
 requires = ["setuptools", "wheel", "cmake", "ninja"]

@@ -99,6 +99,7 @@ def build_x64_linux_binaries():
                     "-B", f"{here}/build/x64-linux",
                     "-G", "Ninja",
                     "-D", f"CMAKE_INSTALL_PREFIX={here}/output/x64-linux",
+                    "-D", f"CMAKE_INSTALL_LIBDIR=lib",
                     "-D", f"ZLIB_ROOT={here}/zlib-build/output/x64-linux",
                     "-D", "PNG_SHARED=0",
                     "-D", "CMAKE_C_FLAGS=-fPIC"],

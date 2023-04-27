@@ -1,6 +1,7 @@
 /build
 /install
 /output
+/wheelhouse
 .DS_Store
 
 
