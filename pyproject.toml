@@ -35,11 +35,16 @@ skip = [
 environment = { MACOSX_DEPLOYMENT_TARGET = "10.15" }
 manylinux-x86_64-image = "manylinux_2_28"
 
+[tool.cibuildwheel.macos]
+before-build = [
+    "python3 bootstrap.py"
+]
+
+[tool.cibuildwheel.linux]
 before-build = [
     "pip install ninja",
     "python3 bootstrap.py"
 ]
-build-verbosity = 3
 
 [build-system]
 requires = ["setuptools", "wheel", "cmake", "ninja"]
