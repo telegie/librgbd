@@ -78,7 +78,7 @@ elseif(RGBD_ARCH_X64)
 endif()
 set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/arm64-ios)
-set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/output/wasm32-emscripten-mt)
+set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten-mt)
 # Using the below multi-threaded version speeds up VP8 decoding a lot but
 # in iOS, causes maximum class stack size exceededing errors.
 # In Mac Safari, the speed up only lasts the first few seconds. 
@@ -140,7 +140,7 @@ elseif(RGBD_ARCH_X64)
   set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-mac)
 endif()
 set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-linux)
-set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/output/wasm32-emscripten-mt)
+set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten-mt)
 ### LIBVPX END ###
 
 ### OPUS BEGIN ###
@@ -153,7 +153,7 @@ elseif(RGBD_ARCH_X64)
 endif()
 set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
 # set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
-set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/output/wasm32-emscripten-mt)
+set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten-mt)
 ### OPUS END ###
 
 ### PYBIND11 BEGIN ###
