@@ -78,11 +78,14 @@ elseif(RGBD_ARCH_X64)
 endif()
 set(FFMPEG_LINUX_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/x64-linux)
 set(FFMPEG_IOS_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/arm64-ios)
-set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten-mt)
-# Using the below multi-threaded version speeds up VP8 decoding a lot but
-# in iOS, causes maximum class stack size exceededing errors.
-# In Mac Safari, the speed up only lasts the first few seconds. 
-# set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten-mt)
+if(WASM_USE_PTHREAD)
+  # Using the below multi-threaded version speeds up VP8 decoding a lot but
+  # in iOS, causes maximum class stack size exceededing errors.
+  # In Mac Safari, the speed up only lasts the first few seconds. 
+  set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten-mt)
+else()
+  set(FFMPEG_WASM_DIR ${FFMPEG_BINARIES_DIR}/4.4.1/wasm32-emscripten)
+endif()
 ### FFMPEG END ###
 
 ### LIBMATROSKA BEGIN ###
@@ -140,7 +143,11 @@ elseif(RGBD_ARCH_X64)
   set(LIBVPX_MAC_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-mac)
 endif()
 set(LIBVPX_LINUX_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/x64-linux)
-set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten-mt)
+if(WASM_USE_PTHREAD)
+  set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten-mt)
+else()
+  set(LIBVPX_WASM_DIR ${LIBVPX_BINARIES_DIR}/1.12.0/wasm32-emscripten)
+endif()
 ### LIBVPX END ###
 
 ### OPUS BEGIN ###
@@ -153,7 +160,11 @@ elseif(RGBD_ARCH_X64)
 endif()
 set(OPUS_LINUX_DIR ${OPUS_BINARIES_DIR}/e4d4b74/x64-linux)
 # set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
-set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten-mt)
+if(WASM_USE_PTHREAD)
+  set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten-mt)
+else()
+  set(OPUS_WASM_DIR ${OPUS_BINARIES_DIR}/e4d4b74/wasm32-emscripten)
+endif()
 ### OPUS END ###
 
 ### PYBIND11 BEGIN ###
@@ -362,8 +373,13 @@ elseif(RGBD_OS_WASM)
 
   set(RgbdLibraryWasmOptions
     "SHELL:-s USE_LIBPNG=1"
-    "-pthread"
   )
+  if(WASM_USE_PTHREAD)
+    list(APPEND RgbdLibraryWasmOptions "-pthread")
+  endif()
+
+  message("RgbdLibraryWasmOptions: ${RgbdLibraryWasmOptions}")
+
   set(RgbdLibraryWasmLinkOptions
     "-Wl,--whole-archive"
   )
