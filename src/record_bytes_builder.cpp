@@ -136,7 +136,7 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
     size_t pose_frame_index{0};
     size_t calibration_frame_index{0};
     for (auto& video_frame : video_frames_) {
-        int64_t video_time_point_us{video_frame.time_point_us()};
+        int64_t video_time_point_us{video_frame.time_point_us() - initial_video_time_point};
 
         while (audio_frame_index < audio_frames_.size()) {
             auto& audio_frame{audio_frames_[audio_frame_index]};
@@ -195,7 +195,12 @@ void RecordBytesBuilder::_build(IOCallback& io_callback)
                                                                      calibration_frame.camera_calibration()});
             ++calibration_frame_index;
         }
-        file_writer.writeVideoFrame(video_frame);
+        file_writer.writeVideoFrame(RecordVideoFrame{
+            video_time_point_us,
+            video_frame.keyframe(),
+            video_frame.color_bytes(),
+            video_frame.depth_bytes()
+        });
     }
 
     file_writer.flush();
