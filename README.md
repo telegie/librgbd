@@ -39,7 +39,7 @@ For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp
 pyrgbd is a Python binding for librgbd.
 
 ## PyPI packages
-- PyPI packages are available for Linux (x64) and macOS (x64/Apple Silicon) for CPython 3.6+. A package for Windows (x64) is not yet available, but is currently in testing. Stay tuned.
+PyPI packages are available for Linux (x64) and macOS (x64/Apple Silicon) for CPython 3.6+. A package for Windows (x64) is not yet available, but is currently in testing. Stay tuned.
 
     pip install pyrgbd
 
