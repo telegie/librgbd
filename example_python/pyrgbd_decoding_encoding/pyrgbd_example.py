@@ -245,7 +245,7 @@ def main():
     # Add imu (inertia measure unit) frames into builder
     set_pose_frames_from_imu_frames(record_bytes_builder, imu_frames)
 
-    # Save video
+    # Save file
     record_bytes_builder.build_to_path(video_record_path + "-reprocessed.mkv")
 
 
