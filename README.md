@@ -65,4 +65,11 @@ Setup
     python3 bootstrap.py --rebuild
     pip install .
 
+Run Example
 
+    # From Root directory the project
+    python3 example_python/pyrgbd_decoding_encoding/pyrgbd_example.py
+
+    # See options
+    python3 example_python/pyrgbd_decoding_encoding/pyrgbd_example.py -h
+    
