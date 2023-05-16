@@ -47,22 +47,20 @@ def decode_base64url_to_long(s: str):
 
 def acquire_rgbd_video_file_from_telegie(video_file_path: str, telegie_post_url: str):
     try:
-        if not os.path.exists(video_file_path):
-            import requests
+        import requests
 
-            if telegie_post_url.endswith("\\"):
-                telegie_post_url = telegie_post_url[0:-1]
-            base64url_video_id = telegie_post_url.split("/")[-1]
-            video_id = decode_base64url_to_long(base64url_video_id)
-            telegie_video_url = (
-                f"https://posts.telegie.com/v1/{video_id}/{video_id}.mkv"
-            )
+        if telegie_post_url.endswith("\\"):
+            telegie_post_url = telegie_post_url[0:-1]
+        base64url_video_id = telegie_post_url.split("/")[-1]
+        video_id = decode_base64url_to_long(base64url_video_id)
+        telegie_video_url = (
+            f"https://posts.telegie.com/v1/{video_id}/{video_id}.mkv"
+        )
 
-            response = requests.get(telegie_video_url)
-            with open(video_file_path, "wb+") as record:
-                record.write(response.content)
-            return True
-        return False
+        response = requests.get(telegie_video_url)
+        with open(video_file_path, "wb+") as record:
+            record.write(response.content)
+        return True
     except:
         return False
 
