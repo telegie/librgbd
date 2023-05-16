@@ -34,14 +34,6 @@ librgbd records video, audio, IMU, and camera calibration data into a single mkv
 
 For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp](src/file_parser.cpp).
 
-## pyrgbd pybind11
-
-Build: CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py install
-
-Faster linux build: python setup.py install -j8
-
-Test: python test_pyrgbd.py
-
 # pyrgbd
 
 pyrgbd is a Python binding for librgbd.
