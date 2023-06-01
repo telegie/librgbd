@@ -11,4 +11,4 @@ If you installed pyrgbd via pip install pyrgbd, the package does not include the
 
 ## pyrgbd installed via source
 1. pip install -r requirements.txt
-2. Run the examples.
+1. Run the examples.

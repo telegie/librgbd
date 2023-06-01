@@ -17,6 +17,8 @@ Core features of librgbd include:
 
 While the easiest way to capture our .mkv files is using Telegie (https://apple.co/3qaycil), librgbd aims and is designed to support RGBD videos recorded from any RGBD camera or application.
 
+A web 3D video player is available at https://telegie.com/file-player.
+
 ## Usage
 
 ### Python via Pypi (Mac and Linux)

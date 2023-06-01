@@ -16,7 +16,7 @@ def parse_arguments():
         "-u",
         "--url",
         help="telegie.com post url",
-        default="https://telegie.com/posts/A9oofdweNJ4",
+        default="https://telegie.com/posts/DTosAKtQuvc",
     )
     args = parser.parse_args()
     if (
@@ -25,7 +25,7 @@ def parse_arguments():
         == "parser.add_argument('-f', '--file', help='video file with depth')"
     ):
         print(
-            "No file or url specified. Downloading a default sample video from https://telegie.com/posts/A9oofdweNJ4"
+            "No file or url specified. Downloading a default sample video from https://telegie.com/posts/DTosAKtQuvc"
         )
     return args
 

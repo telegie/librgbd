@@ -1,28 +1,21 @@
 import pyrgbd as rgbd
 import argparse
 import examples_utils
-from PIL import Image
 import numpy as np
-import imageio
+import cv2
 
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="pyrgbd example decode",
-        description="pyrgbd example of decoding a 3D video file.",
+        prog="pyrgbd example imshow",
+        description="pyrgbd example of showing video frames using OpenCV.",
     )
-    parser.add_argument("-i", "--input", help="Path to input 3D video file")
-    parser.add_argument("-o", "--output", help="Path to output directory")
+    parser.add_argument("-i", "--input", help="path to input 3D video file")
 
     args = parser.parse_args()
     if args.input is None:
         print(
-            "No input file path specified. You can download a sample video from https://telegie.com/posts/DTosAKtQuvc"
-        )
-        return
-    if args.output is None:
-        print(
-            "No output folder path specified."
+            "No input file path specified. You can download a sample video from https://telegie.com/posts/A9oofdweNJ4"
         )
         return
 
@@ -54,20 +47,21 @@ def main():
     for video_frame in record_video_frames:
         depth_frames.append(depth_decoder.decode(video_frame.get_depth_bytes()))
 
-    # Write color video frames into .jpg and .png files.
-    for index in range(len(yuv_frames)):
+    # Write color video frames into .jpg files.
+    for index in range(len(record_video_frames)):
         yuv_frame = yuv_frames[index]
         rgb_array = examples_utils.convert_yuv_frame_to_rgb_array(yuv_frame)
 
         depth_frame = depth_frames[index]
         depth_array = depth_frame.get_values().astype(np.uint16)
 
-        # Write color frame into a .jpg file.
-        color_image = Image.fromarray(rgb_array)
-        color_image.save(f"{args.output}/color_{index:03d}.jpg")
+        # Improve visibility when shown via cv2.imshow.
+        rgb_array = cv2.cvtColor(rgb_array, cv2.COLOR_BGR2RGB)
+        depth_array = depth_array * 20
 
-        # Write depth frame into a .png file.
-        imageio.imwrite(f"{args.output}/depth_{index:03d}.png", depth_array)
+        cv2.imshow("color", rgb_array)
+        cv2.imshow("depth", depth_array)
+        cv2.waitKey(1)
 
 
 if __name__ == "__main__":
