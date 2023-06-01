@@ -1,9 +1,9 @@
 import pyrgbd as rgbd
 import argparse
-import os.path
 import glm
 import base64
 import pickle
+from . import examples_utils
 
 
 def parse_arguments():
