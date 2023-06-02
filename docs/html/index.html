@@ -2,13 +2,13 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="rgbd video file format structure" href="file_structure/file_format.html" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Getting Started" href="getting_started.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
-        <title>pyrgbd 0.1 documentation</title>
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>librgbd 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">pyrgbd 0.1 documentation</div></a>
+      <a href="#"><div class="brand">librgbd 0.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -146,7 +146,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">pyrgbd 0.1 documentation</span>
+  <span class="sidebar-brand-text">librgbd 0.1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -156,9 +156,8 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="file_structure/file_format.html">rgbd video file format structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="librgbd/installation.html">librgbd installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyrgbd/installation.html">pyrgbd installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="file_format.html">File Format</a></li>
 </ul>
 
 </div>
@@ -195,25 +194,23 @@
         <article role="main">
           <section id="librgbd">
 <h1>librgbd<a class="headerlink" href="#librgbd" title="Permalink to this heading">#</a></h1>
-<p><strong>librgbd</strong> librgbd is a C++ library for reading and writing RGBD video files based on libmatroska.</p>
-<p>This library can read files exported from the Telegie.</p>
-</section>
-<section id="pyrgbd">
-<h1>pyrgbd<a class="headerlink" href="#pyrgbd" title="Permalink to this heading">#</a></h1>
-<p><strong>pyrgbd</strong> is a Python binding for librgbd. Both librgbd and pyrgbd are hosted under the same repository at &lt;<a class="reference external" href="https://github.com/telegie/librgbd">https://github.com/telegie/librgbd</a>&gt;.</p>
+<p><strong>librgbd</strong> is a C++ library for RGBD videos and is based on libmatroska of the .mkv files. Its Python binding is provided as <strong>pyrgbd</strong>.</p>
+<p>This documentation will concentrate on pyrgbd as we expect pyrgbd to have a much larger audience than librgbd.</p>
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="file_structure/file_format.html">rgbd video file format structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="librgbd/installation.html">librgbd installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pyrgbd/installation.html">pyrgbd installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="pyrgbd/installation.html#pypi-packages">PyPI packages</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pyrgbd/installation.html#manual-build-installation">Manual Build/Installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="pyrgbd/installation.html#linux-requirements">Linux Requirements</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyrgbd/installation.html#setup">Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pyrgbd/installation.html#run-example">Run Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#installation-from-pypi">Installation from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#installation-from-source">Installation from Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting_started.html#check-installation">Check Installation</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="file_format.html">File Format</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="file_format.html#color-depth-and-audio-frames">Color, Depth, and Audio Frames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_format.html#imu-data">IMU Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_format.html#camera-pose">Camera Pose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_format.html#camera-calibration-parameters">Camera Calibration Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="file_format.html#cover-image">Cover Image</a></li>
 </ul>
 </li>
 </ul>
@@ -225,12 +222,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="file_structure/file_format.html">
+          <a class="next-page" href="getting_started.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">rgbd video file format structure</div>
+                <div class="title">Getting Started</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

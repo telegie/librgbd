@@ -23,7 +23,7 @@
 #include <rgbd/plane.hpp>
 #include <rgbd/png_utils.hpp>
 #include <rgbd/record.hpp>
-#include <rgbd/record_bytes_builder.hpp>
+#include <rgbd/record_builder.hpp>
 #include <rgbd/record_parser.hpp>
 #include <rgbd/record_writer.hpp>
 #include <rgbd/rvl.hpp>

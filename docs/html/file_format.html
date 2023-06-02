@@ -2,14 +2,14 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="librgbd installation" href="../librgbd/installation.html" />
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="prev" title="Getting Started" href="getting_started.html" />
 
-    <!-- Generated with Sphinx 6.2.1 and Furo 2023.03.27 -->
-        <title>pyrgbd installation - pyrgbd 0.1 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=fad236701ea90a88636c2a8c73b44ae642ed2a53" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>File Format - librgbd 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
     
     
 
@@ -123,7 +123,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">pyrgbd 0.1 documentation</div></a>
+      <a href="index.html"><div class="brand">librgbd 0.1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -143,12 +143,12 @@
   <aside class="sidebar-drawer">
     <div class="sidebar-container">
       
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">pyrgbd 0.1 documentation</span>
+  <span class="sidebar-brand-text">librgbd 0.1 documentation</span>
   
-</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
   <input type="hidden" name="check_keywords" value="yes">
   <input type="hidden" name="area" value="default">
@@ -156,9 +156,8 @@
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../file_structure/file_format.html">rgbd video file format structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../librgbd/installation.html">librgbd installation</a></li>
-<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pyrgbd installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">File Format</a></li>
 </ul>
 
 </div>
@@ -193,39 +192,108 @@
           </label>
         </div>
         <article role="main">
-          <section id="pyrgbd-installation">
-<h1>pyrgbd installation<a class="headerlink" href="#pyrgbd-installation" title="Permalink to this heading">#</a></h1>
-<section id="pypi-packages">
-<h2>PyPI packages<a class="headerlink" href="#pypi-packages" title="Permalink to this heading">#</a></h2>
-<p>PyPI packages are available for Linux (x64) and macOS (x64/Apple Silicon) for CPython 3.6+. A package for Windows (x64) is not yet available, but is currently in testing. Stay tuned.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">pyrgbd</span>
-</pre></div>
+          <section id="file-format">
+<h1>File Format<a class="headerlink" href="#file-format" title="Permalink to this heading">#</a></h1>
+<p>A main functionality of librgbd is to read and write a 3D video file format based on the <a class="reference external" href="https://www.matroska.org/">Matroska Media Container</a> of the .mkv files.
+Our 3D video file format includes followings as Matroska tracks:</p>
+<ul class="simple">
+<li><p>Color Frame</p></li>
+<li><p>Depth Frame</p></li>
+<li><p>Audio Frame</p></li>
+<li><p>IMU Data</p></li>
+<li><p>Camera Pose</p></li>
+<li><p>Per-Frame Camera Calibration Parameters</p></li>
+</ul>
+<p>Followings are included as Matroska attachments:</p>
+<ul class="simple">
+<li><p>Camera Calibration Parameters</p></li>
+<li><p>Cover Image</p></li>
+</ul>
+<section id="color-depth-and-audio-frames">
+<h2>Color, Depth, and Audio Frames<a class="headerlink" href="#color-depth-and-audio-frames" title="Permalink to this heading">#</a></h2>
+<p>For color, depth, and audio frames, we use VP8, TDC1, and Opus as their codecs.
+TDC1 stands for “Telegie Depth Codec 1” and is derived from <a class="reference external" href="https://github.com/hanseuljun/temporal-rvl">Temporal RVL</a>.
+Note that V_TDC1 is not a standard KaxCodecId included in <a class="reference external" href="https://www.matroska.org/technical/codec_specs.html">Matroska’s codec specs</a>.</p>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>type</p></th>
+<th class="head"><p>codec</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>color</p></td>
+<td><p>VP8 (KaxCodecID: V_VP8)</p></td>
+</tr>
+<tr class="row-odd"><td><p>depth</p></td>
+<td><p>TDC1 (KaxCodecID: V_TDC1)</p></td>
+</tr>
+<tr class="row-even"><td><p>audio</p></td>
+<td><p>Opus (KaxCodecID: A_OPUS)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="manual-build-installation">
-<h2>Manual Build/Installation<a class="headerlink" href="#manual-build-installation" title="Permalink to this heading">#</a></h2>
-<section id="linux-requirements">
-<h3>Linux Requirements<a class="headerlink" href="#linux-requirements" title="Permalink to this heading">#</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">deadsnakes</span><span class="o">/</span><span class="n">ppa</span>
-<span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span><span class="mf">.9</span><span class="o">-</span><span class="n">dev</span> <span class="n">python3</span><span class="mf">.9</span><span class="o">-</span><span class="n">distutils</span> <span class="n">libgl1</span> <span class="n">python3</span><span class="o">-</span><span class="n">venv</span> <span class="n">python3</span><span class="o">-</span><span class="n">cachecontrol</span>
-</pre></div>
+<section id="imu-data">
+<h2>IMU Data<a class="headerlink" href="#imu-data" title="Permalink to this heading">#</a></h2>
+<p>IMU data is stored in four subtitle tracks.
+As not all 3D video files are from a device, or since the recording device may not provide IMU data, IMU data may not exist in a 3D video file.
+Gravity information is often provided via sensor fusion implemented by the manufacturer of the recording device.
+We save this information as it is based on IMU data with higher frequency than what we save in 3D video files, thus not possible to replicate the quality during post-processing.</p>
+<div class="table-wrapper colwidths-given docutils container">
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>type</p></th>
+<th class="head"><p>unit</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>acceleration</p></td>
+<td><p>meters per second squared (m/s²)</p></td>
+</tr>
+<tr class="row-odd"><td><p>rotation rate</p></td>
+<td><p>radians per second (rad/s)</p></td>
+</tr>
+<tr class="row-even"><td><p>magnetic field</p></td>
+<td><p>microtesla (µT)</p></td>
+</tr>
+<tr class="row-odd"><td><p>gravity</p></td>
+<td><p>meters per second squared (m/s²)</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </section>
-<section id="setup">
-<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">#</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
-<span class="n">python3</span> <span class="n">bootstrap</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">rebuild</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">.</span>
-</pre></div>
-</div>
+<section id="camera-pose">
+<h2>Camera Pose<a class="headerlink" href="#camera-pose" title="Permalink to this heading">#</a></h2>
+<p>Camera poses are stored in two subtitle tracks.
+One track contains one 3D vector per frame and represents camera translation.
+One track contains one quaternion per frame and represents camera rotation.
+Camera data may not exist in a 3D video file and is often added during the post-processing step after recording.</p>
 </section>
-<section id="run-example">
-<h3>Run Example<a class="headerlink" href="#run-example" title="Permalink to this heading">#</a></h3>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># From Root directory the project</span>
-<span class="n">python3</span> <span class="n">example_python</span><span class="o">/</span><span class="n">pyrgbd_decoding_encoding</span><span class="o">/</span><span class="n">pyrgbd_example</span><span class="o">.</span><span class="n">py</span>
-</pre></div>
-</div>
+<section id="camera-calibration-parameters">
+<h2>Camera Calibration Parameters<a class="headerlink" href="#camera-calibration-parameters" title="Permalink to this heading">#</a></h2>
+<p>Camera Calibration Parameters can be found from two places.
+Every 3D video file must include one set of parameters as a Matroska attachment.
+Optionally, a 3D video file may include a Matroska track for calibration frames.
+When this track exists, the calibration parameters from this track should override the parameters from the attachment.
+Frame-level calibration support is mainly for support of AR frameworks.
+AR frameworks often expose their pre-processed video frames to the app layer together with a calibration parameter set that contain minor difference between each frame.</p>
 </section>
+<section id="cover-image">
+<h2>Cover Image<a class="headerlink" href="#cover-image" title="Permalink to this heading">#</a></h2>
+<p>3D video files can include a cover image to help file explorers.
+Currently, 600x600 .png files are being used.
+For more information, see <a class="reference external" href="https://www.matroska.org/technical/attachments.html">Matroska’s documentation</a>.</p>
 </section>
 </section>
 
@@ -235,14 +303,14 @@
         
         <div class="related-pages">
           
-          <a class="prev-page" href="../librgbd/installation.html">
+          <a class="prev-page" href="getting_started.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">librgbd installation</div>
+                <div class="title">Getting Started</div>
                 
               </div>
             </a>
@@ -276,14 +344,12 @@
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">pyrgbd installation</a><ul>
-<li><a class="reference internal" href="#pypi-packages">PyPI packages</a></li>
-<li><a class="reference internal" href="#manual-build-installation">Manual Build/Installation</a><ul>
-<li><a class="reference internal" href="#linux-requirements">Linux Requirements</a></li>
-<li><a class="reference internal" href="#setup">Setup</a></li>
-<li><a class="reference internal" href="#run-example">Run Example</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#">File Format</a><ul>
+<li><a class="reference internal" href="#color-depth-and-audio-frames">Color, Depth, and Audio Frames</a></li>
+<li><a class="reference internal" href="#imu-data">IMU Data</a></li>
+<li><a class="reference internal" href="#camera-pose">Camera Pose</a></li>
+<li><a class="reference internal" href="#camera-calibration-parameters">Camera Calibration Parameters</a></li>
+<li><a class="reference internal" href="#cover-image">Cover Image</a></li>
 </ul>
 </li>
 </ul>
@@ -295,9 +361,9 @@
       
     </aside>
   </div>
-</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/doctools.js"></script>
-    <script src="../_static/sphinx_highlight.js"></script>
-    <script src="../_static/scripts/furo.js"></script>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
     </body>
 </html>

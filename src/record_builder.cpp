@@ -1,8 +1,8 @@
-#include "record_bytes_builder.hpp"
+#include "record_builder.hpp"
 
 namespace rgbd
 {
-RecordBytesBuilder::RecordBytesBuilder()
+RecordBuilder::RecordBuilder()
     : sample_rate_{AUDIO_SAMPLE_RATE}
     , calibration_{}
     , depth_codec_type_{DepthCodecType::TDC1}
@@ -16,57 +16,57 @@ RecordBytesBuilder::RecordBytesBuilder()
 {
 }
 
-void RecordBytesBuilder::setSampleRate(int sample_rate)
+void RecordBuilder::setSampleRate(int sample_rate)
 {
     sample_rate_ = sample_rate;
 }
 
-void RecordBytesBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
+void RecordBuilder::setDepthCodecType(DepthCodecType depth_codec_type)
 {
     depth_codec_type_ = depth_codec_type;
 }
 
-void RecordBytesBuilder::setDepthUnit(float depth_unit)
+void RecordBuilder::setDepthUnit(float depth_unit)
 {
     depth_unit_ = depth_unit;
 }
 
-void RecordBytesBuilder::setCalibration(const CameraCalibration& calibration)
+void RecordBuilder::setCalibration(const CameraCalibration& calibration)
 {
     calibration_ = calibration.clone();
 }
 
-void RecordBytesBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
+void RecordBuilder::setCoverPNGBytes(const optional<Bytes>& cover_png_bytes)
 {
     cover_png_bytes_ = cover_png_bytes;
 }
 
-void RecordBytesBuilder::addVideoFrame(const RecordVideoFrame& video_frame)
+void RecordBuilder::addVideoFrame(const RecordVideoFrame& video_frame)
 {
     video_frames_.push_back(video_frame);
 }
 
-void RecordBytesBuilder::addAudioFrame(const RecordAudioFrame& audio_frame)
+void RecordBuilder::addAudioFrame(const RecordAudioFrame& audio_frame)
 {
     audio_frames_.push_back(audio_frame);
 }
 
-void RecordBytesBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
+void RecordBuilder::addIMUFrame(const RecordIMUFrame& imu_frame)
 {
     imu_frames_.push_back(imu_frame);
 }
 
-void RecordBytesBuilder::addPoseFrame(const RecordPoseFrame& pose_frame)
+void RecordBuilder::addPoseFrame(const RecordPoseFrame& pose_frame)
 {
     pose_frames_.push_back(pose_frame);
 }
 
-void RecordBytesBuilder::addCalibrationFrame(const RecordCalibrationFrame& calibration_frame)
+void RecordBuilder::addCalibrationFrame(const RecordCalibrationFrame& calibration_frame)
 {
     calibration_frames_.push_back(calibration_frame);
 }
 
-Bytes RecordBytesBuilder::build()
+Bytes RecordBuilder::buildToBytes()
 {
     MemIOCallback io_callback;
     _build(io_callback);
@@ -77,13 +77,13 @@ Bytes RecordBytesBuilder::build()
     return bytes;
 }
 
-void RecordBytesBuilder::buildToPath(const std::string& path)
+void RecordBuilder::buildToPath(const std::string& path)
 {
     StdIOCallback io_callback{path.c_str(), MODE_CREATE};
     _build(io_callback);
 }
 
-void RecordBytesBuilder::_build(IOCallback& io_callback)
+void RecordBuilder::_build(IOCallback& io_callback)
 {
     sort(video_frames_.begin(),
          video_frames_.end(),
