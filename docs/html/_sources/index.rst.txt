@@ -5,19 +5,13 @@
 
 librgbd
 ==================================
-**librgbd** librgbd is a C++ library for reading and writing RGBD video files based on libmatroska.
+**librgbd** is a C++ library for RGBD videos and is based on libmatroska of the .mkv files. Its Python binding is provided as **pyrgbd**.
 
-This library can read files exported from the Telegie.
-
-
-pyrgbd
-==================================
-**pyrgbd** is a Python binding for librgbd. Both librgbd and pyrgbd are hosted under the same repository at <https://github.com/telegie/librgbd>.
+This documentation will concentrate on pyrgbd as we expect pyrgbd to have a much larger audience than librgbd.
 
 .. toctree::
    :maxdepth: 5
    :caption: Contents:
    
-   file_structure/file_format
-   librgbd/installation
-   pyrgbd/installation
+   getting_started
+   file_format
