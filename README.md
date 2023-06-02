@@ -1,6 +1,6 @@
 # librgbd
 
-librgbd is a C++/Python library for reading and writing RGBD video files and is based on libmatroska of the .mkv files.
+librgbd is a C++/Python library for RGBD videos and is based on libmatroska of the .mkv files.
 
 [Docs](https://telegie.github.io/librgbd) | [Viewer](https://telegie.com/file-player)
 
