@@ -911,43 +911,43 @@ double rgbd_record_audio_track_get_sampling_frequency(void* ptr)
 }
 //////// END RECORD AUDIO TRACK ////////
 
-//////// START RECORD BYTES BUILDER ////////
-void* rgbd_record_bytes_builder_ctor()
+//////// START RECORD BUILDER ////////
+void* rgbd_record_builder_ctor()
 {
-    return new RecordBytesBuilder;
+    return new RecordBuilder;
 }
 
-void rgbd_record_bytes_builder_dtor(void* ptr)
+void rgbd_record_builder_dtor(void* ptr)
 {
-    delete static_cast<RecordBytesBuilder*>(ptr);
+    delete static_cast<RecordBuilder*>(ptr);
 }
 
-void rgbd_record_bytes_builder_set_sample_rate(void* ptr, int sample_rate)
+void rgbd_record_builder_set_sample_rate(void* ptr, int sample_rate)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    file_bytes_builder->setSampleRate(sample_rate);
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    record_builder->setSampleRate(sample_rate);
 }
 
-void rgbd_record_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
+void rgbd_record_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    file_bytes_builder->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    record_builder->setDepthCodecType(static_cast<DepthCodecType>(depth_codec_type));
 }
 
-void rgbd_record_bytes_builder_set_depth_unit(void* ptr, float depth_unit)
+void rgbd_record_builder_set_depth_unit(void* ptr, float depth_unit)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    file_bytes_builder->setDepthUnit(depth_unit);
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    record_builder->setDepthUnit(depth_unit);
 }
 
-void rgbd_record_bytes_builder_set_calibration(void* ptr, void* calibration_ptr)
+void rgbd_record_builder_set_calibration(void* ptr, void* calibration_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto calibration{static_cast<CameraCalibration*>(calibration_ptr)};
-    file_bytes_builder->setCalibration(*calibration);
+    record_builder->setCalibration(*calibration);
 }
 
-void rgbd_record_bytes_builder_set_cover_png_bytes(void* ptr,
+void rgbd_record_builder_set_cover_png_bytes(void* ptr,
                                                  const uint8_t* cover_png_bytes_data,
                                                  size_t cover_png_byte_size)
 {
@@ -956,55 +956,55 @@ void rgbd_record_bytes_builder_set_cover_png_bytes(void* ptr,
                            &cover_png_bytes_data[0],
                            &cover_png_bytes_data[cover_png_byte_size]);
 
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    file_bytes_builder->setCoverPNGBytes(cover_png_bytes);
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    record_builder->setCoverPNGBytes(cover_png_bytes);
 }
 
-void rgbd_record_bytes_builder_add_video_frame(void* ptr, void* video_frame_ptr)
+void rgbd_record_builder_add_video_frame(void* ptr, void* video_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto video_frame{static_cast<RecordVideoFrame*>(video_frame_ptr)};
-    file_bytes_builder->addVideoFrame(*video_frame);
+    record_builder->addVideoFrame(*video_frame);
 }
 
-void rgbd_record_bytes_builder_add_audio_frame(void* ptr, void* audio_frame_ptr)
+void rgbd_record_builder_add_audio_frame(void* ptr, void* audio_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto audio_frame{static_cast<RecordAudioFrame*>(audio_frame_ptr)};
-    file_bytes_builder->addAudioFrame(*audio_frame);
+    record_builder->addAudioFrame(*audio_frame);
 }
 
-void rgbd_record_bytes_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
+void rgbd_record_builder_add_imu_frame(void* ptr, void* imu_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto imu_frame{static_cast<RecordIMUFrame*>(imu_frame_ptr)};
-    file_bytes_builder->addIMUFrame(*imu_frame);
+    record_builder->addIMUFrame(*imu_frame);
 }
 
-void rgbd_record_bytes_builder_add_pose_frame(void* ptr, void* pose_frame_ptr)
+void rgbd_record_builder_add_pose_frame(void* ptr, void* pose_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto pose_frame{static_cast<RecordPoseFrame*>(pose_frame_ptr)};
-    file_bytes_builder->addPoseFrame(*pose_frame);
+    record_builder->addPoseFrame(*pose_frame);
 }
 
-void rgbd_record_bytes_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr)
+void rgbd_record_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
     auto calibration_frame{static_cast<RecordCalibrationFrame*>(calibration_frame_ptr)};
-    file_bytes_builder->addCalibrationFrame(*calibration_frame);
+    record_builder->addCalibrationFrame(*calibration_frame);
 }
 
-void* rgbd_record_bytes_builder_build(void* ptr)
+void* rgbd_record_builder_build_to_bytes(void* ptr)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    return new NativeByteArray{file_bytes_builder->build()};
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    return new NativeByteArray{record_builder->buildToBytes()};
 }
 
-void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path)
+void rgbd_record_builder_build_to_path(void* ptr, const char* path)
 {
-    auto file_bytes_builder{static_cast<RecordBytesBuilder*>(ptr)};
-    file_bytes_builder->buildToPath(path);
+    auto record_builder{static_cast<RecordBuilder*>(ptr)};
+    record_builder->buildToPath(path);
 }
 //////// END RECORD BYTES BUILDER ////////
 

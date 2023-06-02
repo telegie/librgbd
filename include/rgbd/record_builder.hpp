@@ -4,11 +4,11 @@
 
 namespace rgbd
 {
-// FileWriterHelper is to make using FileWriter easier.
-class RecordBytesBuilder
+// RecordBuilder is to make using RecordWriter easier.
+class RecordBuilder
 {
 public:
-    RecordBytesBuilder();
+    RecordBuilder();
     void setSampleRate(int sample_rate);
     void setDepthCodecType(DepthCodecType depth_codec_type);
     void setDepthUnit(float depth_unit);
@@ -19,7 +19,7 @@ public:
     void addIMUFrame(const RecordIMUFrame& imu_frame);
     void addPoseFrame(const RecordPoseFrame& pose_frame);
     void addCalibrationFrame(const RecordCalibrationFrame& calibration_frame);
-    Bytes build();
+    Bytes buildToBytes();
     void buildToPath(const std::string& path);
 
 private:

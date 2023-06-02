@@ -36,7 +36,6 @@ def main():
     telegie_file_url = (
         f"https://posts.telegie.com/v1/{post_id}/{post_id}.mkv"
     )
-    print(f"telegie_file_url: {telegie_file_url}")
 
     response = requests.get(telegie_file_url)
     with open(args.output, "wb+") as record:

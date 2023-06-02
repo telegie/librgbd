@@ -220,7 +220,7 @@ set(RGBD_SOURCES
   include/rgbd/plane.hpp
   include/rgbd/png_utils.hpp
   include/rgbd/record.hpp
-  include/rgbd/record_bytes_builder.hpp
+  include/rgbd/record_builder.hpp
   include/rgbd/record_parser.hpp
   include/rgbd/record_writer.hpp
   include/rgbd/rgbd.hpp
@@ -258,7 +258,7 @@ set(RGBD_SOURCES
   src/plane.cpp
   src/png_utils.cpp
   src/record.cpp
-  src/record_bytes_builder.cpp
+  src/record_builder.cpp
   src/record_parser.cpp
   src/record_writer.cpp
   src/rgbd_capi.cpp

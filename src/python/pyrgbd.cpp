@@ -388,22 +388,22 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
     // END record.hpp
 
-    // BEGIN record_bytes_builder.hpp
-    py::class_<RecordBytesBuilder>(m, "RecordBytesBuilder")
+    // BEGIN record_builder.hpp
+    py::class_<RecordBuilder>(m, "RecordBuilder")
         .def(py::init<>())
-        .def("set_sample_rate", &RecordBytesBuilder::setSampleRate)
-        .def("set_depth_codec_type", &RecordBytesBuilder::setDepthCodecType)
-        .def("set_depth_unit", &RecordBytesBuilder::setDepthUnit)
-        .def("set_calibration", &RecordBytesBuilder::setCalibration)
-        .def("set_cover_png_bytes", &RecordBytesBuilder::setCoverPNGBytes)
-        .def("add_video_frame", &RecordBytesBuilder::addVideoFrame)
-        .def("add_audio_frame", &RecordBytesBuilder::addAudioFrame)
-        .def("add_imu_frame", &RecordBytesBuilder::addIMUFrame)
-        .def("add_pose_frame", &RecordBytesBuilder::addPoseFrame)
-        .def("add_calibration_frame", &RecordBytesBuilder::addCalibrationFrame)
-        .def("build", &RecordBytesBuilder::build)
-        .def("build_to_path", &RecordBytesBuilder::buildToPath);
-    // END record_bytes_builder.hpp
+        .def("set_sample_rate", &RecordBuilder::setSampleRate)
+        .def("set_depth_codec_type", &RecordBuilder::setDepthCodecType)
+        .def("set_depth_unit", &RecordBuilder::setDepthUnit)
+        .def("set_calibration", &RecordBuilder::setCalibration)
+        .def("set_cover_png_bytes", &RecordBuilder::setCoverPNGBytes)
+        .def("add_video_frame", &RecordBuilder::addVideoFrame)
+        .def("add_audio_frame", &RecordBuilder::addAudioFrame)
+        .def("add_imu_frame", &RecordBuilder::addIMUFrame)
+        .def("add_pose_frame", &RecordBuilder::addPoseFrame)
+        .def("add_calibration_frame", &RecordBuilder::addCalibrationFrame)
+        .def("build_to_bytes", &RecordBuilder::buildToBytes)
+        .def("build_to_path", &RecordBuilder::buildToPath);
+    // END record_builder.hpp
 
     // BEGIN record_parser.hpp
     py::class_<RecordParser>(m, "RecordParser")

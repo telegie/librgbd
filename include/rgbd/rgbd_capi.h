@@ -330,30 +330,30 @@ extern "C"
                                                                      uint8_t* v_channel);
     //////// END MATH UTILS ////////
 
-    //////// START RECORD BYTES BUILDER ////////
-    RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_ctor();
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_dtor(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_sample_rate(void* ptr, int sample_rate);
+    //////// START RECORD BUILDER ////////
+    RGBD_INTERFACE_EXPORT void* rgbd_record_builder_ctor();
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_dtor(void* ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_set_sample_rate(void* ptr, int sample_rate);
     RGBD_INTERFACE_EXPORT void
-    rgbd_record_bytes_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_depth_unit(void* ptr, float depth_unit);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_calibration(void* ptr,
+    rgbd_record_builder_set_depth_codec_type(void* ptr, rgbdDepthCodecType depth_codec_type);
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_set_depth_unit(void* ptr, float depth_unit);
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_set_calibration(void* ptr,
                                                                        void* calibration_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_set_cover_png_bytes(
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_set_cover_png_bytes(
         void* ptr, const uint8_t* cover_png_bytes_data, size_t cover_png_byte_size);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_video_frame(void* ptr,
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_add_video_frame(void* ptr,
                                                                          void* video_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_audio_frame(void* ptr,
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_add_audio_frame(void* ptr,
                                                                          void* audio_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_imu_frame(void* ptr,
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_add_imu_frame(void* ptr,
                                                                        void* imu_frame_ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_add_pose_frame(void* ptr,
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_add_pose_frame(void* ptr,
                                                                         void* pose_frame_ptr);
     RGBD_INTERFACE_EXPORT void
-    rgbd_record_bytes_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_record_bytes_builder_build(void* ptr);
-    RGBD_INTERFACE_EXPORT void rgbd_record_bytes_builder_build_to_path(void* ptr, const char* path);
-    //////// END RECORD BYTES BUILDER ////////
+    rgbd_record_builder_add_calibration_frame(void* ptr, void* calibration_frame_ptr);
+    RGBD_INTERFACE_EXPORT void* rgbd_record_builder_build_to_bytes(void* ptr);
+    RGBD_INTERFACE_EXPORT void rgbd_record_builder_build_to_path(void* ptr, const char* path);
+    //////// END RECORD BUILDER ////////
 
     //////// START RECORD CALIBRATION FRAME ////////
     RGBD_INTERFACE_EXPORT void* rgbd_record_calibration_frame_ctor(int64_t time_point_us,

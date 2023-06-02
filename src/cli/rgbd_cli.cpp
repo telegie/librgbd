@@ -58,7 +58,7 @@ void split_file(const std::string& file_path)
     auto& video_frames{file->video_frames()};
 
     int previous_chunk_index{-1};
-    unique_ptr<RecordBytesBuilder> file_bytes_builder;
+    unique_ptr<RecordBuilder> record_builder;
     unique_ptr<ColorEncoder> color_encoder;
     unique_ptr<DepthEncoder> depth_encoder;
 
@@ -78,8 +78,8 @@ void split_file(const std::string& file_path)
         if (chunk_index == previous_chunk_index + 1) {
             // if (file_writer)
             // file_writer->flush();
-            if (file_bytes_builder)
-                file_bytes_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
+            if (record_builder)
+                record_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
 
             // auto output_path{fmt::format("chunk_{}.mkv", chunk_index)};
             // FileWriterConfig writer_config;
@@ -87,8 +87,8 @@ void split_file(const std::string& file_path)
             // file_writer = std::make_unique<FileWriter>(
             // output_path, *file->attachments().camera_calibration, writer_config);
 
-            file_bytes_builder.reset(new RecordBytesBuilder);
-            file_bytes_builder->setCalibration(*file->attachments().camera_calibration);
+            record_builder.reset(new RecordBuilder);
+            record_builder->setCalibration(*file->attachments().camera_calibration);
 
             color_encoder = std::make_unique<ColorEncoder>(
                 ColorCodecType::VP8, color_frame->width(), color_frame->height());
@@ -97,7 +97,7 @@ void split_file(const std::string& file_path)
             first = true;
 
             // file_writer->writeCover(*color_frame);
-            file_bytes_builder->setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
+            record_builder->setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
             previous_chunk_index = chunk_index;
         } else if (chunk_index == previous_chunk_index) {
             first = false;
@@ -109,12 +109,12 @@ void split_file(const std::string& file_path)
         auto depth_bytes{depth_encoder->encode(depth_frame->values().data(), first)};
 
         // file_writer->writeVideoFrame(time_point_us, first, color_bytes, depth_bytes);
-        file_bytes_builder->addVideoFrame(
+        record_builder->addVideoFrame(
             RecordVideoFrame{time_point_us, first, color_bytes, depth_bytes});
     }
 
     // file_writer->flush();
-    file_bytes_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
+    record_builder->buildToPath(fmt::format("chunk_{}.mkv", previous_chunk_index));
 }
 
 void trim_file(const std::string& file_path, float from_sec, float to_sec)
@@ -129,8 +129,8 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
     // FileWriterConfig writer_config;
     // writer_config.depth_codec_type = DepthCodecType::TDC1;
     // FileWriter file_writer{output_path, *file->attachments().camera_calibration, writer_config};
-    RecordBytesBuilder file_bytes_builder;
-    file_bytes_builder.setCalibration(*file->attachments().camera_calibration);
+    RecordBuilder record_builder;
+    record_builder.setCalibration(*file->attachments().camera_calibration);
 
     ColorEncoder color_encoder{
         ColorCodecType::VP8, file->tracks().color_track.width, file->tracks().color_track.height};
@@ -159,7 +159,7 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         if (keyframe_index == previous_keyframe_index + 1) {
             if (keyframe_index == 0) {
                 // file_writer.writeCover(*color_frame);
-                file_bytes_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
+                record_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
             }
 
             keyframe = true;
@@ -172,12 +172,12 @@ void trim_file(const std::string& file_path, float from_sec, float to_sec)
         auto depth_bytes{depth_encoder.encode(depth_frame->values().data(), keyframe)};
 
         // file_writer.writeVideoFrame(trimmed_time_point_us, keyframe, color_bytes, depth_bytes);
-        file_bytes_builder.addVideoFrame(
+        record_builder.addVideoFrame(
             RecordVideoFrame{trimmed_time_point_us, keyframe, color_bytes, depth_bytes});
     }
 
     // file_writer.flush();
-    file_bytes_builder.buildToPath(output_path);
+    record_builder.buildToPath(output_path);
 }
 
 void standardize_calibration(const std::string& file_path)
@@ -195,8 +195,8 @@ void standardize_calibration(const std::string& file_path)
 
     FrameMapper frame_mapper{original_calibration, standard_calibration};
 
-    RecordBytesBuilder file_bytes_builder;
-    file_bytes_builder.setCalibration(standard_calibration);
+    RecordBuilder record_builder;
+    record_builder.setCalibration(standard_calibration);
 
     ColorEncoder color_encoder{ColorCodecType::VP8,
                                standard_calibration.getColorWidth(),
@@ -218,7 +218,7 @@ void standardize_calibration(const std::string& file_path)
 
         bool keyframe{video_frame.keyframe()};
         if (first) {
-            file_bytes_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
+            record_builder.setCoverPNGBytes(color_frame->getMkvCoverSized()->getPNGBytes());
             spdlog::info("set cover");
             first = false;
         }
@@ -229,7 +229,7 @@ void standardize_calibration(const std::string& file_path)
         auto color_bytes{color_encoder.encode(*mapped_color_frame, keyframe)};
         auto depth_bytes{depth_encoder.encode(mapped_depth_frame->values().data(), keyframe)};
 
-        file_bytes_builder.addVideoFrame(
+        record_builder.addVideoFrame(
             RecordVideoFrame{video_time_point_us, keyframe, color_bytes, depth_bytes});
         //        spdlog::info("add video frame: {}", video_time_point_us);
 
@@ -237,26 +237,26 @@ void standardize_calibration(const std::string& file_path)
             auto& audio_frame{file->audio_frames()[audio_frame_index]};
             if (audio_frame.time_point_us() > video_time_point_us)
                 break;
-            file_bytes_builder.addAudioFrame(audio_frame);
+            record_builder.addAudioFrame(audio_frame);
             ++audio_frame_index;
         }
         while (imu_frame_index < file->imu_frames().size()) {
             auto& imu_frame{file->imu_frames()[imu_frame_index]};
             if (imu_frame.time_point_us() > video_time_point_us)
                 break;
-            file_bytes_builder.addIMUFrame(imu_frame);
+            record_builder.addIMUFrame(imu_frame);
             ++imu_frame_index;
         }
         while (pose_frame_index < file->pose_frames().size()) {
             auto& pose_frame{file->pose_frames()[pose_frame_index]};
             if (pose_frame.time_point_us() > video_time_point_us)
                 break;
-            file_bytes_builder.addPoseFrame(pose_frame);
+            record_builder.addPoseFrame(pose_frame);
             ++pose_frame_index;
         }
     }
 
-    file_bytes_builder.buildToPath(output_path);
+    record_builder.buildToPath(output_path);
 }
 
 int main(int argc, char** argv)
