@@ -14,6 +14,7 @@ def main():
     )
     parser.add_argument("-i", "--input", help="Path to input dataset.")
     parser.add_argument("-o", "--output", help="Path to output 3D video file.")
+    parser.add_argument("-f", "--frames", type=int, help="Number of frames to save in the output file.")
 
     args = parser.parse_args()
     if args.input is None:
@@ -26,6 +27,7 @@ def main():
             "No output folder path specified."
         )
         return
+    print(f"frames: {args.frames}")
 
     image_folder_path = f"{args.input}/image"
     image_filenames = [f for f in listdir(image_folder_path) if isfile(join(image_folder_path, f))]
@@ -46,14 +48,16 @@ def main():
     redwood_indoor_calibration = rgbd.UndistortedCameraCalibration(
         width, height, width, height, focal_length / width, focal_length / height, 0.5, 0.5
     )
-    record_bytes_builder = rgbd.RecordBytesBuilder()
-    record_bytes_builder.set_calibration(redwood_indoor_calibration)
+    record_builder = rgbd.RecordBuilder()
+    record_builder.set_calibration(redwood_indoor_calibration)
 
     color_encoder = rgbd.ColorEncoder(rgbd.ColorCodecType.VP8, width, height)
     depth_encoder = rgbd.DepthEncoder(rgbd.DepthCodecType.TDC1, width, height)
     for index in range(len(image_filenames)):
         if index % 100 == 0:
             print(f"encoded frame {index}")
+        if index == args.frames:
+            break
         time_point_us = index * 1000 * 1000 // 30
         keyframe = index % 60 == 0
         image_filename = image_filenames[index]
@@ -76,9 +80,9 @@ def main():
         record_video_frame = rgbd.RecordVideoFrame(
             time_point_us, keyframe, color_bytes, depth_bytes
         )
-        record_bytes_builder.add_video_frame(record_video_frame)
+        record_builder.add_video_frame(record_video_frame)
 
-    record_bytes_builder.build_to_path(args.output)
+    record_builder.build_to_path(args.output)
 
 
 if __name__ == "__main__":

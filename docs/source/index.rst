@@ -14,4 +14,5 @@ This documentation will concentrate on pyrgbd as we expect pyrgbd to have a much
    :caption: Contents:
    
    getting_started
+   tutorial
    file_format

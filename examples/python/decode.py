@@ -4,6 +4,7 @@ import examples_utils
 from PIL import Image
 import numpy as np
 import imageio
+import os
 
 
 def main():
@@ -54,6 +55,8 @@ def main():
     for video_frame in record_video_frames:
         depth_frames.append(depth_decoder.decode(video_frame.get_depth_bytes()))
 
+    if not os.path.exists(args.output):
+        os.mkdir(args.output)
     # Write color video frames into .jpg and .png files.
     for index in range(len(yuv_frames)):
         yuv_frame = yuv_frames[index]
