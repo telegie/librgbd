@@ -130,7 +130,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name="pyrgbd",
-    version="0.1.1",
+    version="0.1.2",
     description="Library for reading and writing RGBD videos.",
     long_description_content_type="text/markdown",
     long_description="README",
