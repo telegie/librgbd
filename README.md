@@ -3,55 +3,33 @@
 [![MIT License](https://img.shields.io/github/license/telegie/librgbd)](https://en.wikipedia.org/wiki/MIT_License)
 [![Build Status](https://github.com/telegie/librgbd/actions/workflows/build.yml/badge.svg)](https://github.com/telegie/librgbd/actions/workflows/build.yml)
 
-librgbd is a C++ library for read and writing RGBD videos files based on libmatroska.
+librgbd is a C++/Python library for reading and writing RGBD video files and is based on libmatroska of the .mkv files.
 
-This library can read files exported from the Telegie.
+Core features of librgbd include:
+- Compression of color using VP8.
+- Compression of depth using a depth video codec.  
+- Storage and access of IMU information and camera pose in a well-defined and documented coordinate system.
+- Storage and access of per-frame camera calibration information (i.e., ARKit calibration support).
+- Mapping/unmapping of depth pixels to/from 3D space with lens distortion taken into account.
+- Support of multiple camera parameter sets: Azure Kinect, iOS (AVFoundation and ARKit), and pinhole.
+- Undistortion of videos with lens distortion.
+- Compatibility with 2D video players. For example, VLC player can play the color and audio tracks of our .mkv files.
 
-## RGBD Video File Structure
+While the easiest way to capture our .mkv files is using Telegie (https://apple.co/3qaycil), librgbd aims and is designed to support RGBD videos recorded from any RGBD camera or application.
 
-The main functionality of librgbd is to read and write .mkv files holding RGBD (color + depth) videos. RGBD videos are a 3D format that each pixel has a color and depth value, which is the natural outcome from RGBD cameras (e.g., LiDAR and Kinect).
+A web 3D video player is available at https://telegie.com/file-player.
 
-librgbd records video, audio, IMU, and camera calibration data. Video data is recorded in 2 video Matroska video tracks, audio in 1 audio track, and IMU in 4 subtitle tracks.
+## Usage
 
-Video data is in color and depth tracks. The color track is in VP8 codec (KaxCodecID: V_VP8) and depth track is in TDC1 codec (KaxCodecID: V_TDC1). V_TDC1 is a non-standard KaxCodecID (not included in [matroska.org](https://www.matroska.org/technical/codec_specs.html)). It stands for Telegie Depth Codec 1 and is derived from [prior work](https://github.com/hanseuljun/temporal-rvl).
+### Python via Pypi (Mac and Linux)
+- pip install pyrgbd
 
-Audio data is in one track. Opus codec is used.
+### C++ via Source
+- Run boostrap.py
+- Add to your project via CMake add_subdirectory.
 
-IMU data are in acceleration, rotation rate, magnetic field, and gravity tracks. The units are in m/s^2, radian/sec, uT (micro Tesla), and m/s^2.
+### Python via Source
+- python boostrap.py
+- pip install -e .
 
-Camera calibration data are saved in a json format as a Matroska attachment.
-
-For more details, see [file_writer.cpp](src/file_writer.cpp) or [file_parser.cpp](src/file_parser.cpp).
-
-## pyrgbd pybind11
-
-Build: CMAKE_ARGS="-D CMAKE_OSX_ARCHITECTURES=arm64" python setup.py install
-
-Faster linux build: python setup.py install -j8
-
-Test: python test_pyrgbd.py
-
-# pyrgbd
-
-pyrgbd is a Python library for read and writing RGBD videos files based on libmatroska.
-
-This library can read files exported from the Telegie and is based on librgbd.
-
-## Linux Requirements
-
-- add-apt-repository ppa:deadsnakes/ppa
-- apt install python3.9-dev python3.9-distutils libgl1 python3-venv python3-cachecontrol
-
-## Setup
-- git submodule update --init --recursive
-- python3 bootstrap.py
-- pip install .
-
-## Check
-- mypy .
-- black .
-
-## Deploy
-- python -m build --wheel
-- twine check dist/*
-- twine upload dist/*
+See further documentation at https://telegie.github.io/librgbd

@@ -35,7 +35,7 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python pyrgbd_example.py
+          python example_python/pyrgbd_decoding_encoding/pyrgbd_example.py
 
   bulid-mac:
     runs-on: macos-12
@@ -68,7 +68,7 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python pyrgbd_example.py
+          python example_python/pyrgbd_decoding_encoding/pyrgbd_example.py
 
 
   build-linux:
@@ -102,4 +102,4 @@ jobs:
       - name: Test
         run: |
           pip install requests
-          python pyrgbd_example.py
+          python example_python/pyrgbd_decoding_encoding/pyrgbd_example.py
