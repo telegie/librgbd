@@ -27,11 +27,11 @@ We will use this file for the following steps of this tutorial.
 
 Connect Color and Depth Frames to OpenCV
 ----------------------------------------
-In imshow.py, the color and depth frames of a 3D video file gets decoded and gets rendered via OpenCV.  
+In opencv_imshow.py, the color and depth frames of a 3D video file gets decoded and gets rendered via OpenCV.  
 
 .. code-block::
 
-    python imshow.py -i cat.mkv
+    python opencv_imshow.py -i cat.mkv
 
 Save Color and Depth Frames into JPEG and PNG Files
 ---------------------------------------------------
