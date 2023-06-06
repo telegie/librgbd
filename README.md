@@ -31,3 +31,13 @@ While the easiest way to capture our .mkv files is using Telegie (https://apple.
 ### Python via Source
 - python boostrap.py
 - pip install -e .
+
+## Shortest Path to Try
+```
+pip install pyrgbd
+cd {path/to/librgbd/examples/python}
+pip install -r requirements.txt
+python download.py -i https://telegie.com/posts/DTosAKtQuvc -o cat.mkv 
+python opencv_imshow.py -i cat.mkv
+```
+See [tutorial documentation](https://telegie.github.io/librgbd/html/tutorial.html) for explanation of the above.

@@ -15,6 +15,13 @@ glm::quat read_py_quat(const py::object& py_quat)
     return glm::quat{w, x, y, z};
 }
 
+glm::vec2 read_py_vec2(const py::object& py_vec2)
+{
+    float x{py_vec2.attr("x").cast<float>()};
+    float y{py_vec2.attr("y").cast<float>()};
+    return glm::vec2{x, y};
+}
+
 glm::vec3 read_py_vec3(const py::object& py_vec3)
 {
     float x{py_vec3.attr("x").cast<float>()};
@@ -74,7 +81,12 @@ PYBIND11_MODULE(pyrgbd, m)
         .def_property_readonly("color_height", &CameraCalibration::getColorHeight)
         .def_property_readonly("depth_width", &CameraCalibration::getDepthWidth)
         .def_property_readonly("depth_height", &CameraCalibration::getDepthHeight)
-        .def("get_direction", &CameraCalibration::getDirection)
+        // .def("get_direction", &CameraCalibration::getDirection)
+        .def("get_direction", [](CameraCalibration& calibration, const py::object& py_uv) {
+            glm::vec2 uv{read_py_vec2(py_uv)};
+            py::module_ glm{py::module_::import("glm")};
+            return create_py_vec3(glm, calibration.getDirection(uv));
+        })
         .def("get_uv", &CameraCalibration::getUv);
     // END camera_calibration.hpp
 
