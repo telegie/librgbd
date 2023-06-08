@@ -100,8 +100,26 @@ def build_x64_linux_binaries(disable_pybind):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--rebuild", action="store_true", default=False)
+    parser.add_argument("--targets", type=str)
     parser.add_argument("--disable-pybind", action="store_true", default=False)
     args = parser.parse_args()
+
+    if args.targets is None:
+        if platform.system() == "Windows":
+            targets = ["x64-windows"]
+        elif platform.system() == "Darwin":
+            targets = ["arm64-mac",
+                       "wasm32-emscripten"]
+            # wasm32-emscripten-mt is not being used.
+            # One big reason is that, it requires SharedArrayBuffer
+            # whose access is not guaranteed when embedded in other websites.
+            # Cannot ask all websites to change their security policies,
+            # so it is a no-go...
+            #          "wasm32-emscripten-mt"]
+        elif platform.system() == "Linux":
+            targets = ["x64-linux"]
+        else:
+            raise Exception(f"librgbd build not supported.")
 
     here = Path(__file__).parent.resolve()
     subprocess.run(["python3", f"{here}/bootstrap.py"] + sys.argv[1:], check=True)
@@ -109,22 +127,14 @@ def main():
     if args.rebuild and build_path.exists():
         shutil.rmtree(build_path)
 
-    if platform.system() == "Windows":
+    if "x64-windows" in targets:
         build_x64_windows_binaries()
-        return
-    elif platform.system() == "Darwin":
-        if platform.machine() == "arm64":
-            build_arm64_mac_binaries(args.disable_pybind)
-            build_x64_mac_binaries()
-            merge_mac_binaries()
-        elif platform.machine() == "x86_64":
-            build_x64_mac_binaries()
-        return
-    elif platform.system() == "Linux":
+    if "arm64-mac" in targets:
+        build_arm64_mac_binaries(args.disable_pybind)
+        build_x64_mac_binaries()
+        merge_mac_binaries()
+    if "x64-linux" in targets:
         build_x64_linux_binaries(args.disable_pybind)
-        return
-
-    raise Exception(f"librgbd build not supported.")
 
 
 if __name__ == "__main__":
