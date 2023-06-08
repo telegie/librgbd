@@ -95,10 +95,40 @@ def build_x64_linux_binaries(disable_pybind):
     subprocess.run(["ninja", "install"], cwd=build_path, check=True)
 
 
+def build_wasm32_emscripten_binaries(debug):
+    here = Path(__file__).parent.resolve()
+    build_path = f"{here}/build/wasm32-emscripten"
+    config = "Debug" if debug else "Release"
+    if not os.path.exists(build_path):
+        os.makedirs(build_path)
+
+    subprocess.run(["emcmake",
+                    "cmake",
+                    "-S", here,
+                    "-B", build_path,
+                    "-G", "Ninja Multi-Config",
+                    "-D", "CMAKE_C_BYTE_ORDER=LITTLE_ENDIAN",
+                    "-D", f"CMAKE_INSTALL_PREFIX={here}/output/wasm32-emscripten"],
+                   check=True)
+    
+    subprocess.run(["ninja",
+                    "-f", f"build-{config}.ninja"],
+                   cwd=build_path,
+                   check=True)
+
+    output_path = f"{here}/output/wasm32-emscripten"
+    if os.path.exists(output_path):
+        shutil.rmtree(output_path)
+    os.makedirs(output_path)
+
+    rgbd_wasm_path = f'{build_path}/src/web/{config}'
+    for filename in ["rgbd-wasm.js", "rgbd-wasm.wasm"]:
+        shutil.copy(f'{rgbd_wasm_path}/{filename}', f'{output_path}/{filename}')
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", action="store_true", default=False)
     parser.add_argument("--rebuild", action="store_true", default=False)
     parser.add_argument("--targets", type=str)
     parser.add_argument("--disable-pybind", action="store_true", default=False)
@@ -110,12 +140,6 @@ def main():
         elif platform.system() == "Darwin":
             targets = ["arm64-mac",
                        "wasm32-emscripten"]
-            # wasm32-emscripten-mt is not being used.
-            # One big reason is that, it requires SharedArrayBuffer
-            # whose access is not guaranteed when embedded in other websites.
-            # Cannot ask all websites to change their security policies,
-            # so it is a no-go...
-            #          "wasm32-emscripten-mt"]
         elif platform.system() == "Linux":
             targets = ["x64-linux"]
         else:
@@ -135,6 +159,8 @@ def main():
         merge_mac_binaries()
     if "x64-linux" in targets:
         build_x64_linux_binaries(args.disable_pybind)
+    if "wasm32-emscripten" in targets:
+        build_wasm32_emscripten_binaries(args.debug)
 
 
 if __name__ == "__main__":
