@@ -3,6 +3,7 @@ import pyrgbd as rgbd
 import cv2
 import examples_utils
 import numpy as np
+import json
 
 
 def main():
@@ -25,6 +26,21 @@ def main():
         )
         return
 
+    # Reading camera intrinsics.
+    # How to is found from below:
+    # https://github.com/marek-simonik/record3d-wifi-streaming-and-rgbd-mp4-3d-video-demo/blob/master/js/app/video-sources/OfflineVideoSource.js 
+    with open(args.input, "rb") as file:
+        file_content = file.read()
+        meta = file_content[file_content.rindex(b'{"intrinsic'):]
+        meta = meta[:-1]
+        meta = meta.decode('UTF-8')
+        metadata = json.loads(meta)
+        intrinsicMatrix = metadata['intrinsicMatrix']
+        record3d_fx = intrinsicMatrix[0]
+        record3d_fy = intrinsicMatrix[4]
+        record3d_cx = intrinsicMatrix[6]
+        record3d_cy = intrinsicMatrix[7]
+
     cap = cv2.VideoCapture(args.input)
     rgb_arrays = []
     depth_arrays = []
@@ -40,15 +56,17 @@ def main():
         depth_in_hue_bgr_array = frame[:,:(frame.shape[1] // 2),:]
         depth_in_hue_hsv_array = cv2.cvtColor(depth_in_hue_bgr_array, cv2.COLOR_BGR2HSV)
         depth_array = depth_in_hue_hsv_array[:,:,0]
-        cv2.imshow('color', bgr_array)
-        cv2.imshow('depth', depth_array)
-        if cv2.waitKey(1) == ord('q'):
-            break
+
+        # cv2.imshow('color', bgr_array)
+        # cv2.imshow('depth', depth_array)
+        # if cv2.waitKey(1) == ord('q'):
+        #     break
 
         rgb_array = cv2.cvtColor(bgr_array, cv2.COLOR_BGR2RGB)
 
         # The conversion formula is found from below:
         # https://github.com/marek-simonik/record3d-wifi-streaming-and-rgbd-mp4-3d-video-demo/blob/master/js/app/pointcloud-material.js
+        # Basically, depth is encoded in the hue of color and max depth is 3 meters.
         depth_array = depth_array.astype(float)
         depth_array = depth_array / 255.0
         depth_array = depth_array * 3.0
@@ -61,12 +79,11 @@ def main():
         depth_arrays.append(depth_array)
     cap.release()
 
-    focal_length = 525
     width = rgb_arrays[0].shape[1]
     height = rgb_arrays[0].shape[0]
 
     record3d_calibration = rgbd.UndistortedCameraCalibration(
-        width, height, width, height, focal_length / width, focal_length / height, 0.5, 0.5
+        width, height, width, height, record3d_fx / width, record3d_fy / height, record3d_cx / width, record3d_cy / height
     )
     record_builder = rgbd.RecordBuilder()
     record_builder.set_calibration(record3d_calibration)
