@@ -15,7 +15,7 @@ void run()
         throw std::runtime_error("No video_file_path...");
 
     rgbd::RecordParser parser{video_file_path->generic_string()};
-    auto file{parser.parse(true, true)};
+    auto file{parser.parse(true)};
 
     size_t color_size{0};
     size_t depth_size{0};

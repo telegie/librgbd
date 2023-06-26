@@ -23,7 +23,7 @@ def main():
 
     # Parse the video file (record).
     record_parser = rgbd.RecordParser(args.input)
-    record = record_parser.parse(True, True)
+    record = record_parser.parse(True)
 
     # Print basic codec info.
     record_tracks = record.get_tracks()

@@ -396,8 +396,7 @@ PYBIND11_MODULE(pyrgbd, m)
         .def("get_audio_frames", &Record::audio_frames, py::return_value_policy::copy)
         .def("get_imu_frames", &Record::imu_frames, py::return_value_policy::copy)
         .def("get_pose_frames", &Record::pose_frames, py::return_value_policy::copy)
-        .def("get_calibration_frames", &Record::calibration_frames, py::return_value_policy::copy)
-        .def("get_direction_table", &Record::direction_table, py::return_value_policy::copy);
+        .def("get_calibration_frames", &Record::calibration_frames, py::return_value_policy::copy);
     // END record.hpp
 
     // BEGIN record_builder.hpp
