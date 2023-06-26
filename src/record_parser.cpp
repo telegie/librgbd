@@ -682,7 +682,7 @@ void RecordParser::parseAllClusters(vector<RecordVideoFrame>& video_frames,
     }
 }
 
-unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
+unique_ptr<Record> RecordParser::parse(bool with_frames)
 {
     vector<RecordVideoFrame> video_frames;
     vector<RecordAudioFrame> audio_frames;
@@ -692,10 +692,6 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
     if (with_frames)
         parseAllClusters(video_frames, audio_frames, imu_frames, pose_frames, calibration_frames);
 
-    optional<DirectionTable> direction_table;
-    if (with_directions)
-        direction_table = DirectionTable{*file_attachments_->camera_calibration};
-
     return std::make_unique<Record>(*file_offsets_,
                                   *file_info_,
                                   *file_tracks_,
@@ -704,7 +700,6 @@ unique_ptr<Record> RecordParser::parse(bool with_frames, bool with_directions)
                                   std::move(audio_frames),
                                   std::move(imu_frames),
                                   std::move(pose_frames),
-                                  std::move(calibration_frames),
-                                  std::move(direction_table));
+                                  std::move(calibration_frames));
 }
 } // namespace rgbd

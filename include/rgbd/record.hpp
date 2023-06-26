@@ -293,8 +293,7 @@ public:
          vector<RecordAudioFrame>&& audio_frames,
          vector<RecordIMUFrame>&& imu_frames,
          vector<RecordPoseFrame>&& pose_frames,
-         vector<RecordCalibrationFrame>&& calibration_frames,
-         optional<DirectionTable>&& direction_table)
+         vector<RecordCalibrationFrame>&& calibration_frames)
         : offsets_{offsets}
         , info_{info}
         , tracks_{tracks}
@@ -304,7 +303,6 @@ public:
         , imu_frames_{std::move(imu_frames)}
         , pose_frames_{std::move(pose_frames)}
         , calibration_frames_{std::move(calibration_frames)}
-        , direction_table_{std::move(direction_table)}
     {
     }
     RecordOffsets& offsets() noexcept
@@ -343,10 +341,6 @@ public:
     {
         return calibration_frames_;
     }
-    optional<DirectionTable>& direction_table() noexcept
-    {
-        return direction_table_;
-    }
 
 private:
     RecordOffsets offsets_;
@@ -358,6 +352,5 @@ private:
     vector<RecordIMUFrame> imu_frames_;
     vector<RecordPoseFrame> pose_frames_;
     vector<RecordCalibrationFrame> calibration_frames_;
-    optional<DirectionTable> direction_table_;
 };
 } // namespace rgbd

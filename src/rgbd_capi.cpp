@@ -830,16 +830,6 @@ void* rgbd_record_get_calibration_frame(void* ptr, size_t index)
     auto& calibration_frame{record->calibration_frames()[index]};
     return &calibration_frame;
 }
-
-bool rgbd_record_has_direction_table(void* ptr)
-{
-    return static_cast<Record*>(ptr)->direction_table().has_value();
-}
-
-void* rgbd_record_get_direction_table(void* ptr)
-{
-    return &(static_cast<Record*>(ptr)->direction_table().value());
-}
 //////// END RECORD ////////
 
 //////// START RECORD ATTACHMENTS ////////
@@ -1248,10 +1238,10 @@ void rgbd_record_parser_dtor(void* ptr)
     delete static_cast<RecordParser*>(ptr);
 }
 
-void* rgbd_record_parser_parse(void* ptr, bool with_frames, bool with_directions)
+void* rgbd_record_parser_parse(void* ptr, bool with_frames)
 {
     auto file_parser{static_cast<RecordParser*>(ptr)};
-    return file_parser->parse(with_frames, with_directions).release();
+    return file_parser->parse(with_frames).release();
 }
 //////// END RECORD PARSER ////////
 

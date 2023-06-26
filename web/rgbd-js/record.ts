@@ -354,7 +354,6 @@ export class Record {
   imuFrames: RecordIMUFrame[];
   poseFrames: RecordPoseFrame[];
   calibrationFrames: RecordCalibrationFrame[];
-  directionTable: DirectionTable | null;
 
   constructor(info: RecordInfo,
               tracks: RecordTracks,
@@ -363,8 +362,7 @@ export class Record {
               audioFrames: RecordAudioFrame[],
               imuFrames: RecordIMUFrame[],
               poseFrames: RecordPoseFrame[],
-              calibrationFrames: RecordCalibrationFrame[],
-              directionTable: DirectionTable | null) {
+              calibrationFrames: RecordCalibrationFrame[]) {
     this.info = info;
     this.tracks = tracks;
     this.attachments = attachments;
@@ -373,7 +371,6 @@ export class Record {
     this.imuFrames = imuFrames;
     this.poseFrames = poseFrames;
     this.calibrationFrames = calibrationFrames;
-    this.directionTable = directionTable;
   }
 
   static fromNative(nativeRecord: NativeRecord) {
@@ -428,21 +425,15 @@ export class Record {
       calibrationFrames.push(RecordCalibrationFrame.fromNative(nativeCalibrationFrame));
       nativeCalibrationFrame.close();
     }
-
-    let directionTable: DirectionTable | null = null;
-    if (nativeRecord.hasDirectionTable()) {
-      const nativeDirectionTable = nativeRecord.getDirectionTable();
-      directionTable = DirectionTable.fromNative(nativeDirectionTable);
-    }
     
     return new Record(info, tracks, attachments,
-      videoFrames, audioFrames, imuFrames, poseFrames, calibrationFrames, directionTable);
+      videoFrames, audioFrames, imuFrames, poseFrames, calibrationFrames);
   }
 
   // This function does a shallow copy.
   clone(): Record {
     return new Record(this.info, this.tracks, this.attachments,
-      this.videoFrames, this.audioFrames, this.imuFrames, this.poseFrames, this.calibrationFrames, this.directionTable);
+      this.videoFrames, this.audioFrames, this.imuFrames, this.poseFrames, this.calibrationFrames);
   }
 }
 
@@ -803,14 +794,5 @@ export class NativeRecord extends NativeObject {
   getCalibrationFrame(index: number): NativeRecordCalibrationFrame {
     const calibrationFramePtr = this.getModule().ccall('rgbd_record_get_calibration_frame', 'number', ['number', 'number'], [this.getPtr(), index]);
     return new NativeRecordCalibrationFrame(this.getModule(), calibrationFramePtr, false);
-  }
-
-  hasDirectionTable(): boolean {
-    return this.getModule().ccall('rgbd_record_has_direction_table', 'boolean', ['number'], [this.getPtr()]);
-  }
-
-  getDirectionTable(): NativeDirectionTable {
-    const directionTablePtr = this.getModule().ccall('rgbd_record_get_direction_table', 'number', ['number'], [this.getPtr()]);
-    return new NativeDirectionTable(this.getModule(), directionTablePtr, false);
   }
 }

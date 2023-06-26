@@ -28,7 +28,7 @@ private:
                           vector<RecordCalibrationFrame>& calibration_frames);
 
 public:
-    unique_ptr<Record> parse(bool with_frames, bool with_directions);
+    unique_ptr<Record> parse(bool with_frames);
 
 private:
     unique_ptr<libebml::IOCallback> input_;

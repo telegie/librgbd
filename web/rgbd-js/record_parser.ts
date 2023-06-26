@@ -30,11 +30,11 @@ export class NativeRecordParser extends NativeObject {
     this.getModule()._free(this.dataPtr);
   }
 
-  parse(withFrames: boolean, withDirections: boolean): NativeRecord {
+  parse(withFrames: boolean): NativeRecord {
     const filePtr = this.getModule().ccall('rgbd_record_parser_parse',
                                       'number',
-                                      ['number', 'boolean', 'boolean'],
-                                      [this.getPtr(), withFrames, withDirections]);
+                                      ['number', 'boolean'],
+                                      [this.getPtr(), withFrames]);
     return new NativeRecord(this.getModule(), filePtr);
   }
 }

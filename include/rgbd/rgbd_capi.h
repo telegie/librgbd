@@ -195,8 +195,6 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_record_get_pose_frame(void* ptr, size_t index);
     RGBD_INTERFACE_EXPORT size_t rgbd_record_get_calibration_frame_count(void* ptr);
     RGBD_INTERFACE_EXPORT void* rgbd_record_get_calibration_frame(void* ptr, size_t index);
-    RGBD_INTERFACE_EXPORT bool rgbd_record_has_direction_table(void* ptr);
-    RGBD_INTERFACE_EXPORT void* rgbd_record_get_direction_table(void* ptr);
     //////// END RECORD ////////
 
     //////// START RECORD ATTACHMENTS ////////
@@ -435,7 +433,7 @@ extern "C"
     RGBD_INTERFACE_EXPORT void* rgbd_record_parser_ctor_from_path(const char* file_path);
     RGBD_INTERFACE_EXPORT void rgbd_record_parser_dtor(void* ptr);
     RGBD_INTERFACE_EXPORT void*
-    rgbd_record_parser_parse(void* ptr, bool with_frames, bool with_directions);
+    rgbd_record_parser_parse(void* ptr, bool with_frames);
     //////// END RECORD PARSER ////////
 
     //////// START RECORD POSE FRAME ////////
