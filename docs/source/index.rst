@@ -16,3 +16,4 @@ This documentation will concentrate on pyrgbd as we expect pyrgbd to have a much
    getting_started
    tutorial
    file_format
+   python_api

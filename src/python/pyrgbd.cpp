@@ -42,7 +42,50 @@ py::object create_py_vec3(py::module_ glm, const glm::vec3& vec3)
 
 PYBIND11_MODULE(pyrgbd, m)
 {
-    m.doc() = "Library for reading and writing RGBD videos.";
+    m.doc() = R"pbdoc(
+        .. currentmodule:: pyrgbd
+
+        .. autosummary::
+           :toctree: _generate
+
+           AudioDecoder
+           AudioEncoderFrame
+           AudioEncoder
+           AudioFrame
+           CameraCalibration
+           ColorDecoder
+           ColorEncoder
+           CameraCalibrationType
+           ColorCodecType
+           DepthCodecType
+           DepthDecoder
+           DepthEncoder
+           DirectionTable
+           FrameMapper
+           Int32Frame
+           IosCameraCalibration
+           MathUtils
+           RecordOffsets
+           RecordInfo
+           RecordVideoTrack
+           RecordColorVideoTrack
+           RecordDepthVideoTrack
+           RecordAudioTrack
+           RecordTracks
+           RecordAttachments
+           RecordFrameType
+           RecordFrame
+           RecordVideoFrame
+           RecordAudioFrame
+           RecordIMUFrame
+           RecordPoseFrame
+           RecordCalibrationFrame
+           Record
+           RecordBuilder
+           RecordParser
+           UndistortedCameraCalibration
+           YuvFrame
+    )pbdoc";
 
     // BEGIN audio_decoder.hpp
     py::class_<AudioDecoder>(m, "AudioDecoder")
